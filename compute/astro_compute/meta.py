@@ -81,6 +81,18 @@ DIGNITIES = {
     "great_friend": "Great friend", "friend": "Friend", "neutral": "Neutral",
     "enemy": "Enemy", "great_enemy": "Great enemy", "debilitated": "Debilitated",
 }  # fmt: skip
+# PD 6.5: "There are some who declare that there is no Kemadruma where ..."
+# PD 26.22-23 (1937, pp. 293-294), quoted as printed; no predictions of our own.
+SADE_SATI_PHASES = {
+    "rising": (12, "When Saturn is in the 12th house, the native will be wearied by being engaged in a worthless and fruitless business. He will be robbed of his moneys by his enemies. His wife and sons will suffer from sickness.", "26.23"),
+    "peak": (1, "During Saturn's transit through the Janmarasi, the native will suffer from disease; he will perform funeral rites;", "26.22"),
+    "setting": (2, "in the 2nd house he will suffer trouble to wealth and children", "26.22"),
+}  # fmt: skip
+YOGA_CHECKS = {
+    "moon_in_kendra": "The Moon is in a kendra from the lagna",
+    "planet_with_moon": "A graha is with the Moon",
+    "planet_in_kendra_from_moon": "A graha is in a kendra from the Moon",
+}
 DIGNITY_NOTES = {
     "node_debilitation_our_reading": "Debilitated as the 7th sign from its exaltation (our reading; BPHS names no sign)",
     "node_own_sign_by_some": "Own sign according to some (BPHS Dasa-phala v.36); the main view is Aquarius for Rahu, Scorpio for Ketu",
@@ -94,9 +106,6 @@ YOGA_CATEGORIES = {
 }  # fmt: skip
 YOGA_NOTES = {
     "strength_our_reading_of_bphs": "Strong read as shadbala at or above BPHS's required rupas (our reading)",
-    "some_cancel_kemadruma_moon_in_kendra": "Some hold there is no Kemadruma: the Moon is in a kendra (Phaladipika 6.5)",
-    "some_cancel_kemadruma_planet_with_moon": "Some hold there is no Kemadruma: a graha is with the Moon (Phaladipika 6.5)",
-    "some_cancel_kemadruma_planet_in_kendra_from_moon": "Some hold there is no Kemadruma: a graha is in a kendra from the Moon (Phaladipika 6.5)",
     "bphs_42_our_reading": "Our reading of BPHS 42: every named graha in the 11th, or in or aspecting the lagna",
 }  # fmt: skip
 SPECIAL_YOGAS = {
@@ -345,6 +354,25 @@ def _english() -> dict:
         "yogaCategories": {k: {"name": v} for k, v in YOGA_CATEGORIES.items()},
         "yogas": {k: {"name": n, "category": c} for k, (n, c) in YOGAS.items()},
         "yogaNotes": {k: {"name": v} for k, v in YOGA_NOTES.items()},
+        "sadeSatiPhases": {
+            k: {
+                "saturnHouse": house,
+                "quote": quote,
+                "source": {
+                    "text": "Phaladipika",
+                    "verse": verse,
+                    "edition": "Mantresvara, tr. V. Subrahmanya Sastri, 1937",
+                    "page": "293",
+                },
+            }
+            for k, (house, quote, verse) in SADE_SATI_PHASES.items()
+        },
+        "yogaChecks": {
+            "kemadruma": {
+                "name": "Some hold there is no Kemadruma when (Phaladipika 6.5, not applied):",
+                "checks": {k: {"name": v} for k, v in YOGA_CHECKS.items()},
+            }
+        },
         "vargas": {
             f"D{d}": {"name": VARGA_NAMES[d], "signifies": VARGA_SIGNIFIES[d]} for d in VARGA_NAMES
         },

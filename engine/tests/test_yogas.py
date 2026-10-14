@@ -41,10 +41,17 @@ def test_sunapha_anapha_durudhara_leave_out_the_sun():
     ys = Y.lunar_yogas(c)
     assert "Sunapha Yoga" not in names(ys) and "Kemadruma Yoga" in names(ys)
     kema = next(y for y in ys if y.name == "Kemadruma Yoga")
-    # The Moon in the 1st (a kendra) and grahas in the 7th from it: some cancel it.
-    assert kema.notes == (
-        "some_cancel_kemadruma_moon_in_kendra",
-        "some_cancel_kemadruma_planet_in_kendra_from_moon",
+    # PD 6.5's minority cancellations, each reported as holding or not.
+    assert kema.checks == (
+        ("moon_in_kendra", True),
+        ("planet_with_moon", False),
+        ("planet_in_kendra_from_moon", True),
+    )
+    assert next(
+        y for y in Y.lunar_yogas(c, lagna_known=False) if y.name == "Kemadruma Yoga"
+    ).checks[0] == (
+        "moon_in_kendra",
+        None,
     )
     assert kema.source == "chandra" and not kema.reads_lagna
     c = make(0, Moon=0, Sun=1, Mars=1)

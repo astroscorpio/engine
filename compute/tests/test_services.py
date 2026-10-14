@@ -24,6 +24,12 @@ def test_personal_transits():
     times = [dt.datetime.fromisoformat(e["at"]) for e in out["upcoming"]]
     assert times == sorted(times)
     assert out["sadeSati"]["active"] is False and out["sadeSati"]["next"]["start"] > AT[:10]
+    assert (
+        out["sadeSati"]["saturnHouse"] is None and out["sadeSati"]["source"]["verse"] == "26.22-23"
+    )
+    assert (
+        "Khankhoje 1943" in out["sadeSati"]["nameNote"] and "our" in out["sadeSati"]["convention"]
+    )
 
 
 def test_general_transits_have_no_personal_fields():
@@ -133,3 +139,19 @@ def test_motion_runs_from_station_to_station():
 def test_swiss_ephemeris_files_are_in_use():
     status, out = call("GET", "/v1/health")
     assert status == 200 and out["engine"]["ephemeris"] == "swiss"
+
+
+def test_sade_sati_runs_by_sign_from_the_natal_moon():
+    from jyotisha.ephemeris import positions
+
+    from astro_compute import transit_service as T
+    from astro_compute.timeutil import parse_instant
+
+    when = parse_instant(AT, "UTC")
+    saturn = positions(when, "lahiri")["Saturn"].sign
+    for moon, phase, house in ((saturn, "peak", 1), ((saturn + 1) % 12, "rising", 12)):
+        out = T._sade_sati(moon, when, "lahiri", "UTC")
+        assert out["active"] and out["phase"] == phase and out["saturnHouse"] == house, out
+        assert out["end"] > AT[:10] and (out["start"] is None or out["start"] < AT)
+    out = T._sade_sati((saturn + 4) % 12, when, "lahiri", "UTC")
+    assert not out["active"] and out["phase"] is None and out["next"]["start"] > AT[:10]

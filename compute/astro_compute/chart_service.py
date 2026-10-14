@@ -162,6 +162,7 @@ def yogas_payload(chart: Chart, house_of, moon_chart: bool) -> list[dict]:
             "strength": y.strength,
             "source": Y.SOURCES[y.source] if y.source else None,
             "notes": list(y.notes),
+            "checks": [{"id": k, "holds": v} for k, v in y.checks],
             "bphs": {"met": y.variants["bphs"]} if "bphs" in y.variants else None,
             "phaladipika": (
                 {"met": y.variants["phaladipika"]} if "phaladipika" in y.variants else None
@@ -182,6 +183,7 @@ def yogas_payload(chart: Chart, house_of, moon_chart: bool) -> list[dict]:
                 "strength": 1.0,
                 "source": KUJA_SOURCE,
                 "notes": [],
+                "checks": [],
                 "bphs": None,
                 "phaladipika": None,
             }

@@ -76,6 +76,8 @@ class Yoga:
     notes: tuple[str, ...] = ()
     # Another text's version of the same yoga and whether it also holds: {"bphs": True}.
     variants: dict[str, bool] = field(default_factory=dict)
+    # Conditions a text mentions without applying, and whether each holds (None: unknown).
+    checks: tuple[tuple[str, bool | None], ...] = ()
     reads_lagna: bool = True  # False: holds on sign positions alone, without the birth time
 
     def __str__(self) -> str:
@@ -405,20 +407,22 @@ def lunar_yogas(chart: Chart, lagna_known: bool = True) -> list[Yoga]:
     else:
         # PD 6.5: "There are some who declare that there is no Kemadruma where [the
         # Moon is in] a Kendra or the Moon is associated with a planet, or where
-        # planets occupy a Kendra house reckoned from the Moon." Reported, not applied.
+        # planets occupy a Kendra house reckoned from the Moon." Each is reported
+        # as holding or not (None: needs the birth time), never applied.
         others = [g for g in SEVEN if g != "Moon"]
-        notes = []
-        if lagna_known and chart.house("Moon") in KENDRA:
-            notes.append("some_cancel_kemadruma_moon_in_kendra")
-        if any(chart.grahas[g].sign == moon for g in others):
-            notes.append("some_cancel_kemadruma_planet_with_moon")
-        if any(_from(chart, g, moon) in (4, 7, 10) for g in others):
-            notes.append("some_cancel_kemadruma_planet_in_kendra_from_moon")
+        checks = (
+            ("moon_in_kendra", chart.house("Moon") in KENDRA if lagna_known else None),
+            ("planet_with_moon", any(chart.grahas[g].sign == moon for g in others)),
+            (
+                "planet_in_kendra_from_moon",
+                any(_from(chart, g, moon) in (4, 7, 10) for g in others),
+            ),
+        )
         out.append(
             Yoga(
                 "Kemadruma Yoga", "lunar",
                 "no graha but the Sun in the 2nd or 12th from the Moon",
-                grahas=("Moon",), notes=tuple(notes), **chandra,
+                grahas=("Moon",), checks=checks, **chandra,
             )
         )  # fmt: skip
 

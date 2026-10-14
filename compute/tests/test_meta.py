@@ -13,6 +13,8 @@ def test_every_emitted_id_has_a_meta_entry(chart, panchang, meta):
         assert y["id"] in meta["yogas"], y["id"]
         assert meta["yogas"][y["id"]]["category"] == y["category"]
         assert all(n in meta["yogaNotes"] for n in y["notes"]), y["notes"]
+        if y["checks"]:
+            assert all(c["id"] in meta["yogaChecks"][y["id"]]["checks"] for c in y["checks"])
     for code, v in chart["vargas"].items():
         assert code in meta["vargas"]
         for gid, row in v["grahas"].items():

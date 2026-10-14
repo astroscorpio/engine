@@ -53,6 +53,24 @@ MAX_EVENT_DAYS = 1100
 MAX_MOON_DAYS = 63
 YEAR = 365.25
 SADE_SATI_MERGE = 3 * YEAR  # a retrograde dip out of the band does not end it
+# docs/sources/sade-sati.md. PD 26.22-23 give Saturn's results in the 12th, 1st
+# and 2nd from the natal Moon sign one sign at a time; the period and its name
+# come later (Khankhoje 1943, p. 142).
+SADE_SATI_SOURCE = {
+    "text": "Phaladipika",
+    "verse": "26.22-23",
+    "edition": "Mantresvara, tr. V. Subrahmanya Sastri, 1937",
+    "page": "293-294",
+}
+SADE_SATI_NAME_NOTE = (
+    'The name sāḍhe-sātī ("seven and a half" years) is a later Hindi and Marathi one, in print '
+    "from Khankhoje 1943, p. 142; the classical texts treat each sign separately."
+)
+SADE_SATI_CONVENTION = (
+    "From Saturn's first entry into the 12th sign from the natal Moon to its last exit from the "
+    "2nd, so retrograde re-entries stay inside one period. No text covers them; this is our "
+    "convention."
+)
 
 
 def _gochara(natal: Chart, moving: dict) -> dict[str, tuple[str, str | None]]:
@@ -119,10 +137,16 @@ def _sade_sati(moon_sign: int, when: float, ay: str, zone: str) -> dict:
     return {
         "active": current is not None,
         "phase": phase if current else None,
+        "saturnHouse": offset + 1
+        if current
+        else None,  # from the natal Moon sign; 11 or 3 in a retrograde dip
         # a span that began before the search window has no known start
         "start": stamp(current[0]) if current and current[0] > start else None,
         "end": stamp(current[1]) if current else None,
         "next": {"start": stamp(upcoming[0]), "end": stamp(upcoming[1])} if upcoming else None,
+        "source": SADE_SATI_SOURCE,
+        "nameNote": SADE_SATI_NAME_NOTE,
+        "convention": SADE_SATI_CONVENTION,
     }
 
 
