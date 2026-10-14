@@ -81,8 +81,39 @@ DIGNITIES = {
     "great_friend": "Great friend", "friend": "Friend", "neutral": "Neutral",
     "enemy": "Enemy", "great_enemy": "Great enemy", "debilitated": "Debilitated",
 }  # fmt: skip
-ASPECT_NOTES = {
-    "node_aspect_source_pending": "Rahu and Ketu's 5th and 9th aspects: common practice, source pending",
+# Nirnaya-sindhu, 1898 printing (docs/sources/observances.md); observances.py.
+EKADASHI_TRADITIONS = {"smarta": "Smārta", "vaishnava": "Vaiṣṇava (Nirṇaya-sindhu)"}
+EKADASHI_RULES = {
+    "smarta": {
+        "sunrise": ("Ekādaśī at sunrise: that day", "Nirnaya-sindhu p. 58"),
+        "ekadashi_increases": ("Ekādaśī at two sunrises: householders keep the first day, ascetics the second (Skanda)", "Nirnaya-sindhu p. 59"),
+        "dvadashi_increases": ("Dvādaśī at two sunrises, Ekādaśī not pierced: the first day (Mādhava)", "Nirnaya-sindhu p. 60"),
+        "both_increase": ("Ekādaśī and Dvādaśī both at two sunrises: everyone keeps the second day (Nārada, Mādhava)", "Nirnaya-sindhu pp. 59-60"),
+        "pierced_next_day": ("Daśamī at sunrise on the Ekādaśī day: the next day (Mādhava)", "Nirnaya-sindhu p. 59"),
+        "no_dvadashi_next_day": ("No Dvādaśī on the next day: the Ekādaśī day, though pierced (Skanda, Ṛṣyaśṛṅga)", "Nirnaya-sindhu pp. 60, 62"),
+    },
+    "vaishnava": {
+        "pure": ("No Daśamī in the 96 minutes before sunrise: that day", "Nirnaya-sindhu p. 53"),
+        "arunodaya_pierced": ("Daśamī within the 96 minutes before sunrise (aruṇodaya): the next day (Garuḍa)", "Nirnaya-sindhu p. 53"),
+        "increase": ("Ekādaśī or Dvādaśī at two sunrises: the later day (Mādhava)", "Nirnaya-sindhu p. 59"),
+        "pierced_next_day": ("Ekādaśī at no sunrise: the next day", "Nirnaya-sindhu pp. 53, 59"),
+    },
+}  # fmt: skip
+EKADASHI_NOTE = (
+    "A tithi increases when it is current at two consecutive sunrises at the place (our reading)."
+)
+ASPECTS = {
+    "source": {
+        "text": "Brihat Parasara Hora Sastra",
+        "verse": "27.2-3",
+        "edition": "with Devachandra Jha's Vimarsa-sudha, 1939",
+        "page": "151",
+    },
+    "scope": (
+        "Full aspects only. BPHS 27.2 also gives partial aspects (a quarter on the 3rd and "
+        "10th, a half on the 5th and 9th, three quarters on the 4th and 8th), not shown here. "
+        "BPHS 27, Brihat Jataka 2.13 and Jataka Parijata 2.30-31 give Rahu and Ketu no aspect."
+    ),
 }
 # PD 6.5: "There are some who declare that there is no Kemadruma where ..."
 # PD 26.22-23 (1937, pp. 293-294), quoted as printed; no predictions of our own.
@@ -354,7 +385,13 @@ def _english() -> dict:
         "specialYogas": {k: {"name": v} for k, v in SPECIAL_YOGAS.items()},
         "dignities": {k: {"name": v} for k, v in DIGNITIES.items()},
         "dignityNotes": {k: {"name": v} for k, v in DIGNITY_NOTES.items()},
-        "aspectNotes": {k: {"name": v} for k, v in ASPECT_NOTES.items()},
+        "aspects": ASPECTS,
+        "ekadashiTraditions": {k: {"name": v} for k, v in EKADASHI_TRADITIONS.items()},
+        "ekadashiRules": {
+            t: {k: {"name": n, "source": src} for k, (n, src) in rules.items()}
+            for t, rules in EKADASHI_RULES.items()
+        },
+        "ekadashiNote": EKADASHI_NOTE,
         "yogaCategories": {k: {"name": v} for k, v in YOGA_CATEGORIES.items()},
         "yogas": {k: {"name": n, "category": c} for k, (n, c) in YOGAS.items()},
         "yogaNotes": {k: {"name": v} for k, v in YOGA_NOTES.items()},

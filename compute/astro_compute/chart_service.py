@@ -88,22 +88,18 @@ def moon_uncertainty(inp: ChartIn, birth: Birth) -> tuple[bool, bool]:
 
 
 def graha_aspects(chart: Chart, g: str, house_of) -> list[dict]:
-    """Graha drishti: every graha the 7th; Mars also the 4th and 8th, Jupiter the
-    5th and 9th, Saturn the 3rd and 10th. The engine also gives Rahu and Ketu the
-    5th and 9th, which has no source yet, so those carry a note."""
+    """Graha drishti, BPHS 27.2-3: every graha fully aspects the 7th; Mars also
+    the 4th and 8th, Jupiter the 5th and 9th, Saturn the 3rd and 10th. Rahu and
+    Ketu have none. Only full aspects are listed."""
     sign = chart.grahas[g].sign
-    out = []
-    for nth in chart.aspects_from(g):
-        node_extra = g in ("Rahu", "Ketu") and nth != 7
-        out.append(
-            {
-                "house": house_of((sign + nth - 1) % 12),
-                "nth": nth,
-                "kind": "full_7th" if nth == 7 else "special",
-                "note": "node_aspect_source_pending" if node_extra else None,
-            }
-        )
-    return out
+    return [
+        {
+            "house": house_of((sign + nth - 1) % 12),
+            "nth": nth,
+            "kind": "full_7th" if nth == 7 else "special",
+        }
+        for nth in chart.aspects_from(g)
+    ]
 
 
 def dignity_note(chart: Chart, g: str) -> str | None:

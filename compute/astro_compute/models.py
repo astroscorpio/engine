@@ -185,6 +185,19 @@ class MonthQuery(Model):
         return check_zone(value)
 
 
+class EkadashiQuery(Model):
+    year: int = Field(ge=1800, le=2200)
+    lat: float = Field(ge=-90, le=90)
+    lon: float = Field(ge=-180, le=180)
+    tz: str
+    ayanamsa: Ayanamsa = "lahiri"
+
+    @field_validator("tz")
+    @classmethod
+    def _zone(cls, value: str) -> str:
+        return check_zone(value)
+
+
 Act = Literal["general", "education", "travel", "home"]
 Compass = Literal["N", "NE", "E", "SE", "S", "SW", "W", "NW"]
 

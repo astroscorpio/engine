@@ -22,6 +22,7 @@ from . import (
     matching,
     meta,
     muhurta_service,
+    observances,
     panchang_service,
     transit_service,
 )
@@ -29,6 +30,7 @@ from .errors import ApiError
 from .models import (
     ChartRequest,
     DashaRequest,
+    EkadashiQuery,
     EventsQuery,
     MatchingRequest,
     MonthQuery,
@@ -79,6 +81,9 @@ ROUTES: dict[tuple[str, str], Callable[[dict, bytes | str | None], dict]] = {
     ("POST", "/v1/dasha"): lambda q, b: dasha_service.build(_parse(DashaRequest, _json_body(b))),
     ("GET", "/v1/panchang"): lambda q, b: panchang_service.build(_parse(PanchangQuery, q)),
     ("GET", "/v1/panchang/month"): lambda q, b: panchang_service.month(_parse(MonthQuery, q)),
+    ("GET", "/v1/observances/ekadashi"): lambda q, b: observances.ekadashi(
+        _parse(EkadashiQuery, q)
+    ),
     ("GET", "/v1/transits"): lambda q, b: transit_service.build(_parse(TransitRequest, q)),
     ("GET", "/v1/transits/events"): lambda q, b: transit_service.events(_parse(EventsQuery, q)),
     ("POST", "/v1/transits"): lambda q, b: transit_service.build(

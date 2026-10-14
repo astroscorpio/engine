@@ -92,13 +92,15 @@ BENEFICS = {"Jupiter", "Venus"}  # Mercury and Moon are conditional
 MALEFICS = {"Sun", "Mars", "Saturn", "Rahu", "Ketu"}
 
 # Special graha drishti beyond the universal 7th.
+# BPHS 27.2-3 (1939 ed., p. 151): every graha aspects the 7th; Saturn also the
+# 3rd and 10th, Jupiter the 5th and 9th, Mars the 4th and 8th, all fully. BPHS 27,
+# BJ 2.13 and JP 2.30-31 give Rahu and Ketu no aspect, so they have none here.
 SPECIAL_ASPECTS = {
     "Mars": [4, 8],
     "Jupiter": [5, 9],
     "Saturn": [3, 10],
-    "Rahu": [5, 9],
-    "Ketu": [5, 9],
 }
+NO_ASPECTS = {"Rahu", "Ketu"}
 
 COMBUSTION_ORB = {"Moon": 12, "Mars": 17, "Mercury": 14, "Jupiter": 11, "Venus": 10, "Saturn": 15}
 COMBUSTION_ORB_RETRO = {"Mercury": 12, "Venus": 8}
@@ -204,6 +206,8 @@ class Chart:
 
     def aspects_from(self, name: str) -> list[int]:
         """Houses (1-12 from the aspecting graha's own sign) it looks at."""
+        if name in NO_ASPECTS:
+            return []
         return sorted({7, *SPECIAL_ASPECTS.get(name, [])})
 
     def aspects_sign(self, name: str, sign: int) -> bool:
