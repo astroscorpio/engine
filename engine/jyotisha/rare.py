@@ -457,6 +457,8 @@ def daily_kalas(
 
 # Weekday index 0 = Sunday.  These pairings are the muhurta tradition's
 # strongest single-day verdicts, good and bad.
+# Siddhi (amrta) pairs: Narada, quoted in Muhurta Chintamani 1.21's commentary
+# (1945 printing, p. 20).
 AMRITA_SIDDHI = {
     0: "Hasta",
     1: "Mrigashira",
@@ -466,6 +468,11 @@ AMRITA_SIDDHI = {
     5: "Revati",
     6: "Rohini",
 }
+# MC 1.20-21 (pp. 19-20): each pair turns to visha on one tithi of either paksha.
+AMRITA_VISHA_TITHI = {0: 5, 1: 6, 2: 7, 3: 8, 4: 9, 5: 10, 6: 11}
+# MC 1.22 (p. 20): the pair to avoid for entering a house, a journey, a marriage.
+AMRITA_ACT_BANS = {"home": 2, "travel": 6, "marriage": 4}
+# The Mrtyu column of MC 1.30 (p. 23).
 MARANA = {
     0: "Anuradha",
     1: "U.Ashadha",
@@ -475,6 +482,7 @@ MARANA = {
     5: "Ashlesha",
     6: "Hasta",
 }
+# Narada in MC 1.5's commentary (p. 13).
 DAGDHA = {
     0: "Bharani",
     1: "Chitra",
@@ -484,15 +492,19 @@ DAGDHA = {
     5: "Jyeshtha",
     6: "Revati",
 }
+# MC 1.28-29 (p. 22), the main reading. The commentary (p. 23) notes that the two
+# verses have no sage-text basis and that later digests list more or fewer.
 SARVARTHA_SIDDHI = {
     0: {"Hasta", "Mula", "U.Ashadha", "U.Phalguni", "U.Bhadrapada", "Pushya", "Ashwini"},
     1: {"Rohini", "Mrigashira", "Pushya", "Anuradha", "Shravana"},
-    2: {"Ashwini", "Krittika", "Ashlesha", "Mula", "P.Bhadrapada"},
+    2: {"Ashwini", "U.Bhadrapada", "Krittika", "Ashlesha"},
     3: {"Rohini", "Mrigashira", "Krittika", "Anuradha", "Hasta"},
     4: {"Ashwini", "Punarvasu", "Pushya", "Anuradha", "Revati"},
-    5: {"Ashwini", "Punarvasu", "Anuradha", "Shravana", "Revati"},
+    5: {"Ashwini", "Punarvasu", "P.Phalguni", "Shravana", "Revati"},
     6: {"Rohini", "Swati", "Shravana"},
 }
+# MC's footnoted variant reads Anuradha for P.Phalguni on Friday.
+SARVARTHA_SIDDHI_VARIANT = {5: {"Anuradha"}}
 _WEEKDAY = {"Sun": 0, "Moon": 1, "Mars": 2, "Mercury": 3, "Jupiter": 4, "Venus": 5, "Saturn": 6}
 
 

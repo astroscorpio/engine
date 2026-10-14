@@ -93,12 +93,13 @@ def test_lunar_month_follows_the_ingress_and_finds_adhika() -> None:
     assert M.lunar_month(jd(2026, 10, 15, 12.0, 2.0)).label == "Ashwin"
 
 
-def test_bhadra_in_patala_is_a_defect_but_gulika_still_vetoes() -> None:
-    # Vishti ran all morning with the Moon in Capricorn, and the Amrit
-    # choghadiya coincides with Gulika, as it does every Tuesday.
+def test_bhadra_in_patala_costs_nothing_but_gulika_still_vetoes() -> None:
+    # Vishti ran all morning with the Moon in Capricorn: Bhadra was below, and
+    # "its effect falls there" (MC 1.45), so no penalty. The Amrit choghadiya
+    # coincides with Gulika, as it does every Tuesday.
     v = _check("general", 2026, 9, 22, 14.0)
     assert v.vetoes == ["Gulika"]
-    assert "Vishti (Bhadra in patala)" in _labels(v)
+    assert not any(label.startswith("Vishti") for label in _labels(v))
 
 
 def test_durmuhurta_vetoes_a_moment_the_kalams_allow() -> None:

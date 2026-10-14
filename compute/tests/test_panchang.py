@@ -86,3 +86,23 @@ def test_month_rows_agree_with_the_day_view(panchang):
     assert row["lunarMonth"] == panchang["lunarMonth"]
     # The sidereal Sun enters Libra around 17 October.
     assert [r["date"] for r in out["days"] if r["sankranti"]] == ["2026-10-17"]
+
+
+def test_siddhi_pair_turns_to_visha_on_its_tithi():
+    # 15 Apr 2027 at Delhi: Thursday, Pushya, Shukla Navami (MC 1.20-21).
+    status, out = call("GET", "/v1/panchang", {**DELHI, "date": "2027-04-15"})
+    assert status == 200, out
+    assert "visha" in [r["id"] for r in out["specialYogas"]]
+
+
+def test_bhadra_is_avoided_only_while_on_earth():
+    seen = set()
+    for day in range(1, 16):
+        status, out = call("GET", "/v1/panchang", {**DELHI, "date": f"2026-10-{day:02d}"})
+        bhadra = out["windows"]["bhadra"]
+        avoid = [w for w in out["windows"]["avoid"] if w["id"] == "vishti"]
+        seen |= {b["residence"] for b in bhadra}
+        on_earth = [(b["start"], b["end"]) for b in bhadra if b["residence"] == "earth"]
+        assert [(w["start"], w["end"]) for w in avoid] == on_earth
+        assert all(w["detail"] == "bhadra_earth" for w in avoid)
+    assert seen <= {"earth", "heaven", "patala"} and len(seen) >= 2

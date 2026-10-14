@@ -16,7 +16,7 @@ from jyotisha.ephemeris import (
     sunrise,
     sunset,
 )
-from jyotisha.rare import AMRITA_SIDDHI, DAGDHA, MARANA, SARVARTHA_SIDDHI
+from jyotisha.rare import AMRITA_SIDDHI, AMRITA_VISHA_TITHI, DAGDHA, MARANA, SARVARTHA_SIDDHI
 
 from .errors import unsupported_location
 from .fmt import provenance
@@ -151,14 +151,19 @@ def build(q: PanchangQuery) -> dict:
         else:  # "<Name> yoga (first N ghatis)" / "(whole yoga)"
             row = {"id": "bad_yoga", "detail": slug(w.label.split(" yoga")[0])}
         avoid.append((w.start, {**row, **win(w.start, w.end)}))
+    # MC 1.45: Bhadra resides by the Moon's sign and "its effect falls there", so
+    # only the stretch on earth is avoided. The Moon can change sign inside it.
+    bhadra: list[dict] = []
     for name, a, b in karanas:
-        if name != "Vishti":
+        if name != "Vishti" or not _clip(a, b, sr, nr):
             continue
-        clipped = _clip(a, b, sr, nr)
-        if clipped:
-            mid_sign = luminaries((a + b) / 2, ay)[1].sign
-            residence = Mu.bhadra_residence(mid_sign)
-            avoid.append((a, {"id": "vishti", "detail": f"bhadra_{residence}", **win(a, b)}))
+        moon_sign = lambda t: luminaries(t, ay)[1].sign  # noqa: E731
+        cuts = [a, *(t for t, _ in Mu._scan(moon_sign, a, b, 1 / 24)), b]
+        for x, y in zip(cuts, cuts[1:], strict=False):
+            residence = Mu.bhadra_residence(moon_sign((x + y) / 2))
+            bhadra.append({"residence": residence, **win(x, y)})
+            if residence == "earth":
+                avoid.append((x, {"id": "vishti", "detail": "bhadra_earth", **win(x, y)}))
     avoid.sort(key=lambda r: r[0])
 
     chog = [
@@ -178,8 +183,18 @@ def build(q: PanchangQuery) -> dict:
         if not clipped:
             continue
         name = NAKSHATRAS[n]
+        if AMRITA_SIDDHI.get(weekday) == name:
+            # MC 1.20-21: the pair turns to visha while its tithi runs.
+            for num, ta, tb in tithis:
+                part = _clip(ta, tb, *clipped)
+                if part:
+                    visha = (num - 1) % 15 + 1 == AMRITA_VISHA_TITHI[weekday]
+                    yid = "visha" if visha else "amrita_siddhi"
+                    if special and special[-1][1]["id"] == yid and special[-1][1]["end"] == at(part[0]):
+                        special[-1][1]["end"] = at(part[1])
+                    else:
+                        special.append((part[0], {"id": yid, **win(*part)}))
         for yid, hit in (
-            ("amrita_siddhi", AMRITA_SIDDHI.get(weekday) == name),
             ("sarvartha_siddhi", name in SARVARTHA_SIDDHI.get(weekday, set())),
             ("marana", MARANA.get(weekday) == name),
             ("dagdha", DAGDHA.get(weekday) == name),
@@ -230,6 +245,7 @@ def build(q: PanchangQuery) -> dict:
             },
             "pradosha": win(d.pradosha.start, d.pradosha.end),
             "avoid": [row for _, row in avoid],
+            "bhadra": bhadra,
         },
         "choghadiya": {"day": chog[:8], "night": chog[8:]},
         "hora": [

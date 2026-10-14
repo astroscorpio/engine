@@ -11,8 +11,16 @@ Smarta (Daśamī at sunrise is the test; NS pp. 58-63):
     (Skanda, p. 59); with Dvadashi also at two sunrises, everyone the second
     (Narada, Madhava, pp. 59-60);
   - only Dvadashi at two sunrises: the first day (Madhava, p. 60);
-  - Ekadashi at no sunrise (pierced by Dashami): the next day, unless the next
-    day has no Dvadashi at all, then the pierced day (Skanda, Rsyasrnga, pp. 60, 62).
+  - Ekadashi at no sunrise, pierced by Dashami at the first (Hemadri's
+    viddha-nyuna), keyed on the Dvadashi:
+      no Dvadashi at the next sunrise: everyone the pierced day (Skanda,
+        Rsyasrnga, pp. 60, 62);
+      Dvadashi over before the sunrise after that: householders the pierced day,
+        ascetics and those seeking liberation the next (Madana-ratna; Madhava
+        "grhinah purva, yater uttara", p. 62);
+      Dvadashi still current at that sunrise: everyone the next day (p. 60).
+    NS's "sama" Dvadashi (ending exactly at that sunrise) has no width in
+    continuous time and is not computed.
 Vaishnava (NS, after Madhava; not the Gaudiya Hari-bhakti-vilasa rules):
   - Dashami at any moment of the 96 minutes before sunrise pierces the day:
     the next day (Garuda; Skanda via Madhava, p. 53);
@@ -64,11 +72,13 @@ def _one(start: float, end: float, dv_end: float, q: EkadashiQuery) -> dict:
     e_inc, dv_inc = len(ek) >= 2, len(dv) >= 2
 
     ascetic = None
-    if e is None:
-        if dv:
-            smarta, s_rule = 1, "pierced_next_day"
-        else:
+    if e is None:  # over before s[1]: pierced at s[0] and short
+        if not dv:
             smarta, s_rule = 0, "no_dvadashi_next_day"
+        elif dv_end < s[2]:
+            smarta, s_rule, ascetic = 0, "viddha_nyuna_householders_first", 1
+        else:
+            smarta, s_rule = 1, "viddha_nyuna_dvadashi_long"
     elif e_inc and dv_inc:
         smarta, s_rule = e + 1, "both_increase"
     elif e_inc:

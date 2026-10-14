@@ -72,8 +72,18 @@ WINDOWS = {
     "yamaganda": ("Yamaganda", "Jupiter's eighth of the daylight; avoided for beginnings."),
     "gulika": ("Gulika Kalam", "Saturn's eighth of the daylight; avoided for beginnings."),
     "durmuhurta": ("Durmuhurta", "Daytime muhurtas marked inauspicious for the weekday."),
-    "bad_yoga": ("Inauspicious yoga", "The opening ghatis (or all) of Vishkambha, Atiganda, Shula, Ganda, Vyaghata, Vajra, Parigha, Vyatipata and Vaidhriti."),
-    "vishti": ("Bhadra (Vishti karana)", "Vishti karana; harmful while Bhadra resides on earth (Moon in Cancer, Leo, Aquarius or Pisces)."),
+    "bad_yoga": ("Inauspicious yoga", "The opening ghatis of Vishkambha (3), Vajra (3), Shula (5), Ganda and Atiganda (6) and Vyaghata (9), the first half of Parigha, and all of Vyatipata and Vaidhriti."),
+    "vishti": ("Bhadra (Vishti karana)", "Vishti karana, avoided while Bhadra resides on earth (Moon in Cancer, Leo, Aquarius or Pisces). Elsewhere its effect falls in that world."),
+}  # fmt: skip
+WINDOW_SOURCES = {
+    "bad_yoga": "Muhurta Chintamani 1.34-35, p. 28; Nirnaya-sindhu p. 33 (Muhurta Martanda v.2 gives Vajra 9)",
+    "vishti": "Muhurta Chintamani 1.43-45, pp. 35-38",
+}
+# MC 1.45 (p. 38): "bhadra tatraiva tatphalam", its effect falls where it resides.
+BHADRA_RESIDENCES = {
+    "earth": ("On earth (martya)", "With the Moon in Cancer, Leo, Aquarius or Pisces, Bhadra is on earth, and its effect falls here."),
+    "heaven": ("In heaven (svarga)", "With the Moon in Aries, Taurus, Gemini or Scorpio, Bhadra is in heaven, and its effect falls there."),
+    "patala": ("Below (patala)", "With the Moon in Virgo, Sagittarius, Libra or Capricorn, Bhadra is below, and its effect falls there."),
 }  # fmt: skip
 
 DIGNITIES = {
@@ -89,14 +99,15 @@ EKADASHI_RULES = {
         "ekadashi_increases": ("Ekādaśī at two sunrises: householders keep the first day, ascetics the second (Skanda)", "Nirnaya-sindhu p. 59"),
         "dvadashi_increases": ("Dvādaśī at two sunrises, Ekādaśī not pierced: the first day (Mādhava)", "Nirnaya-sindhu p. 60"),
         "both_increase": ("Ekādaśī and Dvādaśī both at two sunrises: everyone keeps the second day (Nārada, Mādhava)", "Nirnaya-sindhu pp. 59-60"),
-        "pierced_next_day": ("Daśamī at sunrise on the Ekādaśī day: the next day (Mādhava)", "Nirnaya-sindhu p. 59"),
-        "no_dvadashi_next_day": ("No Dvādaśī on the next day: the Ekādaśī day, though pierced (Skanda, Ṛṣyaśṛṅga)", "Nirnaya-sindhu pp. 60, 62"),
+        "no_dvadashi_next_day": ("Ekādaśī at no sunrise and no Dvādaśī at the next: everyone keeps the pierced day (Skanda, Ṛṣyaśṛṅga)", "Nirnaya-sindhu pp. 60, 62"),
+        "viddha_nyuna_householders_first": ("Ekādaśī at no sunrise, Dvādaśī over before the following one: householders keep the pierced day, ascetics and those seeking liberation the next (Madana-ratna; Mādhava). Madana-ratna gives the pierced day to those with sons too", "Nirnaya-sindhu p. 62"),
+        "viddha_nyuna_dvadashi_long": ("Ekādaśī at no sunrise, Dvādaśī still current at the following one: everyone keeps the next day", "Nirnaya-sindhu p. 60"),
     },
     "vaishnava": {
         "pure": ("No Daśamī in the 96 minutes before sunrise: that day", "Nirnaya-sindhu p. 53"),
         "arunodaya_pierced": ("Daśamī within the 96 minutes before sunrise (aruṇodaya): the next day (Garuḍa)", "Nirnaya-sindhu p. 53"),
         "increase": ("Ekādaśī or Dvādaśī at two sunrises: the later day (Mādhava)", "Nirnaya-sindhu p. 59"),
-        "pierced_next_day": ("Ekādaśī at no sunrise: the next day", "Nirnaya-sindhu pp. 53, 59"),
+        "pierced_next_day": ("Ekādaśī at no sunrise: the pure Dvādaśī day", "Nirnaya-sindhu pp. 53, 62-63"),
     },
 }  # fmt: skip
 EKADASHI_NOTE = (
@@ -143,8 +154,12 @@ YOGA_NOTES = {
     "bphs_42_our_reading": "Our reading of BPHS 42: every named graha in the 11th, or in or aspecting the lagna",
 }  # fmt: skip
 SPECIAL_YOGAS = {
-    "amrita_siddhi": "Amrita Siddhi", "sarvartha_siddhi": "Sarvartha Siddhi",
-    "siddha": "Siddha", "marana": "Marana", "dagdha": "Dagdha",
+    "amrita_siddhi": ("Siddhi (amrta) yoga", "Narada, quoted in Muhurta Chintamani 1.21's commentary, p. 20. Avoided on its excluded tithi (1.20-21) and for its act (1.22: Tuesday-Ashwini for entering a house, Saturday-Rohini for a journey, Thursday-Pushya for a marriage); it never lifts Bhadra, Vyatipata or Vaidhriti (p. 35)"),
+    "visha": ("Visha yoga", "Muhurta Chintamani 1.20-21, pp. 19-20: a siddhi pair on its excluded tithi (Daivajna-manohara calls these visha)"),
+    "sarvartha_siddhi": ("Sarvartha Siddhi", "Muhurta Chintamani 1.28-29, p. 22, main reading (a footnoted variant reads Anuradha for Purva Phalguni on Friday)"),
+    "siddha": ("Siddha", "Muhurta Chintamani 1.4, Kasyapa in the commentary, p. 12"),
+    "marana": ("Marana (Mrtyu)", "Muhurta Chintamani 1.30, p. 23"),
+    "dagdha": ("Dagdha", "Muhurta Chintamani 1.5, Narada in the commentary, p. 13"),
 }  # fmt: skip
 AYANAMSAS = {
     "lahiri": "Lahiri (Chitrapaksha)", "raman": "B. V. Raman", "krishnamurti": "Krishnamurti (KP)",
@@ -200,7 +215,9 @@ MUHURTA_RULE_NAMES = {
     "rahu_kalam": "Rahu Kalam", "yamaganda": "Yamaganda", "gulika": "Gulika Kalam",
     "durmuhurta": "Durmuhurta", "bad_yoga_window": "Inauspicious yoga (opening ghatis)",
     "bad_yoga_after_opening": "Inauspicious yoga, past its opening",
-    "bhadra_earth": "Bhadra on earth", "bhadra_elsewhere": "Bhadra (not on earth)",
+    "bhadra_earth": "Bhadra on earth (MC 1.45)",
+    "visha_yoga": "Visha yoga: a siddhi pair on its excluded tithi (MC 1.20-21)",
+    "siddhi_pair_act_ban": "Siddhi pair avoided for this act (MC 1.22)",
     "amavasya": "Amavasya", "rikta_tithi": "Rikta tithi (4th, 9th, 14th)", "ashtami": "Ashtami",
     "marana_yoga": "Marana yoga", "dagdha_yoga": "Dagdha yoga", "moon_8th": "Moon in the 8th",
     "chandrashtama": "Chandrashtama", "disha_shool": "Disha shool",
@@ -216,7 +233,7 @@ MUHURTA_RULE_NAMES = {
     "pitru_paksha": "Pitru Paksha", "moon_behind": "Moon behind (Chandra vasa)",
     "moon_left": "Moon on the left", "moon_ahead": "Moon ahead or on the right",
     "yogini_ahead": "Yogini ahead or on the right", "yogini_behind": "Yogini behind or on the left",
-    "kharmas": "Kharmas", "amrita_siddhi": "Amrita Siddhi", "sarvartha_siddhi": "Sarvartha Siddhi",
+    "kharmas": "Kharmas", "amrita_siddhi": "Siddhi (amrta) yoga", "sarvartha_siddhi": "Sarvartha Siddhi",
     "lagna_lord_strong": "Lagna lord strong", "benefic_kendra": "Benefic in a kendra",
     "abhijit": "Abhijit muhurta", "movable_lagna": "Movable lagna", "fixed_lagna": "Fixed lagna",
     "favoured_hora": "Favoured hora", "malefic_hora": "Mars or Saturn hora",
@@ -224,7 +241,7 @@ MUHURTA_RULE_NAMES = {
 VETOES = {
     "rahu_kalam", "yamaganda", "gulika", "durmuhurta", "bad_yoga_window", "bhadra_earth",
     "amavasya", "rikta_tithi", "ashtami", "marana_yoga", "dagdha_yoga", "moon_8th",
-    "chandrashtama", "disha_shool",
+    "chandrashtama", "disha_shool", "visha_yoga", "siddhi_pair_act_ban",
 }  # fmt: skip
 SUPPORTS = {
     "amrita_siddhi", "sarvartha_siddhi", "lagna_lord_strong", "benefic_kendra", "abhijit",
@@ -381,8 +398,15 @@ def _english() -> dict:
             }
             for name in ("Amrit", "Shubh", "Labh", "Char", "Udveg", "Kaal", "Rog")
         },
-        "windows": {k: {"name": n, "description": d} for k, (n, d) in WINDOWS.items()},
-        "specialYogas": {k: {"name": v} for k, v in SPECIAL_YOGAS.items()},
+        "windows": {
+            k: {"name": n, "description": d, "source": WINDOW_SOURCES.get(k)}
+            for k, (n, d) in WINDOWS.items()
+        },
+        "bhadraResidences": {
+            k: {"name": n, "description": d, "source": "Muhurta Chintamani 1.45, p. 38"}
+            for k, (n, d) in BHADRA_RESIDENCES.items()
+        },
+        "specialYogas": {k: {"name": n, "source": src} for k, (n, src) in SPECIAL_YOGAS.items()},
         "dignities": {k: {"name": v} for k, v in DIGNITIES.items()},
         "dignityNotes": {k: {"name": v} for k, v in DIGNITY_NOTES.items()},
         "aspects": ASPECTS,

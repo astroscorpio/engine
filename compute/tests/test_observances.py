@@ -30,7 +30,7 @@ def test_every_ekadashi_of_the_year_with_both_traditions():
             day = next(d for d in r["days"] if d["date"] == r["smarta"]["date"])
             assert day["tithiAtSunrise"] == "ekadashi"
         assert (r["smarta"]["asceticDate"] is not None) == (
-            r["smarta"]["rule"] == "ekadashi_increases"
+            r["smarta"]["rule"] in ("ekadashi_increases", "viddha_nyuna_householders_first")
         )
 
 
@@ -72,10 +72,19 @@ def _an_ekadashi() -> tuple[float, float, float]:
             None,
             (2, "increase"),
         ),
-        # Ekadashi at no sunrise, Dvadashi at the next: the next day for both.
+        # Ekadashi at no sunrise, Dvadashi over before the sunrise after the next:
+        # householders the pierced day, ascetics the next (NS p. 62).
         (
             lambda s, e, d: [s - 2 * H, e + H, d + H, d + 25 * H, d + 49 * H],
+            (0, "viddha_nyuna_householders_first"),
+            1,
             (1, "pierced_next_day"),
+        ),
+        # Ekadashi at no sunrise, Dvadashi still current at the sunrise after the
+        # next: everyone the next day (NS p. 60).
+        (
+            lambda s, e, d: [s - 2 * H, e + H, d - H, d + 23 * H, d + 47 * H],
+            (1, "viddha_nyuna_dvadashi_long"),
             None,
             (1, "pierced_next_day"),
         ),

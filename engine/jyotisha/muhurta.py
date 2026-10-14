@@ -43,7 +43,15 @@ from .panchanga import (
     YOGA_NAMES,
     compute,
 )
-from .rare import AMRITA_SIDDHI, DAGDHA, MARANA, PANCHAKA, SARVARTHA_SIDDHI
+from .rare import (
+    AMRITA_ACT_BANS,
+    AMRITA_SIDDHI,
+    AMRITA_VISHA_TITHI,
+    DAGDHA,
+    MARANA,
+    PANCHAKA,
+    SARVARTHA_SIDDHI,
+)
 
 TARA_NAMES = [
     "Janma", "Sampat", "Vipat", "Kshema", "Pratyak",
@@ -106,9 +114,9 @@ YOGINI_ALMANAC = ["E", "N", "SE", "SW", "S", "W", "NW", "NE"]
 MOON_DIRS = ["E", "S", "W", "N"]
 BEARING = {"N": 0, "NE": 45, "E": 90, "SE": 135, "S": 180, "SW": 225, "W": 270, "NW": 315}
 
-# IJ pdf 84: tithi class on the matching weekday is siddha yoga.  (The book
-# calls every other pairing mrityu yoga, which would condemn most days; only
-# the positive list is used.)
+# Muhurta Chintamani 1.4, Kasyapa in the commentary (1945 printing, p. 12):
+# Nanda on Friday, Bhadra on Wednesday, Jaya on Tuesday, Rikta on Saturday and
+# Purna on Thursday are siddha.
 SIDDHA_YOGA = {"Venus": 1, "Mercury": 2, "Mars": 3, "Saturn": 4, "Jupiter": 5}
 TITHI_CLASS = ["Nanda", "Bhadra", "Jaya", "Rikta", "Purna"]
 
@@ -129,16 +137,17 @@ MOON_HOUSE_IJ = {
 }
 MOON_HOUSE_BAD_IJ = {4, 8, 12}
 
-# Bhadra (Vishti karana) harms only when it resides on earth, which depends on
-# the Moon's sign (standard almanac rule, Muhurta Chintamani).
+# Bhadra (Vishti karana) resides by the Moon's sign, and "its effect falls there"
+# (MC 1.45, p. 38): only Bhadra on earth is avoided here.
 BHADRA_EARTH = {3, 4, 10, 11}  # Cancer, Leo, Aquarius, Pisces (0-based signs)
 BHADRA_HEAVEN = {0, 1, 2, 7}
 
-# Inauspicious yogas: how many ghatis (24 min) from the yoga's start to avoid;
-# None means the whole yoga (standard almanac rule, Muhurta Chintamani).
+# Inauspicious yogas: how many ghatis (24 min) from the yoga's start to avoid
+# (MC 1.34-35, p. 28; Nirnaya-sindhu p. 33). None is the whole yoga, "half" the
+# first half of its actual span. Muhurta Martanda v.2 gives Vajra 9 instead of 3.
 BAD_YOGA_GHATIS = {
     "Vishkambha": 3, "Atiganda": 6, "Shula": 5, "Ganda": 6, "Vyaghata": 9,
-    "Vajra": 9, "Parigha": 30, "Vyatipata": None, "Vaidhriti": None,
+    "Vajra": 3, "Parigha": "half", "Vyatipata": None, "Vaidhriti": None,
 }  # fmt: skip
 
 
@@ -378,9 +387,13 @@ def day(jd: float, lat: float, lon: float, ayanamsa: str = "lahiri") -> Day:
     for name, (a, b) in _yoga_spans(t0, t1, ayanamsa):
         if name in BAD_YOGA_GHATIS:
             n = BAD_YOGA_GHATIS[name]
-            end = b if n is None else min(b, a + n * 24 / 1440)
+            if n is None:
+                end, what = b, "whole yoga"
+            elif n == "half":
+                end, what = a + (b - a) / 2, "first half"
+            else:
+                end, what = min(b, a + n * 24 / 1440), f"first {n} ghatis"
             if end > t0:
-                what = "whole yoga" if n is None else f"first {n} ghatis"
                 out.avoid.append(Window(a, end, f"{name} yoga ({what})"))
     for t, v in _scan(lambda t: tithi_at(t, ayanamsa), t0, t1, step):
         out.changes.append((t, f"tithi -> {tithi_label(v)}"))
@@ -753,13 +766,9 @@ def evaluate(
     # Vetoes.  Day.avoid already holds the kalams, durmuhurta and the opening
     # ghatis of the bad yogas.
     v.vetoes += [a.label for a in d.avoid if a.contains(jd)]
-    if karana == "Vishti":
-        # Bhadra harms only while it resides on earth.
-        where = bhadra_residence(moon.sign)
-        if where == "earth":
-            v.vetoes.append("Vishti (Bhadra on earth)")
-        else:
-            bad((f"Vishti (Bhadra in {where})", 1.5))
+    if karana == "Vishti" and bhadra_residence(moon.sign) == "earth":
+        # MC 1.45: Bhadra's effect falls where it resides; in heaven or below, no penalty.
+        v.vetoes.append("Vishti (Bhadra on earth)")
     if t == 30:
         v.vetoes.append("Amavasya")
     elif n in (4, 8, 9, 14):
@@ -820,9 +829,15 @@ def evaluate(
     if month.name == "Bhadrapada" and not month.adhika and t >= 16:
         bad(("Pitru Paksha", profile.season))
 
-    # Supports.
+    # Supports. A siddhi (amrta) pair turns to visha on its tithi (MC 1.20-21) and
+    # is avoided for its act (MC 1.22); it never lifts a veto (MC p. 35).
     if AMRITA_SIDDHI.get(w) == nak:
-        good(("Amrita Siddhi", 1.5))
+        if AMRITA_VISHA_TITHI[w] == n:
+            v.vetoes.append("Visha yoga")
+        elif AMRITA_ACT_BANS.get(profile.name) == w:
+            v.vetoes.append(f"{VARA_NAME[d.vara]}-{nak} avoided for this act")
+        else:
+            good(("Amrita Siddhi", 1.5))
     if nak in SARVARTHA_SIDDHI.get(w, set()):
         good(("Sarvartha Siddhi", 1.0))
     lord = SIGN_LORDS[lagna]
