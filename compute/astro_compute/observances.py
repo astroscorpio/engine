@@ -7,10 +7,11 @@ pp. 49-63 ("NS").
 
 Smarta (Daśamī at sunrise is the test; NS pp. 58-63):
   - the day with Ekadashi at sunrise;
-  - Ekadashi at two sunrises: householders the first day, ascetics the second
-    (Skanda, p. 59); with Dvadashi also at two sunrises, everyone the second
-    (Narada, Madhava, pp. 59-60);
-  - only Dvadashi at two sunrises: the first day (Madhava, p. 60);
+  - Ekadashi long (still current at the second day's sunrise): householders the
+    first day, ascetics the second (Skanda, p. 59); with Dvadashi long too (still
+    current at the third day's sunrise), everyone the second (Narada, Madhava,
+    pp. 59-60);
+  - only Dvadashi long: the first day (Madhava, p. 60);
   - Ekadashi at no sunrise, pierced by Dashami at the first (Hemadri's
     viddha-nyuna), keyed on the Dvadashi:
       no Dvadashi at the next sunrise: everyone the pierced day (Skanda,
@@ -24,8 +25,9 @@ Smarta (Daśamī at sunrise is the test; NS pp. 58-63):
 Vaishnava (NS, after Madhava; not the Gaudiya Hari-bhakti-vilasa rules):
   - Dashami at any moment of the 96 minutes before sunrise pierces the day:
     the next day (Garuda; Skanda via Madhava, p. 53);
-  - Ekadashi or Dvadashi at two sunrises: the later day (Madhava, p. 59).
-Our reading: a tithi "increases" when it is current at two consecutive sunrises.
+  - Ekadashi or Dvadashi long: the later day (Madhava, p. 59).
+"Long" is measured from the first Ekadashi day (pure, or the pierced day when
+Ekadashi touches no sunrise), as research reads NS pp. 59-62.
 """
 
 from __future__ import annotations
@@ -69,21 +71,26 @@ def _one(start: float, end: float, dv_end: float, q: EkadashiQuery) -> dict:
 
     ek, dv = at_sunrise(start, end), at_sunrise(end, dv_end)
     e = ek[0] if ek else None  # always s[1] when it exists
-    e_inc, dv_inc = len(ek) >= 2, len(dv) >= 2
+    # The first Ekadashi day: pure (Ekadashi at its sunrise) or, at no sunrise,
+    # the pierced day. A tithi runs long when it is still current at the sunrise
+    # after its own day: Ekadashi at the second day's, Dvadashi at the third's.
+    first = e if e is not None else 0
+    e_inc = len(ek) >= 2
+    dv_long = dv_end > s[first + 2]
 
     ascetic = None
     if e is None:  # over before s[1]: pierced at s[0] and short
         if not dv:
             smarta, s_rule = 0, "no_dvadashi_next_day"
-        elif dv_end < s[2]:
+        elif not dv_long:
             smarta, s_rule, ascetic = 0, "viddha_nyuna_householders_first", 1
         else:
             smarta, s_rule = 1, "viddha_nyuna_dvadashi_long"
-    elif e_inc and dv_inc:
+    elif e_inc and dv_long:
         smarta, s_rule = e + 1, "both_increase"
     elif e_inc:
         smarta, s_rule, ascetic = e, "ekadashi_increases", e + 1
-    elif dv_inc:
+    elif dv_long:
         smarta, s_rule = e, "dvadashi_increases"
     else:
         smarta, s_rule = e, "sunrise"
@@ -94,7 +101,7 @@ def _one(start: float, end: float, dv_end: float, q: EkadashiQuery) -> dict:
         vaishnava, v_rule = 1, "pierced_next_day"
     elif pierced:
         vaishnava, v_rule = e + 1, "arunodaya_pierced"
-    elif e_inc or dv_inc:
+    elif e_inc or dv_long:
         vaishnava, v_rule = e + 1, "increase"
     else:
         vaishnava, v_rule = e, "pure"

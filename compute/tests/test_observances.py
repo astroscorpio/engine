@@ -58,14 +58,23 @@ def _an_ekadashi() -> tuple[float, float, float]:
             None,
             (2, "arunodaya_pierced"),
         ),
-        # Ekadashi at two sunrises, Dvadashi at none: householders first, ascetics second.
+        # Ekadashi long, Dvadashi over before the third sunrise: householders first,
+        # ascetics second (Skanda).
         (
             lambda s, e, d: [s - 2 * H, s + 2 * H, e - H, d + H, d + 25 * H],
             (1, "ekadashi_increases"),
             2,
             (2, "increase"),
         ),
-        # Dvadashi at two sunrises: Smartas keep the first day, Vaishnavas the later.
+        # Ekadashi and Dvadashi both long (Dvadashi still current at the third
+        # sunrise): everyone the second day (Padmini 2026 at Delhi).
+        (
+            lambda s, e, d: [s - 2 * H, s + 2 * H, e - H, d - H, d + 23 * H],
+            (2, "both_increase"),
+            None,
+            (2, "increase"),
+        ),
+        # Only Dvadashi long: Smartas keep the first day, Vaishnavas the later.
         (
             lambda s, e, d: [s - 2 * H, s + 2 * H, e + H, d - H, d + 23 * H],
             (1, "dvadashi_increases"),
@@ -106,3 +115,15 @@ def test_nirnaya_sindhu_cases(monkeypatch, where, smarta, ascetic, vaishnava):
     assert (row["smarta"]["date"], row["smarta"]["rule"]) == (day[smarta[0]], smarta[1])
     assert row["smarta"]["asceticDate"] == (day[ascetic] if ascetic else None)
     assert (row["vaishnava"]["date"], row["vaishnava"]["rule"]) == (day[vaishnava[0]], vaishnava[1])
+
+
+def test_padmini_2026_at_delhi_matches_both_long():
+    # Ekadashi 26 May 05:11 to 27 May 06:22 IST; Dvadashi to 28 May 07:57, past that
+    # day's sunrise: everyone keeps 27 May.
+    status, out = call("GET", "/v1/observances/ekadashi", DELHI)
+    row = next(r for r in out["ekadashis"] if r["tithi"]["start"].startswith("2026-05-26"))
+    assert row["smarta"] == {"date": "2026-05-27", "asceticDate": None, "rule": "both_increase"}
+    assert row["vaishnava"]["date"] == "2026-05-27"
+    nov = next(r for r in out["ekadashis"] if r["tithi"]["start"].startswith("2026-11-20"))
+    assert (nov["smarta"]["date"], nov["smarta"]["asceticDate"]) == ("2026-11-20", "2026-11-21")
+    assert nov["smarta"]["rule"] == "viddha_nyuna_householders_first"

@@ -96,9 +96,9 @@ EKADASHI_TRADITIONS = {"smarta": "Smārta", "vaishnava": "Vaiṣṇava (Nirṇay
 EKADASHI_RULES = {
     "smarta": {
         "sunrise": ("Ekādaśī at sunrise: that day", "Nirnaya-sindhu p. 58"),
-        "ekadashi_increases": ("Ekādaśī at two sunrises: householders keep the first day, ascetics the second (Skanda)", "Nirnaya-sindhu p. 59"),
-        "dvadashi_increases": ("Dvādaśī at two sunrises, Ekādaśī not pierced: the first day (Mādhava)", "Nirnaya-sindhu p. 60"),
-        "both_increase": ("Ekādaśī and Dvādaśī both at two sunrises: everyone keeps the second day (Nārada, Mādhava)", "Nirnaya-sindhu pp. 59-60"),
+        "ekadashi_increases": ("Ekādaśī runs long, Dvādaśī does not: householders keep the first day, ascetics the second (Skanda)", "Nirnaya-sindhu p. 59"),
+        "dvadashi_increases": ("Only Dvādaśī runs long, Ekādaśī pure: the first day (Mādhava)", "Nirnaya-sindhu p. 60"),
+        "both_increase": ("Ekādaśī and Dvādaśī both run long: everyone keeps the second day (Nārada, Mādhava)", "Nirnaya-sindhu pp. 59-60"),
         "no_dvadashi_next_day": ("Ekādaśī at no sunrise and no Dvādaśī at the next: everyone keeps the pierced day (Skanda, Ṛṣyaśṛṅga)", "Nirnaya-sindhu pp. 60, 62"),
         "viddha_nyuna_householders_first": ("Ekādaśī at no sunrise, Dvādaśī over before the following one: householders keep the pierced day, ascetics and those seeking liberation the next (Madana-ratna; Mādhava). Madana-ratna gives the pierced day to those with sons too", "Nirnaya-sindhu p. 62"),
         "viddha_nyuna_dvadashi_long": ("Ekādaśī at no sunrise, Dvādaśī still current at the following one: everyone keeps the next day", "Nirnaya-sindhu p. 60"),
@@ -106,12 +106,14 @@ EKADASHI_RULES = {
     "vaishnava": {
         "pure": ("No Daśamī in the 96 minutes before sunrise: that day", "Nirnaya-sindhu p. 53"),
         "arunodaya_pierced": ("Daśamī within the 96 minutes before sunrise (aruṇodaya): the next day (Garuḍa)", "Nirnaya-sindhu p. 53"),
-        "increase": ("Ekādaśī or Dvādaśī at two sunrises: the later day (Mādhava)", "Nirnaya-sindhu p. 59"),
+        "increase": ("Ekādaśī or Dvādaśī runs long: the later day (Mādhava)", "Nirnaya-sindhu p. 59"),
         "pierced_next_day": ("Ekādaśī at no sunrise: the pure Dvādaśī day", "Nirnaya-sindhu pp. 53, 62-63"),
     },
 }  # fmt: skip
 EKADASHI_NOTE = (
-    "A tithi increases when it is current at two consecutive sunrises at the place (our reading)."
+    "A tithi runs long when it is still current at the sunrise after its own day: Ekādaśī at "
+    "the second day's sunrise, Dvādaśī at the third's, counting from the first Ekādaśī day "
+    "(our reading of Nirnaya-sindhu pp. 59-62)."
 )
 ASPECTS = {
     "source": {
