@@ -194,3 +194,19 @@ def test_both_chara_karaka_schemes(chart):
         r for r in j["charaKarakas7"] if j["charaKarakas7"][r] != j["charaKarakas8"][r]
     ]
     assert j["karakaSource"].startswith("Jaimini") and j["karakaTie"] is False
+
+
+def test_graha_aspects_per_graha(chart):
+    by_id = {g["id"]: g for g in chart["grahas"]}
+    houses = {h["num"]: h for h in chart["houses"]}
+    assert [a["nth"] for a in by_id["mars"]["aspects"]] == [4, 7, 8]
+    assert [a["nth"] for a in by_id["jupiter"]["aspects"]] == [5, 7, 9]
+    assert [a["nth"] for a in by_id["saturn"]["aspects"]] == [3, 7, 10]
+    assert [(a["nth"], a["kind"]) for a in by_id["sun"]["aspects"]] == [(7, "full_7th")]
+    assert {a["note"] for a in by_id["rahu"]["aspects"] if a["nth"] != 7} == {
+        "node_aspect_source_pending"
+    }
+    for g in chart["grahas"]:
+        for a in g["aspects"]:
+            assert (a["house"] - g["house"]) % 12 + 1 == a["nth"]
+            assert g["id"] in houses[a["house"]]["aspectedBy"]

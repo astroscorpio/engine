@@ -81,6 +81,9 @@ DIGNITIES = {
     "great_friend": "Great friend", "friend": "Friend", "neutral": "Neutral",
     "enemy": "Enemy", "great_enemy": "Great enemy", "debilitated": "Debilitated",
 }  # fmt: skip
+ASPECT_NOTES = {
+    "node_aspect_source_pending": "Rahu and Ketu's 5th and 9th aspects: common practice, source pending",
+}
 # PD 6.5: "There are some who declare that there is no Kemadruma where ..."
 # PD 26.22-23 (1937, pp. 293-294), quoted as printed; no predictions of our own.
 SADE_SATI_PHASES = {
@@ -351,6 +354,7 @@ def _english() -> dict:
         "specialYogas": {k: {"name": v} for k, v in SPECIAL_YOGAS.items()},
         "dignities": {k: {"name": v} for k, v in DIGNITIES.items()},
         "dignityNotes": {k: {"name": v} for k, v in DIGNITY_NOTES.items()},
+        "aspectNotes": {k: {"name": v} for k, v in ASPECT_NOTES.items()},
         "yogaCategories": {k: {"name": v} for k, v in YOGA_CATEGORIES.items()},
         "yogas": {k: {"name": n, "category": c} for k, (n, c) in YOGAS.items()},
         "yogaNotes": {k: {"name": v} for k, v in YOGA_NOTES.items()},

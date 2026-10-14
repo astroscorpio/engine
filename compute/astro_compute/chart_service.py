@@ -87,6 +87,25 @@ def moon_uncertainty(inp: ChartIn, birth: Birth) -> tuple[bool, bool]:
     return a.sign != b.sign, a.nakshatra != b.nakshatra
 
 
+def graha_aspects(chart: Chart, g: str, house_of) -> list[dict]:
+    """Graha drishti: every graha the 7th; Mars also the 4th and 8th, Jupiter the
+    5th and 9th, Saturn the 3rd and 10th. The engine also gives Rahu and Ketu the
+    5th and 9th, which has no source yet, so those carry a note."""
+    sign = chart.grahas[g].sign
+    out = []
+    for nth in chart.aspects_from(g):
+        node_extra = g in ("Rahu", "Ketu") and nth != 7
+        out.append(
+            {
+                "house": house_of((sign + nth - 1) % 12),
+                "nth": nth,
+                "kind": "full_7th" if nth == 7 else "special",
+                "note": "node_aspect_source_pending" if node_extra else None,
+            }
+        )
+    return out
+
+
 def dignity_note(chart: Chart, g: str) -> str | None:
     """Rahu and Ketu (BPHS Dasa-phala vv. 35-36): debilitation as the 7th from
     exaltation is our reading; Virgo and Pisces are own signs "according to some"."""
@@ -440,6 +459,7 @@ def build(req: ChartRequest) -> dict:
             "combust": chart.combust(g),
             "dignity": dignity_id(chart.dignity(g)),
             "dignityNote": dignity_note(chart, g),
+            "aspects": graha_aspects(chart, g, house_of),
             "functional": None if moon_chart else functional_id(chart.functional_nature(g)),
             "rules": sorted(house_of(s) for s in OWN_SIGNS.get(g, [])),
             "vargottama": ST.vargottama(chart, g),
