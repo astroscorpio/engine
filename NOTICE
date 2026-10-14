@@ -1,0 +1,40 @@
+Astro Scorpio engine
+Copyright (c) 2026 Astro Scorpio
+
+This program is free software: you can redistribute it and/or modify it
+under the terms of the GNU Affero General Public License as published by the
+Free Software Foundation, either version 3 of the License, or (at your
+option) any later version. This program is distributed in the hope that it
+will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Affero
+General Public License for more details (LICENSE).
+
+Users who interact with this program over a network can get its complete
+source from https://github.com/astroscorpio/engine; each deployment links
+its exact tag in the engine.source field of every API response.
+
+Third-party components
+----------------------
+
+Swiss Ephemeris
+  Copyright (C) 1997 - 2021 Astrodienst AG, Switzerland. All rights reserved.
+  Authors: Dieter Koch and Alois Treindl, Astrodienst Zurich.
+  Used under the GNU Affero General Public License option of Astrodienst's
+  dual licence (AGPL or Swiss Ephemeris Professional License). Its C source
+  is inside third_party/pyswisseph-2.10.3.2.tar.gz (libswe/), with its
+  original notices.
+  The data files in engine/ephe (sepl_18.se1, semo_18.se1, sefstars.txt)
+  are Astrodienst's, taken unmodified from https://github.com/aloistr/swisseph
+  at commit aacf962d19d79f8bc921dbcdaacf306d85be1917 (SHA-256 sums in
+  engine/ephe/SHA256SUMS).
+
+pyswisseph, the Python extension for the Swiss Ephemeris
+  Copyright (c) 2007-2023 Stanislas Marquis.
+  GNU Affero General Public License v3 or later. The exact source
+  distribution compiled into the deployed service is
+  third_party/pyswisseph-2.10.3.2.tar.gz (unmodified; built without its
+  swephelp helpers, see build/build_swisseph.sh).
+
+Pydantic and its dependencies (MIT and compatible licences)
+  Installed from PyPI at build time; versions pinned in
+  build/requirements-lambda.txt.

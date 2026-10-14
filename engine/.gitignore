@@ -1,0 +1,14 @@
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+*.egg-info/
+build/
+dist/
+.venv/
+data/daily.jsonl
+data/ledger.jsonl
+data/coherence_cache.json
+data/*.lock
+data/X_full.npy
+data/X_lahiri.npy

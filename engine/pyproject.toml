@@ -1,0 +1,40 @@
+[build-system]
+requires = ["setuptools>=75"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "jyotisha-cli"
+version = "0.1.0"
+description = "Headless Jyotisha calculations and prospective falsification tools"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+  "numpy>=2.0",
+  "pyswisseph>=2.10.3.2"
+]
+
+[project.scripts]
+jyotisha = "jyotisha.cli:main"
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8",
+  "ruff>=0.9"
+]
+research = [
+  "scipy>=1.13"
+]
+
+[tool.setuptools.packages.find]
+include = ["jyotisha*"]
+
+[tool.pytest.ini_options]
+addopts = "-q"
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
