@@ -11,7 +11,8 @@ the scanned verse for each. Citations use that file's keys:
 
 Decisions taken by the lead where the sources leave a choice are marked
 "Decision". Mangal (kuja) dosha comes from kuja.py, the rule the chart page
-uses too, so the two pages cannot disagree.
+uses too, so the two pages cannot disagree. A partner known only by name is
+read through the Avakahada chakra (avakahada.py; MM vv. 54-55).
 """
 
 from __future__ import annotations
@@ -22,12 +23,13 @@ from jyotisha.chart import SIGN_LORDS, Chart
 from jyotisha.muhurta import TARA_NAMES
 from jyotisha.vargas import varga
 
+from . import avakahada
 from . import kuja as K
 from .chart_service import cast, moon_uncertainty
-from .errors import invalid
+from .errors import ApiError, invalid
 from .fmt import provenance
 from .ids import GRAHA_ID, NAKSHATRA_IDS, SIGN_IDS, slug
-from .models import ChartIn, MatchingRequest, NakshatraIn
+from .models import ChartIn, MatchingRequest, NakshatraIn, NameIn
 
 # --- varna: MC 6.22, p. 245; BJS vv. 576-578; MM v.10 ------------------------
 # By Moon sign. One point when the groom's varna is equal to or higher than the bride's.
@@ -214,8 +216,9 @@ class Moon:
     uncertain: bool
     # The Moon's degree in its sign: exact for a chart, a pada's span otherwise.
     deg_range: tuple[float, float]
-    chart: Chart | None = None  # None for a partner known only by birth star
+    chart: Chart | None = None  # None for a partner known only by birth star or name
     time_known: bool = False
+    reading: dict | None = None  # how the name was read, for a partner known only by name
 
     @property
     def lord(self) -> str:
@@ -234,20 +237,38 @@ class Moon:
             "navamshaSign": SIGN_IDS[self.navamsha],
             "basis": self.basis,
             "moonUncertain": self.uncertain,
+            "nameReading": self.reading,
         }
 
 
-def moon_of(partner: ChartIn | NakshatraIn) -> Moon:
+def _by_pada(name: str | None, n: int, pada: int, basis: str, reading: dict | None = None) -> Moon:
+    quarter = n * 4 + pada - 1  # 108 padas; nine to a sign, and each is one navamsha
+    start = (quarter % 9) * 10 / 3  # degrees into the sign where this pada begins
+    return Moon(
+        name, n, pada, quarter // 9, quarter % 12, basis, False, (start, start + 10 / 3),
+        reading=reading,
+    )  # fmt: skip
+
+
+def moon_of(partner: ChartIn | NakshatraIn | NameIn, side: str) -> Moon:
+    if isinstance(partner, NameIn):
+        reading = avakahada.lookup(partner.name)
+        if not reading["matched"]:
+            raise ApiError(
+                "name_not_in_chakra",
+                f"{reading['reason']} Give the birth details or the birth star instead.",
+                422,
+                f"{side}.name",
+            )
+        del reading["matched"]
+        n = NAKSHATRA_IDS.index(reading["nakshatra"])
+        return _by_pada(partner.name, n, reading["pada"], "name", reading)
     if isinstance(partner, NakshatraIn):
         if partner.nakshatra not in NAKSHATRA_IDS:
-            raise invalid(f"unknown nakshatra {partner.nakshatra!r}", "nakshatra")
-        n = NAKSHATRA_IDS.index(partner.nakshatra)
-        quarter = n * 4 + partner.pada - 1  # 108 padas; nine to a sign, and each is one navamsha
-        start = (quarter % 9) * 10 / 3  # degrees into the sign where this pada begins
-        return Moon(
-            partner.name, n, partner.pada, quarter // 9, quarter % 12, "nakshatra", False,
-            (start, start + 10 / 3),
-        )  # fmt: skip
+            raise invalid(f"unknown nakshatra {partner.nakshatra!r}", f"{side}.nakshatra")
+        return _by_pada(
+            partner.name, NAKSHATRA_IDS.index(partner.nakshatra), partner.pada, "nakshatra"
+        )
     chart, birth = cast(partner)
     moon = chart.grahas["Moon"]
     uncertain = partner.timeUnknown and any(moon_uncertainty(partner, birth))
@@ -283,7 +304,7 @@ def koota(kid: str, points, bride=None, groom=None, **extra) -> dict:
 
 
 def build(req: MatchingRequest) -> dict:
-    b, g = moon_of(req.bride), moon_of(req.groom)
+    b, g = moon_of(req.bride, "bride"), moon_of(req.groom, "groom")
     notes: list[str] = []
 
     same_star = b.nakshatra == g.nakshatra

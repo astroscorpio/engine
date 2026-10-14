@@ -85,7 +85,7 @@ def test_match_from_a_chart_and_a_birth_star():
     assert out["bride"]["moonSign"] == "scorpio" and out["bride"]["nakshatra"] == "anuradha"
     assert out["groom"] == {
         "name": "G", "moonSign": "taurus", "nakshatra": "rohini", "pada": 2,
-        "navamshaSign": "taurus", "basis": "nakshatra", "moonUncertain": False,
+        "navamshaSign": "taurus", "basis": "nakshatra", "moonUncertain": False, "nameReading": None,
     }  # fmt: skip
     assert out["auspicious"] == (out["total"] > 18)
 
@@ -148,7 +148,7 @@ def test_bad_partner_input_names_the_field():
     status, out = call(
         "POST", "/v1/matching", body={"bride": EXAMPLE, "groom": {"nakshatra": "pluto", "pada": 1}}
     )
-    assert status == 400 and out["error"]["field"] == "nakshatra"
+    assert status == 400 and out["error"]["field"] == "groom.nakshatra"
 
 
 def test_vashya_groups_follow_our_reading_of_bjs():

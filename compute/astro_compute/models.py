@@ -125,16 +125,30 @@ class NakshatraIn(Model):
     pada: int = Field(ge=1, le=4)
 
 
+class NameIn(Model):
+    """A partner known only by name: the fallback when the birth star is not known (MM v.54)."""
+
+    name: str = Field(min_length=1, max_length=80)
+    basis: Literal["name"]
+
+
 def _partner_kind(value: object) -> str:
     if isinstance(value, NakshatraIn):
         return "star"
-    if isinstance(value, dict) and "nakshatra" in value and "date" not in value:
-        return "star"
+    if isinstance(value, NameIn):
+        return "name"
+    if isinstance(value, dict) and "date" not in value:
+        if "nakshatra" in value:
+            return "star"
+        if value.get("basis") == "name":
+            return "name"
     return "chart"
 
 
 Partner = Annotated[
-    Annotated[ChartIn, Tag("chart")] | Annotated[NakshatraIn, Tag("star")],
+    Annotated[ChartIn, Tag("chart")]
+    | Annotated[NakshatraIn, Tag("star")]
+    | Annotated[NameIn, Tag("name")],
     Discriminator(_partner_kind),
 ]
 

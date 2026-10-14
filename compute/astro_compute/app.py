@@ -53,7 +53,7 @@ def _parse[M: BaseModel](model: type[M], data: object) -> M:
     except ValidationError as exc:
         first = exc.errors()[0]
         loc = [str(p) for p in first.get("loc", ()) if p != "__root__"]
-        if len(loc) > 1 and loc[0] in ("bride", "groom") and loc[1] in ("chart", "star"):
+        if len(loc) > 1 and loc[0] in ("bride", "groom") and loc[1] in ("chart", "star", "name"):
             del loc[1]  # the union tag of a matching partner, not a real field
         field = ".".join(loc) or None
         message = first.get("msg", "invalid input").removeprefix("Value error, ")

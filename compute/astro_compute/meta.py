@@ -16,6 +16,7 @@ from jyotisha.ephemeris import NAKSHATRAS, SIGNS
 from jyotisha.panchanga import FIXED_KARANAS, KARANA_NAMES, YOGA_NAMES
 from jyotisha.vargas import VARGA_NAMES, VARGA_SIGNIFIES
 
+from . import avakahada as AV
 from . import matching as M
 from .errors import invalid
 from .fmt import SOURCE_URL, _ephemeris_backend
@@ -179,6 +180,13 @@ KUJA_CONVENTIONS = {
     "second_house": "Mars in the 2nd from the lagna (common practice, source pending)",
     "from_moon": "Mars in the 1st, 2nd, 4th, 7th, 8th or 12th from the Moon (common practice, source pending)",
     "from_venus": "Mars in the 1st, 2nd, 4th, 7th, 8th or 12th from Venus (common practice, source pending)",
+}
+MATCHING_BASES = {"chart": "Birth details", "nakshatra": "Birth star", "name": "Name"}
+NAME_RULES = {
+    "conjunct_first_letter": "A conjunct is read by its first letter",
+    "equivalent_letters": "Ba and va, śa and sa, kha and ṣa stand for each other when a syllable is missing",
+    "nasal_read_as": "Names in ṅa, ña and ṇa are read as ga, ja and ḍa",
+    "abhijit_as_uttara_ashadha": "Abhijit's syllables count as Uttarashadha pada 4",
 }
 KOOTA_NAMES = {
     "varna": "Varna", "vashya": "Vashya", "tara": "Tara", "yoni": "Yoni",
@@ -345,6 +353,18 @@ def _english() -> dict:
         "nadis": {k: {"name": v} for k, v in NADIS.items()},
         "taras": {slug(t): {"name": t, "num": i + 1} for i, t in enumerate(Mu.TARA_NAMES)},
         "matchingNotes": {k: {"name": v} for k, v in MATCHING_NOTES.items()},
+        "matchingBases": {k: {"name": v} for k, v in MATCHING_BASES.items()},
+        "avakahada": {
+            "source": AV.SOURCE,
+            "chakra": AV.CHAKRA,
+            "abhijit": {
+                "name": "Abhijit",
+                "nakshatra": AV.ABHIJIT[0],
+                "pada": AV.ABHIJIT[1],
+                "source": AV.RULES["abhijit_as_uttara_ashadha"],
+            },
+            "rules": {k: {"name": NAME_RULES[k], "source": src} for k, src in AV.RULES.items()},
+        },
         "kujaConventions": {k: {"name": v} for k, v in KUJA_CONVENTIONS.items()},
     }
 
