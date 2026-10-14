@@ -241,28 +241,48 @@ class Moon:
         }
 
 
-def _by_pada(name: str | None, n: int, pada: int, basis: str, reading: dict | None = None) -> Moon:
+def _by_pada(
+    name: str | None, n: int, pada: int, basis: str, reading: dict | None = None,
+    chart: Chart | None = None, time_known: bool = False,
+) -> Moon:  # fmt: skip
     quarter = n * 4 + pada - 1  # 108 padas; nine to a sign, and each is one navamsha
     start = (quarter % 9) * 10 / 3  # degrees into the sign where this pada begins
     return Moon(
         name, n, pada, quarter // 9, quarter % 12, basis, False, (start, start + 10 / 3),
-        reading=reading,
+        chart, time_known, reading,
     )  # fmt: skip
 
 
-def moon_of(partner: ChartIn | NakshatraIn | NameIn, side: str) -> Moon:
-    if isinstance(partner, NameIn):
-        reading = avakahada.lookup(partner.name)
-        if not reading["matched"]:
-            raise ApiError(
-                "name_not_in_chakra",
-                f"{reading['reason']} Give the birth details or the birth star instead.",
-                422,
-                f"{side}.name",
-            )
-        del reading["matched"]
+def _name_reading(name: str | None, side: str) -> dict:
+    if not name:
+        raise ApiError(
+            "name_required",
+            f"The other partner is matched by name, so the {side} is too (Muhurta Martanda "
+            f"v.54). Give the {side}'s name.",
+            422,
+            f"{side}.name",
+        )
+    reading = avakahada.lookup(name)
+    if not reading.pop("matched"):
+        raise ApiError(
+            "name_not_in_chakra",
+            f"{reading['reason']} Give the birth details or the birth star instead.",
+            422,
+            f"{side}.name",
+        )
+    return reading
+
+
+def moon_of(partner: ChartIn | NakshatraIn | NameIn, side: str, by_name: bool = False) -> Moon:
+    """by_name: MM v.54 and its commentary. When either birth star is unknown,
+    both partners are matched by their name stars; a known birth star then
+    serves only that partner's own checks (here, mangal from the chart)."""
+    if by_name:
+        reading = _name_reading(partner.name, side)
+        chart = cast(partner)[0] if isinstance(partner, ChartIn) else None
+        time_known = isinstance(partner, ChartIn) and not partner.timeUnknown
         n = NAKSHATRA_IDS.index(reading["nakshatra"])
-        return _by_pada(partner.name, n, reading["pada"], "name", reading)
+        return _by_pada(partner.name, n, reading["pada"], "name", reading, chart, time_known)
     if isinstance(partner, NakshatraIn):
         if partner.nakshatra not in NAKSHATRA_IDS:
             raise invalid(f"unknown nakshatra {partner.nakshatra!r}", f"{side}.nakshatra")
@@ -304,7 +324,8 @@ def koota(kid: str, points, bride=None, groom=None, **extra) -> dict:
 
 
 def build(req: MatchingRequest) -> dict:
-    b, g = moon_of(req.bride, "bride"), moon_of(req.groom, "groom")
+    by_name = isinstance(req.bride, NameIn) or isinstance(req.groom, NameIn)
+    b, g = moon_of(req.bride, "bride", by_name), moon_of(req.groom, "groom", by_name)
     notes: list[str] = []
 
     same_star = b.nakshatra == g.nakshatra
@@ -432,6 +453,7 @@ def build(req: MatchingRequest) -> dict:
         "max": max_points,
         "auspicious": auspicious,
         "pending": (["vashya"] if vashya["points"] is None else []) + PENDING,
+        "basisRule": "mm_v54_both_by_name" if by_name else None,
         "mangal": {
             "bride": K.status(b.chart, b.time_known) if b.chart else None,
             "groom": K.status(g.chart, g.time_known) if g.chart else None,

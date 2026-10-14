@@ -20,17 +20,18 @@ from .vargas import varga
 
 SAPTAVARGA = [1, 2, 3, 7, 9, 12, 30]
 
-# Saptavargaja values, in virupas.
+# Saptavargaja values in virupas, BPHS 28.3 (1939 ed., p. 155): mulatrikona,
+# own sign, great friend, friend, neutral, enemy, great enemy. Exaltation is not
+# one of them (uccha bala scores it), so a graha in its exaltation or
+# debilitation sign scores by its relation to that sign's lord.
 DIGNITY_VIRUPAS = {
     "moolatrikona": 45.0,
-    "exalted": 45.0,
     "own": 30.0,
-    "great friend": 22.5,
+    "great friend": 20.0,
     "friend": 15.0,
-    "neutral": 7.5,
-    "enemy": 3.75,
-    "great enemy": 1.875,
-    "debilitated": 1.875,
+    "neutral": 10.0,
+    "enemy": 4.0,
+    "great enemy": 2.0,
 }
 
 NAISARGIKA = {
@@ -69,9 +70,10 @@ DREKKANA_SEX = {"Sun": 0, "Mars": 0, "Jupiter": 0, "Mercury": 1, "Saturn": 1, "M
 NORTH_STRONG = {"Sun", "Mars", "Jupiter", "Venus"}
 SOUTH_STRONG = {"Saturn", "Moon"}
 
-# Minimum shadbala required, in rupas (BPHS).
+# Minimum shadbala required, in rupas: BPHS 28.32-33 with Jha's gloss (p. 160),
+# 390, 360, 300, 420, 390, 330 and 300 shashtiamsas.
 REQUIRED_RUPAS = {
-    "Sun": 5.0,
+    "Sun": 6.5,
     "Moon": 6.0,
     "Mars": 5.0,
     "Mercury": 7.0,
@@ -131,26 +133,25 @@ def uchcha_bala(chart: Chart, g: str) -> float:
     return d / 3.0
 
 
-def _dignity_in(sign: int, g: str, chart: Chart) -> str:
+def _dignity_in(sign: int, degree: float, g: str, chart: Chart) -> str:
+    """The BPHS 28.3 category of g at `degree` of `sign`. The mulatrikona spans
+    of BPHS 3.52-55 are applied to the degree within each varga sign: our
+    reading, since 28.4 does not say how they carry into the vargas."""
     mt = MOOLATRIKONA.get(g)
-    if mt and sign == mt[0]:
+    if mt and sign == mt[0] and mt[1] <= degree < mt[2]:
         return "moolatrikona"
     if sign in OWN_SIGNS.get(g, []):
         return "own"
-    if EXALTATION.get(g, (None,))[0] == sign:
-        return "exalted"
-    if EXALTATION.get(g, (None,))[0] is not None and sign == (EXALTATION[g][0] + 6) % 12:
-        return "debilitated"
     return chart.relationship(g, SIGN_LORDS[sign])
 
 
 def saptavargaja_bala(chart: Chart, g: str) -> float:
-    """Dignity across the seven vargas D1, D2, D3, D7, D9, D12, D30."""
+    """Dignity across the seven vargas D1, D2, D3, D7, D9, D12, D30 (BPHS 28.3-4)."""
     lon = chart.grahas[g].longitude
     total = 0.0
     for d in SAPTAVARGA:
-        sign = int(varga(lon, d) // 30)
-        total += DIGNITY_VIRUPAS[_dignity_in(sign, g, chart)]
+        v = varga(lon, d)
+        total += DIGNITY_VIRUPAS[_dignity_in(int(v // 30), v % 30, g, chart)]
     return total
 
 
@@ -216,24 +217,20 @@ def nathonnatha_bala(g: str, pc: P.Panchanga, jd: float) -> float:
     return 60.0 * from_noon
 
 
-def paksha_bala(chart: Chart, g: str, moon_literal: bool = True) -> float:
-    """Benefics draw on the bright half, malefics on the dark half.
+# BPHS 28.11 names the benefic group for paksha bala outright.
+PAKSHA_BENEFICS = {"Moon", "Mercury", "Venus", "Jupiter"}
 
-    A live disagreement sits on the Moon.  Read literally, BPHS makes a dark
-    Moon a malefic, which then draws the *krishna* value -- so a new-moon birth
-    gives the Moon near-maximum paksha bala, doubled.  Several modern
-    implementations instead give the Moon its own illuminated fraction, so a
-    new Moon is weak.  ``moon_literal`` selects between them; the default
-    follows the text.
-    """
+
+def paksha_bala(chart: Chart, g: str) -> float:
+    """BPHS 28.10-11: the Moon's distance from the Sun, taken from the nearer
+    side, in degrees / 3, for the Moon, Mercury, Venus and Jupiter; sixty less
+    that for the Sun, Mars and Saturn. The Moon's figure counts once here and
+    once more as its chesta bala (28.18), nowhere else."""
     elong = (chart.grahas["Moon"].longitude - chart.grahas["Sun"].longitude) % 360
     if elong > 180:
         elong = 360 - elong
     bright = elong / 3.0  # 0..60 as the Moon waxes
-    if g == "Moon" and not moon_literal:
-        return bright * 2.0
-    value = bright if chart.is_benefic(g) else 60.0 - bright
-    return value * 2.0 if g == "Moon" else value
+    return bright if g in PAKSHA_BENEFICS else 60.0 - bright
 
 
 def tribhaga_bala(g: str, pc: P.Panchanga, jd: float) -> float:
@@ -502,7 +499,8 @@ def vimshopaka(chart: Chart, scheme: str = "shodashavarga") -> dict[str, float]:
         lon = chart.grahas[g].longitude
         total = 0.0
         for d, w in weights.items():
-            dign = _dignity_in(int(varga(lon, d) // 30), g, chart)
+            v = varga(lon, d)
+            dign = _dignity_in(int(v // 30), v % 30, g, chart)
             frac = DIGNITY_VIRUPAS[dign] / 45.0
             total += w * frac
         out[g] = total

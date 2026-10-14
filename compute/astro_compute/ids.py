@@ -73,8 +73,8 @@ def slug(text: str) -> str:
     return re.sub(r"[^a-z0-9]+", "_", text.lower()).strip("_")
 
 
-def dignity_id(name: str) -> str:
-    return name.replace(" ", "_")
+def dignity_id(name: str | None) -> str | None:
+    return name.replace(" ", "_") if name else None
 
 
 def functional_id(name: str) -> str:

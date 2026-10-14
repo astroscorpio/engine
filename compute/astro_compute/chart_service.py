@@ -12,7 +12,7 @@ from jyotisha import states as ST
 from jyotisha import strength as STR
 from jyotisha import upagraha as U
 from jyotisha import yogas as Y
-from jyotisha.chart import OWN_SIGNS, SIGN_LORDS, Chart
+from jyotisha.chart import NODE_OWN_BY_SOME, NODE_SIGNS, OWN_SIGNS, SIGN_LORDS, Chart
 from jyotisha.ephemeris import DASHA_YEAR, GRAHAS, SEVEN, ayanamsa_value, positions
 from jyotisha.vargas import SHODASHAVARGA, VARGA_NAMES
 
@@ -39,9 +39,6 @@ from .timeutil import Birth, iso, iso_utc, local_jd, parse_instant, resolve_birt
 VARGA_CODES = {f"D{d}": d for d in SHODASHAVARGA}
 _GRAHA_WORD = re.compile(r"\b(" + "|".join(GRAHAS) + r")\b")
 
-# Yogas whose detection never reads the lagna, so they survive an unknown birth time.
-MOON_SAFE_CATEGORIES = {"lunar", "solar", "nabhasa/sankhya", "nabhasa/ashraya"}
-MOON_SAFE_NAMES = {"Kala Sarpa Yoga"}
 # The engine's own kuja dosha yogas (1,2,4,7,8,12 from the lagna and from the Moon)
 # have no source; kuja.py's cited rule replaces them on the chart.
 ENGINE_KUJA = {"Kuja Dosha (Mangal)", "Kuja Dosha from the Moon"}
@@ -90,6 +87,19 @@ def moon_uncertainty(inp: ChartIn, birth: Birth) -> tuple[bool, bool]:
     return a.sign != b.sign, a.nakshatra != b.nakshatra
 
 
+def dignity_note(chart: Chart, g: str) -> str | None:
+    """Rahu and Ketu (BPHS Dasa-phala vv. 35-36): debilitation as the 7th from
+    exaltation is our reading; Virgo and Pisces are own signs "according to some"."""
+    if g not in NODE_SIGNS:
+        return None
+    sign = chart.grahas[g].sign
+    if sign == NODE_SIGNS[g]["debilitated"]:
+        return "node_debilitation_our_reading"
+    if sign == NODE_OWN_BY_SOME[g]:
+        return "node_own_sign_by_some"
+    return None
+
+
 def yoga_id(y: Y.Yoga) -> str:
     if y.name == "Shakata Yoga" and y.category == "nabhasa/akriti":
         return "shakata_akriti"
@@ -99,36 +109,42 @@ def yoga_id(y: Y.Yoga) -> str:
 
 
 def yoga_participants(chart: Chart, y: Y.Yoga) -> list[str]:
-    named = set(_GRAHA_WORD.findall(y.detail))
-    if y.category == "lunar":
-        named.add("Moon")
-    elif y.category == "solar":
-        named.add("Sun")
-    elif y.category in ("nabhasa/sankhya", "nabhasa/ashraya", "nabhasa/akriti"):
+    if y.grahas:
+        named = set(y.grahas)
+    else:
+        named = set(_GRAHA_WORD.findall(y.detail))
+        if y.category == "lunar":
+            named.add("Moon")
+        elif y.category == "solar":
+            named.add("Sun")
+    if y.category in ("nabhasa/sankhya", "nabhasa/ashraya", "nabhasa/akriti"):
         named.update(SEVEN)
-    elif y.category == "nabhasa/dala":
-        benefic = y.name.startswith("Mala")
-        named.update(
-            g for g in SEVEN if chart.house(g) in (1, 4, 7, 10) and chart.is_benefic(g) == benefic
-        )
     if y.name == "Kala Sarpa Yoga":
         named.update(GRAHAS)
     return [g for g in GRAHAS if g in named]
 
 
+KUJA_SOURCE = {
+    "text": "Sulabh Jyotish Gyan",
+    "verse": None,
+    "edition": "Vasudev Sadashiva Khankhoje, Hindi, 1943",
+    "page": "223-226",
+}
+
+
 def yogas_payload(chart: Chart, house_of, moon_chart: bool) -> list[dict]:
-    """One row per (yoga, participants). The engine reports a kendra-trikona
-    pair once from each lord's side; those rows merge, keeping both reasons."""
+    """One row per (yoga, reference point, participants). The engine reports a
+    kendra-trikona pair once from each lord's side; those rows merge, keeping
+    both reasons. With the birth time unknown only yogas that hold on sign
+    positions alone are listed."""
     out: list[dict] = []
     seen: dict[tuple, dict] = {}
-    for y in Y.all_yogas(chart):
+    for y in Y.all_yogas(chart, lagna_known=not moon_chart):
         if y.name in ENGINE_KUJA:
-            continue
-        if moon_chart and y.category not in MOON_SAFE_CATEGORIES and y.name not in MOON_SAFE_NAMES:
             continue
         category, _, sub = y.category.partition("/")
         grahas = yoga_participants(chart, y)
-        key = (yoga_id(y), tuple(grahas))
+        key = (yoga_id(y), y.reckoned_from, tuple(grahas))
         if key in seen:
             row = seen[key]
             if y.detail not in row["reason"]:
@@ -137,12 +153,19 @@ def yogas_payload(chart: Chart, house_of, moon_chart: bool) -> list[dict]:
             continue
         seen[key] = row = {
             "id": yoga_id(y),
-            "category": category,
-            "subcategory": sub or None,
+            "category": category if y.source else "modern",
+            "subcategory": (sub or None) if y.source else None,
+            "from": y.reckoned_from,
             "reason": y.detail,
             "grahas": [GRAHA_ID[g] for g in grahas],
             "houses": sorted({house_of(chart.grahas[g].sign) for g in grahas}),
             "strength": y.strength,
+            "source": Y.SOURCES[y.source] if y.source else None,
+            "notes": list(y.notes),
+            "bphs": {"met": y.variants["bphs"]} if "bphs" in y.variants else None,
+            "phaladipika": (
+                {"met": y.variants["phaladipika"]} if "phaladipika" in y.variants else None
+            ),
         }
         out.append(row)
     kuja = K.status(chart, not moon_chart)
@@ -152,10 +175,15 @@ def yogas_payload(chart: Chart, house_of, moon_chart: bool) -> list[dict]:
                 "id": "kuja_dosha",
                 "category": "dosha",
                 "subcategory": None,
+                "from": "lagna",
                 "reason": f"Mars in house {kuja['marsHouse']['lagna']} from the lagna ({K.SOURCE})",
                 "grahas": ["mars"],
                 "houses": [house_of(chart.grahas["Mars"].sign)],
                 "strength": 1.0,
+                "source": KUJA_SOURCE,
+                "notes": [],
+                "bphs": None,
+                "phaladipika": None,
             }
         )
     return out
@@ -409,6 +437,7 @@ def build(req: ChartRequest) -> dict:
             "retro": chart.grahas[g].retrograde,
             "combust": chart.combust(g),
             "dignity": dignity_id(chart.dignity(g)),
+            "dignityNote": dignity_note(chart, g),
             "functional": None if moon_chart else functional_id(chart.functional_nature(g)),
             "rules": sorted(house_of(s) for s in OWN_SIGNS.get(g, [])),
             "vargottama": ST.vargottama(chart, g),

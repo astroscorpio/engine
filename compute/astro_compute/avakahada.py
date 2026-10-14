@@ -2,42 +2,51 @@
 
 Source: docs/sources/avakahada.md.
   Table  the satapada-chakra verses quoted in Sitarama Jha, Ati-brhad
-         Avakahada Cakram (1932), pp. 22-23, read with the vowels short as
-         its Hindi gloss writes them; vowel length is ignored.
-  Rules  Muhurta Martanda, Vivaha-prakarana v.55 and the author's commentary,
-         p. 106:
-         - the first letter of the name is looked up, and for a conjunct its
-           first letter (Pradyumna gives pa);
+         Avakahada Cakram (1932, "AC"), pp. 22-23.
+  Rules  Muhurta Martanda (MM), Vivaha-prakarana v.55 and the author's
+         commentary, p. 106, with AC pp. 24-26:
+         - the first syllable of the name is looked up; for a conjunct, its
+           first letter with the cluster's vowel (Pradyumna pa, Drupada du);
+         - a and aa, i and ii, u and uu, e and ai, o and au count as one (AC p. 26);
          - ba = va, sha = sa and kha = ssa stand for each other when the
-           name's syllable is missing from the chakra;
+           name's syllable is missing (MM; AC p. 26);
          - names do not begin with nga, nya or nna; read them as ga, ja, dda;
-         - with several names, the later one ("pascadbhavam nama"). That is the
-           name given later in life, not the last word of a full name, so the
-           caller sends the name the person goes by and its first word is read.
+         - r-vowel, which the chakra does not list, is read as ra (AC p. 25);
+         - with several names, the one that came later in life
+           ("pascad-bhava"), which is the name the person goes by now.
   Lead decisions (14 Oct 2026): Abhijit's syllables count as Uttarashadha
-  pada 4 (MC 6.52); a name still unmatched gets no nakshatra and a plain
-  reason, never a guess.
+  pada 4 (MC 6.52). Our readings, labelled as such in every response:
+  r-vowel after a consonant becomes ra and the conjunct rule applies (kr gives
+  ka); a consonant the chakra lists only once takes that cell whatever its
+  vowel (Dhruv gives dha). Anything still unmatched gets no nakshatra and a
+  plain reason, never a guess.
 
 Latin spellings hide distinctions the chakra makes (t/tta, d/dda, th/ttha,
-sh/ssa), so a Latin name also returns the other readings that resolve to a
-different pada. Devanagari is exact.
+sh/ssa, kr/kri), so a Latin name also returns the other readings that land in a
+different pada. Only Devanagari read by the cited rules alone is exact.
 """
 
 from __future__ import annotations
 
 import unicodedata
+from collections import defaultdict
 from dataclasses import dataclass, field
 
 from .ids import NAKSHATRA_IDS
 
-SOURCE = "MM vv. 54-55, pp. 104-106; Sitarama Jha 1932, pp. 22-23"
+SOURCE = "MM vv. 54-55, pp. 104-106; Sitarama Jha 1932, pp. 22-26"
 ABHIJIT = ("uttara_ashadha", 4)
 RULES = {
     "conjunct_first_letter": "MM v.55, commentary p. 106",
-    "equivalent_letters": "MM v.55, commentary p. 106",
+    "vowel_pairs": "Sitarama Jha 1932, p. 26",
+    "equivalent_letters": "MM v.55, commentary p. 106; Sitarama Jha 1932, p. 26",
     "nasal_read_as": "MM v.55, commentary p. 106",
+    "r_vowel_as_ra": "Sitarama Jha 1932, p. 25",
     "abhijit_as_uttara_ashadha": "MC 6.52, p. 275",
+    "r_in_syllable_as_ra": "our reading of Sitarama Jha 1932, p. 25 with MM v.55",
+    "single_cell_consonant": "our reading; no text read states it",
 }
+OUR_READINGS = {"r_in_syllable_as_ra", "single_cell_consonant"}
 
 # Consonants are internal ASCII codes: tt tth dd ddh nn are the retroflex row,
 # sh is the palatal sibilant, ss the retroflex one, ng and ny the nasals.
@@ -85,6 +94,7 @@ def iast(consonant: str, vowel: str) -> str:
 class Cell:
     nakshatra: str
     pada: int
+    syllable: str  # IAST
     devanagari: str
     abhijit: bool
 
@@ -103,11 +113,18 @@ for _star, _codes, _deva in _ROWS:
         }
     )
     for _i, (_code, _dv) in enumerate(_cells):
+        _key = tuple(_code.split("-"))
         _nak, _pada = ABHIJIT if _star == "abhijit" else (_star, _i + 1)
-        TABLE[tuple(_code.split("-"))] = Cell(_nak, _pada, _dv, _star == "abhijit")
+        TABLE[_key] = Cell(_nak, _pada, iast(*_key), _dv, _star == "abhijit")
 assert len(TABLE) == 4 * len(_ROWS) == 112, "two chakra cells share a syllable"
 assert all(star in NAKSHATRA_IDS or star == "abhijit" for star, _, _ in _ROWS)
 
+_BY_CONSONANT: dict[str, list[Cell]] = defaultdict(list)
+for (_c, _v), _cell in TABLE.items():
+    _BY_CONSONANT[_c].append(_cell)
+SINGLE = {c: cells[0] for c, cells in _BY_CONSONANT.items() if c and len(cells) == 1}
+
+VOWEL_PAIR = {"ai": "e", "au": "o"}
 READ_AS = {"ng": "g", "ny": "j", "nn": "dd"}
 PAIR = {"b": "v", "v": "b", "sh": "s", "s": "sh", "kh": "ss", "ss": "kh"}
 
@@ -157,8 +174,9 @@ _CONSONANT_LETTERS = set("bcdfghjklmnpqrstvwxyz")
 class Parsed:
     word: str
     script: str
-    readings: list[tuple[str, str]] = field(default_factory=list)  # (consonant, vowel)
-    conjunct: bool = False
+    readings: list[tuple[str, str, bool]] = field(
+        default_factory=list
+    )  # consonant, vowel, conjunct
     reason: str | None = None
 
 
@@ -166,7 +184,7 @@ def _deva(word: str) -> Parsed:
     p = Parsed(word, "devanagari")
     first = word[0]
     if first in _DEVA_VOWEL:
-        p.readings.append(("", _DEVA_VOWEL[first]))
+        p.readings.append(("", _DEVA_VOWEL[first], False))
         return p
     if first not in _DEVA_CONSONANT:
         p.reason = f"'{first}' is not a letter in the Avakahada chakra."
@@ -174,19 +192,27 @@ def _deva(word: str) -> Parsed:
     if word[1:2] == _NUKTA:
         p.reason = f"'{word[:2]}' has no letter in the Avakahada chakra."
         return p
-    i = 1
+    i, conjunct = 1, False
     while word[i : i + 1] == _HALANT and word[i + 1 : i + 2] in _DEVA_CONSONANT:
-        p.conjunct, i = True, i + 2
+        conjunct, i = True, i + 2
     sign = word[i : i + 1]
     if sign in _OTHER_SIGNS:
         p.reason = f"The Avakahada chakra has no syllable '{word[: i + 1]}'."
         return p
-    p.readings.append((_DEVA_CONSONANT[first], _DEVA_SIGN.get(sign, "a")))
+    p.readings.append((_DEVA_CONSONANT[first], _DEVA_SIGN.get(sign, "a"), conjunct))
     return p
 
 
 def _vowel(rest: str) -> str:
     return next((v for spelling, v in _LATIN_VOWEL if rest.startswith(spelling)), "a")
+
+
+def _cluster(rest: str) -> tuple[str, bool]:
+    """Skip the rest of a consonant cluster: (what follows it, whether there was one)."""
+    conjunct = False
+    while rest[:1] and rest[0] in _CONSONANT_LETTERS:
+        conjunct, rest = True, rest[1:]
+    return rest, conjunct
 
 
 def _latin(word: str, letters: str) -> Parsed:
@@ -195,30 +221,23 @@ def _latin(word: str, letters: str) -> Parsed:
         p.reason = f"'{_NO_LETTER[letters[0]]}' has no letter in the Avakahada chakra."
         return p
     if letters[0] not in _CONSONANT_LETTERS:
-        p.readings.append(("", _vowel(letters)))
+        p.readings.append(("", _vowel(letters), False))
         return p
     if letters[0] == "c" and not letters.startswith("ch"):
         # An English c: s before e, i or y, otherwise k; both are offered.
         order = ("s", "k") if letters[1:2] in ("e", "i", "y") else ("k", "s")
-        rest = letters[1:]
-        while rest[:1] and rest[0] in _CONSONANT_LETTERS:
-            p.conjunct, rest = True, rest[1:]
-        vowel = _vowel(rest)
-        p.readings += [(c, vowel) for c in order]
+        rest, conjunct = _cluster(letters[1:])
+        p.readings += [(c, _vowel(rest), conjunct) for c in order]
         return p
     for spelling, consonant, others in _LATIN_CONJUNCT:
         if letters.startswith(spelling):
-            p.conjunct = True
             vowel = _vowel(letters[len(spelling) :])
-            p.readings += [(c, vowel) for c in (consonant, *others)]
+            p.readings += [(c, vowel, True) for c in (consonant, *others)]
             return p
     for spelling, consonant, others in _LATIN_CONSONANT:
         if letters.startswith(spelling):
-            rest = letters[len(spelling) :]
-            while rest[:1] and rest[0] in _CONSONANT_LETTERS:
-                p.conjunct, rest = True, rest[1:]
-            vowel = _vowel(rest)
-            p.readings += [(c, vowel) for c in (consonant, *others)]
+            rest, conjunct = _cluster(letters[len(spelling) :])
+            p.readings += [(c, _vowel(rest), conjunct) for c in (consonant, *others)]
             return p
     p.reason = f"'{word}' cannot be read."
     return p
@@ -239,70 +258,86 @@ def _parse(name: str) -> Parsed:
     return Parsed(word, "other", reason="Only names in Latin or Devanagari letters can be read.")
 
 
-def _resolve(consonant: str, vowel: str) -> tuple[Cell, str, list[str]] | None:
-    """The chakra cell for a syllable, the syllable used, and the rules applied."""
-    rules = []
+def _resolve(consonant: str, vowel: str, conjunct: bool) -> tuple[Cell, list[str]] | None:
+    """The chakra cell for a syllable and the rules applied to reach it."""
+    rules = ["conjunct_first_letter"] if conjunct else []
+    if vowel in VOWEL_PAIR:
+        vowel = VOWEL_PAIR[vowel]
+        rules.append("vowel_pairs")
+    if vowel == "ri":
+        if consonant:  # कृ read as क्र, then the conjunct's first letter: ka
+            rules += ["r_in_syllable_as_ra", "conjunct_first_letter"]
+        else:
+            consonant = "r"
+            rules.append("r_vowel_as_ra")
+        vowel = "a"
     if consonant in READ_AS:
         consonant = READ_AS[consonant]
         rules.append("nasal_read_as")
     cell = TABLE.get((consonant, vowel))
-    if cell is None and consonant in PAIR:
-        consonant = PAIR[consonant]
-        cell = TABLE.get((consonant, vowel))
+    if cell is None and (consonant in PAIR and (PAIR[consonant], vowel) in TABLE):
+        cell = TABLE[(PAIR[consonant], vowel)]
         rules.append("equivalent_letters")
+    if cell is None and consonant in SINGLE:
+        cell = SINGLE[consonant]
+        rules.append("single_cell_consonant")
     if cell is None:
         return None
     if cell.abhijit:
         rules.append("abhijit_as_uttara_ashadha")
-    return cell, iast(consonant, vowel), rules
+    return cell, list(dict.fromkeys(rules))
 
 
 def lookup(name: str) -> dict:
     """What the Avakahada chakra gives for a name. `matched` is False, with a
     plain `reason`, when the chakra has nothing for its first syllable."""
     p = _parse(name)
-    out = {
-        "nameUsed": p.word,
-        "script": p.script,
-        "exact": p.script == "devanagari",
-        "source": SOURCE,
-    }
+    out = {"nameUsed": p.word, "script": p.script, "source": SOURCE}
     if p.reason:
-        return {**out, "matched": False, "syllableRead": None, "reason": p.reason}
+        return {**out, "matched": False, "exact": False, "syllableRead": None, "reason": p.reason}
     hits = []
-    for consonant, vowel in p.readings:
-        hit = _resolve(consonant, vowel)
+    for order, (consonant, vowel, conjunct) in enumerate(p.readings):
+        hit = _resolve(consonant, vowel, conjunct)
         if hit:
-            hits.append((iast(consonant, vowel), *hit))
+            cell, rules = hit
+            ours = bool(OUR_READINGS & set(rules))
+            hits.append((ours, order, iast(consonant, vowel), cell, rules))
     if not hits:
-        consonant, vowel = p.readings[0]
-        reason = (
-            f"The Avakahada chakra has no syllables with the vowel '{iast('', vowel)}'."
-            if vowel in ("ai", "au", "ri")
-            else f"The Avakahada chakra has no syllable '{iast(consonant, vowel)}'."
-        )
-        return {**out, "matched": False, "syllableRead": iast(consonant, vowel), "reason": reason}
-    (read, cell, used, rules), *others = hits
+        consonant, vowel, _ = p.readings[0]
+        read = iast(consonant, vowel)
+        return {
+            **out,
+            "matched": False,
+            "exact": False,
+            "syllableRead": read,
+            "reason": f"The Avakahada chakra has no syllable '{read}'.",
+        }
+    # Readings the cited rules reach come before our readings, then spelling order.
+    hits.sort(key=lambda h: (h[0], h[1]))
+    (ours, _, read, cell, rules), *others = hits
     alternatives, seen = [], {(cell.nakshatra, cell.pada)}
-    for _, alt, syllable, _ in others:
+    for alt_ours, _, _, alt, _ in others:
         if (alt.nakshatra, alt.pada) not in seen:
             seen.add((alt.nakshatra, alt.pada))
             alternatives.append(
                 {
-                    "syllable": syllable,
+                    "syllable": alt.syllable,
                     "devanagari": alt.devanagari,
                     "nakshatra": alt.nakshatra,
                     "pada": alt.pada,
+                    "ourReading": alt_ours,
                 }
             )
     return {
         **out,
         "matched": True,
+        "exact": p.script == "devanagari" and not ours,
+        "ourReading": ours,
         "syllableRead": read,
-        "syllable": used,
+        "syllable": cell.syllable,
         "devanagari": cell.devanagari,
         "nakshatra": cell.nakshatra,
         "pada": cell.pada,
-        "rules": (["conjunct_first_letter"] if p.conjunct else []) + rules,
+        "rules": rules,
         "alternatives": alternatives,
     }

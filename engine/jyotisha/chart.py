@@ -58,16 +58,27 @@ EXALTATION = {
     "Ketu": (7, 20),
 }
 DEBILITATION = {n: ((s + 6) % 12, d) for n, (s, d) in EXALTATION.items()}
-# (sign, from_degree, to_degree)
+# (sign, from_degree, to_degree): BPHS 3.52-55 (1939 ed., p. 16).
 MOOLATRIKONA = {
     "Sun": (4, 0, 20),
-    "Moon": (1, 4, 30),
+    "Moon": (1, 3, 30),
     "Mars": (0, 0, 12),
-    "Mercury": (5, 16, 20),
+    "Mercury": (5, 15, 20),
     "Jupiter": (8, 0, 10),
     "Venus": (6, 0, 15),
     "Saturn": (10, 0, 20),
 }
+# BPHS 3.52-53: in its exaltation sign the Moon is exalted only to 3 degrees and
+# Mercury to 15; the rest is mulatrikona (for Mercury, then own sign from 20).
+EXALTED_TO = {"Moon": 3.0, "Mercury": 15.0}
+# BPHS Dasa-phala vv. 35-36 (p. 329): Rahu and Ketu exalted in Taurus and Scorpio,
+# mulatrikona in Gemini and Sagittarius, own signs Aquarius and Scorpio ("some":
+# Virgo and Pisces). Their debilitation as the 7th from exaltation is our reading.
+NODE_SIGNS = {
+    "Rahu": {"exalted": 1, "debilitated": 7, "moolatrikona": 2, "own": 10},
+    "Ketu": {"exalted": 7, "debilitated": 1, "moolatrikona": 8, "own": 7},
+}
+NODE_OWN_BY_SOME = {"Rahu": 5, "Ketu": 11}
 NATURAL_FRIENDS = {
     "Sun": ({"Moon", "Mars", "Jupiter"}, {"Mercury"}),
     "Moon": ({"Sun", "Mercury"}, {"Mars", "Jupiter", "Venus", "Saturn"}),
@@ -146,11 +157,16 @@ class Chart:
 
     # --- dignity ------------------------------------------------------------
 
-    def dignity(self, name: str) -> str:
+    def dignity(self, name: str) -> str | None:
+        """Exalted, debilitated, moolatrikona, own, or the compound relation to
+        the sign's lord. Rahu and Ketu have no natural friendships (BPHS ch. 3),
+        so outside their own dignities they have none: None."""
         p = self.grahas[name]
+        if name in NODE_SIGNS:
+            return next((k for k, sign in NODE_SIGNS[name].items() if p.sign == sign), None)
         ex_sign, _ = EXALTATION.get(name, (None, 0))
         db_sign, _ = DEBILITATION.get(name, (None, 0))
-        if p.sign == ex_sign:
+        if p.sign == ex_sign and p.degree < EXALTED_TO.get(name, 30.0):
             return "exalted"
         if p.sign == db_sign:
             return "debilitated"
@@ -224,15 +240,23 @@ class Chart:
         return sep <= orb
 
     def is_benefic(self, name: str) -> bool:
+        """BPHS 3.11-12: the Sun, Mars, Saturn, Rahu, Ketu and the waning Moon are
+        malefic, and so is Mercury joined with a malefic; the rest are benefic.
+        Waning, per the translator's note to BJ 2.5 (1912, pp. 40-41), runs from
+        the 8th of the dark half to the 8th of the bright half, so the Moon is a
+        benefic in tithis 9 to 22."""
         if name in BENEFICS:
             return True
-        if name == "Mercury":
-            # Mercury takes the nature of its company.
-            with_it = [g for g in self.occupants(self.house("Mercury")) if g != "Mercury"]
-            return not with_it or all(g in BENEFICS for g in with_it)
         if name == "Moon":
-            tithi = ((self.grahas["Moon"].longitude - self.grahas["Sun"].longitude) % 360) / 12
-            return 5 <= tithi <= 25  # paksha bala: waxing Moon
+            elongation = (self.grahas["Moon"].longitude - self.grahas["Sun"].longitude) % 360
+            return 9 <= int(elongation // 12) + 1 <= 22
+        if name == "Mercury":
+            sign = self.grahas["Mercury"].sign
+            return not any(
+                self.grahas[g].sign == sign and not self.is_benefic(g)
+                for g in GRAHAS
+                if g != "Mercury"
+            )
         return False
 
     def functional_nature(self, name: str) -> str:
@@ -289,7 +313,7 @@ class Chart:
             flag = "c" if self.combust(name) else " "
             rows.append(
                 f"{name:10s} {p!s:14s} {NAKSHATRAS[p.nakshatra]:13s}"
-                f"{p.pada:3d}{self.house(name):4d}{flag} {self.dignity(name):14s}"
+                f"{p.pada:3d}{self.house(name):4d}{flag} {self.dignity(name) or '-':14s}"
                 f"{ruled}"
             )
         return "\n".join(rows)

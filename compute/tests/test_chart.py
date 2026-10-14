@@ -67,14 +67,20 @@ def test_mahadashas_are_contiguous_and_span_120_years(chart):
 
 
 def test_yogas_merge_mirrored_pairs(chart):
-    keys = [(y["id"], tuple(y["grahas"])) for y in chart["yogas"]]
+    keys = [(y["id"], y["from"], tuple(y["grahas"])) for y in chart["yogas"]]
     assert len(keys) == len(set(keys))
     for y in chart["yogas"]:
         assert y["grahas"], y
         assert y["category"] in {
             "mahapurusha", "raja", "dhana", "vipareeta", "cancellation", "lunar",
-            "solar", "exchange", "dosha", "auspicious", "nabhasa",
+            "solar", "exchange", "dosha", "auspicious", "nabhasa", "modern",
         }  # fmt: skip
+        # Every yoga but the modern ones carries its text, verse, edition and page.
+        if y["category"] == "modern":
+            assert y["source"] is None
+        else:
+            assert set(y["source"]) == {"text", "verse", "edition", "page"}, y
+        assert y["from"] in (None, "lagna", "moon")
 
 
 def test_all_vargas_and_d1_agrees_with_rashi(chart):
@@ -96,7 +102,12 @@ def test_time_unknown_is_a_moon_chart():
     assert "vargas" not in out and "ashtakavarga" not in out
     assert out["houses"][0]["sign"] == out["summary"]["moonSign"]
     assert out["dasha"]["balanceAtBirth"] is None
-    assert all(y["category"] in {"lunar", "solar", "nabhasa", "dosha"} for y in out["yogas"])
+    # Only yogas that hold on sign positions alone: nothing counted from the lagna.
+    assert all(y["from"] != "lagna" for y in out["yogas"])
+    assert all(
+        y["category"] in {"lunar", "solar", "mahapurusha", "auspicious", "modern"}
+        for y in out["yogas"]
+    )
 
 
 def test_time_required_unless_unknown():

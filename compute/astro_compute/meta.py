@@ -81,11 +81,23 @@ DIGNITIES = {
     "great_friend": "Great friend", "friend": "Friend", "neutral": "Neutral",
     "enemy": "Enemy", "great_enemy": "Great enemy", "debilitated": "Debilitated",
 }  # fmt: skip
+DIGNITY_NOTES = {
+    "node_debilitation_our_reading": "Debilitated as the 7th sign from its exaltation (our reading; BPHS names no sign)",
+    "node_own_sign_by_some": "Own sign according to some (BPHS Dasa-phala v.36); the main view is Aquarius for Rahu, Scorpio for Ketu",
+}  # fmt: skip
 YOGA_CATEGORIES = {
     "mahapurusha": "Pancha Mahapurusha", "raja": "Raja yoga", "dhana": "Dhana yoga",
     "vipareeta": "Vipareeta Raja yoga", "cancellation": "Neecha Bhanga", "lunar": "Lunar yoga",
     "solar": "Solar yoga", "exchange": "Parivartana", "dosha": "Dosha",
     "auspicious": "Auspicious yoga", "nabhasa": "Nabhasa yoga",
+    "modern": "Modern usage (no classical source found)",
+}  # fmt: skip
+YOGA_NOTES = {
+    "strength_our_reading_of_bphs": "Strong read as shadbala at or above BPHS's required rupas (our reading)",
+    "some_cancel_kemadruma_moon_in_kendra": "Some hold there is no Kemadruma: the Moon is in a kendra (Phaladipika 6.5)",
+    "some_cancel_kemadruma_planet_with_moon": "Some hold there is no Kemadruma: a graha is with the Moon (Phaladipika 6.5)",
+    "some_cancel_kemadruma_planet_in_kendra_from_moon": "Some hold there is no Kemadruma: a graha is in a kendra from the Moon (Phaladipika 6.5)",
+    "bphs_42_our_reading": "Our reading of BPHS 42: every named graha in the 11th, or in or aspecting the lagna",
 }  # fmt: skip
 SPECIAL_YOGAS = {
     "amrita_siddhi": "Amrita Siddhi", "sarvartha_siddhi": "Sarvartha Siddhi",
@@ -117,15 +129,15 @@ YOGAS = {
     "vimala": ("Vimala", "vipareeta"), "neecha_bhanga_raja": ("Neecha Bhanga Raja Yoga", "cancellation"),
     "durudhara": ("Durudhara", "lunar"), "sunapha": ("Sunapha", "lunar"),
     "anapha": ("Anapha", "lunar"), "kemadruma": ("Kemadruma", "lunar"),
-    "gaja_kesari": ("Gaja Kesari", "lunar"), "chandra_mangala": ("Chandra-Mangala", "lunar"),
+    "gaja_kesari": ("Gaja Kesari", "lunar"), "chandra_mangala": ("Chandra-Mangala", "modern"),
     "adhi": ("Adhi", "lunar"), "shakata": ("Shakata", "lunar"),
     "ubhayachari": ("Ubhayachari", "solar"), "vesi": ("Vesi", "solar"), "vasi": ("Vasi", "solar"),
-    "budha_aditya": ("Budha-Aditya", "solar"),
+    "budha_aditya": ("Budha-Aditya", "modern"),
     "dainya_parivartana": ("Dainya Parivartana", "exchange"),
     "khala_parivartana": ("Khala Parivartana", "exchange"),
     "maha_parivartana": ("Maha Parivartana", "exchange"),
     "kuja_dosha": ("Kuja (Mangal) Dosha (Khankhoje 1943)", "dosha"),
-    "kala_sarpa": ("Kala Sarpa", "dosha"), "amala": ("Amala", "auspicious"),
+    "kala_sarpa": ("Kala Sarpa", "modern"), "amala": ("Amala", "auspicious"),
     "saraswati": ("Saraswati", "auspicious"), "lakshmi": ("Lakshmi", "auspicious"),
     "gola": ("Gola", "nabhasa"), "yuga": ("Yuga", "nabhasa"), "shoola": ("Shoola", "nabhasa"),
     "kedara": ("Kedara", "nabhasa"), "pasha": ("Pasha", "nabhasa"), "damini": ("Damini", "nabhasa"),
@@ -137,6 +149,8 @@ YOGAS = {
     "shara": ("Shara", "nabhasa"), "shakti": ("Shakti", "nabhasa"), "danda": ("Danda", "nabhasa"),
     "nauka": ("Nauka", "nabhasa"), "kuta": ("Kuta", "nabhasa"), "chhatra": ("Chhatra", "nabhasa"),
     "chapa": ("Chapa", "nabhasa"), "chakra": ("Chakra", "nabhasa"), "samudra": ("Samudra", "nabhasa"),
+    "gada": ("Gada", "nabhasa"), "vajra": ("Vajra", "nabhasa"), "yava": ("Yava", "nabhasa"),
+    "ardhachandra": ("Ardhachandra", "nabhasa"),
 }  # fmt: skip
 
 MUHURTA_RULE_NAMES = {
@@ -183,10 +197,14 @@ KUJA_CONVENTIONS = {
 }
 MATCHING_BASES = {"chart": "Birth details", "nakshatra": "Birth star", "name": "Name"}
 NAME_RULES = {
-    "conjunct_first_letter": "A conjunct is read by its first letter",
+    "conjunct_first_letter": "A conjunct is read by its first letter, keeping the cluster's vowel",
+    "vowel_pairs": "Long and short vowels count as one, and so do e and ai, o and au",
     "equivalent_letters": "Ba and va, śa and sa, kha and ṣa stand for each other when a syllable is missing",
     "nasal_read_as": "Names in ṅa, ña and ṇa are read as ga, ja and ḍa",
+    "r_vowel_as_ra": "Ṛ, which the chakra does not list, is read as ra",
     "abhijit_as_uttara_ashadha": "Abhijit's syllables count as Uttarashadha pada 4",
+    "r_in_syllable_as_ra": "Our reading: ṛ after a consonant is read as ra, then the conjunct rule applies (kṛ gives ka)",
+    "single_cell_consonant": "Our reading: a consonant the chakra lists only once takes that cell whatever its vowel",
 }
 KOOTA_NAMES = {
     "varna": "Varna", "vashya": "Vashya", "tara": "Tara", "yoni": "Yoni",
@@ -323,8 +341,10 @@ def _english() -> dict:
         "windows": {k: {"name": n, "description": d} for k, (n, d) in WINDOWS.items()},
         "specialYogas": {k: {"name": v} for k, v in SPECIAL_YOGAS.items()},
         "dignities": {k: {"name": v} for k, v in DIGNITIES.items()},
+        "dignityNotes": {k: {"name": v} for k, v in DIGNITY_NOTES.items()},
         "yogaCategories": {k: {"name": v} for k, v in YOGA_CATEGORIES.items()},
         "yogas": {k: {"name": n, "category": c} for k, (n, c) in YOGAS.items()},
+        "yogaNotes": {k: {"name": v} for k, v in YOGA_NOTES.items()},
         "vargas": {
             f"D{d}": {"name": VARGA_NAMES[d], "signifies": VARGA_SIGNIFIES[d]} for d in VARGA_NAMES
         },
@@ -363,7 +383,10 @@ def _english() -> dict:
                 "pada": AV.ABHIJIT[1],
                 "source": AV.RULES["abhijit_as_uttara_ashadha"],
             },
-            "rules": {k: {"name": NAME_RULES[k], "source": src} for k, src in AV.RULES.items()},
+            "rules": {
+                k: {"name": NAME_RULES[k], "source": src, "ourReading": k in AV.OUR_READINGS}
+                for k, src in AV.RULES.items()
+            },
         },
         "kujaConventions": {k: {"name": v} for k, v in KUJA_CONVENTIONS.items()},
     }

@@ -4,14 +4,21 @@ from conftest import AT, DELHI, EXAMPLE, call
 def test_every_emitted_id_has_a_meta_entry(chart, panchang, meta):
     for g in chart["grahas"]:
         assert g["id"] in meta["grahas"] and g["sign"] in meta["signs"]
-        assert g["nakshatra"] in meta["nakshatras"] and g["dignity"] in meta["dignities"]
+        assert g["nakshatra"] in meta["nakshatras"]
+        assert g["dignity"] in meta["dignities"] or (
+            g["dignity"] is None and g["id"] in ("rahu", "ketu")
+        )
+        assert g["dignityNote"] is None or g["dignityNote"] in meta["dignityNotes"]
     for y in chart["yogas"]:
         assert y["id"] in meta["yogas"], y["id"]
         assert meta["yogas"][y["id"]]["category"] == y["category"]
+        assert all(n in meta["yogaNotes"] for n in y["notes"]), y["notes"]
     for code, v in chart["vargas"].items():
         assert code in meta["vargas"]
-        for row in v["grahas"].values():
-            assert row["dignity"] in meta["dignities"]
+        for gid, row in v["grahas"].items():
+            assert row["dignity"] in meta["dignities"] or (
+                row["dignity"] is None and gid in ("rahu", "ketu")
+            )
     for group, values in chart["states"]["sun"].items():
         if group in meta["states"]:
             ids = values if isinstance(values, list) else [values]
