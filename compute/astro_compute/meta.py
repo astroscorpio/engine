@@ -702,7 +702,7 @@ FESTIVAL_RULES = {
     },
     "chhath": {
         "sunset_in_shashthi": ("Chhath: the evening arghya on the day whose sunset falls within the Kartika shukla Shashthi (popular practice; no text read gives the day)", None),
-        "two_sunsets_earlier": ("Both sunsets within the Shashthi: the earlier (popular practice; no text read gives the day; our choice)", None),
+        "two_sunsets_later": ("Both sunsets within the Shashthi: the later, on the day whose sunrise holds it, so that Kharna, the evening arghya and the morning arghya each keep their own tithi (popular practice; no text read gives the day; our reading)", None),
         "sunrise_holds_shashthi": ("No sunset within the Shashthi: the day whose sunrise holds it (popular practice; no text read gives the day)", None),
     },
     "hanuman-jayanti": {

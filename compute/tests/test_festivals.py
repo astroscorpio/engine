@@ -421,3 +421,25 @@ def test_popular_practice_kinds_carry_their_basis_and_follow_our_rules():
     assert v["date"] == kanya["date"]
     status, d = call("GET", "/v1/festivals/dipavali", DELHI)
     assert d["basis"] == "text"
+
+
+def test_chhath_with_two_sunsets_takes_the_later():
+    import datetime as dt
+
+    import swisseph as swe
+
+    from astro_compute.models import EkadashiQuery
+
+    def jd(iso):
+        t = dt.datetime.fromisoformat(iso).astimezone(dt.UTC)
+        return swe.julday(t.year, t.month, t.day, t.hour + t.minute / 60 + t.second / 3600)
+
+    (c,) = _rows("chhath")
+    start = jd(c["tithi"]["start"])
+    q = EkadashiQuery(year=2026, lat=28.6139, lon=77.2090, tz="Asia/Kolkata")
+    # Stretch the Shashthi past the next day's sunset: two sunsets now fall inside it.
+    end = jd(c["set"]["sandhyaArghya"]["sunset"]) + 1.05
+    long = F._chhath(start, end, end + 1, q)
+    assert long["rule"] == "two_sunsets_later"
+    nxt = (dt.date.fromisoformat(c["date"]) + dt.timedelta(1)).isoformat()
+    assert long["date"] == nxt and long["set"]["kharna"]["date"] == c["date"]

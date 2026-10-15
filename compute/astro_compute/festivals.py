@@ -1712,8 +1712,10 @@ LEO = 4
 
 def _chhath(start: float, end: float, _next: float, q: EkadashiQuery) -> dict | None:
     """s27.1: the evening arghya on the day whose sunset falls within the Kartika shukla
-    Shashthi (the earlier if two do, our choice), else the day whose sunrise holds it;
-    the morning arghya at the next sunrise; Kharna and nahay-khay the two days before."""
+    Shashthi, else the day whose sunrise holds it; if two sunsets do, the later, on the
+    day whose sunrise holds it, so that each day keeps its own tithi (our reading,
+    research's ruling of 15 Oct 2026). The morning arghya at the next sunrise; Kharna
+    and nahay-khay the two days before."""
     base = _base(start, end, 6, q)
     if not _in_month(base, "kartika"):
         return None
@@ -1721,8 +1723,8 @@ def _chhath(start: float, end: float, _next: float, q: EkadashiQuery) -> dict | 
     sets = [_sunset(s[i], q) for i in range(3)]
     inside = [i for i in range(3) if start <= sets[i] < end]
     if inside:
-        k = inside[0]
-        rule = "two_sunsets_earlier" if len(inside) > 1 else "sunset_in_shashthi"
+        k = inside[-1]
+        rule = "two_sunsets_later" if len(inside) > 1 else "sunset_in_shashthi"
     else:
         k, rule = next(i for i in (1, 2) if start <= s[i] < end), "sunrise_holds_shashthi"
     day = lambda i: {"date": _date(s[i], q), "vara": _vara(s[i], q)}  # noqa: E731
