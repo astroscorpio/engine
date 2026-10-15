@@ -167,7 +167,8 @@ PURNIMA_EARLIER_NOTE = (
 # observances.md s6
 AMAVASYA_NAMES = {
     "mahalaya": ("Mahalaya Amavasya", "The last day of the Mahalaya fortnight, the dark fortnight after the Bhadrapada full moon", "Nirnaya-sindhu p. 215"),
-    "magha": ("Magha Amavasya (popularly Mauni Amavasya)", "The text does not call it Mauni; silence belongs to the Magha bath (p. 324)", "Nirnaya-sindhu p. 341"),
+    "magha": ("Magha Amavasya", "A yugadi day: the new moon that ends amanta Magha", "Nirnaya-sindhu p. 341"),
+    "mauni": ("Mauni Amavasya (popular name)", "The new moon inside purnimanta Magha (amanta Pausha); the texts read do not use the name. Nirnaya-sindhu asks for silence during the Magha bath, which this new moon falls inside", "Nirnaya-sindhu p. 324 (silence in the Magha bath)"),
     "somavati": ("Somavati Amavasya (Monday)", "A Monday Amavasya 'gives fruit like the equinox'; the commentary says 'somavari amavas'", "Nirnaya-sindhu p. 73 (Satatapa, Vyasa)"),
     "bhauma": ("Bhauma Amavasya (Tuesday)", "On a Tuesday Amavasya, bathing in the Ganga gives the fruit of a thousand cows", "Nirnaya-sindhu p. 73 (Satatapa)"),
     "shani": ("Shani Amavasya (Saturday)", "Popular observance; no classical source found", None),

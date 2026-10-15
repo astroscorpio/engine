@@ -96,5 +96,6 @@ def test_named_amavasyas():
     status, out = call("GET", "/v1/observances/amavasya", DELHI)
     by_date = {r["vrata"]["date"]: r for r in out["occurrences"]}
     assert "mahalaya" in by_date["2026-10-10"]["names"]
+    assert "mauni" in by_date["2026-01-18"]["names"] and "magha" in by_date["2026-02-17"]["names"]
     for r in out["occurrences"]:
         assert ("somavati" in r["names"]) == (r["vrata"]["vara"] == "monday")

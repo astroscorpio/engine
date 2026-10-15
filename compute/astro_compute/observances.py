@@ -231,7 +231,10 @@ def ekadashi(q: EkadashiQuery) -> dict:
 NS_73 = {**SOURCE, "verse": "Purnima-nirnaya; Darsha-shraddha-kala", "page": "72-73, 81-87"}
 # observances.md s6: names a given Amavasya can carry (meta.amavasyaNames).
 MAHALAYA_AMANTA = "bhadrapada"  # the dark fortnight after the Bhadrapada full moon (NS p. 215)
-MAGHA_PURNIMANTA = "magha"  # pending research: which month system NS p. 341 uses
+# NS p. 341 names a new moon by the amanta month it ends: its yugadi "Magha
+# Amavasya" ends amanta Magha. The popular Mauni Amavasya is the one inside
+# purnimanta Magha (amanta Pausha), a different new moon.
+MAGHA = "magha"
 WEEKDAY_NAMES = {"monday": "somavati", "tuesday": "bhauma", "saturday": "shani"}
 
 
@@ -287,8 +290,10 @@ def _full_or_new(start: float, end: float, _next_end: float, q: EkadashiQuery) -
         names = []
         if lunar["amanta"] == MAHALAYA_AMANTA and not lunar["adhika"]:
             names.append("mahalaya")
-        if lunar["purnimanta"] == MAGHA_PURNIMANTA and not lunar["adhika"]:
+        if lunar["amanta"] == MAGHA and not lunar["adhika"]:
             names.append("magha")
+        if lunar["purnimanta"] == MAGHA and not lunar["adhika"]:
+            names.append("mauni")
         if vara in WEEKDAY_NAMES:
             names.append(WEEKDAY_NAMES[vara])
         row["names"] = names
