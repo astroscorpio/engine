@@ -419,6 +419,24 @@ PITRU_PAKSHA_NOTES = {
     "purnima": "Some almanacs list a Purnima shraddha on the Bhadrapada full moon; the texts read give it no day, so none is shown.",
     "variant": "Madhava and the Prthvicandrodaya take the earlier day in kshaya and the later in vrddhi, of the following tithi, when the afternoon is covered on both days (NS pp. 719-720). Not computed: the comparison it rests on is not defined on the pages read.",
 }  # fmt: skip
+OBSERVANCE_RULES["sankranti"] = {
+    "day": ("A day ingress: that day, the class's window (DS p. 2) within daylight", "Dharmasindhu pp. 2-3; Nirnaya-sindhu pp. 5, 9"),
+    "day_sunset_edge": ("Within two ghatis before sunset, an after-window turns before the ingress", "Dharmasindhu p. 2; Nirnaya-sindhu p. 6"),
+    "day_sunrise_edge": ("Within two ghatis after sunrise, a before-window turns after the ingress", "Dharmasindhu p. 2; Nirnaya-sindhu p. 6"),
+    "night_before_midnight": ("A night ingress before midnight: the previous day, midday to sunset, best its last five nadis", "Dharmasindhu pp. 2, 85; Nirnaya-sindhu pp. 9-10, 161"),
+    "night_after_midnight": ("A night ingress after midnight: the next day, sunrise to midday, best its first five nadis", "Dharmasindhu pp. 2, 85; Nirnaya-sindhu pp. 9-10"),
+    "night_midnight_both": ("An ingress at midnight (the two-ghati nishitha): both half-days", "Dharmasindhu p. 2; Nirnaya-sindhu p. 10"),
+    "makara_night_next_day": ("Makara at night, at any hour: the next day, its forenoon, best the five nadis after sunrise (the southern usage)", "Dharmasindhu p. 85; Nirnaya-sindhu p. 326"),
+    "karka_night_previous_day": ("Karka at night, before or after midnight: the previous day, after its midday (the southern usage)", "Dharmasindhu p. 41; Nirnaya-sindhu p. 161"),
+}  # fmt: skip
+SANKRANTI_NOTES = {
+    "windows": "DS p. 2's windows, in ghatis of 24 minutes: Mesha and Tula 15 before and 15 after (NS and DS's Caitra passage: 10 and 10); Vrshabha, Simha, Vrshcika and Kumbha 16 before; Mithuna, Kanya, Dhanus and Mina 16 after; Karka 30 before; Makara 40 after (Hemadri; Madhava gives 20). Clipped to daylight, our reading of DS p. 3: the bath is by day even after a night ingress.",
+    "best": "best is the five nadis DS p. 85 and the Skanda (NS pp. 161, 326) name for a night ingress. For a day ingress it is the five nearest the ingress, our reading of 'the nadis nearest the ingress are the most meritorious' (DS p. 85). Neither text uses the term maha-punyakala.",
+    "variants": "Baudhayana (NS p. 327) holds both days meritorious for a night Makara, the usage of Gujarat, the east and the north; Hemadri, Aparārka and others split a night Makara or Karka at midnight like the other ten (NS pp. 161, 326-327).",
+    "twilight": "Jyotisha texts count a Makara ingress within three ghatis after sunset for the day just ended, and a Karka within three ghatis before sunrise for the next day (DS pp. 2, 41, 86); DS notes this is not found throughout the dharmashastra works. jyotishaTwilight marks the years it applies.",
+    "sayana": "Both texts also count the ingress shifted by the ayanamsha, the tropical ingress (NS pp. 7-8; DS p. 2, about 21 days earlier in 1790). sayana gives it; it is never the date here.",
+    "rites": "A bath and gifts at every ingress, each with its own gift (Vishvamitra via Hemadri, NS pp. 6-7; DS p. 2): for Makara firewood and fire. At the ayanas and vishuvas a fast before the bath, not for a householder with a son, and a shraddha without pindas, obligatory at the ayanas. At Makara the bath is obligatory, with sesame throughout: sesame gifts, lamps of sesame oil, sesame in the bath and in food (DS p. 86). Auspicious acts are avoided 16 ghatis either side of any ingress, and the ayana day and the day after (DS pp. 2, 86).",
+}  # fmt: skip
 OBSERVANCE_RULES["sankashti"] = {
     "moonrise": ("The krishna Chaturthi current at moonrise", "Nirnaya-sindhu p. 47; Viramitrodaya, Samaya-prakasha, p. 38"),
     "both_earlier": ("Current at both moonrises: the earlier day, joined with Trtiya (some, in NS); others take the later day", "Nirnaya-sindhu p. 47"),
@@ -999,6 +1017,7 @@ def _english() -> dict:
         "grihaPraveshNotes": GRIHA_PRAVESH_NOTES,
         "mundanRules": {k: {"name": n, "source": src} for k, (n, src) in MUNDAN_RULES.items()},
         "mundanNotes": MUNDAN_NOTES,
+        "sankrantiNotes": SANKRANTI_NOTES,
         "purchaseNotes": PURCHASE_NOTES,
         "horaSystems": HORA_SYSTEMS,
         "festivalRules": {
