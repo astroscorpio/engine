@@ -106,3 +106,12 @@ def test_bhadra_is_avoided_only_while_on_earth():
         assert [(w["start"], w["end"]) for w in avoid] == on_earth
         assert all(w["detail"] == "bhadra_earth" for w in avoid)
     assert seen <= {"earth", "heaven", "patala"} and len(seen) >= 2
+
+
+def test_weekday_east_of_utc_plus_six():
+    # Thursday 15 Oct 2026 in Sydney: sunrise falls on Wednesday in UT.
+    sydney = {"lat": "-33.8688", "lon": "151.2093", "tz": "Australia/Sydney"}
+    status, out = call("GET", "/v1/panchang", {**sydney, "date": "2026-10-15"})
+    assert status == 200 and out["vara"]["id"] == "thursday", out["vara"]
+    status, out = call("GET", "/v1/panchang/month", {**sydney, "year": "2026", "month": "10"})
+    assert next(r for r in out["days"] if r["date"] == "2026-10-15")["vara"] == "thursday"

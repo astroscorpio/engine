@@ -85,8 +85,10 @@ WINDOW_SOURCES = {
     "abhijit": "Muhurta Chintamani 6.50, p. 274 (the 8th day muhurta); 6.52, p. 275 (not on Wednesday)",
     "bad_yoga": "Muhurta Chintamani 1.34-35, p. 28; Nirnaya-sindhu p. 33 (Muhurta Martanda v.2 gives Vajra 9)",
     "vishti": "Muhurta Chintamani 1.43-45, pp. 35-38",
+    "pradosha": "Muhurta Chintamani 3.6 commentary, p. 125 (Skanda); Nirnaya-sindhu p. 29; Viramitrodaya, Samaya-prakasha, p. 129",
 }
 WINDOW_NOTES = {
+    "pradosha": "Three muhurtas after sunset, a muhurta being a fifteenth of the night (MC 6.50-51; our reading). The first 72 minutes are sandhya, the evening twilight (Nirnaya-sindhu p. 29, Skanda). The Gauda view of two ghatikas (48 minutes) is rejected for vows by Nirnaya-sindhu p. 29.",
     "brahma": "The 14th night muhurta is the computed convention; a printed source for that placement is pending. The name is from Manusmriti 4.92.",
 }
 # MC 1.45 (p. 38): "bhadra tatraiva tatphalam", its effect falls where it resides.

@@ -377,7 +377,7 @@ def points_payload(chart: Chart) -> dict:
 
 
 def birth_panchang(chart: Chart, birth: Birth, moon_chart: bool) -> dict:
-    pc = P.compute(chart.jd, chart.lat, chart.lon, chart.ayanamsa)
+    pc = P.compute(chart.jd, chart.lat, chart.lon, chart.ayanamsa, birth.zone)
     return {
         "tithi": {"num": pc.tithi, "id": tithi_id(pc.tithi), "paksha": paksha(pc.tithi)},
         "vara": {"id": VARA_ID[pc.vara], "lord": GRAHA_ID[pc.vara]},

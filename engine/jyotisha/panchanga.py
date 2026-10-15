@@ -9,7 +9,7 @@ from __future__ import annotations
 import math
 from dataclasses import dataclass
 
-from .ephemeris import NAKSHATRAS, next_sunrise, positions, sunrise, sunset
+from .ephemeris import NAKSHATRAS, TimeZone, next_sunrise, positions, sunrise, sunset, to_datetime
 
 TITHI_NAMES = [
     "Pratipada",
@@ -94,12 +94,20 @@ class Panchanga:
         )
 
 
-def vara_index(jd_sunrise: float) -> int:
-    """Weekday of the Vedic day, which begins at sunrise, not midnight."""
-    return int(math.floor(jd_sunrise + 0.5) + 1) % 7
+def vara_index(jd_sunrise: float, lon_east: float = 0.0, tz: TimeZone | None = None) -> int:
+    """Weekday of the Vedic day, which begins at sunrise: the local civil date of
+    that sunrise (0 = Sunday). Reading the UT date put every sunrise east of about
+    UTC+6 on the previous weekday. Without a zone, local mean time (longitude / 15
+    hours) stands in, which errs only where the civil date is set across the date
+    line (Samoa, Tonga, eastern Kiribati)."""
+    if tz is not None:
+        return (to_datetime(jd_sunrise, tz).weekday() + 1) % 7
+    return int(math.floor(jd_sunrise + 0.5 + lon_east / 360.0) + 1) % 7
 
 
-def compute(jd: float, lat: float, lon: float, ayanamsa: str = "lahiri") -> Panchanga:
+def compute(
+    jd: float, lat: float, lon: float, ayanamsa: str = "lahiri", tz: TimeZone | None = None
+) -> Panchanga:
     if not -90 <= lat <= 90:
         raise ValueError("latitude must be in [-90, 90]")
     if not -180 <= lon <= 180:
@@ -135,7 +143,7 @@ def compute(jd: float, lat: float, lon: float, ayanamsa: str = "lahiri") -> Panc
     sr = sunrise(jd, lat, lon)
     ss = sunset(jd, lat, lon)
     nr = next_sunrise(jd, lat, lon)
-    vi = vara_index(sr)
+    vi = vara_index(sr, lon, tz)
     vara = VARA_LORDS[vi]
 
     # Twelve equal horas divide daylight and another twelve divide the night.

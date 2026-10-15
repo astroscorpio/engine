@@ -21,3 +21,23 @@ def test_siddhi_pairs_visha_tithis_and_act_bans():
     assert [R.AMRITA_VISHA_TITHI[w] for w in range(7)] == [5, 6, 7, 8, 9, 10, 11]
     assert R.AMRITA_ACT_BANS == {"home": 2, "travel": 6, "marriage": 4}
     assert R.AMRITA_SIDDHI[4] == "Pushya" and R.AMRITA_SIDDHI[2] == "Ashwini"
+
+
+def test_the_weekday_is_the_local_date_of_sunrise():
+    # Thursday 15 Oct 2026. Sunrise in Sydney is 19:15 UT on the 14th, a Wednesday in UT.
+    from jyotisha import panchanga as P
+    from jyotisha.ephemeris import jd, sunrise
+
+    for lat, lon, zone in (
+        (-33.87, 151.21, "Australia/Sydney"),
+        (-36.85, 174.76, "Pacific/Auckland"),
+        (35.68, 139.69, "Asia/Tokyo"),
+        (28.61, 77.21, "Asia/Kolkata"),
+        (51.51, -0.13, "Europe/London"),
+        (40.71, -74.01, "America/New_York"),
+        (21.31, -157.86, "Pacific/Honolulu"),
+    ):
+        sr = sunrise(jd(2026, 10, 15, 12.0, zone), lat, lon)
+        assert P.VARA_LORDS[P.vara_index(sr, lon, zone)] == "Jupiter", zone
+        assert P.VARA_LORDS[P.vara_index(sr, lon)] == "Jupiter", zone  # local mean time
+        assert Mu.day(jd(2026, 10, 15, 12.0, zone), lat, lon, tz=zone).vara == "Jupiter", zone

@@ -333,13 +333,14 @@ def bhadra_residence(moon_sign: int) -> str:
     return "heaven" if moon_sign in BHADRA_HEAVEN else "patala"
 
 
-def day(jd: float, lat: float, lon: float, ayanamsa: str = "lahiri") -> Day:
-    """The Vedic day whose sunrise governs jd (pass any moment after sunrise)."""
+def day(jd: float, lat: float, lon: float, ayanamsa: str = "lahiri", tz=None) -> Day:
+    """The Vedic day whose sunrise governs jd (pass any moment after sunrise).
+    ``tz`` names the weekday by the local civil date of the sunrise."""
     sr = sunrise(jd, lat, lon)
     ss = sunset(jd, lat, lon)
     nr = next_sunrise(jd, lat, lon)
     prev_ss = sunset(sr - 1e-3, lat, lon)
-    vara = compute(sr + 1e-4, lat, lon, ayanamsa).vara
+    vara = compute(sr + 1e-4, lat, lon, ayanamsa, tz).vara
     dm, nm, pm = (ss - sr) / 15, (nr - ss) / 15, (sr - prev_ss) / 15
 
     out = Day(
@@ -892,9 +893,10 @@ def check(
 ) -> Verdict:
     """One moment, for "can I do it now?"."""
     ayanamsa = kw.get("ayanamsa", "lahiri")
+    tz = kw.pop("tz", None)
     return evaluate(
         profile,
-        day(jd, lat, lon, ayanamsa),
+        day(jd, lat, lon, ayanamsa, tz),
         lunar_month(jd, ayanamsa),
         jd,
         lat,
@@ -958,12 +960,12 @@ def find(
     if profile.travel and not toward:
         raise ValueError("a travel search needs the destination direction (--toward)")
     step = step_minutes / 1440
-    d, month = day(start, lat, lon, ayanamsa), lunar_month(start, ayanamsa)
+    d, month = day(start, lat, lon, ayanamsa, tz), lunar_month(start, ayanamsa)
     out: list[Choice] = []
     t = start
     while t < end:
         if t >= d.next_sunrise:
-            d = day(t, lat, lon, ayanamsa)
+            d = day(t, lat, lon, ayanamsa, tz)
         if t >= month.end:
             month = lunar_month(t, ayanamsa)
         if hours is None or _in_hours(t, tz, hours):

@@ -183,6 +183,7 @@ def check(req: MuhurtaCheck) -> dict:
         toward=req.toward,
         first_leg=req.firstLeg,
         ayanamsa=req.ayanamsa,
+        tz=req.tz,
     )
     return {
         "act": profile.name,

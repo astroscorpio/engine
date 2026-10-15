@@ -98,7 +98,7 @@ def build(q: PanchangQuery) -> dict:
     zone, ay = q.tz, q.ayanamsa
     noon = local_jd(q.date, 12.0, zone, "date")
     try:
-        d = Mu.day(noon, q.lat, q.lon, ay)
+        d = Mu.day(noon, q.lat, q.lon, ay, zone)
     except RuntimeError as exc:
         raise unsupported_location(
             "the Sun does not rise or set on this date here; a Vedic day cannot be formed"
@@ -190,8 +190,9 @@ def build(q: PanchangQuery) -> dict:
                 if part:
                     visha = (num - 1) % 15 + 1 == AMRITA_VISHA_TITHI[weekday]
                     yid = "visha" if visha else "amrita_siddhi"
-                    if special and special[-1][1]["id"] == yid and special[-1][1]["end"] == at(part[0]):
-                        special[-1][1]["end"] = at(part[1])
+                    last = special[-1][1] if special else None
+                    if last and last["id"] == yid and last["end"] == at(part[0]):
+                        last["end"] = at(part[1])
                     else:
                         special.append((part[0], {"id": yid, **win(*part)}))
         for yid, hit in (
@@ -309,7 +310,7 @@ def month(q: MonthQuery) -> dict:
         if luminaries(start, ay)[0].sign != sun_end:
             edge = _edge(lambda t: luminaries(t, ay)[0].sign, start, start + 1.0)
             sankranti = {"sign": SIGN_IDS[sun_end], "at": at(edge)}
-        vara = P.VARA_LORDS[P.vara_index(sr)]
+        vara = P.VARA_LORDS[P.vara_index(sr, q.lon, zone)]
         masa = Mu.MASA.index(lunar.name)
         rows.append(
             {

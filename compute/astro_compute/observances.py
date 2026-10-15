@@ -35,11 +35,12 @@ from __future__ import annotations
 import datetime as dt
 
 from jyotisha import muhurta as Mu
+from jyotisha import panchanga as P
 from jyotisha.ephemeris import _rise_set, sunrise
 
 from .errors import unsupported_location
 from .fmt import provenance
-from .ids import MASA_IDS, tithi_id
+from .ids import MASA_IDS, VARA_ID, tithi_id
 from .models import EkadashiQuery
 from .timeutil import aware, iso, local_jd
 
@@ -197,23 +198,180 @@ def _one(start: float, end: float, dv_end: float, q: EkadashiQuery) -> dict:
     }
 
 
-def ekadashi(q: EkadashiQuery) -> dict:
-    zone, ay = q.tz, q.ayanamsa
-    first = local_jd(dt.date(q.year, 1, 1), 0.0, zone, "year")
-    last = local_jd(dt.date(q.year, 12, 31), 23.99, zone, "year")
-    # Every tithi change from a little before the year to a little after it.
-    edges = Mu._scan(lambda t: Mu.tithi_at(t, ay), first - 4, last + 4, 0.25)
+def _edges(q: EkadashiQuery) -> list[tuple[float, int]]:
+    """Every tithi change from a little before the year to a little after it."""
+    first = local_jd(dt.date(q.year, 1, 1), 0.0, q.tz, "year")
+    last = local_jd(dt.date(q.year, 12, 31), 23.99, q.tz, "year")
+    return Mu._scan(lambda t: Mu.tithi_at(t, q.ayanamsa), first - 4, last + 4, 0.25)
+
+
+def _collect(q: EkadashiQuery, targets, build, dates_of) -> list[dict]:
+    edges = _edges(q)
     out = []
     try:
         for i, (jd, num) in enumerate(edges):
-            if num not in EKADASHI or i + 2 >= len(edges):
-                continue
-            row = _one(jd, edges[i + 1][0], edges[i + 2][0], q)
-            dates = (row["smarta"]["date"], row["vaishnava"]["date"])
-            if any(d[:4] == str(q.year) for d in dates):
-                out.append(row)
+            if num in targets and i + 2 < len(edges):
+                row = build(jd, edges[i + 1][0], edges[i + 2][0], q)
+                if any(d and d[:4] == str(q.year) for d in dates_of(row)):
+                    out.append(row)
     except RuntimeError as exc:
         raise unsupported_location(
-            "the Sun does not rise on a day needed here; Ekadashi days cannot be formed"
+            "the Sun does not rise on a day needed here; the observance days cannot be formed"
         ) from exc
-    return {"year": q.year, "ekadashis": out, "source": SOURCE, "engine": provenance(ay)}
+    return out
+
+
+def ekadashi(q: EkadashiQuery) -> dict:
+    rows = _collect(q, EKADASHI, _one, lambda r: (r["smarta"]["date"], r["vaishnava"]["date"]))
+    return {"year": q.year, "ekadashis": rows, "source": SOURCE, "engine": provenance(q.ayanamsa)}
+
+
+# --- Purnima, Amavasya, Pradosha (docs/sources/observances.md s5, pradosha.md) -------
+
+NS_73 = {**SOURCE, "verse": "Purnima-nirnaya; Darsha-shraddha-kala", "page": "72-73, 81-82"}
+YAMAS = 3  # NS p. 82: "three yamas or more on the next day"
+
+
+def _lunar(jd: float, num: int, q: EkadashiQuery) -> dict:
+    lunar = Mu.lunar_month(jd, q.ayanamsa)
+    masa = Mu.MASA.index(lunar.name)
+    return {
+        "amanta": MASA_IDS[masa],
+        "purnimanta": MASA_IDS[(masa + 1) % 12] if num > 15 else MASA_IDS[masa],
+        "adhika": lunar.adhika,
+    }
+
+
+def _sunset(sunrise_jd: float, q: EkadashiQuery) -> float:
+    return _rise_set(sunrise_jd + 0.05, q.lat, q.lon, False)
+
+
+def _overlap(a0: float, a1: float, b0: float, b1: float) -> float:
+    return max(0.0, min(a1, b1) - max(a0, b0))
+
+
+def _full_or_new(start: float, end: float, _next_end: float, q: EkadashiQuery) -> dict:
+    """NS p. 73: the vrata is kept on the later day, joined to the next Pratipada,
+    never on the day joined to Chaturdashi, except the Savitri vrata."""
+    zone = q.tz
+    s = _sunrises(start, q.lat, q.lon, 4)  # s[0] <= start < s[1]
+    day = [aware(t, zone).date().isoformat() for t in s]
+    held = [i for i, t in enumerate(s) if start <= t < end]
+    num = Mu.tithi_at(start + 1e-6, q.ayanamsa)
+    if held:
+        vrata, rule, earlier = held[-1], "later_day", 0
+    else:
+        vrata, rule, earlier = 0, "only_day", None
+    last = vrata
+    row = {
+        "paksha": "shukla" if num <= 15 else "krishna",
+        "lunarMonth": _lunar(s[1], num, q),
+        "tithi": {"start": iso(start, zone), "end": iso(end, zone)},
+        "vrata": {
+            "date": day[vrata],
+            "rule": rule,
+            "earlierDate": day[earlier] if earlier is not None and earlier != vrata else None,
+        },
+    }
+    if num == 30:
+        # NS p. 81: the Amavasya covering the aparahna, the last third of the daytime.
+        candidates = range(0, (held[-1] if held else 0) + 1)
+        aparahna = []
+        for i in candidates:
+            sr, ss = s[i], _sunset(s[i], q)
+            a0, a1 = sr + 2 * (ss - sr) / 3, ss
+            aparahna.append((i, a0, a1, _overlap(start, end, a0, a1) / (a1 - a0), ss - sr))
+        full = [i for i, _, _, c, _ in aparahna if c >= 1 - 1e-9]
+        later, daylen = aparahna[-1][0], aparahna[-1][4]
+        if full:
+            shraddha, s_rule = full[0], "full_aparahna"
+        elif end >= s[later] + YAMAS * daylen / 4 and later > 0:
+            shraddha, s_rule = later, "growing_three_yamas"
+        else:
+            shraddha, s_rule = max(later - 1, 0), "shrinking_earlier"
+        last = max(last, later)
+        row["shraddha"] = {
+            "date": day[shraddha],
+            "rule": s_rule,
+            "aparahna": [
+                {
+                    "date": day[i],
+                    "start": iso(a0, zone),
+                    "end": iso(a1, zone),
+                    "covered": round(c, 3),
+                }
+                for i, a0, a1, c, _ in aparahna
+            ],
+        }
+        row["differs"] = row["shraddha"]["date"] != row["vrata"]["date"]
+    row["days"] = [
+        {
+            "date": day[i],
+            "sunrise": iso(s[i], zone),
+            "tithiAtSunrise": tithi_id(Mu.tithi_at(s[i], q.ayanamsa)),
+        }
+        for i in range(last + 1)
+    ]
+    return row
+
+
+def _pradosha_window(sunrise_jd: float, q: EkadashiQuery) -> tuple[float, float]:
+    """Three muhurtas after sunset, a muhurta being a fifteenth of the night."""
+    ss = _sunset(sunrise_jd, q)
+    nr = _rise_set(ss + 0.01, q.lat, q.lon, True)
+    return ss, ss + 3 * (nr - ss) / 15
+
+
+def _pradosha(start: float, end: float, _next_end: float, q: EkadashiQuery) -> dict:
+    """NS p. 72 footnote: the Trayodashi covering pradosha. Both or neither: the
+    later day, with Mayukha's earlier day (after Sumantu) as a variant."""
+    zone = q.tz
+    s = _sunrises(start, q.lat, q.lon, 3)  # the day it begins and the next
+    day = [aware(t, zone).date().isoformat() for t in s]
+    num = Mu.tithi_at(start + 1e-6, q.ayanamsa)
+    rows, covers = [], []
+    for i in (0, 1):
+        p0, p1 = _pradosha_window(s[i], q)
+        covered = _overlap(start, end, p0, p1) / (p1 - p0)
+        covers.append(covered >= 1 - 1e-9)
+        rows.append(
+            {
+                "date": day[i],
+                "vara": VARA_ID[P.VARA_LORDS[P.vara_index(s[i], q.lon, q.tz)]],
+                "pradosha": {"start": iso(p0, zone), "end": iso(p1, zone)},
+                "covered": round(covered, 3),
+            }
+        )
+    if covers == [True, False]:
+        chosen, rule, variant = 0, "covers_pradosha", None
+    elif covers == [False, True]:
+        chosen, rule, variant = 1, "covers_pradosha", None
+    else:
+        chosen, variant = 1, 0
+        rule = "both_covered_later" if all(covers) else "neither_covered_later"
+    return {
+        "paksha": "shukla" if num <= 15 else "krishna",
+        "lunarMonth": _lunar(s[0] if num <= 15 else s[1], num, q),
+        "tithi": {"start": iso(start, zone), "end": iso(end, zone)},
+        "days": rows,
+        "date": day[chosen],
+        "vara": rows[chosen]["vara"],
+        "rule": rule,
+        "variantDate": day[variant] if variant is not None else None,
+    }
+
+
+def purnima(q: EkadashiQuery) -> dict:
+    rows = _collect(q, {15}, _full_or_new, lambda r: (r["vrata"]["date"],))
+    return {"year": q.year, "occurrences": rows, "source": NS_73, "engine": provenance(q.ayanamsa)}
+
+
+def amavasya(q: EkadashiQuery) -> dict:
+    rows = _collect(q, {30}, _full_or_new, lambda r: (r["vrata"]["date"], r["shraddha"]["date"]))
+    return {"year": q.year, "occurrences": rows, "source": NS_73, "engine": provenance(q.ayanamsa)}
+
+
+def pradosha(q: EkadashiQuery) -> dict:
+    rows = _collect(q, {13, 28}, _pradosha, lambda r: (r["date"],))
+    source = {**SOURCE, "verse": "Pradosha-vrata (footnote, Brahmottara-khanda)", "page": "72"}
+    return {"year": q.year, "occurrences": rows, "source": source, "engine": provenance(q.ayanamsa)}
