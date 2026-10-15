@@ -249,13 +249,10 @@ def build(q: PanchangQuery) -> dict:
             "bhadra": bhadra,
         },
         "choghadiya": {"day": chog[:8], "night": chog[8:]},
+        "horaSystem": q.hora,
         "hora": [
-            {
-                "lord": GRAHA_ID[w.label],
-                "period": "day" if i < 12 else "night",
-                **win(w.start, w.end),
-            }
-            for i, w in enumerate(d.horas)
+            {"lord": GRAHA_ID[lord], "period": "day" if a < ss else "night", **win(a, b)}
+            for a, b, lord in _horas(d, q.hora)
         ],
         "lagna": [
             {"sign": SIGN_IDS[SIGNS.index(w.label)], **win(w.start, w.end)} for w in d.lagnas
@@ -263,6 +260,20 @@ def build(q: PanchangQuery) -> dict:
         "specialYogas": [row for _, row in special],
         "engine": provenance(ay),
     }
+
+
+def _horas(d: Mu.Day, system: str) -> list[tuple[float, float, str]]:
+    """Seasonal: day and night each in 12 parts (the engine's). Equal: 60-minute
+    horas (2.5 ghatis, MC 1.55) counted from sunrise as Vivaha-vrndavana counts
+    them, the last running to the next sunrise."""
+    if system == "seasonal":
+        return [(w.start, w.end, w.label) for w in d.horas]
+    sr, nr = d.sunrise, d.next_sunrise
+    first = P.CHALDEAN.index(d.horas[0].label)
+    return [
+        (sr + k / 24, nr if k == 23 else sr + (k + 1) / 24, P.CHALDEAN[(first + k) % 7])
+        for k in range(24)
+    ]
 
 
 # --- month calendar ------------------------------------------------------------

@@ -25,6 +25,7 @@ from . import (
     muhurta_service,
     observances,
     panchang_service,
+    pitru_paksha,
     transit_service,
 )
 from .errors import ApiError
@@ -93,6 +94,9 @@ ROUTES: dict[tuple[str, str], Callable[[dict, bytes | str | None], dict]] = {
         _parse(EkadashiQuery, q)
     ),
     ("GET", "/v1/observances/sankashti"): lambda q, b: observances.sankashti(
+        _parse(EkadashiQuery, q)
+    ),
+    ("GET", "/v1/observances/pitru-paksha"): lambda q, b: pitru_paksha.pitru_paksha(
         _parse(EkadashiQuery, q)
     ),
     **{

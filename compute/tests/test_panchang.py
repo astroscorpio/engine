@@ -115,3 +115,17 @@ def test_weekday_east_of_utc_plus_six():
     assert status == 200 and out["vara"]["id"] == "thursday", out["vara"]
     status, out = call("GET", "/v1/panchang/month", {**sydney, "year": "2026", "month": "10"})
     assert next(r for r in out["days"] if r["date"] == "2026-10-15")["vara"] == "thursday"
+
+
+def test_equal_horas_run_an_hour_each_from_sunrise(panchang):
+    status, out = call("GET", "/v1/panchang", {"date": "2026-10-14", **DELHI, "hora": "equal"})
+    assert status == 200, out
+    horas = out["hora"]
+    assert out["horaSystem"] == "equal" and panchang["horaSystem"] == "seasonal"
+    assert len(horas) == 24 and contiguous(horas)
+    assert horas[0]["start"] == out["sunrise"] and horas[-1]["end"] == out["nextSunrise"]
+    assert all(ts(h["end"]) - ts(h["start"]) == dt.timedelta(hours=1) for h in horas[:23])
+    # Same lords as the seasonal horas: the vara lord, then each sixth from the last.
+    assert [h["lord"] for h in horas] == [h["lord"] for h in panchang["hora"]]
+    status, out = call("GET", "/v1/panchang", {"date": "2026-10-14", **DELHI, "hora": "odd"})
+    assert status == 400 and out["error"]["field"] == "hora"

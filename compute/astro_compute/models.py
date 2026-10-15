@@ -164,6 +164,7 @@ class PanchangQuery(Model):
     lon: float = Field(ge=-180, le=180)
     tz: str
     ayanamsa: Ayanamsa = "lahiri"
+    hora: Literal["seasonal", "equal"] = "seasonal"
 
     @field_validator("tz")
     @classmethod

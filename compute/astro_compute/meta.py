@@ -149,6 +149,67 @@ OBSERVANCE_RULES = {
         "more_pradosha": ("It covers part of pradosha, on one evening only or unequally on both: the day with more of it (the other opinion recorded there)", "Nirnaya-sindhu p. 72, footnote"),
     },
 }  # fmt: skip
+# observances.md s8 (provisional: the lead's decision 8)
+OBSERVANCE_RULES["mahalaya"] = {
+    "one_day": (
+        "The tithi holds the afternoon (the 10th-12th day muhurtas, our reading) of one day only: that day",
+        "Nirnaya-sindhu p. 718",
+    ),
+    "both_earlier": (
+        "It holds both afternoons, fully or equally in part: the earlier day",
+        "Nirnaya-sindhu p. 718",
+    ),
+    "more": (
+        "It holds part of both afternoons, unequally: the day with more (Marici)",
+        "Nirnaya-sindhu p. 718",
+    ),
+    "neither_three_muhurtas_earlier": (
+        "Neither afternoon, but current three muhurtas before the first day's sunset: the earlier day (Sumantu)",
+        "Nirnaya-sindhu p. 719",
+    ),
+    "neither_later": (
+        "Neither afternoon: the later day, whose kutapa it holds (Gobhila)",
+        "Nirnaya-sindhu p. 719",
+    ),
+}
+OBSERVANCE_RULES["ekoddishta"] = {
+    "one_day": (
+        "The Chaturdashi holds the midday (kutapa to rauhina, the 8th-9th day muhurtas) of one day only: that day",
+        "Nirnaya-sindhu p. 718",
+    ),
+    "both_earlier": (
+        "Both middays, fully or equally in part: the earlier day",
+        "Nirnaya-sindhu p. 718",
+    ),
+    "more": ("Both, unequally: the day with more", "Nirnaya-sindhu p. 718"),
+    "neither_earlier": (
+        "Neither midday: the earlier day; the Gauda later-day view is rejected",
+        "Nirnaya-sindhu p. 718",
+    ),
+}
+OBSERVANCE_RULES["matamaha"] = {
+    "one_day": (
+        "The Pratipada current at sangava (the 4th-6th day muhurtas, our reading) of one day only: that day",
+        "Nirnaya-sindhu p. 239 (Nirnaya-dipa)",
+    ),
+    "both_earlier": ("At both sangavas, fully or equally: the earlier day (our reading)", None),
+    "more": ("At both, unequally: the day with more (our reading)", None),
+    "neither_later": ("At neither: the later day (our fallback)", None),
+}
+PITRU_PAKSHA_NOTES = {
+    "fortnight": "The dark fortnight ending amanta Bhadrapada (purnimanta Ashvina), the fifth from the Ashadha full moon; NS counts its sixteen days to Ashvina shukla Pratipada (p. 215). Each tithi's day is for those who died on that tithi.",
+    "windows": "Day muhurtas are fifteenths of sunrise to sunset. The afternoon is the 10th-12th (the fourth fifth of the day: our reading, from NS p. 717's five-part midday); kutapa to rauhina the 8th-9th (Gautama, p. 718); sangava the 4th-6th (our reading).",
+    "navami": "Navami: for all mothers, stepmothers too, even by a son whose father lives (NS p. 229). Popularly 'Avidhava Navami': NS feeds a suvasini with the brahmanas for a woman who died before her husband (p. 231) but does not limit the day to such women, and the name was not found.",
+    "dvadashi": "Dvadashi: for renunciants (Vayu Purana via the Prthvicandrodaya, NS p. 232).",
+    "trayodashi": "Trayodashi: dear to the ancestors, more so with Magha (Candrika, NS p. 232); obligatory, kept even in an intercalary month (pp. 233-234). A man with children offers no pindas on a Magha-joined Trayodashi (Brhat-Parasara, p. 234). With the Moon in Magha and the Sun in Hasta it is gaja-cchaya (p. 233).",
+    "chaturdashi": "Chaturdashi: only for those killed by weapons, falls, lightning, water, poison, fire or animals, not for deaths in childbirth (NS p. 235). It is an ekoddishta (p. 236), so the midday decides; variantDate is the afternoon table's day where it differs.",
+    "amavasya": "Amavasya: the last day of the fortnight. With the Moon and the Sun both in Hasta it is also gaja-cchaya (Yama via Apararka, NS p. 238). 'Sarva-pitr' was not found as a name.",
+    "bharani": "Bharani in the pitr-paksha is 'great': a shraddha then equals one at Gaya (Matsya via the Prthvicandrodaya, NS p. 225); popularly Maha-bharani. The texts read do not fix the hour; the day whose afternoon holds the star is shown.",
+    "magha": "Magha is a shraddha occasion of its own (Vasishtha, Yajnavalkya; NS p. 233). The day whose afternoon holds the star is shown.",
+    "matamaha": "Ashvina shukla Pratipada: the maternal grandfather's shraddha by a daughter's son, even newborn (Hemadri's Sangraha, NS p. 239). The Nirnaya-dipa takes the Pratipada current at sangava, a verse whose source NS doubts. Not in an intercalary month.",
+    "purnima": "The texts read give Purnima deaths no day of the fortnight. Popular calendars keep a Purnima shraddha on the Bhadrapada full moon; not shown.",
+    "variant": "Madhava and the Prthvicandrodaya take the earlier day in kshaya and the later in vrddhi, of the following tithi, when the afternoon is covered on both days (NS pp. 719-720). Not computed: the comparison it rests on is not defined on the pages read.",
+}  # fmt: skip
 OBSERVANCE_RULES["sankashti"] = {
     "moonrise": ("The krishna Chaturthi current at moonrise", "Nirnaya-sindhu p. 47; Viramitrodaya, Samaya-prakasha, p. 38"),
     "both_earlier": ("Current at both moonrises: the earlier day, joined with Trtiya (some, in NS); others take the later day", "Nirnaya-sindhu p. 47"),
@@ -230,6 +291,19 @@ SANKASHTI_NOTE = (
     "fruit like the equinox' (Satatapa, Nirnaya-sindhu p. 73); the name was not found in the "
     "pages read."
 )
+# methodology.md e
+HORA_SYSTEMS = {
+    "seasonal": {
+        "name": "Seasonal horas: the daytime and the night each in 12 parts",
+        "source": None,
+        "note": "As computed; no printed source is cited for the day/12 and night/12 split.",
+    },
+    "equal": {
+        "name": "Equal horas: 60 minutes (2.5 ghatis) each from sunrise",
+        "source": "Muhurta Chintamani 1.55, p. 49 (commentary, quoting Vivaha-vrndavana)",
+        "note": "MC counts the horas from the start of the weekday; Vivaha-vrndavana from sunrise, which is used here. The 24th runs to the next sunrise.",
+    },
+}
 PURNIMA_EARLIER_NOTE = (
     "Some almanacs list a Purnima vrat on this earlier day; popular practice, source pending."
 )
@@ -568,6 +642,8 @@ def _english() -> dict:
         },
         "shraddhaNote": SHRADDHA_NOTE,
         "sankashtiNote": SANKASHTI_NOTE,
+        "pitruPakshaNotes": PITRU_PAKSHA_NOTES,
+        "horaSystems": HORA_SYSTEMS,
         "festivalRules": {
             group: {k: {"name": n, "source": src} for k, (n, src) in rules.items()}
             for group, rules in FESTIVAL_RULES.items()
