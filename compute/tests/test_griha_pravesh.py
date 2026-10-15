@@ -96,3 +96,19 @@ def test_excluded_days_carry_only_the_relaxed_rules():
         assert [x["rule"] for x in d["details"]] == d["rules"]
         assert facts["jupiter_sign"]["sign"] == "leo"
         assert facts["middling_month"]["month"] in ("kartika", "margashirsha")
+
+
+def test_windows_carry_the_doors_that_pass_mc_13_5():
+    from jyotisha import muhurta as Mu
+
+    out = year("2026")
+    windows = [w for d in out["days"] + out["excluded"] for w in d["windows"]]
+    assert windows and all(set(w["doors"]) <= set("NESW") for w in windows)
+    assert any(w["doors"] for w in windows)
+    classes = {"purnima": "E", "panchami": "E", "dashami": "E", "pratipada": "S", "shashthi": "S"}
+    classes |= {"ekadashi": "S", "dwitiya": "W", "saptami": "W", "dwadashi": "W"}
+    classes |= {"tritiya": "N", "ashtami": "N", "trayodashi": "N"}
+    for w in windows:
+        # One tithi class per door (MC 13.5): a window can pass at most its class's door.
+        assert set(w["doors"]) <= {classes[w["tithi"]]}
+    assert Mu.DOOR_TITHIS["E"] == {5, 10, 15}

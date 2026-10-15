@@ -195,7 +195,7 @@ def griha_pravesh(q: EkadashiQuery, explain: dict | None = None) -> dict:
         if strict:
             if explain is not None:
                 explain[date.isoformat()] = "listed"
-            out_days.append(_listed(date, vara, strict, zone))
+            out_days.append(_listed(date, vara, strict, zone, ay))
         elif rows:
             rules = dict(day_relax) | yoga
             for r in rows:
@@ -206,7 +206,7 @@ def griha_pravesh(q: EkadashiQuery, explain: dict | None = None) -> dict:
                 {
                     "date": date.isoformat(),
                     "vara": vara,
-                    "windows": _public(_windows(rows, zone)),
+                    "windows": _public(_windows(rows, zone, ay)),
                     "rules": sorted(rules),
                     **dict(zip(("reasons", "details"), _details(rules), strict=True)),
                 }
@@ -224,8 +224,17 @@ def griha_pravesh(q: EkadashiQuery, explain: dict | None = None) -> dict:
     }
 
 
-def _windows(rows: list[tuple], zone) -> list[dict]:
-    """Window rows, joining neighbours that share the lagna, nakshatra and tithi."""
+def _doors(x: float, y_: float, num: int, lagna: int, ay: str) -> list[str]:
+    """The doors for which a window also passes MC 13.5, as the finder's door= applies
+    it: the tithi's class for that door and the Sun on the left (13.4-5)."""
+    sun = (luminaries((x + y_) / 2, ay)[0].sign - lagna) % 12 + 1
+    n = (num - 1) % 15 + 1
+    return [d for d in "NESW" if n in Mu.DOOR_TITHIS[d] and sun in Mu.DOOR_SUN[d]]
+
+
+def _windows(rows: list[tuple], zone, ay: str | None = None) -> list[dict]:
+    """Window rows, joining neighbours that share the lagna, nakshatra and tithi. With
+    ay, each carries doors (pages' ask, 15 Oct 2026)."""
     out: list[dict] = []
     for x, y_, num, nak, name, _relax, lagna in rows:
         row = {
@@ -238,11 +247,13 @@ def _windows(rows: list[tuple], zone) -> list[dict]:
             "_n": num,
             "_m": name,
         }
+        if ay is not None:
+            row["doors"] = _doors(x, y_, num, lagna, ay)
         last = out[-1] if out else None
         if (
             last
             and last["end"] == row["start"]
-            and all(last[k] == row[k] for k in ("lagna", "nakshatra", "tithi"))
+            and all(last.get(k) == row.get(k) for k in ("lagna", "nakshatra", "tithi", "doors"))
         ):
             last["end"] = row["end"]
         else:
@@ -254,8 +265,8 @@ def _public(windows: list[dict]) -> list[dict]:
     return [{k: v for k, v in w.items() if not k.startswith("_")} for w in windows]
 
 
-def _listed(date, vara: str, rows: list[tuple], zone) -> dict:
-    windows = _windows(rows, zone)
+def _listed(date, vara: str, rows: list[tuple], zone, ay: str) -> dict:
+    windows = _windows(rows, zone, ay)
     nums = {w["_n"] for w in windows}
     cautions = []
     if nums & {26, 27, 28}:
