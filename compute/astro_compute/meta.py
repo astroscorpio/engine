@@ -33,6 +33,7 @@ from .ids import (
     slug,
 )
 from .muhurta_service import RULES
+from .observances import EKADASHI_NAMES, EM, NAME_NOTES, NS_P51
 
 GRAHA_SANSKRIT = {
     "sun": "Surya", "moon": "Chandra", "mars": "Mangala", "mercury": "Budha",
@@ -439,6 +440,18 @@ def _english() -> dict:
             for t, rules in EKADASHI_RULES.items()
         },
         "ekadashiNote": EKADASHI_NOTE,
+        # keyed by the rows' nameId: "<purnimanta month>_<paksha>", or "adhika_<paksha>"
+        "ekadashiNames": {
+            nid: {
+                "name": name,
+                "otherNames": list(others),
+                "alsoPrinted": {"name": printed, "source": NS_P51} if printed else None,
+                "popularName": popular,
+                "source": f"{EM['text']}, {EM['edition']}, {folio}",
+                "note": NAME_NOTES.get(nid),
+            }
+            for nid, (name, others, printed, popular, folio) in EKADASHI_NAMES.items()
+        },
         "yogaCategories": {k: {"name": v} for k, v in YOGA_CATEGORIES.items()},
         "yogas": {k: {"name": n, "category": c} for k, (n, c) in YOGAS.items()},
         "yogaNotes": {k: {"name": v} for k, v in YOGA_NOTES.items()},

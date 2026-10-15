@@ -127,3 +127,30 @@ def test_padmini_2026_at_delhi_matches_both_long():
     nov = next(r for r in out["ekadashis"] if r["tithi"]["start"].startswith("2026-11-20"))
     assert (nov["smarta"]["date"], nov["smarta"]["asceticDate"]) == ("2026-11-20", "2026-11-21")
     assert nov["smarta"]["rule"] == "viddha_nyuna_householders_first"
+
+
+def test_names_follow_the_ekadashi_mahatmya_by_purnimanta_fortnight():
+    status, out = call("GET", "/v1/observances/ekadashi", DELHI)
+    rows = {r["tithi"]["start"][:10]: r for r in out["ekadashis"]}
+    assert all(r["nameId"] in O.EKADASHI_NAMES for r in out["ekadashis"])
+    # Adhika Jyeshtha 2026: Padmini (shukla) and Parama (krishna).
+    assert (rows["2026-05-26"]["nameId"], rows["2026-05-26"]["name"]) == (
+        "adhika_shukla",
+        "Padminī",
+    )
+    assert rows["2026-06-11"]["name"] == "Paramā"
+    nov = rows["2026-11-20"]
+    assert (nov["name"], nov["alsoPrinted"]["name"], nov["popularName"]) == (
+        "Prabodhinī",
+        "Devotthāna",
+        "Dev Uthānī",
+    )
+    assert nov["nameSource"]["page"] == "f. 137"
+    # Kartika krishna (amanta) is Margashirsha krishna (purnimanta): the text names none.
+    dec = rows["2026-12-03"]
+    assert (dec["nameId"], dec["name"], dec["popularName"]) == (
+        "margashirsha_krishna",
+        None,
+        "Utpannā",
+    )
+    assert dec["nameNote"]

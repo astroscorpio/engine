@@ -44,6 +44,55 @@ from .models import EkadashiQuery
 from .timeutil import aware, iso, local_jd
 
 ARUNODAYA = 96 / 1440  # 4 ghatikas before sunrise, in days (NS p. 53)
+
+# Names from the Ekadashi-mahatmya with bhasha-tika (Banaras, 1934), by folio,
+# keyed by the purnimanta month and paksha as the text names them
+# (docs/sources/ekadashi-names.md). (name, other names in the text, a name printed
+# in Nirnaya-sindhu's 1898 commentary, the popular name where it differs, folio)
+EM = {
+    "text": "Ekadashi-mahatmya, bhasha-tika sahita",
+    "edition": "Babu Baijnath Prasad, Banaras, 1934",
+}
+NS_P51 = "Nirnaya-sindhu, 1898, p. 51 (Hindi commentary)"
+EKADASHI_NAMES = {
+    "margashirsha_krishna": (None, (), None, "Utpannā", "f. 1, 11b"),
+    "margashirsha_shukla": ("Mokṣā", (), None, "Mokṣadā", "f. 18"),
+    "pausha_krishna": ("Saphalā", (), None, None, "f. 18b"),
+    "pausha_shukla": ("Putradā", (), None, None, "f. 24b"),
+    "magha_krishna": ("Ṣaṭtilā", (), None, None, "f. 36b"),
+    "magha_shukla": ("Jayā", (), None, None, "f. 37"),
+    "phalguna_krishna": ("Vijayā", (), None, None, "f. 43"),
+    "phalguna_shukla": ("Āmalakī", (), None, None, "f. 47b"),
+    "chaitra_krishna": ("Pāpamocanī", (), None, None, "f. 54"),
+    "chaitra_shukla": ("Kāmadā", (), None, None, "f. 59b"),
+    "vaishakha_krishna": ("Varūthinī", (), None, None, "f. 64"),
+    "vaishakha_shukla": ("Mohinī", (), None, None, "f. 67b"),
+    "jyeshtha_krishna": ("Aparā", (), None, None, "f. 71b"),
+    "jyeshtha_shukla": ("Nirjalā", (), None, None, "f. 80"),
+    "ashadha_krishna": ("Yoginī", (), None, None, "f. 80b"),
+    "ashadha_shukla": ("Padmā", ("Śayanī",), "Devaśayanī", None, "f. 84b, 109"),
+    "shravana_krishna": ("Kāmikā", (), None, None, "f. 109b"),
+    "shravana_shukla": ("Putradā", (), None, None, "f. 116b"),
+    "bhadrapada_krishna": ("Ajā", (), None, None, "f. 117b"),
+    "bhadrapada_shukla": ("Parivartinī", ("Vāmanā", "Jayantī"), None, "Pārśva", "f. 120, 124"),
+    "ashwin_krishna": ("Indirā", (), None, None, "f. 124b"),
+    "ashwin_shukla": ("Pāśāṅkuśā", (), None, "Pāpāṅkuśā", "f. 128b"),
+    "kartika_krishna": ("Ramā", (), None, None, "f. 131"),
+    "kartika_shukla": ("Prabodhinī", ("Hari-bodhinī",), "Devotthāna", "Dev Uthānī", "f. 137"),
+    "adhika_shukla": ("Padminī", (), None, None, "f. 146b"),
+    "adhika_krishna": ("Paramā", (), None, None, "f. 155"),
+}
+NAME_NOTES = {
+    "margashirsha_krishna": (
+        "The text names none; its chapter tells the birth (utpatti) of Ekadashi."
+    ),
+}
+
+
+def name_id(purnimanta: str, paksha: str, adhika: bool) -> str:
+    return f"adhika_{paksha}" if adhika else f"{purnimanta}_{paksha}"
+
+
 EKADASHI = {11: "shukla", 26: "krishna"}
 SOURCE = {
     "text": "Nirnaya-sindhu",
@@ -110,13 +159,19 @@ def _one(start: float, end: float, dv_end: float, q: EkadashiQuery) -> dict:
     masa = Mu.MASA.index(lunar.name)
     num = Mu.tithi_at(start + 1e-6, q.ayanamsa)
     last = max(smarta, vaishnava, ascetic or 0) + 1
+    purnimanta = MASA_IDS[(masa + 1) % 12] if num > 15 else MASA_IDS[masa]
+    nid = name_id(purnimanta, EKADASHI[num], lunar.adhika)
+    name, others, printed, popular, folio = EKADASHI_NAMES[nid]
     return {
         "paksha": EKADASHI[num],
-        "lunarMonth": {
-            "amanta": MASA_IDS[masa],
-            "purnimanta": MASA_IDS[(masa + 1) % 12] if num > 15 else MASA_IDS[masa],
-            "adhika": lunar.adhika,
-        },
+        "lunarMonth": {"amanta": MASA_IDS[masa], "purnimanta": purnimanta, "adhika": lunar.adhika},
+        "nameId": nid,
+        "name": name,
+        "otherNames": list(others),
+        "alsoPrinted": {"name": printed, "source": NS_P51} if printed else None,
+        "popularName": popular,
+        "nameSource": {**EM, "verse": None, "page": folio},
+        "nameNote": NAME_NOTES.get(nid),
         "tithi": {"start": iso(start, zone), "end": iso(end, zone)},
         "dvadashiEnd": iso(dv_end, zone),
         "days": [
