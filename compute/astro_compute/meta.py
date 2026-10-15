@@ -127,6 +127,31 @@ EKADASHI_RULES = {
         "pierced_next_day": ("Ekādaśī at no sunrise: the pure Dvādaśī day", "Nirnaya-sindhu pp. 53, 62-63"),
     },
 }  # fmt: skip
+OBSERVANCE_RULES = {
+    "vrata": {
+        "later_day": ("The later day, joined to the next Pratipada; never the day joined to Chaturdashi (Brahma-vaivarta). The Savitri vrata keeps the earlier day", "Nirnaya-sindhu p. 73"),
+        "only_day": ("The tithi touches no sunrise: its only day", "Nirnaya-sindhu p. 73"),
+    },
+    "shraddha": {
+        "aparahna": ("The Amavasya touches the aparahna (the last third of the daytime) of one day: that day", "Nirnaya-sindhu pp. 81, 87"),
+        "aparahna_both_kutapa": ("It touches both afternoons: the day whose kutapa (the 8th of the 15 day muhurtas) it covers (Madhava)", "Nirnaya-sindhu p. 87"),
+        "kutapa_one_day": ("Neither afternoon: the day whose kutapa it covers", "Nirnaya-sindhu pp. 86-87"),
+        "kutapa_more": ("Kutapa partly covered on both days: the day with more", "Nirnaya-sindhu p. 87"),
+        "kutapa_tie_kshaya_earlier": ("Equal on both days and the Amavasya touches no sunrise: the earlier day (Pracetas)", "Nirnaya-sindhu p. 87"),
+        "kutapa_tie_later": ("Equal on both days, or covered on both: the later day (Pracetas)", "Nirnaya-sindhu p. 87"),
+        "kutapa_none_later": ("Neither afternoon nor kutapa touched: the later day (our fallback; not seen in practice)", None),
+    },
+    "pradosha": {
+        "covers_pradosha": ("The Trayodashi covering pradosha (three muhurtas after sunset) throughout", "Nirnaya-sindhu p. 72, footnote (Brahmottara-khanda)"),
+        "both_covered_later": ("Pradosha covered on both days: the later day; Mayukha (after Sumantu) takes the earlier", "Nirnaya-sindhu p. 72, footnote"),
+        "neither_covered_later": ("Pradosha covered on neither day: the later day; Mayukha (after Sumantu) takes the earlier", "Nirnaya-sindhu p. 72, footnote"),
+    },
+}  # fmt: skip
+SHRADDHA_NOTE = (
+    "Hemadri makes the kutapa primary for households without sacred fires; Harita's rule by "
+    "Vedic branch decides equal coverage (Nirnaya-sindhu pp. 82, 86-87). Kshaya and vrddhi "
+    "here mean the Amavasya touches no sunrise or two (our reading)."
+)
 EKADASHI_NOTE = (
     "A tithi runs long when it is still current at the sunrise after its own day: Ekādaśī at "
     "the second day's sunrise, Dvādaśī at the third's, counting from the first Ekādaśī day "
@@ -442,6 +467,11 @@ def _english() -> dict:
             for t, rules in EKADASHI_RULES.items()
         },
         "ekadashiNote": EKADASHI_NOTE,
+        "observanceRules": {
+            group: {k: {"name": n, "source": src} for k, (n, src) in rules.items()}
+            for group, rules in OBSERVANCE_RULES.items()
+        },
+        "shraddhaNote": SHRADDHA_NOTE,
         # keyed by the rows' nameId: "<purnimanta month>_<paksha>", or "adhika_<paksha>"
         "ekadashiNames": {
             nid: {

@@ -84,6 +84,13 @@ ROUTES: dict[tuple[str, str], Callable[[dict, bytes | str | None], dict]] = {
     ("GET", "/v1/observances/ekadashi"): lambda q, b: observances.ekadashi(
         _parse(EkadashiQuery, q)
     ),
+    ("GET", "/v1/observances/purnima"): lambda q, b: observances.purnima(_parse(EkadashiQuery, q)),
+    ("GET", "/v1/observances/amavasya"): lambda q, b: observances.amavasya(
+        _parse(EkadashiQuery, q)
+    ),
+    ("GET", "/v1/observances/pradosha"): lambda q, b: observances.pradosha(
+        _parse(EkadashiQuery, q)
+    ),
     ("GET", "/v1/transits"): lambda q, b: transit_service.build(_parse(TransitRequest, q)),
     ("GET", "/v1/transits/events"): lambda q, b: transit_service.events(_parse(EventsQuery, q)),
     ("POST", "/v1/transits"): lambda q, b: transit_service.build(

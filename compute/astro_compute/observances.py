@@ -229,7 +229,6 @@ def ekadashi(q: EkadashiQuery) -> dict:
 # --- Purnima, Amavasya, Pradosha (docs/sources/observances.md s5, pradosha.md) -------
 
 NS_73 = {**SOURCE, "verse": "Purnima-nirnaya; Darsha-shraddha-kala", "page": "72-73, 81-82"}
-YAMAS = 3  # NS p. 82: "three yamas or more on the next day"
 
 
 def _lunar(jd: float, num: int, q: EkadashiQuery) -> dict:
@@ -274,36 +273,7 @@ def _full_or_new(start: float, end: float, _next_end: float, q: EkadashiQuery) -
         },
     }
     if num == 30:
-        # NS p. 81: the Amavasya covering the aparahna, the last third of the daytime.
-        candidates = range(0, (held[-1] if held else 0) + 1)
-        aparahna = []
-        for i in candidates:
-            sr, ss = s[i], _sunset(s[i], q)
-            a0, a1 = sr + 2 * (ss - sr) / 3, ss
-            aparahna.append((i, a0, a1, _overlap(start, end, a0, a1) / (a1 - a0), ss - sr))
-        full = [i for i, _, _, c, _ in aparahna if c >= 1 - 1e-9]
-        later, daylen = aparahna[-1][0], aparahna[-1][4]
-        if full:
-            shraddha, s_rule = full[0], "full_aparahna"
-        elif end >= s[later] + YAMAS * daylen / 4 and later > 0:
-            shraddha, s_rule = later, "growing_three_yamas"
-        else:
-            shraddha, s_rule = max(later - 1, 0), "shrinking_earlier"
-        last = max(last, later)
-        row["shraddha"] = {
-            "date": day[shraddha],
-            "rule": s_rule,
-            "aparahna": [
-                {
-                    "date": day[i],
-                    "start": iso(a0, zone),
-                    "end": iso(a1, zone),
-                    "covered": round(c, 3),
-                }
-                for i, a0, a1, c, _ in aparahna
-            ],
-        }
-        row["differs"] = row["shraddha"]["date"] != row["vrata"]["date"]
+        last = max(last, _shraddha(row, start, end, s, len(held), q))
     row["days"] = [
         {
             "date": day[i],
@@ -313,6 +283,72 @@ def _full_or_new(start: float, end: float, _next_end: float, q: EkadashiQuery) -
         for i in range(last + 1)
     ]
     return row
+
+
+def _kutapa_choice(spans: list[tuple], kshaya: bool) -> tuple[int, str]:
+    """NS pp. 86-87, the kutapa (8th of the 15 day muhurtas, Matsya): the day it
+    covers; partly on both, the day with more; equal, a shrinking Amavasya takes
+    the earlier day and otherwise the later (Pracetas); covered on both, the later."""
+    covered = [(i, c) for i, c in spans if c > 0]
+    if not covered:
+        return spans[-1][0], "kutapa_none_later"
+    if len(covered) == 1:
+        return covered[0][0], "kutapa_one_day"
+    (i0, c0), (i1, c1) = covered[-2], covered[-1]
+    if c0 >= 1 - 1e-9 and c1 >= 1 - 1e-9:
+        return i1, "kutapa_tie_later"
+    if abs(c0 - c1) > 1e-9:
+        return (i0, "kutapa_more") if c0 > c1 else (i1, "kutapa_more")
+    return (i0, "kutapa_tie_kshaya_earlier") if kshaya else (i1, "kutapa_tie_later")
+
+
+def _shraddha(row: dict, start: float, end: float, s: list[float], held: int, q) -> int:
+    """NS pp. 81-87: the Amavasya touching the aparahna (last third of the daytime)
+    of one day; both, or neither, go to the kutapa. Returns the last day index used."""
+    zone = q.tz
+    day = [aware(t, zone).date().isoformat() for t in s]
+    rows = []
+    for i in range(held + 1):
+        sr, ss = s[i], _sunset(s[i], q)
+        span = ss - sr
+        a0, k0 = sr + 2 * span / 3, sr + 7 * span / 15
+        rows.append(
+            (i, (a0, ss, _overlap(start, end, a0, ss) / (ss - a0)),
+             (k0, k0 + span / 15, _overlap(start, end, k0, k0 + span / 15) / (span / 15)))
+        )  # fmt: skip
+    touched = [i for i, (_, _, c), _ in rows if c > 0]
+    kutapa = [(i, k[2]) for i, _, k in rows]
+    if len(touched) == 1:
+        chosen, rule = touched[0], "aparahna"
+    elif touched:
+        chosen, _ = _kutapa_choice([(i, c) for i, c in kutapa if i in touched], held == 0)
+        rule = "aparahna_both_kutapa"
+    else:
+        chosen, rule = _kutapa_choice(kutapa, held == 0)
+    row["shraddha"] = {
+        "date": day[chosen],
+        "rule": rule,
+        "aparahna": [
+            {
+                "date": day[i],
+                "start": iso(a[0], zone),
+                "end": iso(a[1], zone),
+                "covered": round(a[2], 3),
+            }
+            for i, a, _ in rows
+        ],
+        "kutapa": [
+            {
+                "date": day[i],
+                "start": iso(k[0], zone),
+                "end": iso(k[1], zone),
+                "covered": round(k[2], 3),
+            }
+            for i, _, k in rows
+        ],
+    }
+    row["differs"] = row["shraddha"]["date"] != row["vrata"]["date"]
+    return held
 
 
 def _pradosha_window(sunrise_jd: float, q: EkadashiQuery) -> tuple[float, float]:
