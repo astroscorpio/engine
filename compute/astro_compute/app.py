@@ -27,6 +27,7 @@ from . import (
     panchang_service,
     pitru_paksha,
     transit_service,
+    vivah,
 )
 from .errors import ApiError
 from .models import (
@@ -108,6 +109,7 @@ ROUTES: dict[tuple[str, str], Callable[[dict, bytes | str | None], dict]] = {
     },
     ("GET", "/v1/transits"): lambda q, b: transit_service.build(_parse(TransitRequest, q)),
     ("GET", "/v1/gochara"): lambda q, b: transit_service.moon_sign(_parse(GocharaQuery, q)),
+    ("GET", "/v1/muhurat/vivah"): lambda q, b: vivah.vivah(_parse(EkadashiQuery, q)),
     ("GET", "/v1/transits/events"): lambda q, b: transit_service.events(_parse(EventsQuery, q)),
     ("POST", "/v1/transits"): lambda q, b: transit_service.build(
         _parse(TransitRequest, _json_body(b))

@@ -103,6 +103,45 @@ GOCHARA_NOTES = {
     "regional": "Kasyapa (MC p. 144) holds that vedha applies only between the Himalaya and the Vindhya.",
     "wording": "The lines are classical statements from the 1937 translation, quoted with their verses; some speak of death or danger to life. They are not forecasts.",
 }  # fmt: skip
+# vivah.md (the lead's decisions of 15 Oct 2026): rule ids for /muhurat/vivah.
+VIVAH_RULES = {
+    "season_best": ("Magha, Phalguna, Vaishakha or Jyeshtha (amanta): best", "Muhurta Chintamani 6.13 commentary, p. 235 (Narada); Dharmasindhu p. 181"),
+    "season_middling": ("Ashadha shukla 1-10, Kartika from shukla 11, or Margashirsha: middling", "Muhurta Chintamani 6.13 commentary, p. 235; 5.26, p. 186"),
+    "chaturmas": ("Hari's sleep, Ashadha shukla 11 to Kartika shukla 11: barred", "Muhurta Chintamani 6.13 commentary, p. 235"),
+    "sun_sign": ("The Sun in Pisces, Sagittarius or Leo: barred", "Garga in Muhurta Chintamani 6.13 commentary, p. 235"),
+    "adhika_month": ("An adhika or kshaya month, and the adhika months around a kshaya month: barred", "Muhurta Chintamani 1.47, pp. 39-40; Dharmasindhu p. 4"),
+    "jupiter_set": ("Jupiter within 11 time-degrees of the Sun: set", "Surya-siddhanta 9.6-7; Muhurta Chintamani 1.46-48, 5.26"),
+    "jupiter_old": ("The 15 days before Jupiter sets", "Muhurta Chintamani 5.27"),
+    "jupiter_infant": ("The 15 days after Jupiter rises", "Muhurta Chintamani 5.27"),
+    "venus_set": ("Venus within 8 time-degrees of the Sun (retrograde) or 10 (direct): set", "Surya-siddhanta 9.6-7; Muhurta Chintamani 1.46-47, 5.26"),
+    "venus_old": ("The 15 days before Venus sets in the east, or the 5 before it sets in the west", "Muhurta Chintamani 5.27"),
+    "venus_infant": ("The 3 days after Venus rises in the east, or the 10 after it rises in the west", "Muhurta Chintamani 5.27"),
+    "jupiter_sign": ("Jupiter in Leo or Capricorn: barred for its whole stay", "Muhurta Chintamani 1.48, p. 40"),
+    "tuesday": ("Tuesday: always avoided", "Vasishtha in Muhurta Chintamani 6.53"),
+    "nakshatra": ("The Moon in Mrgashira, Hasta, Mula, Anuradha, Magha, Rohini, Revati, the three Uttaras or Svati", "Muhurta Chintamani 6.53, p. 275; Dharmasindhu p. 181"),
+    "vedha": ("Not pierced: a malefic anywhere in the paired star bars the whole star, a benefic only the Moon's paired quarter (1-4, 2-3)", "Muhurta Chintamani 6.54, p. 276"),
+    "tithi": ("Not a rikta tithi (4, 9, 14) or Amavasya", "Muhurta Chintamani 6.53, p. 275"),
+    "bhadra": ("Bhadra on earth removed from the window", "Muhurta Chintamani 1.43-45; Dharmasindhu p. 181"),
+    "bad_yoga": ("The bad yogas' opening ghatis, Parigha's first half, and Vyatipata and Vaidhriti whole, removed", "Muhurta Chintamani 1.34-35; Dharmasindhu p. 181"),
+    "gandanta_tithi": ("One ghatika either side of the ends of the 5th, 10th and 15th tithis, removed", "Muhurta Chintamani 6.41, p. 265"),
+    "gandanta_nakshatra": ("Two ghatikas either side of Ashlesha-Magha, Jyeshtha-Mula and Revati-Ashvini, removed", "Muhurta Chintamani 6.41, p. 265"),
+    "sankranti": ("16.5 ghatikas either side of the Sun's sign change, removed (half of MC's 33 each side, our reading)", "Muhurta Chintamani 6.78, p. 293"),
+    "mahapata": ("Mahapata, equal declinations of the Sun and Moon, removed", "Muhurta Chintamani 6.59"),
+    "eclipse": ("Days after and before an eclipse visible here: 3 and 1.5 for a quarter of the disc, 4 and 2 for half, 6 and 3 for three quarters, 8 and 4 for total (bins ours)", "Dharmasindhu p. 181, note"),
+    "godhuli": ("Godhuli, the alternative: half a ghatika either side of sunset; Thursday only before it, Saturday only after; none with the Moon 1st, 6th or 8th from the lagna, or Mars 1st, 7th or 8th", "Muhurta Chintamani 6.97-99, pp. 305-307"),
+    "weak_tithi": ("Shashthi or Ashtami: 'little fruit' (DS); Vasishtha drops them", "Dharmasindhu p. 181; Muhurta Chintamani 6.53"),
+    "middling_weekday": ("Sunday or Saturday: middling", "Vasishtha in Muhurta Chintamani 6.53; Dharmasindhu p. 181"),
+    "middling_weekday_dvadashi_trayodashi": ("Sunday or Saturday on a Dvadashi or Trayodashi: especially bad", "Vasishtha in Muhurta Chintamani 6.53"),
+    "krishna_paksha": ("The dark fortnight: middling", "Dharmasindhu p. 181"),
+}  # fmt: skip
+VIVAH_NOTES = {
+    "infancy": "Infancy and old age follow MC 5.27 by the side of the sky. MC 5.28 gives 10, 7 or 3 days as alternatives, and Dharmasindhu p. 5 takes 7 days either side as the middle view.",
+    "setting": "Set means within the Surya-siddhanta 9.6-7 distance in time-degrees, measured here from the difference between the planet's and the Sun's rising (a morning planet) or setting (an evening one).",
+    "jupiterLeo": "Dharmasindhu p. 5 relaxes Jupiter in Leo by region: barred everywhere only in Magha or the Leo portion; after it, no fault south of the Godavari or north of the Ganga, but between the two rivers marriage stays barred for the whole stay. Not applied.",
+    "solarMonths": "The solar-month school also allows Kartika with the Sun in Scorpio, Pausha with the Sun in Capricorn and Caitra with the Sun in Aries; MC's commentator sets it aside except for a marriage that cannot wait, and Dharmasindhu allows it by local custom. Not applied.",
+    "moreStars": "Haradatta adds Citra, Shravana, Dhanishtha and Ashvini (Dharmasindhu p. 181). Not applied.",
+    "phase2": "The lagna (MC 6.84-85), jamitra, kartari, the navamsha rules, the other doshas of MC 6 and the couple's own charts are not applied yet.",
+}  # fmt: skip
 # attributes.md: each sign's element as its verse names it (Tajika-nilakanthi 1.2-13).
 TAJIKA_NILAKANTHI = {
     "text": "Tajika-nilakanthi",
@@ -728,6 +767,8 @@ def _english() -> dict:
         "paranaNote": PARANA_NOTE,
         "pitruPakshaNotes": PITRU_PAKSHA_NOTES,
         "gocharaNotes": GOCHARA_NOTES,
+        "vivahRules": {k: {"name": n, "source": src} for k, (n, src) in VIVAH_RULES.items()},
+        "vivahNotes": VIVAH_NOTES,
         "horaSystems": HORA_SYSTEMS,
         "festivalRules": {
             group: {k: {"name": n, "source": src} for k, (n, src) in rules.items()}
