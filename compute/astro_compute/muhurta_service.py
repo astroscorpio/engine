@@ -33,6 +33,7 @@ RULES: list[tuple[re.Pattern, str]] = [
         (r"^[SK]\d+ \w+: not a tonsure tithi \(MC 5\.29\)$", "tithi_mundan"),
         (r"^\w+day: not a tonsure weekday \(MC 5\.29; Parashara\)$", "weekday_mundan"),
         (r"^\w+ lagna: not a benefic's \(MC 5\.29\)$", "lagna_mundan"),
+        (r"^\w+ navamsa: not a benefic's \(MC 5\.29\)$", "navamsa_mundan"),
         (r"^.+ in the 8th \(MC 5\.29\)$", "house_8_mundan"),
         (r"^.+ in a kendra \(MC 5\.30\)$", "kendra_malefic_mundan"),
         (r"^the child's birth star \(DS p\. 137\)$", "birth_star"),

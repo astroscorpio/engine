@@ -28,7 +28,17 @@ from jyotisha.ephemeris import moon_rise_set
 from .fmt import provenance
 from .ids import tithi_id
 from .models import EkadashiQuery
-from .observances import SOURCE, _collect, _lunar, _overlap, _rise_set, _sunrises, _sunset, _vara
+from .observances import (
+    SOURCE,
+    _collect,
+    _lunar,
+    _overlap,
+    _rise_set,
+    _sankashti,
+    _sunrises,
+    _sunset,
+    _vara,
+)
 from .timeutil import aware, iso
 
 DANDA = 24 / 1440  # one ghatika (danda), in days
@@ -799,6 +809,32 @@ def _holika(start: float, end: float, _next: float, q: EkadashiQuery) -> dict | 
     }
 
 
+# --- Karaka-caturthi, Karva Chauth (NS p. 293; DS pp. 9, 76; VR ff. 80-82) ---------
+
+
+VRATARAJA = {
+    "text": "Vratraja",
+    "author": "Vishvanatha",
+    "edition": "Bombay pothi, Khemraj Shrikrishnadas (Internet Archive dates the copy to 1897)",
+    "page": "ff. 80-82",
+}
+
+
+def _karva(start: float, end: float, _next: float, q: EkadashiQuery) -> dict | None:
+    """The dark Caturthi ending amanta Ashvina (Kartika krishna purnimanta), current at
+    moonrise: at both moonrises the earlier, at neither the later, as for Sankashti
+    (NS p. 293; DS pp. 9, 76). VR f. 82 keeps it at nightfall, with the arghya after
+    moonrise (f. 80): sunset and moonrise are the sourced times."""
+    row = _sankashti(start, end, _next, q)
+    if row["lunarMonth"]["amanta"] != "ashwin" or row["lunarMonth"]["adhika"]:
+        return None
+    s = _sunrises(start, q.lat, q.lon, 2)
+    rise = s[0] if row["date"] == _date(s[0], q) else s[1]
+    out = {k: v for k, v in row.items() if k not in ("angaraki", "paksha")}
+    out["sunset"] = iso(_sunset(rise, q), q.tz)
+    return out
+
+
 def _year(q: EkadashiQuery, num: int, build) -> list[dict]:
     rows = _collect(
         q, {num}, lambda a, b, c, qq: build(a, b, c, qq) or {"date": None}, lambda r: (r["date"],)
@@ -829,7 +865,9 @@ FESTIVALS = {
     "ramanavami": (9, _ramanavami, "pp. 118-120", "p. 33"),
     "vijayadashami": (10, _vijayadashami, "pp. 283-284", "p. 71"),
     "holika-dahana": (15, _holika, "pp. 342-345", "pp. 94-95"),
+    "karva-chauth": (19, _karva, "p. 293", "pp. 9, 76"),
 }
+RITE_SOURCES = {"karva-chauth": VRATARAJA}
 
 
 def festival(kind: str, q: EkadashiQuery) -> dict:
@@ -842,5 +880,6 @@ def festival(kind: str, q: EkadashiQuery) -> dict:
         "occurrences": rows,
         "source": source,
         "alsoSource": {**DS, "verse": kind, "page": ds_pages} if ds_pages else None,
+        **({"riteSource": RITE_SOURCES[kind]} if kind in RITE_SOURCES else {}),
         "engine": provenance(q.ayanamsa),
     }

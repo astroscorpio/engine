@@ -1218,8 +1218,8 @@ def _mundan_vetoes(v, month, p, moon, asc, house, t, vara, planet_states) -> Non
     Caitra (5.29) or an adhika month (1.47); Jupiter and Venus clear (5.26-27) and
     Jupiter not in Leo or Capricorn (1.48); the twelve stars, tithis 2, 3, 5, 7, 10,
     11, 13 and the weekdays of Mercury, Jupiter, Venus and (bright fortnight only)
-    the Moon (5.29; Parashara); a benefic's lagna, the 8th empty but for Venus, and
-    no waning Moon, Mars, Saturn or Sun in a kendra (5.29-30)."""
+    the Moon (5.29; Parashara); a benefic's lagna and navamsa, the 8th empty but for
+    Venus, and no waning Moon, Mars, Saturn or Sun in a kendra (5.29-30)."""
     if month.adhika:
         v.vetoes.append(f"adhika {month.name} (MC 1.47)")
     if month.name == "Chaitra":
@@ -1239,6 +1239,8 @@ def _mundan_vetoes(v, month, p, moon, asc, house, t, vara, planet_states) -> Non
         v.vetoes.append(f"{VARA_NAME[vara]}: not a tonsure weekday (MC 5.29; Parashara)")
     if asc.sign not in BENEFIC_SIGNS:
         v.vetoes.append(f"{SIGNS[asc.sign]} lagna: not a benefic's (MC 5.29)")
+    elif (nav := int(asc.longitude // (30 / 9)) % 12) not in BENEFIC_SIGNS:
+        v.vetoes.append(f"{SIGNS[nav]} navamsa: not a benefic's (MC 5.29)")
     held = [g for g in p if house(g) == 8 and g != "Venus"]
     if held:
         v.vetoes.append(f"{', '.join(held)} in the 8th (MC 5.29)")

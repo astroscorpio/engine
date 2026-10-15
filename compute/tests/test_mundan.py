@@ -27,8 +27,10 @@ def test_every_window_keeps_the_tonsure_rules_at_its_middle():
             sun, moon = luminaries(t)
             assert NAKSHATRA_IDS[moon.nakshatra] == w["nakshatra"] and moon.nakshatra in M.STARS
             assert sun.sign in (9, 10, 11, 0, 1, 2)
-            lagna = int(ascendant(t, lat, lon)[0].longitude // 30)
+            asc = ascendant(t, lat, lon)[0].longitude
+            lagna = int(asc // 30)
             assert SIGN_IDS[lagna] == w["lagna"] and lagna in M.BENEFIC_SIGNS
+            assert int(asc // (30 / 9)) % 12 in M.BENEFIC_SIGNS
             p = positions(t)
             house = {g: (p[g].sign - lagna) % 12 + 1 for g in p}
             assert all(g == "Venus" for g, h in house.items() if h == 8)

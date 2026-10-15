@@ -175,3 +175,12 @@ def test_navaratri_days_ashtami_navami_and_rama_navami():
     # The colour day is the morning after the fire, every year.
     assert (h["date"], h["colours"]["date"]) == ("2026-03-03", "2026-03-04")
     assert h["colours"]["popularName"] == "Rangwali Holi"
+
+
+def test_karva_chauth_follows_the_sankashti_rule():
+    # 2026 at New Delhi: Thu 29 Oct, the Caturthi current at moonrise (festivals.md s16).
+    (k,) = _rows("karva-chauth")
+    assert (k["date"], k["vara"], k["rule"]) == ("2026-10-29", "thursday", "moonrise")
+    assert k["sunset"] < k["moonrise"] and k["moonrise"][:10] == k["date"]
+    assert k["tithi"]["start"] < k["moonrise"] < k["tithi"]["end"]
+    assert k["rule"] in FESTIVAL_RULES["karva-chauth"] and "angaraki" not in k

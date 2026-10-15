@@ -6,8 +6,8 @@ the amanta month is not Caitra (MC 5.29), adhika or kshaya (1.47); Jupiter and V
 are clear (5.26-27) and Jupiter is not in Leo or Capricorn (1.48; DS p. 5); the Moon
 is in one of the twelve stars of MC 5.29 (Vasishtha; DS p. 137); the tithi is 2, 3,
 5, 7, 10, 11 or 13; and the day is a Wednesday, Thursday or Friday, or a Monday in
-the bright fortnight (Parashara). Its windows add a benefic's lagna (Kashyapa), the
-8th empty but for Venus, and no waning Moon, Mars, Saturn or Sun in a kendra (5.30),
+the bright fortnight (Parashara). Its windows add a benefic's lagna and navamsa
+(Kashyapa), the 8th empty but for Venus, and no waning Moon, Mars, Saturn or Sun in a kendra (5.30),
 less the barred stretches and day yogas the other date lists remove.
 """
 
@@ -41,24 +41,29 @@ SOURCE = {
 
 
 def _lagna_windows(a: float, b: float, num: int, q) -> list[tuple[float, float, int]]:
-    """Stretches of [a, b] with a benefic's lagna, the 8th empty but for Venus, and no
-    waning Moon (outside tithis 9-22, BJ 2.5 as the engine reads it), Mars, Saturn or
-    Sun in a kendra."""
+    """Stretches of [a, b] with the lagna and its navamsa in a benefic's sign (MC 5.29
+    "lagnamshayoh"), the 8th empty but for Venus, and no waning Moon (outside tithis
+    9-22, BJ 2.5 as the engine reads it), Mars, Saturn or Sun in a kendra."""
     ay = q.ayanamsa
     bad = {"Mars", "Saturn", "Sun"} | (set() if 9 <= num <= 22 else {"Moon"})
+
+    def asc(t: float) -> float:
+        return ascendant(t, q.lat, q.lon, ay)[0].longitude
+
     out = []
-    for x, y, lagna in _spans(
-        lambda t: int(ascendant(t, q.lat, q.lon, ay)[0].longitude // 30), a, b, 1 / 96
-    ):
+    for x0, y0, lagna in _spans(lambda t: int(asc(t) // 30), a, b, 1 / 96):
         if lagna not in BENEFIC_SIGNS:
             continue
-        p = positions((x + y) / 2, ay)
-        house = {g: (p[g].sign - lagna) % 12 + 1 for g in p}
-        if any(h == 8 and g != "Venus" for g, h in house.items()):
-            continue
-        if any(house[g] in KENDRA for g in bad):
-            continue
-        out.append((x, y, lagna))
+        for x, y, idx in _spans(lambda t: int(asc(t) // (30 / 9)), x0, y0, 1 / 288):
+            if idx % 12 not in BENEFIC_SIGNS:
+                continue
+            p = positions((x + y) / 2, ay)
+            house = {g: (p[g].sign - lagna) % 12 + 1 for g in p}
+            if any(h == 8 and g != "Venus" for g, h in house.items()):
+                continue
+            if any(house[g] in KENDRA for g in bad):
+                continue
+            out.append((x, y, lagna))
     return out
 
 
