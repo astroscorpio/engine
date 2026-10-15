@@ -157,6 +157,8 @@ VIVAH_NOTES = {
 # mundan.md (the lead's decisions of 15 Oct 2026): rule ids for /muhurat/mundan.
 MUNDAN_RULES = {
     "month": ("Not Caitra, nor an adhika or kshaya month", "Muhurta Chintamani 5.29, 1.47; Dharmasindhu p. 137"),
+    "off_season": ("Caitra: barred", "Muhurta Chintamani 5.29"),
+    "adhika_month": ("An adhika or kshaya month: barred", "Muhurta Chintamani 1.47; Dharmasindhu p. 137"),
     "dakshinayana": ("The Sun in its southern course, Cancer to Sagittarius: barred", "Muhurta Chintamani 5.26, 5.29"),
     "jupiter_set": ("Jupiter within 11 time-degrees of the Sun: set", "Surya-siddhanta 9.6-7; Muhurta Chintamani 5.26"),
     "jupiter_old": ("The 15 days before Jupiter sets", "Muhurta Chintamani 5.27"),
@@ -307,6 +309,7 @@ VARGA_USES = {
 GRIHA_PRAVESH_RULES = {
     "month": ("Magha, Phalguna, Vaishakha or Jyeshtha (amanta), with the Sun in its northern course", "Muhurta Chintamani 13.1, p. 437; Narada, p. 438"),
     "adhika_month": ("An adhika or kshaya month: barred", "Muhurta Chintamani 1.47, pp. 39-40; Dharmasindhu p. 4"),
+    "off_season": ("A lunar month outside MC 13.1's four (Magha, Phalguna, Vaishakha, Jyeshtha) and Narada's middling two (Kartika, Margashirsha): barred", "Muhurta Chintamani 13.1, 13.4 and commentary"),
     "dakshinayana": ("The Sun in its southern course, Cancer to Sagittarius: barred", "Muhurta Chintamani 13.1, p. 437"),
     "sun_sign": ("The Sun in Cancer, Virgo or Aquarius: barred", "Guru in Muhurta Chintamani 13.1 commentary, p. 439"),
     "jupiter_set": ("Jupiter within 11 time-degrees of the Sun: set", "Surya-siddhanta 9.6-7; Muhurta Chintamani 1.46, applied by the 13.1 commentary, p. 438"),

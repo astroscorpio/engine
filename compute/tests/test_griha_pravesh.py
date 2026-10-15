@@ -112,3 +112,12 @@ def test_windows_carry_the_doors_that_pass_mc_13_5():
         # One tithi class per door (MC 13.5): a window can pass at most its class's door.
         assert set(w["doors"]) <= {classes[w["tithi"]]}
     assert Mu.DOOR_TITHIS["E"] == {5, 10, 15}
+
+
+def test_blocks_carry_the_barred_lunar_months():
+    out = year("2026")
+    off = {b["detail"] for b in out["blocks"] if b["rule"] == "off_season"}
+    assert {"chaitra", "ashadha", "pausha"} <= off
+    assert off <= {"chaitra", "ashadha", "shravana", "bhadrapada", "ashwin", "pausha"}
+    assert {b["detail"] for b in out["blocks"] if b["rule"] == "adhika_month"} == {"jyeshtha"}
+    assert {b["rule"] for b in out["blocks"]} <= set(GRIHA_PRAVESH_RULES)

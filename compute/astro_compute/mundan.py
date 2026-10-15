@@ -226,7 +226,7 @@ def mundan(q: EkadashiQuery, explain: dict | None = None) -> dict:
         "excluded": excluded,
         # An empty year names the days that failed only at the window (samskaras.md A5).
         "nearest": [] if out_days else near,
-        "blocks": _blocks(y, q, frozenset()),
+        "blocks": _blocks(y, q, frozenset(), barred_months={"Chaitra"}),  # MC 5.29
         "source": SOURCE,
         "alsoSource": {**DS, "page": "5, 137"},
         "engine": provenance(ay),

@@ -668,10 +668,10 @@ def _blocks(days, set_state, eclipse_bars, sun_sign, jupiter, q) -> list[dict]:
     return sorted(rows, key=lambda r: r["start"])
 
 
-def _season_blocks(y: _Year, q) -> list[dict]:
-    """The season as runs, at the instants the day test uses: chaturmas from the Ashadha
-    shukla Ekadashi to the Kartika shukla Ekadashi, each amanta month outside MC's season
-    (off_season, its month id in detail), and the adhika or kshaya months."""
+def _month_runs(y: _Year, barred) -> list[tuple[float, float, str, str]]:
+    """(start, end, rule, month id) for each adhika or kshaya month (adhika_month) and
+    each pure amanta month named in barred (off_season), from new moon to new moon,
+    at the instants the day tests use."""
     months: dict[float, list] = {}
     for a, b, _ in y.tithis:
         name, adhika, kshaya, start = y.tithi_month[a]
@@ -679,11 +679,20 @@ def _season_blocks(y: _Year, q) -> list[dict]:
         m[3], m[4] = min(m[3], a), max(m[4], b)
     runs = []
     for start, (name, adhika, kshaya, a, b) in months.items():
-        rule = "adhika_month" if adhika or kshaya else "off_season" if name not in GRADE else None
+        rule = "adhika_month" if adhika or kshaya else "off_season" if name in barred else None
         if rule:
             # The month's own new moons, not the edges of the year's tithi list.
             end = Mu.lunar_month((a + b) / 2, y.ay).end
-            runs.append((rule, start, end, MASA_IDS[Mu.MASA.index(name)]))
+            runs.append((start, end, rule, MASA_IDS[Mu.MASA.index(name)]))
+    return runs
+
+
+def _season_blocks(y: _Year, q) -> list[dict]:
+    """The season as runs, at the instants the day test uses: chaturmas from the Ashadha
+    shukla Ekadashi to the Kartika shukla Ekadashi, each amanta month outside MC's season
+    (off_season, its month id in detail), and the adhika or kshaya months."""
+    outside = {m for m in Mu.MASA if m not in GRADE}
+    runs = [(rule, a, b, mid) for a, b, rule, mid in _month_runs(y, outside)]
 
     def ekadashis(month: str) -> list[float]:
         return [

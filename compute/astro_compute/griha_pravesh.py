@@ -33,6 +33,7 @@ from .vivah import (
     _day_yogas,
     _details,
     _lagna_gandanta,
+    _month_runs,
     _spans,
     _state_facts,
     _subtract,
@@ -217,7 +218,8 @@ def griha_pravesh(q: EkadashiQuery, explain: dict | None = None) -> dict:
         "year": q.year,
         "days": out_days,
         "excluded": excluded,
-        "blocks": _blocks(y, q),
+        # Outside MC 13.1's four months and Narada's middling two: barred outright.
+        "blocks": _blocks(y, q, barred_months=set(Mu.MASA) - MONTHS - MIDDLING),
         "source": SOURCE,
         "alsoSource": DS,
         "engine": provenance(ay),
@@ -294,9 +296,12 @@ def _first_gp(reasons: list[str]) -> str:
     return next((r for r in order if r in reasons), "none")
 
 
-def _blocks(y: _Year, q, barred_sun: frozenset | set = BARRED_SUN) -> list[dict]:
+def _blocks(
+    y: _Year, q, barred_sun: frozenset | set = BARRED_SUN, barred_months: frozenset | set = ()
+) -> list[dict]:
     """The year's day-level bars, merged into runs: Jupiter's and Venus's states, the
-    Sun's southern course and its barred signs, and Jupiter in Leo or Capricorn."""
+    Sun's southern course and its barred signs, Jupiter in Leo or Capricorn, and the
+    adhika months and barred lunar months (off_season, the month id in detail)."""
     zone = q.tz
     rows = []
     for planet, state in y.states.items():
@@ -333,6 +338,7 @@ def _blocks(y: _Year, q, barred_sun: frozenset | set = BARRED_SUN) -> list[dict]
                 rows[-1] = (rule, rows[-1][1], b, detail)
             else:
                 rows.append((rule, a, b, detail))
+    rows += [(rule, a, b, mid) for a, b, rule, mid in _month_runs(y, barred_months)]
     y0, y1 = f"{q.year}-01-01", f"{q.year + 1}-01-01"
     out = [
         {"rule": rule, "start": iso(a, zone), "end": iso(b, zone), "detail": detail}

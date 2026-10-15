@@ -38,6 +38,7 @@ def test_every_window_keeps_the_tonsure_rules_at_its_middle():
             assert not (d["vara"] == "monday" and w["paksha"] == "krishna")
     for b in out["blocks"]:
         assert b["rule"] in MUNDAN_RULES and b["rule"] != "sun_sign"
+    assert {b["detail"] for b in out["blocks"] if b["rule"] == "off_season"} == {"chaitra"}
     relaxable = {
         "infancy_old",
         "venus_set",
