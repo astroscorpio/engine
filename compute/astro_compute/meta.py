@@ -700,6 +700,27 @@ FESTIVAL_RULES = {
         "sunrise_both_earlier": ("At sunrise on both days: the earlier, as the complete one", "Dharmasindhu p. 58"),
         "no_sunrise_only_day": ("The Caturdashi at no sunrise: its only day (our reading)", None),
     },
+    "chhath": {
+        "sunset_in_shashthi": ("Chhath: the evening arghya on the day whose sunset falls within the Kartika shukla Shashthi (popular practice; no text read gives the day)", None),
+        "two_sunsets_earlier": ("Both sunsets within the Shashthi: the earlier (popular practice; no text read gives the day; our choice)", None),
+        "sunrise_holds_shashthi": ("No sunset within the Shashthi: the day whose sunrise holds it (popular practice; no text read gives the day)", None),
+    },
+    "hanuman-jayanti": {
+        "purnima_vrata_day": ("Hanuman Jayanti: the Caitra Purnima, on the site's Purnima-vrata day, the main northern date (popular practice; no text read gives the day)", None),
+    },
+    "radhashtami": {
+        "midday_one_day": ("Radhashtami: the Bhadrapada shukla Ashtami covering midday (the 3rd fifth) on one day: that day (popular practice; no text read gives the day)", None),
+        "midday_both_later": ("Covering both middays: the later, whose sunrise holds the Ashtami (popular practice; no text read gives the day)", None),
+        "midday_neither_later": ("Covering neither midday: the later, whose sunrise holds the Ashtami (popular practice; no text read gives the day)", None),
+    },
+    "onam": {
+        "sunrise_six_nadikas": ("Onam: the Chingam day (the Sun in sidereal Simha at sunrise) whose sunrise falls in Shravana with 6 nadikas (2 h 24 min) of it left (popular practice; no text read gives the day)", None),
+        "short_day_before": ("Less than 6 nadikas of Shravana after the only sunrise in it: the day before, which holds most of it (popular practice; no text read gives the day)", None),
+        "no_sunrise_day_it_falls_in": ("Shravana at no sunrise: the day it falls in (popular practice; no text read gives the day; our reading)", None),
+    },
+    "vishwakarma-puja": {
+        "kanya_sankranti_punyakala": ("Vishwakarma Puja: the day of the Kanya sankranti's punyakala, as /observances/sankranti computes it (popular practice; no text read gives the day)", None),
+    },
     "durga-puja": {
         "sunrise_ashtami": ("Mahashtami: the Ashtami current at sunrise for a muhurta, joined to the Navami", "Tithi-tattva pp. 77-79"),
         "complete_first_day": ("The Ashtami holding two sunrises: the complete first day", "Tithi-tattva p. 78"),
@@ -789,6 +810,11 @@ FESTIVAL_NOTES = {
     "nag-panchami": "Serpents are drawn in cow dung on both sides of the door and worshipped with curd, durva, kusha, scents and flowers, and brahmanas are honoured; those who worship them on this day have no fear of snakes anywhere (Hemadri's Bhavishya, NS p. 164). The Panchami is taken Shashthi-joined (the Camatkara-cintamani, NS p. 164), within Dharmasindhu's muhurta limits (p. 44). muhurtas gives the Panchami's length after the later sunrise and the Caturthi's after the earlier, in day-muhurtas.",
     "rishi-panchami": "Bhadrapada shukla Panchami: the rishis are worshipped and only vegetables from unploughed land are eaten (DS p. 55). pujaWindow is midday, the 3rd fifth of the daytime, while the Panchami runs.",
     "anant-chaturdashi": "The Ananta vow: a golden image and a cord of fourteen knots, the details referred to the Kaustubha (DS p. 58). The date follows Dharmasindhu's sunrise rule (p. 58). Nirnaya-sindhu takes the Caturdashi covering midday on either day and calls Madhava's sunrise rule mistaken (pp. 210-211); its day is variantDate where they differ, which happens when the Caturdashi begins before midday on the earlier day and ends before midday on the later, at least two muhurtas after sunrise. pujaWindow is the forenoon, Dharmasindhu's main time, else midday, while the Caturdashi runs; Nirnaya-sindhu puts the worship at midday (p. 210).",
+    "chhath": "Popular practice; no text read gives the day. Our rule: the evening arghya (sandhyaArghya, at the city's sunset) on the day whose sunset falls within the Kartika shukla Shashthi, else the day whose sunrise holds it; the morning arghya (ushaArghya) at the next sunrise; Kharna the day before the evening arghya and nahay-khay the day before that. Sun worship on a Shashthi is in the texts, but not this day or these rites: Dharmasindhu p. 55 has a Surya-shashthi on the Bhadrapada shukla Shashthi, and the Krtyaratnakara (pp. 447-448, the Bhavishya) a year-long Sun vow on the dark Shashthi of each month; on the Kartika Shashthi itself it gives an arghya to Karttikeya (p. 415). The fast, standing in water and the offerings are practice.",
+    "hanuman-jayanti": "Popular practice; no text read gives the day. The main northern date is the Caitra Purnima, shown on the site's Purnima-vrata day. Other regional dates, not computed here: the Kartika krishna Caturdashi (some northern and western traditions), the new moon of the solar month Margazhi in Tamil Nadu, Vaishakha krishna Dashami in Andhra Pradesh and Telangana, Margashirsha shukla Trayodashi (the Hanumad-vrata) in Karnataka, and the Mesha sankranti in Odisha. No one regional date is the correct one.",
+    "radhashtami": "Popular practice; no text read gives the day. Our rule: the Bhadrapada shukla Ashtami covering midday (the 3rd fifth of daylight); if it covers both middays or neither, the later day, whose sunrise holds the Ashtami. pujaWindow is that midday, by practice. Dharmasindhu gives this Ashtami to the Durvashtami and a Jyeshtha-devi puja (p. 56).",
+    "onam": "Popular practice; no text read gives the day. A civil day is in Chingam when the Sun is in sidereal Simha at its sunrise. Onam (Tiruvonam, the Shravana nakshatra) is the Chingam day whose sunrise falls in Shravana with at least 6 nadikas (2 h 24 min) of it left, else the day before; the six-nadika test is our statement of common Kerala almanac usage. When Chingam holds two Tiruvonams both are shown (twoTiruvonam) and local almanacs choose between them. The textual days sharing the Vamana story, the Shravana-dvadashi and Vamana-jayanti, are lunar days and do not give Onam's date.",
+    "vishwakarma-puja": "Popular practice; no text read gives the worship. The day is the Kanya sankranti's punyakala as /observances/sankranti computes it; only that basis is textual (Dharmasindhu p. 2; Nirnaya-sindhu p. 5). In the Bengal calendar it is the last day of Bhadra.",
     "navaratriDays": "Navaratra names a worship set in nine tithis, the Pratipada to the Navami (DS p. 65). Each day's worship goes with the tithi at its sunrise (our reading of DS p. 66); a tithi touching two sunrises is worshipped on both days and one touching none on the day it falls in, so the Navaratri runs eight, nine or ten days. Some keep only eight worships when a day is lost (DS p. 66). The first day is the kalasha-sthapana day.",
     "durgashtami": "Mahashtami: the Ashtami at sunrise joined to the Navami, never one touched by the Saptami however slightly, even with Mula (NS p. 263, DS p. 69). Especially praised on a Tuesday (DS). Bhadra does not bar the worship (Devi-purana, NS p. 264). Those with sons do not fast on it (DS p. 69; NS p. 265).",
     "mahanavami": "The Navami joined to the Ashtami is taken for the worship and the fast when it covers three muhurtas before that day's sunset (NS pp. 272-273, DS p. 69), so Durgashtami and Mahanavami often fall on one day. The animal bali is on the Dashami-joined day (DS p. 69).",
@@ -1349,6 +1375,10 @@ def _english() -> dict:
             for group, rules in FESTIVAL_RULES.items()
         },
         "festivalNotes": FESTIVAL_NOTES,
+        "festivalBasis": {
+            "text": "Kept by the cited text's own rule",
+            "popular_practice": "Popular practice; no text read gives the day",
+        },
         "festivalCautions": FESTIVAL_CAUTIONS,
         "purnimaEarlierDateNote": PURNIMA_EARLIER_NOTE,
         "purnimaNames": {

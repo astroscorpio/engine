@@ -33,6 +33,7 @@ from .models import EkadashiQuery
 from .observances import (
     SOURCE,
     _collect,
+    _full_or_new,
     _lunar,
     _one,
     _overlap,
@@ -1701,6 +1702,137 @@ def _durga_puja(start: float, end: float, _next: float, q: EkadashiQuery) -> dic
     }  # fmt: skip
 
 
+# --- Popular practice (festivals.md s27, decision 27, 15 Oct 2026) --------------------
+# No text read gives these days: each rule is ours, stated from common practice, and
+# every answer carries basis: "popular_practice".
+
+ONAM_NADIKAS = 6 * DANDA  # 2 h 24 min of Shravana after sunrise
+LEO = 4
+
+
+def _chhath(start: float, end: float, _next: float, q: EkadashiQuery) -> dict | None:
+    """s27.1: the evening arghya on the day whose sunset falls within the Kartika shukla
+    Shashthi (the earlier if two do, our choice), else the day whose sunrise holds it;
+    the morning arghya at the next sunrise; Kharna and nahay-khay the two days before."""
+    base = _base(start, end, 6, q)
+    if not _in_month(base, "kartika"):
+        return None
+    s = _sunrises(start, q.lat, q.lon, 4)  # s[0] <= start < s[1]
+    sets = [_sunset(s[i], q) for i in range(3)]
+    inside = [i for i in range(3) if start <= sets[i] < end]
+    if inside:
+        k = inside[0]
+        rule = "two_sunsets_earlier" if len(inside) > 1 else "sunset_in_shashthi"
+    else:
+        k, rule = next(i for i in (1, 2) if start <= s[i] < end), "sunrise_holds_shashthi"
+    day = lambda i: {"date": _date(s[i], q), "vara": _vara(s[i], q)}  # noqa: E731
+    before = [
+        _sunrises(s[k] - 1.5, q.lat, q.lon, 2)[0],  # two days before
+        _sunrises(s[k] - 0.5, q.lat, q.lon, 2)[0],  # the day before
+    ]
+    return {
+        **base,
+        **day(k),
+        "rule": rule,
+        "set": {
+            "nahayKhay": {"date": _date(before[0], q), "vara": _vara(before[0], q)},
+            "kharna": {"date": _date(before[1], q), "vara": _vara(before[1], q)},
+            "sandhyaArghya": {**day(k), "sunset": iso(sets[k], q.tz)},
+            "ushaArghya": {**day(k + 1), "sunrise": iso(s[k + 1], q.tz)},
+        },
+    }
+
+
+def _hanuman(start: float, end: float, _next: float, q: EkadashiQuery) -> dict | None:
+    """s27.2: the Caitra Purnima on the site's own Purnima-vrata day (observances s5)."""
+    base = _base(start, end, 15, q)
+    if not _in_month(base, "chaitra"):
+        return None
+    vrata = _full_or_new(start, end, _next, q)["vrata"]
+    return {**base, "date": vrata["date"], "vara": vrata["vara"], "rule": "purnima_vrata_day"}
+
+
+def _radhashtami(start: float, end: float, _next: float, q: EkadashiQuery) -> dict | None:
+    """s27.3: the Bhadrapada shukla Ashtami covering midday (the 3rd fifth) on one day:
+    that day; both or neither, the later, whose sunrise holds the Ashtami."""
+    base = _base(start, end, 8, q)
+    if not _in_month(base, "bhadrapada"):
+        return None
+    _, days = _days(start, end, q, ("madhyahna",))
+    cov = [d["madhyahna"]["covered"] > 0 for d in days]
+    if cov[0] != cov[1]:
+        chosen, rule = (0 if cov[0] else 1), "midday_one_day"
+    else:
+        chosen, rule = 1, "midday_both_later" if cov[0] else "midday_neither_later"
+    w = days[chosen]["_w"]["madhyahna"]
+    return {
+        **base,
+        "days": _strip(days),
+        "date": days[chosen]["date"],
+        "vara": days[chosen]["vara"],
+        "rule": rule,
+        "pujaWindow": _span(_clip(start, end, w) or w, q),
+    }
+
+
+def _onam(q: EkadashiQuery) -> tuple[list[dict], dict]:
+    """s27.4: Chingam's days are those with the sidereal Sun in Simha at sunrise. Onam
+    (Tiruvonam) is the Chingam day whose sunrise falls in Shravana with 6 nadikas of it
+    left; with less, the day before; with no sunrise in it, the day it falls in (our
+    reading). Two Tiruvonams in one Chingam are both shown, neither picked."""
+    ay = q.ayanamsa
+    t0 = local_jd(dt.date(q.year, 7, 25), 0.0, q.tz, "year")
+    t1 = local_jd(dt.date(q.year, 10, 1), 0.0, q.tz, "year")
+    rises = _sunrises(t0, q.lat, q.lon, int(t1 - t0) + 2)
+    chingam = [sr for sr in rises if luminaries(sr, ay)[0].sign == LEO]
+    if not chingam:
+        return [], {"chingam": None}
+    first, last = chingam[0], chingam[-1]
+    nak = lambda t: Mu.nakshatra_at(t, ay)  # noqa: E731
+    rows = []
+    for a, b in _spans(nak, SHRAVANA, first - 1.2, last + 1.2, 0.1):
+        held = [sr for sr in rises if a <= sr < b]
+        if any(b - sr >= ONAM_NADIKAS for sr in held):
+            sr, rule = next(sr for sr in held if b - sr >= ONAM_NADIKAS), "sunrise_six_nadikas"
+        elif held:
+            sr, rule = rises[rises.index(held[0]) - 1], "short_day_before"
+        else:
+            sr, rule = max(x for x in rises if x <= a), "no_sunrise_day_it_falls_in"
+        if first <= sr <= last:
+            rows.append(
+                {
+                    "date": _date(sr, q),
+                    "vara": _vara(sr, q),
+                    "rule": rule,
+                    "shravana": _span((a, b), q),
+                }
+            )
+    if len(rows) > 1:
+        for r in rows:
+            r["twoTiruvonam"] = True
+    span = {"start": _date(first, q), "end": _date(last, q)}
+    return rows, {"chingam": span}
+
+
+def _vishwakarma(q: EkadashiQuery) -> tuple[list[dict], dict]:
+    """s27.5: the day of the Kanya sankranti's punyakala, as /observances/sankranti
+    computes it (sankranti.md)."""
+    from .sankranti import sankranti  # sankranti imports observances, as this does
+
+    rows = []
+    for r in sankranti(q)["sankrantis"]:
+        if r["sign"] == "virgo":
+            rows.append(
+                {
+                    "date": r["date"],
+                    "vara": r["vara"],
+                    "rule": "kanya_sankranti_punyakala",
+                    "sankranti": {k: r[k] for k in ("at", "rule", "punyakala")},
+                }
+            )
+    return rows, {}
+
+
 def _year(q: EkadashiQuery, num: int | set[int], build) -> list[dict]:
     rows = _collect(
         q,
@@ -1773,6 +1905,28 @@ FESTIVALS = {
     "nag-panchami": (5, _naga, "p. 164", "p. 44"),
     "rishi-panchami": (5, _rishi, None, "p. 55"),
     "anant-chaturdashi": (14, _ananta, "pp. 210-211", "p. 58"),
+    # Popular practice (s27): no source; context, where a text touches the day, below.
+    "chhath": (6, _chhath, None, None),
+    "hanuman-jayanti": (15, _hanuman, None, None),
+    "radhashtami": (8, _radhashtami, None, None),
+    "onam": (None, None, None, None),
+    "vishwakarma-puja": (None, None, None, None),
+}
+POPULAR = {"chhath", "hanuman-jayanti", "radhashtami", "onam", "vishwakarma-puja"}
+YEARLY = {"onam": _onam, "vishwakarma-puja": _vishwakarma}
+KRTYARATNAKARA = {
+    "text": "Krtyaratnakara",
+    "author": "Candeshvara Thakkura",
+    "edition": "ed. Kamala-krsna Smrtitirtha, Asiatic Society of Bengal, Calcutta, 1925",
+}
+# Texts that touch the day without giving it (s27): shown as context, never as source.
+CONTEXT = {
+    "chhath": [
+        {**DS, "verse": "Surya-shashthi of Bhadrapada", "page": "55"},
+        {**KRTYARATNAKARA, "verse": "the dark-Shashthi Sun vow (Bhavishya)", "page": "447-448"},
+        {**KRTYARATNAKARA, "verse": "the Kartika Shashthi, to Karttikeya", "page": "415"},
+    ],
+    "vishwakarma-puja": [{**DS, "verse": "sankranti punyakala", "page": "2"}],
 }
 RITE_SOURCES = {
     "karva-chauth": VRATARAJA,
@@ -1797,13 +1951,18 @@ MC_140 = {
 
 def festival(kind: str, q: EkadashiQuery) -> dict:
     num, build, pages, ds_pages = FESTIVALS[kind]
-    extra = {}
+    extra: dict = {}
     if kind == "sawan-somvar":
         rows, extra["shravana"] = _sawan(q)
+    elif kind in YEARLY:
+        rows, extra = YEARLY[kind](q)
     else:
         rows = _year(q, num, build)
     also = {**DS, "verse": kind, "page": ds_pages} if ds_pages else None
-    if kind == "holashtak":
+    if kind in POPULAR:
+        source = None
+        extra["context"] = CONTEXT.get(kind, [])
+    elif kind == "holashtak":
         source = MC_140
     elif kind == "durga-puja":
         source = {**TITHI_TATTVA, "text": "Tithi-tattva (Raghunandana)", "page": "63-82"}
@@ -1816,6 +1975,7 @@ def festival(kind: str, q: EkadashiQuery) -> dict:
     return {
         "year": q.year,
         "festival": kind,
+        "basis": "popular_practice" if kind in POPULAR else "text",
         "occurrences": rows,
         **extra,
         "source": source,

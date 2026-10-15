@@ -378,3 +378,46 @@ def test_kalashtami_vigil_and_the_new_year_reasoning():
     assert ny["date"] == c["newYearDate"] and ny["rule"] in FESTIVAL_RULES["chaitra-navaratri"]
     assert len(ny["days"]) == 2
     assert any(d["covered"] for d in ny["days"]) == (ny["rule"] != "neither_earlier")
+
+
+def test_popular_practice_kinds_carry_their_basis_and_follow_our_rules():
+    import datetime as dt
+
+    from astro_compute.meta import FESTIVAL_NOTES
+
+    def days_apart(a, b):
+        return (dt.date.fromisoformat(b) - dt.date.fromisoformat(a)).days
+
+    kinds = ("chhath", "hanuman-jayanti", "radhashtami", "onam", "vishwakarma-puja")
+    outs = {}
+    for k in kinds:
+        status, out = call("GET", f"/v1/festivals/{k}", DELHI)
+        assert status == 200, out
+        assert out["basis"] == "popular_practice" and out["source"] is None
+        assert out["occurrences"] and "Popular practice" in FESTIVAL_NOTES[k]
+        assert all(o["rule"] in FESTIVAL_RULES[k] for o in out["occurrences"])
+        outs[k] = out
+    (c,) = outs["chhath"]["occurrences"]
+    s = c["set"]
+    order = [s[k]["date"] for k in ("nahayKhay", "kharna", "sandhyaArghya", "ushaArghya")]
+    assert [days_apart(a, b) for a, b in zip(order, order[1:], strict=False)] == [1, 1, 1]
+    assert s["sandhyaArghya"]["sunset"][:10] == c["date"] and c["lunarMonth"]["amanta"] == "kartika"
+    assert outs["chhath"]["context"] and any(
+        "Krtyaratnakara" in x["text"] for x in outs["chhath"]["context"]
+    )
+    # Hanuman Jayanti is the Caitra Purnima's vrata day.
+    status, purnima = call("GET", "/v1/observances/purnima", DELHI)
+    (h,) = outs["hanuman-jayanti"]["occurrences"]
+    caitra = [r for r in purnima["occurrences"] if r["lunarMonth"]["amanta"] == "chaitra"]
+    assert h["date"] == caitra[0]["vrata"]["date"]
+    (r,) = outs["radhashtami"]["occurrences"]
+    assert r["pujaWindow"]["start"][:10] == r["date"]
+    onam = outs["onam"]
+    span = onam["chingam"]
+    assert all(span["start"] <= o["date"] <= span["end"] for o in onam["occurrences"])
+    status, sk = call("GET", "/v1/observances/sankranti", DELHI)
+    kanya = next(x for x in sk["sankrantis"] if x["sign"] == "virgo")
+    (v,) = outs["vishwakarma-puja"]["occurrences"]
+    assert v["date"] == kanya["date"]
+    status, d = call("GET", "/v1/festivals/dipavali", DELHI)
+    assert d["basis"] == "text"
