@@ -75,9 +75,18 @@ WINDOWS = {
     "bad_yoga": ("Inauspicious yoga", "The opening ghatis of Vishkambha (3), Vajra (3), Shula (5), Ganda and Atiganda (6) and Vyaghata (9), the first half of Parigha, and all of Vyatipata and Vaidhriti."),
     "vishti": ("Bhadra (Vishti karana)", "Vishti karana, avoided while Bhadra resides on earth (Moon in Cancer, Leo, Aquarius or Pisces). Elsewhere its effect falls in that world."),
 }  # fmt: skip
+# docs/sources/methodology.md and panchang-yogas.md.
 WINDOW_SOURCES = {
+    "rahu_kalam": "Kalaprakasika, tr. N. P. Subramania Iyer, 1917, pp. 175-176",
+    "yamaganda": "Kalaprakasika, tr. N. P. Subramania Iyer, 1917, pp. 175-176",
+    "gulika": "Kalaprakasika, tr. N. P. Subramania Iyer, 1917, pp. 175-176",
+    "durmuhurta": "Muhurta Chintamani 6.52, p. 275",
+    "abhijit": "Muhurta Chintamani 6.50, p. 274 (the 8th day muhurta); 6.52, p. 275 (not on Wednesday)",
     "bad_yoga": "Muhurta Chintamani 1.34-35, p. 28; Nirnaya-sindhu p. 33 (Muhurta Martanda v.2 gives Vajra 9)",
     "vishti": "Muhurta Chintamani 1.43-45, pp. 35-38",
+}
+WINDOW_NOTES = {
+    "brahma": "The 14th night muhurta is the computed convention; a printed source for that placement is pending. The name is from Manusmriti 4.92.",
 }
 # MC 1.45 (p. 38): "bhadra tatraiva tatphalam", its effect falls where it resides.
 BHADRA_RESIDENCES = {
@@ -90,6 +99,11 @@ DIGNITIES = {
     "exalted": "Exalted", "moolatrikona": "Moolatrikona", "own": "Own sign",
     "great_friend": "Great friend", "friend": "Friend", "neutral": "Neutral",
     "enemy": "Enemy", "great_enemy": "Great enemy", "debilitated": "Debilitated",
+}  # fmt: skip
+PAKSHAS = {"shukla": "Shukla", "krishna": "Krishna"}
+DASHA_LEVELS = {
+    "1": "Mahadasha", "2": "Antardasha", "3": "Pratyantardasha", "4": "Sookshma dasha",
+    "5": "Prana dasha",
 }  # fmt: skip
 # Nirnaya-sindhu, 1898 printing (docs/sources/observances.md); observances.py.
 EKADASHI_TRADITIONS = {"smarta": "Smārta", "vaishnava": "Vaiṣṇava (Nirṇaya-sindhu)"}
@@ -401,7 +415,12 @@ def _english() -> dict:
             for name in ("Amrit", "Shubh", "Labh", "Char", "Udveg", "Kaal", "Rog")
         },
         "windows": {
-            k: {"name": n, "description": d, "source": WINDOW_SOURCES.get(k)}
+            k: {
+                "name": n,
+                "description": d,
+                "source": WINDOW_SOURCES.get(k),
+                "note": WINDOW_NOTES.get(k),
+            }
             for k, (n, d) in WINDOWS.items()
         },
         "bhadraResidences": {
@@ -413,6 +432,8 @@ def _english() -> dict:
         "dignityNotes": {k: {"name": v} for k, v in DIGNITY_NOTES.items()},
         "aspects": ASPECTS,
         "ekadashiTraditions": {k: {"name": v} for k, v in EKADASHI_TRADITIONS.items()},
+        "pakshas": {k: {"name": v} for k, v in PAKSHAS.items()},
+        "dashaLevels": {k: {"name": v} for k, v in DASHA_LEVELS.items()},
         "ekadashiRules": {
             t: {k: {"name": n, "source": src} for k, (n, src) in rules.items()}
             for t, rules in EKADASHI_RULES.items()
