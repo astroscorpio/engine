@@ -364,13 +364,14 @@ def _ganesha(start: float, end: float, _next: float, q: EkadashiQuery) -> dict |
         chosen, rule = 1, "next_day_midday"
     else:
         chosen, rule = 0, "trtiya_joined_earlier"
+    w = days[chosen]["_w"]["madhyahna"]
     return {
         **base,
         "days": _strip(days),
         "date": days[chosen]["date"],
         "vara": days[chosen]["vara"],
         "rule": rule,
-        "pujaWindow": {k: days[chosen]["madhyahna"][k] for k in ("start", "end")},
+        "pujaWindow": _span(_clip(start, end, w) or w, q),
         "moonAvoid": {"start": iso(start, q.tz), "end": iso(end, q.tz)},
     }
 
@@ -961,6 +962,9 @@ def _ratha(start: float, end: float, _next: float, q: EkadashiQuery) -> dict | N
         rise, rule = s[2], "arunodaya"
     else:
         rise, rule = s[0], "shashthi_joined_first_day"
+    dawn_w = (rise - ARUNODAYA, rise)
+    # The short Saptami is bathed for at its first arunodaya, in the Shashthi (NS p. 330).
+    bath = dawn_w if rule == "shashthi_joined_first_day" else _clip(start, end, dawn_w) or dawn_w
     return {
         **base,
         "days": [
@@ -977,7 +981,7 @@ def _ratha(start: float, end: float, _next: float, q: EkadashiQuery) -> dict | N
         "date": _date(rise, q),
         "vara": _vara(rise, q),
         "rule": rule,
-        "arunodaya": _span((rise - ARUNODAYA, rise), q),
+        "arunodaya": _span(bath, q),
     }
 
 
@@ -997,7 +1001,7 @@ def _bhishma(start: float, end: float, _next: float, q: EkadashiQuery) -> dict |
     return {
         **base,
         **pick,
-        "tarpanaWindow": _span(w, q),
+        "tarpanaWindow": _span(_clip(start, end, w) or w, q),
     }
 
 
@@ -1104,6 +1108,7 @@ def _ganesha_jayanti(start: float, end: float, _next: float, q: EkadashiQuery) -
     else:
         v, v_rule = 1, "vow_pradosha_neither_later"
     w = days[v]["_w"]["pradosha"]
+    mid = days[chosen]["_w"]["madhyahna"]
     return {
         **base,
         "days": _strip(days),
@@ -1111,7 +1116,7 @@ def _ganesha_jayanti(start: float, end: float, _next: float, q: EkadashiQuery) -
         "vara": days[chosen]["vara"],
         "rule": rule,
         "popularName": "Ganesh Jayanti",
-        "pujaWindow": {k: days[chosen]["madhyahna"][k] for k in ("start", "end")},
+        "pujaWindow": _span(_clip(start, end, mid) or mid, q),
         "vow": {
             "date": days[v]["date"],
             "vara": days[v]["vara"],
@@ -1199,14 +1204,15 @@ def _parashurama(start: float, end: float, _next: float, q: EkadashiQuery) -> di
         chosen, rule = 0, "first_watch_earlier_only"
     else:
         chosen, rule = 1, "first_watch_later"
+    pr = days[chosen]["_w"]["pradosha"]
     return {
         **base,
         "days": _strip(days),
         "date": days[chosen]["date"],
         "vara": days[chosen]["vara"],
         "rule": rule,
-        "firstWatch": _span(watch[chosen], q),
-        "arghyaWindow": {k: days[chosen]["pradosha"][k] for k in ("start", "end")},
+        "firstWatch": _span(_clip(start, end, watch[chosen]) or watch[chosen], q),
+        "arghyaWindow": _span(_clip(start, end, pr) or pr, q),
     }
 
 

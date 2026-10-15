@@ -22,7 +22,7 @@ from .ids import MASA_IDS
 from .models import EkadashiQuery
 from .observances import _vara
 from .timeutil import aware
-from .vivah import DS, _day_yogas, _spans, _subtract, _Year
+from .vivah import DS, _day_yogas, _lagna_gandanta, _spans, _subtract, _Year
 
 # MC 5.29 "shakropetair vimaitrair mrdu-cara-laghu-bhaih": Ashvini, Mrgashira,
 # Punarvasu, Pushya, Hasta, Citra, Svati, Jyeshtha, Shravana, Dhanishtha,
@@ -132,7 +132,8 @@ def mundan(q: EkadashiQuery, explain: dict | None = None) -> dict:
                 order = ("weekday", "tithi", "nakshatra", "dakshinayana", "month")
                 explain[date.isoformat()] = next((r for r in order if r in reasons), "none")
             continue
-        free = _subtract([(a, b) for a, b, *_ in pieces], [(x, y_) for x, y_, _ in y.bars])
+        bars = [(x, y_) for x, y_, _ in y.bars] + _lagna_gandanta(sr, nr, q)
+        free = _subtract([(a, b) for a, b, *_ in pieces], bars)
         rows = []
         for a, b in free:
             num, nak, name, relax = next(

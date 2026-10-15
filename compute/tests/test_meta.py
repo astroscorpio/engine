@@ -84,3 +84,19 @@ def test_vargas_cite_bphs_7_and_label_modern_readings():
         assert v["source"]["verse"].startswith("7.")
     modern = {k for k, v in vargas.items() if v["modernReading"]}
     assert modern == {"D3", "D4", "D10", "D40", "D45", "D60"}
+
+
+def test_travel_labels_map_to_mc_11_rule_ids():
+    from astro_compute.muhurta_service import rule_id
+
+    assert rule_id("Yogini left", "defect") == "yogini_ahead"
+    assert rule_id("Yogini right", "support") == "yogini_behind"
+    assert rule_id("Moon 2nd from birth Moon", "defect") == "moon_from_birth_moon"
+    assert (
+        rule_id("Moon 3rd from birth Moon, a good house", "support") == "moon_good_from_birth_moon"
+    )
+    assert (
+        rule_id("K1 Pratipada: best for travel (MC 11.9 commentary)", "support")
+        == "travel_best_tithi"
+    )
+    assert rule_id("Chandrashtama", "defect") == "chandrashtama"

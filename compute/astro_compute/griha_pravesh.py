@@ -28,7 +28,7 @@ from .ids import MASA_IDS, NAKSHATRA_IDS, SIGN_IDS, tithi_id
 from .models import EkadashiQuery
 from .observances import _vara
 from .timeutil import aware, iso
-from .vivah import DS, _day_yogas, _spans, _subtract, _Year
+from .vivah import DS, _day_yogas, _lagna_gandanta, _spans, _subtract, _Year
 
 # Vasishtha in MC 13.1's commentary: Citra, the three Uttaras, Rohini, Mrgashira,
 # Anuradha, Dhanishtha, Revati, Shatabhisha (0-based indexes).
@@ -159,7 +159,8 @@ def griha_pravesh(q: EkadashiQuery, explain: dict | None = None) -> dict:
             if explain is not None:
                 explain[date.isoformat()] = _first_gp(reasons)
             continue
-        free = _subtract([(a, b) for a, b, *_ in pieces], [(x, y_) for x, y_, _ in y.bars])
+        bars = [(x, y_) for x, y_, _ in y.bars] + _lagna_gandanta(sr, nr, q)
+        free = _subtract([(a, b) for a, b, *_ in pieces], bars)
         rows = []
         for a, b in free:
             num, nak, name, relax = next(

@@ -4,7 +4,17 @@ import swisseph as swe
 from conftest import call
 from jyotisha.ephemeris import luminaries
 from jyotisha.muhurta import NAKSHATRAS
-from jyotisha.rare import DAGDHA, KANA, MARANA, UTPATA, nakshatra_28
+from jyotisha.rare import (
+    AMRITA_SIDDHI,
+    DAGDHA,
+    KANA,
+    MARANA,
+    RAVI_YOGA_COUNTS,
+    SARVARTHA_SIDDHI,
+    SIDDHI,
+    UTPATA,
+    nakshatra_28,
+)
 
 from astro_compute.meta import VIVAH_RULES
 
@@ -24,10 +34,15 @@ def jd(iso):
 
 
 def day_yoga(w, vara):
-    """MC 1.30's utpata, mrtyu or kana, or Narada's dagdha, at a window's middle."""
-    lon = luminaries((jd(w["start"]) + jd(w["end"])) / 2)[1].longitude
+    """MC 1.30's utpata, mrtyu or kana, or Narada's dagdha, at a window's middle, unless a
+    Ravi or siddhi yoga lifts it there (MC 1.27, 1.42)."""
+    sun, moon = luminaries((jd(w["start"]) + jd(w["end"])) / 2)
     i = WEEKDAYS.index(vara)
-    n28, n27 = nakshatra_28(lon), NAKSHATRAS[int(lon // (360 / 27))]
+    n28, n27 = nakshatra_28(moon.longitude), NAKSHATRAS[int(moon.longitude // (360 / 27))]
+    if (moon.nakshatra - sun.nakshatra) % 27 + 1 in RAVI_YOGA_COUNTS:
+        return False
+    if n27 in SARVARTHA_SIDDHI.get(i, set()) or SIDDHI.get(i) == n28 or AMRITA_SIDDHI.get(i) == n27:
+        return False
     return any(t.get(i) == n28 for t in (UTPATA, MARANA, KANA)) or DAGDHA.get(i) == n27
 
 

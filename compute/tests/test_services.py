@@ -180,10 +180,17 @@ def test_muhurta_scorer_rules_of_15_oct():
     # A first-half Bhadra at night carries no penalty (MC 1.44).
     vetoes, supports = check(holi["bhadra"][0]["start"], 120)
     assert "bhadra_day_night" in supports and "bhadra_earth" not in vetoes
-    # Tuesday 20 Oct: Dhanishta is utpata, a veto like marana.
+    # Tuesday 20 Oct: Dhanishta is utpata, a veto like marana, but the day's Ravi yoga
+    # lifts it (MC 1.27, 1.42; the lead's decision of 15 Oct 2026).
     tuesday = {r["id"]: r for r in day("2026-10-20")["specialYogas"]}
-    vetoes, _ = check(tuesday["utpata"]["start"], 30)
-    assert "utpata_yoga" in vetoes
+    at = dt.datetime.fromisoformat(tuesday["utpata"]["start"]) + dt.timedelta(minutes=30)
+    status, out = call(
+        "GET", "/v1/muhurta/check", {"act": "general", "at": at.isoformat(), **DELHI}
+    )
+    assert status == 200, out
+    assert "ravi" in tuesday and "ravi_yoga" in {r["id"] for r in out["supports"]}
+    assert "utpata_yoga" not in {r["id"] for r in out["vetoes"]}
+    assert [n["id"] for n in out["notes"]] == ["kuyoga_lifted"]
     # Monday 19 Oct: Shravana after Abhijit is siddhi, a support.
     monday = {r["id"]: r for r in day("2026-10-19")["specialYogas"]}
     _, supports = check(monday["siddhi"]["start"], 30)

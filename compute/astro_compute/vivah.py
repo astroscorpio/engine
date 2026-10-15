@@ -32,6 +32,9 @@ from jyotisha.rare import (
     DAGDHA,
     KANA,
     MARANA,
+    RAVI_YOGA_COUNTS,
+    SARVARTHA_SIDDHI,
+    SIDDHI,
     UTPATA,
     nakshatra_28,
 )
@@ -235,18 +238,37 @@ class _Year:
 WEEKDAYS = ("sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday")
 
 
+def _lagna_gandanta(sr: float, nr: float, q) -> list[tuple[float, float]]:
+    """MC 6.41: half a ghatika either side of the lagna's Cancer-Leo, Scorpio-Sagittarius
+    and Pisces-Aries boundaries, left out of every window (the lead's decision of 15 Oct
+    2026)."""
+    fn = lambda t: Mu.lagna_at(t, q.lat, q.lon, q.ayanamsa)  # noqa: E731
+    edges = Mu._scan(fn, sr - GHATI, nr + GHATI, 1 / 96)
+    return [(t - GHATI / 2, t + GHATI / 2) for t, sign in edges if sign in Mu.JUNCTION_LAGNAS]
+
+
 def _day_yogas(rows: list[tuple], vara: str, ay: str):
     """Split rows (start, end, ...) at the weekday-nakshatra stretches the muhurta
     finder vetoes: MC 1.30's utpata, mrtyu and kana (28 nakshatras), Narada's dagdha
-    (MC 1.5 commentary) and a siddhi pair on its visha tithi (MC 1.20-21). Returns
-    the rows outside them, the rows inside, and {rule id: reason} for those inside
-    (the lead's decision of 15 Oct 2026)."""
+    (MC 1.5 commentary) and a siddhi pair on its visha tithi (MC 1.20-21). A Ravi or
+    siddhi yoga at the same moment lifts them (MC 1.27, 1.42); only a Ravi yoga lifts
+    the visha. Returns the rows outside them, the rows inside, and {rule id: reason}
+    for those inside (the lead's decisions of 15 Oct 2026)."""
     w = WEEKDAYS.index(vara)
     day = vara.capitalize()
 
     def fn(t: float) -> frozenset:
-        lon = luminaries(t, ay)[1].longitude
+        sun, moon = luminaries(t, ay)
+        lon = moon.longitude
         n28, n27 = nakshatra_28(lon), Mu.NAKSHATRAS[int(lon // (360 / 27)) % 27]
+        if (moon.nakshatra - sun.nakshatra) % 27 + 1 in RAVI_YOGA_COUNTS:
+            return frozenset()
+        visha_day = (Mu.tithi_at(t, ay) - 1) % 15 + 1 == AMRITA_VISHA_TITHI[w]
+        siddhi = (
+            (AMRITA_SIDDHI.get(w) == n27 and not visha_day)
+            or n27 in SARVARTHA_SIDDHI.get(w, set())
+            or SIDDHI.get(w) == n28
+        )
         out = set()
         for rid, name, table in (
             ("utpata", "Utpata", UTPATA),
@@ -259,10 +281,9 @@ def _day_yogas(rows: list[tuple], vara: str, ay: str):
             out.add(
                 ("dagdha", f"{n27} on a {day} is Dagdha yoga (Narada in Muhurta Chintamani 1.5)")
             )
-        if (
-            AMRITA_SIDDHI.get(w) == n27
-            and (Mu.tithi_at(t, ay) - 1) % 15 + 1 == AMRITA_VISHA_TITHI[w]
-        ):
+        if siddhi:
+            out.clear()
+        if AMRITA_SIDDHI.get(w) == n27 and visha_day:
             tithi = Mu.TITHI_NAMES[AMRITA_VISHA_TITHI[w] - 1]
             out.add(
                 (
@@ -389,7 +410,8 @@ def vivah(q: EkadashiQuery, explain: dict | None = None) -> dict:
             if explain is not None:
                 explain[date.isoformat()] = _first(reasons)
             continue
-        free = _subtract([(a, b) for a, b, *_ in pieces], [(x, y_) for x, y_, _ in y.bars])
+        bars = [(x, y_) for x, y_, _ in y.bars] + _lagna_gandanta(sr, nr, q)
+        free = _subtract([(a, b) for a, b, *_ in pieces], bars)
         rows = []
         for a, b in free:
             num, nak, grade, name, relax = next(

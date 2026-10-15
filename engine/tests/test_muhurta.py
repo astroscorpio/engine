@@ -56,11 +56,6 @@ def test_rule_tables() -> None:
     anuradha, shravana = NAKSHATRAS.index("Anuradha"), NAKSHATRAS.index("Shravana")
     assert M.tara(anuradha, shravana) == "Sadhana"
     assert M.siddha_yoga(12, "Mercury") and not M.siddha_yoga(11, "Mars")
-    assert M.commencement(11, "Mars", shravana) == {
-        "vara": False,
-        "tithi": True,
-        "nakshatra": True,
-    }
     assert M.yogini_direction(1) == "E" and M.yogini_direction(9) == "E"
     assert M.relative_side("N", "E") == "right"
     assert M.relative_side("N", "S") == "back"
@@ -121,7 +116,13 @@ def test_journey_rules_read_direction_and_season() -> None:
     assert not any("Pitru" in label for label in _labels(monday)) and not monday.notes
     thursday = _check("travel", 2026, 9, 24, 14 + 45 / 60, **westward)
     assert {"Moon ahead", "disha shool S on the first leg"} <= _labels(thursday)
-    assert thursday.score < monday.score
+    # MC 11.9 leaves Shatabhisha out of the travel stars, and by MC 11.31 a Yogini on the
+    # left is a defect and one on the right a support.
+    assert {"Shatabhisha (chara)", "Yogini left"} <= _labels(thursday)
+    assert "Yogini right" in _labels(monday)
+    # The Monday's Ashvini opens a junction quarter (SS 11.21); the Thursday has a Ravi yoga.
+    assert "Nakshatra junction quarter (SS 11.21)" in _labels(monday)
+    assert "Ravi yoga (MC 1.27)" in _labels(thursday)
 
 
 def test_find_ranks_the_clean_evening_window_first() -> None:
@@ -132,6 +133,31 @@ def test_find_ranks_the_clean_evening_window_first() -> None:
     assert best.facts["lagna"] == "Taurus"
 
 
-def test_almanac_yogini_swaps_chaturthi_and_saptami() -> None:
+def test_yogini_follows_mc_11_31() -> None:
+    # East holds 1 and 9, south-west 4 and 12, north-west 7 and 15, north-east 8 and 30.
     assert M.yogini_direction(4) == "SW" and M.yogini_direction(7) == "NW"
+    assert M.yogini_direction(15) == "NW" and M.yogini_direction(30) == "NE"
     assert M.resolve_direction("276") == "W" and M.resolve_direction("nw") == "NW"
+    # In front or on the left she is a defect, on the right or behind a support.
+    t = jd(2026, 9, 12, 6.0, 2.0)
+    while M.tithi_at(t) not in (1, 9, 16, 24):  # tithis whose Yogini sits in the east
+        t += 1 / 24
+    ways = {w: _labels(M.check(M.PROFILES["travel"], t, *SAMPLE_PLACE, *BIRTH, toward=w))
+            for w in ("E", "N", "S", "W")}  # fmt: skip
+    assert "Yogini front" in ways["E"] and "Yogini right" in ways["N"]
+    assert "Yogini left" in ways["S"] and "Yogini back" in ways["W"]
+
+
+def test_moon_house_from_the_birth_moon_follows_phaladipika() -> None:
+    # A month of noons: Chandrashtama is a heavy defect now, never a veto (travel.md).
+    defects, supports, vetoes = set(), set(), set()
+    t = jd(2026, 9, 1, 12.0, 2.0)
+    for _ in range(30):
+        v = M.check(M.PROFILES["general"], t, *SAMPLE_PLACE, *BIRTH)
+        defects |= {label for label, _ in v.defects}
+        supports |= {label for label, _ in v.supports}
+        vetoes |= set(v.vetoes)
+        t += 1
+    assert "Chandrashtama" in defects and "Chandrashtama" not in vetoes
+    assert any(label.endswith("from birth Moon, a good house") for label in supports)
+    assert any(label.endswith("from birth Moon") for label in defects)

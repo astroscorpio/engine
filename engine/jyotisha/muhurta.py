@@ -1,21 +1,12 @@
-"""Muhurta: the time windows of one Vedic day, for choosing when to begin a practice.
+"""Muhurta: the time windows of one Vedic day, and the choice of a moment for an act.
 
 Calendar arithmetic only.  Every rule below is a textual convention and is
-cited where it comes from; none of it is a predictive claim (see README,
-"Known evidence limits").  Two kinds of rule are kept apart:
-
-* standard panchanga conventions (kalams, durmuhurta, horas, bhadra), which
-  every almanac prints;
-* rules taken from the mantra manuals below, cited by book and PDF page:
-
-  CH  L. R. Chawdhri, *Practicals of Mantras and Tantras*
-  MF  K. T. Shubhakaran, *Mystical Formulae*, Part 1
-  SY  Swami Muktibodhananda, *Swara Yoga*
-  UT  *Uddisa Tantra* attributed to Ravana (bilingual edition)
-
-``find`` and ``check`` at the end choose a moment for an ordinary act -- an
-application, a payment, enrolment, a journey, moving in -- by the general
-muhurta conventions (Muhurta Chintamani), not the mantra manuals.
+cited where it comes from, or labelled current practice where no classical
+source is known; none of it is a predictive claim (see README, "Known evidence
+limits").  ``day`` lays out the standard panchanga windows (kalams, durmuhurta,
+horas, choghadiya, lagnas, bhadra); ``find`` and ``check`` at the end choose a
+moment for an ordinary act -- an application, a payment, enrolment, a journey,
+moving in -- by the muhurta conventions of the Muhurta Chintamani.
 """
 
 from __future__ import annotations
@@ -53,11 +44,21 @@ from .rare import (
     KANA,
     MARANA,
     PANCHAKA,
+    RAVI_YOGA_COUNTS,
     SARVARTHA_SIDDHI,
     SIDDHI,
     UTPATA,
     nakshatra_28,
 )
+
+GHATIKA = 24 / 1440
+# MC 6.41 (pp. 265-266), SS 11.21-22: the junctions where a nakshatra and a sign end
+# together (Ashlesha/Magha, Jyeshtha/Mula, Revati/Ashvini), the lagna's three like them
+# (Cancer/Leo, Scorpio/Sagittarius, Pisces/Aries) and the tithi ends 5/6, 10/11, 15/1.
+JUNCTION_NAKSHATRAS = {9, 18, 0}  # the nakshatra entered
+JUNCTION_LAGNAS = {4, 8, 0}  # the sign entered
+JUNCTION_TITHIS = {6, 11, 16, 21, 26, 1}  # the tithi entered
+JUNCTION_PADAS = {35, 36, 71, 72, 107, 0}  # the quarters either side (SS 11.21)
 
 TARA_NAMES = [
     "Janma", "Sampat", "Vipat", "Kshema", "Pratyak",
@@ -85,36 +86,14 @@ CHOGHADIYA_NAME = {
 # Current practice, no classical source: four auspicious, three not.
 CHOGHADIYA_GOOD = {"Amrit", "Shubh", "Labh", "Char"}
 
-# CH pdf 100-101, quoting Rudrayamala Tantra: what each rising sign does to japa.
-# "So Taurus, Gemini, Leo, Sagittarius and Pisces lagnas are to be avoided."
-LAGNA_USE = {
-    "Aries": (True, "mantras for wealth"),
-    "Taurus": (False, "maran and videshan only"),
-    "Gemini": (False, "destroys progeny"),
-    "Cancer": (True, "siddhi"),
-    "Leo": (False, "destroys the intelligence"),
-    "Virgo": (True, "Lakshmi mantras"),
-    "Libra": (True, "all types of mantras"),
-    "Scorpio": (True, "gold gain, victory over enemies"),
-    "Sagittarius": (False, "loss of respect"),
-    "Capricorn": (True, "works"),
-    "Aquarius": (True, "wealth, religious and siddhi mantras"),
-    "Pisces": (False, "troublesome"),
-}
-
-# MF pdf 40: commencement of a mantra siddhi needs all three to tally.
-# MF pdf 34 adds Pushya, Hasta and Mula as the best nakshatras to begin.
-COMMENCE_NAKSHATRAS = {"U.Phalguni", "Hasta", "Ashwini", "Shravana", "Vishakha", "Mrigashira"}
-COMMENCE_NAKSHATRAS_ALT = {"Pushya", "Hasta", "Mula"}
-COMMENCE_VARAS = {"Sun", "Moon", "Mercury", "Jupiter", "Venus"}
-COMMENCE_TITHIS = {2, 3, 5, 7, 10, 11, 13, 15}
-
-# Yogini's seat by tithi as the almanacs print it, the cycle of eight repeating
-# from the Navami; behind or to the left is auspicious, in front or to the right is
-# not. Current practice, no classical source.
+# MC 11.31 (1925 printing, pp. 348-349): the Yogini's tithis by direction, the cycle
+# of eight repeating from the Navami (east 1 and 9, north 2 and 10, ... north-east 8
+# and the Amavasya). In front or on the left she is not commended; on the right or
+# behind she is (the commentary). Popular almanacs reverse left and right.
 YOGINI = ["E", "N", "SE", "SW", "S", "W", "NW", "NE"]
 # The Moon's direction by sign (fire east, earth south, air west, water north), the
-# Moon in front being good. Current practice, no classical source.
+# Moon in front being good: current practice, no classical source. MC 11.36's ayana
+# rule (1945 printing, p. 359) is a different rule and is not applied.
 MOON_DIRS = ["E", "S", "W", "N"]
 BEARING = {"N": 0, "NE": 45, "E": 90, "SE": 135, "S": 180, "SW": 225, "W": 270, "NW": 315}
 
@@ -257,6 +236,40 @@ def tara(janma_nakshatra: int, moon_nakshatra: int) -> str:
     return TARA_NAMES[((moon_nakshatra - janma_nakshatra) % 27) % 9]
 
 
+def _junctions(v, jd, moon_lon, elongation, asc_lon, lat, lon, ayanamsa) -> None:
+    """MC 6.41 and SS 11.21-22, for every act (the lead's decisions of 15 Oct 2026). The
+    nakshatra junction: a veto within 2 ghatikas of the Moon's crossing, a heavier
+    defect out to 4, a light one for the rest of the quarter either side. The lagna's
+    junction within half a ghatika and the tithi's within one: vetoes."""
+
+    def entered(fn, half: float, into: set[int]) -> bool:
+        a, b = fn(jd - half), fn(jd + half)
+        return a != b and b in into
+
+    def nak(t: float) -> int:
+        return luminaries(t, ayanamsa)[1].nakshatra
+
+    if int(moon_lon // (360 / 108)) in JUNCTION_PADAS:
+        if entered(nak, 2 * GHATIKA, JUNCTION_NAKSHATRAS):
+            v.vetoes.append("Nakshatra gandanta (MC 6.41)")
+        elif entered(nak, 4 * GHATIKA, JUNCTION_NAKSHATRAS):
+            v.defects.append(("Nakshatra junction, within 4 ghatikas (MC 6.41)", 2.0))
+        else:
+            v.defects.append(("Nakshatra junction quarter (SS 11.21)", 0.5))
+    # The lagna moves at most about half a degree a minute: test only near a junction.
+    if min(abs((asc_lon - j + 180) % 360 - 180) for j in (0, 120, 240)) < 8:
+        sign = lambda t: lagna_at(t, lat, lon, ayanamsa)  # noqa: E731
+        if entered(sign, GHATIKA / 2, JUNCTION_LAGNAS):
+            v.vetoes.append("Lagna gandanta (MC 6.41)")
+    if abs((elongation + 30) % 60 - 30) < 1:
+        if entered(lambda t: tithi_at(t, ayanamsa), GHATIKA, JUNCTION_TITHIS):
+            v.vetoes.append("Tithi gandanta (MC 6.41)")
+
+
+def _ordinal(n: int) -> str:
+    return str(n) + {1: "st", 2: "nd", 3: "rd"}.get(n, "th")
+
+
 def moon_house(natal_moon_sign: int, moon_sign: int) -> int:
     return (moon_sign - natal_moon_sign) % 12 + 1
 
@@ -264,16 +277,6 @@ def moon_house(natal_moon_sign: int, moon_sign: int) -> int:
 def siddha_yoga(tithi: int, vara: str) -> bool:
     cls = ((tithi - 1) % 15) % 5 + 1  # 1 Nanda .. 5 Purna
     return SIDDHA_YOGA.get(vara) == cls
-
-
-def commencement(tithi: int, vara: str, nakshatra: int) -> dict[str, bool]:
-    n = (tithi - 1) % 15 + 1
-    name = NAKSHATRAS[nakshatra]
-    return {
-        "vara": vara in COMMENCE_VARAS,
-        "tithi": tithi != 30 and n in COMMENCE_TITHIS,
-        "nakshatra": name in COMMENCE_NAKSHATRAS or name in COMMENCE_NAKSHATRAS_ALT,
-    }
 
 
 def yogini_direction(tithi: int) -> str:
@@ -294,26 +297,6 @@ def relative_side(facing: str, direction: str) -> str:
     if theta <= 225:
         return "back"
     return "left"
-
-
-def facing_options(tithi: int, moon_sign: int, prefer: tuple[str, ...] = ("N", "E", "W")):
-    """Rank seat directions: Yogini behind or to the left, then the preference
-    order, then the Moon in front (current practice, no classical source)."""
-    yogini, moon = yogini_direction(tithi), moon_direction(moon_sign)
-    ranked = []
-    for rank, facing in enumerate(prefer):
-        side = relative_side(facing, yogini)
-        ok = side in {"back", "left"}
-        ranked.append(
-            {
-                "facing": facing,
-                "yogini": f"{yogini} ({side})",
-                "yogini_ok": ok,
-                "moon_in_front": moon == facing,
-                "key": (not ok, rank - (0.5 if moon == facing else 0.0)),
-            }
-        )
-    return sorted(ranked, key=lambda r: r["key"])
 
 
 # MC 1.44: for the Bhadra of tithi 4, 8, 11, 15 (bright) and 3, 7, 10, 14 (dark),
@@ -545,8 +528,7 @@ def day(jd: float, lat: float, lon: float, ayanamsa: str = "lahiri", tz=None) ->
     edges = [(t0, lagna_at(t0, lat, lon, ayanamsa))]
     edges += _scan(lambda t: lagna_at(t, lat, lon, ayanamsa), t0, t1, 3 / 1440)
     for (a, sign), (b, _) in zip(edges, edges[1:] + [(t1, None)], strict=True):
-        good, use = LAGNA_USE[SIGNS[sign]]
-        out.lagnas.append(Window(a, b, SIGNS[sign], ("ok: " if good else "avoid: ") + use))
+        out.lagnas.append(Window(a, b, SIGNS[sign]))
 
     step = 1 / 24
     for name, (a, b) in _yoga_spans(t0, t1, ayanamsa):
@@ -606,38 +588,6 @@ def _yoga_spans(t0: float, t1: float, ayanamsa: str = "lahiri"):
     return spans
 
 
-def conditions(d: Day, jd: float, lat: float, lon: float, natal_moon, ayanamsa: str = "lahiri"):
-    """The state of every rule at one moment, for scoring a candidate start."""
-    p = positions(jd, ayanamsa)
-    t = tithi_at(jd, ayanamsa)
-    moon = p["Moon"]
-    lagna = SIGNS[lagna_at(jd, lat, lon, ayanamsa)]
-    hora = d.at(d.horas, jd)
-    chog = d.at(d.choghadiyas, jd)
-    karana = karana_at(jd, ayanamsa)
-    return {
-        "tithi": t,
-        "tithi_label": tithi_label(t),
-        "nakshatra": NAKSHATRAS[moon.nakshatra],
-        "yoga": YOGA_NAMES[yoga_at(jd, ayanamsa)],
-        "karana": karana,
-        "bhadra": karana == KARANA_NAMES[6],
-        "bhadra_residence": bhadra_residence(moon.sign),
-        "moon_sign": SIGNS[moon.sign],
-        "lagna": lagna,
-        "lagna_ok": LAGNA_USE[lagna][0],
-        "lagna_use": LAGNA_USE[lagna][1],
-        "hora": hora.label if hora else "",
-        "choghadiya": chog.label if chog else "",
-        "choghadiya_ok": bool(chog and chog.label in CHOGHADIYA_GOOD),
-        "avoid": [w.label for w in d.avoid if w.contains(jd)],
-        "tara": tara(natal_moon.nakshatra, moon.nakshatra),
-        "moon_house": moon_house(natal_moon.sign, moon.sign),
-        "siddha_yoga": siddha_yoga(t, d.vara),
-        "commencement": commencement(t, d.vara, moon.nakshatra),
-    }
-
-
 def report(d: Day, tz, natal_moon=None, ayanamsa: str = "lahiri") -> str:
     from .ephemeris import to_datetime
 
@@ -653,11 +603,7 @@ def report(d: Day, tz, natal_moon=None, ayanamsa: str = "lahiri") -> str:
         + f"   Pradosha {hm(d.pradosha.start)}-{hm(d.pradosha.end)}",
         "  avoid: " + ", ".join(f"{w.label} {hm(w.start)}-{hm(w.end)}" for w in d.avoid),
         "  changes: " + "; ".join(f"{hm(t)} {s}" for t, s in d.changes),
-        "  lagna: "
-        + ", ".join(
-            f"{w.label[:3]} {hm(w.start)}-{hm(w.end)}{'' if w.note.startswith('ok') else ' x'}"
-            for w in d.lagnas
-        ),
+        "  lagna: " + ", ".join(f"{w.label[:3]} {hm(w.start)}-{hm(w.end)}" for w in d.lagnas),
         "  hora (day): " + " ".join(f"{hm(w.start)} {w.label[:3]}" for w in d.horas[:12]),
         "  choghadiya: "
         + " ".join(
@@ -686,7 +632,8 @@ VARA_NAME = {
     "Jupiter": "Thursday", "Venus": "Friday", "Saturn": "Saturday",
 }  # fmt: skip
 WEEKDAY_INDEX = {lord: i for i, lord in enumerate(VARA_NAME)}
-# The direction a journey may not set out in on each weekday.
+# The direction a journey may not set out in on each weekday (Narada and Vasishtha in the
+# MC 11.9 commentary, 1925 printing, pp. 333-334).
 DISHA_SHOOL = {
     "Sun": "W", "Moon": "E", "Mars": "N", "Mercury": "N",
     "Jupiter": "S", "Venus": "W", "Saturn": "E",
@@ -726,6 +673,7 @@ class Profile:
     barred_nakshatras: frozenset[str] = frozenset()  # vetoed, not merely unfavoured
     barred_varas: frozenset[str] = frozenset()
     rikta_only: bool = False  # bar the rikta tithis and Amavasya but not Ashtami
+    best_tithi: int | None = None  # 1-30: a support, not merely favoured
 
 
 def _classes(*names: str) -> frozenset[str]:
@@ -803,12 +751,26 @@ PROFILES = {
             frozenset({"Jupiter", "Mercury"}),
             1.5,
         ),
-        # Yatra: the movable, soft and swift nakshatras; weekday is judged by
-        # direction (disha shool) rather than by a favoured list.
+        # Yatra (MC 11.9, 1925 printing, p. 333): nine stars, and not the 6th, 8th or 12th,
+        # the bright Pratipada, the Purnima, the Amavasya or a rikta tithi; the dark
+        # Pratipada is the best (the commentary). The weekday is judged by direction
+        # (disha shool) rather than by a favoured list.
         Profile(
             "travel",
             "setting out on a journey or doing its prasthana (needs --toward)",
-            _classes("chara", "mridu", "kshipra"),
+            frozenset(
+                {
+                    "Ashwini",
+                    "Punarvasu",
+                    "Anuradha",
+                    "Mrigashira",
+                    "Pushya",
+                    "Revati",
+                    "Hasta",
+                    "Shravana",
+                    "Dhanishta",
+                }
+            ),  # fmt: skip
             2.0,
             1.0,
             frozenset({2, 3, 5, 7, 10, 11, 13}),
@@ -818,6 +780,7 @@ PROFILES = {
             frozenset({"Jupiter", "Venus", "Mercury"}),
             1.5,
             travel=True,
+            best_tithi=16,
         ),
         # Griha pravesh: the fixed and soft nakshatras plus Dhanishta and
         # Shatabhisha; fixed lagnas; the 4th free of malefics.
@@ -993,9 +956,8 @@ def evaluate(
     eldest: bool = False,
 ) -> Verdict:
     """Judge one moment.  ``natal_moon`` (and ``natal_lagna``) may be None when
-    no birth chart is known; the birth-relative rules (tara, chandrashtama,
-    lagna 8th from birth, Moon 4th/12th from the birth Moon) are then skipped
-    rather than guessed."""
+    no birth chart is known; the birth-relative rules (tara, the Moon's house from
+    the birth Moon, lagna 8th from birth) are then skipped rather than guessed."""
     p = positions(jd, ayanamsa)
     moon = p["Moon"]
     elongation = (moon.longitude - p["Sun"].longitude) % 360
@@ -1060,21 +1022,22 @@ def evaluate(
     # MC 1.30 counts 28 nakshatras (Monday's kana is Abhijit). Utpata and kana
     # carry marana's veto (the lead's ruling); siddhi is a support below.
     nak28 = nakshatra_28(moon.longitude)
-    if UTPATA.get(w) == nak28:
-        v.vetoes.append("Utpata yoga")
-    if MARANA.get(w) == nak28:
-        v.vetoes.append("Marana yoga")
-    if KANA.get(w) == nak28:
-        v.vetoes.append("Kana yoga")
+    kuyogas = [  # vetoes unless a good yoga or the Moon lifts them (below)
+        name
+        for name, table, key in (
+            ("Utpata yoga", UTPATA, nak28),
+            ("Marana yoga", MARANA, nak28),
+            ("Kana yoga", KANA, nak28),
+            ("Dagdha yoga", DAGDHA, nak),
+        )
+        if table.get(w) == key
+    ]
     mahapata = d.at(d.mahapatas, jd)
     if mahapata:
         v.vetoes.append(f"Mahapata ({mahapata.label})")
-    if DAGDHA.get(w) == nak:
-        v.vetoes.append("Dagdha yoga")
+    _junctions(v, jd, moon.longitude, elongation, asc.longitude, lat, lon, ayanamsa)
     if house("Moon") == 8:
         v.vetoes.append("Moon in the 8th")
-    if natal_moon is not None and moon_house(natal_moon.sign, moon.sign) == 8:
-        v.vetoes.append("Chandrashtama")
     if profile.travel and toward and relative_side(toward, DISHA_SHOOL[d.vara]) == "front":
         v.vetoes.append(f"disha shool {DISHA_SHOOL[d.vara]}")
 
@@ -1113,8 +1076,19 @@ def evaluate(
         good((f"{hora.label} hora", 0.5))
     elif hora and hora.label in ("Mars", "Saturn"):
         bad((f"{hora.label} hora", 0.5))
-    if natal_moon is not None and moon_house(natal_moon.sign, moon.sign) in (4, 12):
-        bad((f"Moon {moon_house(natal_moon.sign, moon.sign)}th from birth Moon", 1.0))
+    good_moon = False
+    if natal_moon is not None:
+        # PD 26.2 (MC 4.1-3): the Moon is good in the 1st, 3rd, 6th, 7th, 10th and 11th
+        # from the birth Moon, and in the 2nd, 5th and 9th in the bright fortnight (MC
+        # 4.4); bad elsewhere, the 8th (Chandrashtama) the worst (PD 26.12).
+        mh = moon_house(natal_moon.sign, moon.sign)
+        good_moon = mh in (1, 3, 6, 7, 10, 11) or (mh in (2, 5, 9) and t <= 15)
+        if mh == 8:
+            bad(("Chandrashtama", 3.0))
+        elif good_moon:
+            good((f"Moon {_ordinal(mh)} from birth Moon, a good house", 0.5))
+        else:
+            bad((f"Moon {_ordinal(mh)} from birth Moon", 1.0))
     if yoga in BAD_YOGA_GHATIS and not v.vetoes:
         bad((f"{yoga} yoga, past its opening", 0.5))
     stars = profile.nakshatras | (OLD_HOUSE_STARS if profile.home and old_house else set())
@@ -1123,7 +1097,9 @@ def evaluate(
     elif nak not in stars and not profile.mundan and not profile.barred_nakshatras:
         cls = NAKSHATRA_CLASS[nak]
         bad((f"{nak} ({cls})", profile.other_nakshatra + (profile.harsh if cls in HARSH else 0)))
-    if t != 30 and n not in profile.tithis and n not in (4, 8, 9, 14) and not profile.mundan:
+    if profile.best_tithi == t:
+        good((f"{tithi_label(t)}: best for travel (MC 11.9 commentary)", 1.0))
+    elif t != 30 and n not in profile.tithis and n not in (4, 8, 9, 14) and not profile.mundan:
         bad((tithi_label(t), profile.other_tithi))
     vetoed_vara = (
         (profile.home and d.vara in HOME_BARRED_VARAS)
@@ -1142,18 +1118,39 @@ def evaluate(
         v.notes.append("Pitru Paksha: many families avoid new purchases (popular practice)")
 
     # Supports. A siddhi (amrta) pair turns to visha on its tithi (MC 1.20-21) and
-    # is avoided for its act (MC 1.22); it never lifts a veto (MC p. 35).
+    # is avoided for its act (MC 1.22).
+    siddhis = []
     if AMRITA_SIDDHI.get(w) == nak:
         if AMRITA_VISHA_TITHI[w] == n:
-            v.vetoes.append("Visha yoga")
+            kuyogas.append("Visha yoga")
         elif AMRITA_ACT_BANS.get(profile.name) == w:
             v.vetoes.append(f"{VARA_NAME[d.vara]}-{nak} avoided for this act")
         else:
-            good(("Amrita Siddhi", 1.5))
+            siddhis.append(("Amrita Siddhi", 1.5))
     if nak in SARVARTHA_SIDDHI.get(w, set()):
-        good(("Sarvartha Siddhi", 1.0))
+        siddhis.append(("Sarvartha Siddhi", 1.0))
     if SIDDHI.get(w) == nak28:
-        good(("Siddhi yoga", 1.0))
+        siddhis.append(("Siddhi yoga", 1.0))
+    for s in siddhis:
+        good(s)
+    ravi = (moon.nakshatra - p["Sun"].nakshatra) % 27 + 1 in RAVI_YOGA_COUNTS
+    if ravi:
+        good(("Ravi yoga (MC 1.27)", 1.0))
+    # MC 1.27 and 1.42: a Ravi or siddhi yoga at the same moment lifts the kuyogas; it
+    # never lifts Bhadra, Vyatipata or Vaidhriti (MC 1.42 commentary, p. 35). A siddhi
+    # pair turned to visha lifts nothing, and only a Ravi yoga lifts that visha. In the
+    # personal search a favourable Moon from the birth Moon lifts them too (MC 1.41).
+    for k in kuyogas:
+        if ravi:
+            lifter = "Ravi yoga"
+        elif good_moon:
+            lifter = "a favourable Moon from the birth Moon"
+        elif siddhis and k != "Visha yoga":
+            lifter = siddhis[0][0]
+        else:
+            v.vetoes.append(k)
+            continue
+        v.notes.append(f"{k} lifted by {lifter} (MC 1.41-42)")
     lord = SIGN_LORDS[lagna]
     if house(lord) in (1, 4, 5, 7, 9, 10) and (
         p[lord].sign in OWN_SIGNS[lord] or p[lord].sign == EXALTATION[lord][0]
@@ -1174,7 +1171,7 @@ def evaluate(
         else:
             good((f"Moon {'ahead' if side == 'front' else 'on the right'}", 0.5))
         yside = relative_side(toward, yogini_direction(t))
-        if yside in ("front", "right"):
+        if yside in ("front", "left"):  # MC 11.31
             bad((f"Yogini {yside}", 1.5))
         else:
             good((f"Yogini {yside}", 0.5))

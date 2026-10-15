@@ -125,6 +125,7 @@ VIVAH_RULES = {
     "bad_yoga": ("The bad yogas' opening ghatis, Parigha's first half, and Vyatipata and Vaidhriti whole, removed", "Muhurta Chintamani 1.34-35; Dharmasindhu p. 181"),
     "gandanta_tithi": ("One ghatika either side of the ends of the 5th, 10th and 15th tithis, removed", "Muhurta Chintamani 6.41, p. 265"),
     "gandanta_nakshatra": ("Two ghatikas either side of Ashlesha-Magha, Jyeshtha-Mula and Revati-Ashvini, removed", "Muhurta Chintamani 6.41, p. 265"),
+    "gandanta_lagna": ("Half a ghatika either side of the lagna's Cancer-Leo, Scorpio-Sagittarius and Pisces-Aries boundaries, removed", "Muhurta Chintamani 6.41, p. 265"),
     "sankranti": ("16.5 ghatikas either side of the Sun's sign change, removed (half of MC's 33 each side, our reading)", "Muhurta Chintamani 6.78, p. 293"),
     "mahapata": ("Mahapata, equal declinations of the Sun and Moon, removed", "Muhurta Chintamani 6.59"),
     "eclipse": ("Days after and before an eclipse visible here: 3 and 1.5 for a quarter of the disc, 4 and 2 for half, 6 and 3 for three quarters, 8 and 4 for total (bins ours)", "Dharmasindhu p. 181, note"),
@@ -132,11 +133,11 @@ VIVAH_RULES = {
     "rikta": ("Excluded: a rikta tithi (Chaturthi, Navami, Chaturdashi)", "Muhurta Chintamani 6.53, p. 275"),
     "vedha_slow": ("Excluded: pierced only by a slow planet (Jupiter, Saturn, Rahu, Ketu) sitting in the paired star", "Muhurta Chintamani 6.54, p. 276"),
     "infancy_old": ("Excluded: Jupiter's or Venus's infancy or old age beyond 3 days", "Muhurta Chintamani 5.27 (5.28 gives 3 as the shortest)"),
-    "utpata": ("Utpata yoga, the weekday's star in MC 1.30's utpata column (28 nakshatras), removed", "Muhurta Chintamani 1.30, p. 23"),
-    "marana": ("Mrtyu yoga, the weekday's star in MC 1.30's mrtyu column, removed", "Muhurta Chintamani 1.30, p. 23"),
-    "kana": ("Kana yoga, the weekday's star in MC 1.30's kana column (Monday's is Abhijit), removed", "Muhurta Chintamani 1.30, p. 23"),
-    "dagdha": ("Dagdha yoga, Narada's burnt weekday-star pairs, removed", "Narada in Muhurta Chintamani 1.5 commentary, p. 13"),
-    "visha": ("A siddhi (amrta) weekday-star pair on its tithi, which turns it to visha, removed", "Muhurta Chintamani 1.20-21, pp. 19-20"),
+    "utpata": ("Utpata yoga, the weekday's star in MC 1.30's utpata column (28 nakshatras), removed unless a Ravi or siddhi yoga holds then (MC 1.27, 1.42; only a Ravi yoga lifts a visha)", "Muhurta Chintamani 1.30, p. 23"),
+    "marana": ("Mrtyu yoga, the weekday's star in MC 1.30's mrtyu column, removed unless a Ravi or siddhi yoga holds then (MC 1.27, 1.42; only a Ravi yoga lifts a visha)", "Muhurta Chintamani 1.30, p. 23"),
+    "kana": ("Kana yoga, the weekday's star in MC 1.30's kana column (Monday's is Abhijit), removed unless a Ravi or siddhi yoga holds then (MC 1.27, 1.42; only a Ravi yoga lifts a visha)", "Muhurta Chintamani 1.30, p. 23"),
+    "dagdha": ("Dagdha yoga, Narada's burnt weekday-star pairs, removed unless a Ravi or siddhi yoga holds then (MC 1.27, 1.42; only a Ravi yoga lifts a visha)", "Narada in Muhurta Chintamani 1.5 commentary, p. 13"),
+    "visha": ("A siddhi (amrta) weekday-star pair on its tithi, which turns it to visha, removed unless a Ravi or siddhi yoga holds then (MC 1.27, 1.42; only a Ravi yoga lifts a visha)", "Muhurta Chintamani 1.20-21, pp. 19-20"),
     "godhuli": ("Godhuli, the alternative: half a ghatika either side of sunset; Thursday only before it, Saturday only after; none with the Moon 1st, 6th or 8th from the lagna, or Mars 1st, 7th or 8th", "Muhurta Chintamani 6.97-99, pp. 305-307"),
     "weak_tithi": ("Shashthi or Ashtami: 'little fruit' (DS); Vasishtha drops them", "Dharmasindhu p. 181; Muhurta Chintamani 6.53"),
     "middling_weekday": ("Sunday or Saturday: middling", "Vasishtha in Muhurta Chintamani 6.53; Dharmasindhu p. 181"),
@@ -173,13 +174,14 @@ MUNDAN_RULES = {
     "bad_yoga": ("The bad yogas' opening ghatis, Parigha's first half, and Vyatipata and Vaidhriti whole, removed", "Muhurta Chintamani 1.34-35"),
     "gandanta_tithi": ("One ghatika either side of the ends of the 5th, 10th and 15th tithis, removed", "Muhurta Chintamani 6.41, p. 265"),
     "gandanta_nakshatra": ("Two ghatikas either side of Ashlesha-Magha, Jyeshtha-Mula and Revati-Ashvini, removed", "Muhurta Chintamani 6.41, p. 265"),
+    "gandanta_lagna": ("Half a ghatika either side of the lagna's Cancer-Leo, Scorpio-Sagittarius and Pisces-Aries boundaries, removed", "Muhurta Chintamani 6.41, p. 265"),
     "sankranti": ("16.5 ghatikas either side of the Sun's sign change, removed (half of MC's 33 each side, our reading)", "Muhurta Chintamani 6.78, p. 293"),
     "mahapata": ("Mahapata, equal declinations of the Sun and Moon, removed", "Muhurta Chintamani 6.59"),
-    "utpata": ("Utpata yoga, the weekday's star in MC 1.30's utpata column (28 nakshatras), removed", "Muhurta Chintamani 1.30, p. 23"),
-    "marana": ("Mrtyu yoga, the weekday's star in MC 1.30's mrtyu column, removed", "Muhurta Chintamani 1.30, p. 23"),
-    "kana": ("Kana yoga, the weekday's star in MC 1.30's kana column (Monday's is Abhijit), removed", "Muhurta Chintamani 1.30, p. 23"),
-    "dagdha": ("Dagdha yoga, Narada's burnt weekday-star pairs, removed", "Narada in Muhurta Chintamani 1.5 commentary, p. 13"),
-    "visha": ("A siddhi (amrta) weekday-star pair on its tithi, which turns it to visha, removed", "Muhurta Chintamani 1.20-21, pp. 19-20"),
+    "utpata": ("Utpata yoga, the weekday's star in MC 1.30's utpata column (28 nakshatras), removed unless a Ravi or siddhi yoga holds then (MC 1.27, 1.42; only a Ravi yoga lifts a visha)", "Muhurta Chintamani 1.30, p. 23"),
+    "marana": ("Mrtyu yoga, the weekday's star in MC 1.30's mrtyu column, removed unless a Ravi or siddhi yoga holds then (MC 1.27, 1.42; only a Ravi yoga lifts a visha)", "Muhurta Chintamani 1.30, p. 23"),
+    "kana": ("Kana yoga, the weekday's star in MC 1.30's kana column (Monday's is Abhijit), removed unless a Ravi or siddhi yoga holds then (MC 1.27, 1.42; only a Ravi yoga lifts a visha)", "Muhurta Chintamani 1.30, p. 23"),
+    "dagdha": ("Dagdha yoga, Narada's burnt weekday-star pairs, removed unless a Ravi or siddhi yoga holds then (MC 1.27, 1.42; only a Ravi yoga lifts a visha)", "Narada in Muhurta Chintamani 1.5 commentary, p. 13"),
+    "visha": ("A siddhi (amrta) weekday-star pair on its tithi, which turns it to visha, removed unless a Ravi or siddhi yoga holds then (MC 1.27, 1.42; only a Ravi yoga lifts a visha)", "Muhurta Chintamani 1.20-21, pp. 19-20"),
     "krishna_last_three": ("A dark Trayodashi: DS keeps the dark fortnight except its last three days", "Dharmasindhu p. 137"),
     "infancy_old": ("Excluded: Jupiter's or Venus's infancy or old age beyond 3 days", "Muhurta Chintamani 5.27 (5.28 gives 3 as the shortest)"),
 }  # fmt: skip
@@ -250,13 +252,14 @@ GRIHA_PRAVESH_RULES = {
     "bad_yoga": ("The bad yogas' opening ghatis, Parigha's first half, and Vyatipata and Vaidhriti whole, removed, as for marriage", "Muhurta Chintamani 1.34-35; 13.1 commentary, p. 439"),
     "gandanta_tithi": ("One ghatika either side of the ends of the 5th, 10th and 15th tithis, removed", "Muhurta Chintamani 6.41, p. 265; 13.1 commentary, p. 439"),
     "gandanta_nakshatra": ("Two ghatikas either side of Ashlesha-Magha, Jyeshtha-Mula and Revati-Ashvini, removed", "Muhurta Chintamani 6.41, p. 265; 13.1 commentary, p. 439"),
+    "gandanta_lagna": ("Half a ghatika either side of the lagna's Cancer-Leo, Scorpio-Sagittarius and Pisces-Aries boundaries, removed", "Muhurta Chintamani 6.41, p. 265"),
     "sankranti": ("16.5 ghatikas either side of the Sun's sign change, removed (half of MC's 33 each side, our reading)", "Muhurta Chintamani 6.78, p. 293; 13.1 commentary, p. 439"),
     "mahapata": ("Mahapata, equal declinations of the Sun and Moon, removed", "Muhurta Chintamani 6.59; 13.1 commentary, p. 439"),
-    "utpata": ("Utpata yoga, the weekday's star in MC 1.30's utpata column (28 nakshatras), removed", "Muhurta Chintamani 1.30, p. 23"),
-    "marana": ("Mrtyu yoga, the weekday's star in MC 1.30's mrtyu column, removed", "Muhurta Chintamani 1.30, p. 23"),
-    "kana": ("Kana yoga, the weekday's star in MC 1.30's kana column (Monday's is Abhijit), removed", "Muhurta Chintamani 1.30, p. 23"),
-    "dagdha": ("Dagdha yoga, Narada's burnt weekday-star pairs, removed", "Narada in Muhurta Chintamani 1.5 commentary, p. 13"),
-    "visha": ("A siddhi (amrta) weekday-star pair on its tithi, which turns it to visha, removed", "Muhurta Chintamani 1.20-21, pp. 19-20"),
+    "utpata": ("Utpata yoga, the weekday's star in MC 1.30's utpata column (28 nakshatras), removed unless a Ravi or siddhi yoga holds then (MC 1.27, 1.42; only a Ravi yoga lifts a visha)", "Muhurta Chintamani 1.30, p. 23"),
+    "marana": ("Mrtyu yoga, the weekday's star in MC 1.30's mrtyu column, removed unless a Ravi or siddhi yoga holds then (MC 1.27, 1.42; only a Ravi yoga lifts a visha)", "Muhurta Chintamani 1.30, p. 23"),
+    "kana": ("Kana yoga, the weekday's star in MC 1.30's kana column (Monday's is Abhijit), removed unless a Ravi or siddhi yoga holds then (MC 1.27, 1.42; only a Ravi yoga lifts a visha)", "Muhurta Chintamani 1.30, p. 23"),
+    "dagdha": ("Dagdha yoga, Narada's burnt weekday-star pairs, removed unless a Ravi or siddhi yoga holds then (MC 1.27, 1.42; only a Ravi yoga lifts a visha)", "Narada in Muhurta Chintamani 1.5 commentary, p. 13"),
+    "visha": ("A siddhi (amrta) weekday-star pair on its tithi, which turns it to visha, removed unless a Ravi or siddhi yoga holds then (MC 1.27, 1.42; only a Ravi yoga lifts a visha)", "Muhurta Chintamani 1.20-21, pp. 19-20"),
     "middling_month": ("Excluded: Kartika or Margashirsha, which Narada counts middling for house entry, outside MC 13.1's northern course", "Narada in Muhurta Chintamani 13.1 commentary, p. 438"),
     "infancy_old": ("Excluded: Jupiter's or Venus's infancy or old age beyond 3 days", "Muhurta Chintamani 5.27 (5.28 gives 3 as the shortest)"),
     "krishna_after_dashami": ("The dark fortnight after Dashami: Vasishtha keeps the dark fortnight only up to Dashami", "Vasishtha in Muhurta Chintamani 13.1 commentary, p. 438"),
@@ -946,20 +949,30 @@ MUHURTA_RULE_NAMES = {
     "siddhi_pair_act_ban": "Siddhi pair avoided for this act (MC 1.22)",
     "amavasya": "Amavasya", "rikta_tithi": "Rikta tithi (4th, 9th, 14th)", "ashtami": "Ashtami",
     "marana_yoga": "Marana yoga", "dagdha_yoga": "Dagdha yoga", "moon_8th": "Moon in the 8th",
-    "chandrashtama": "Chandrashtama", "disha_shool": "Disha shool",
-    "disha_shool_first_leg": "Disha shool on the first leg", "bad_tara": "Inauspicious tara",
+    "chandrashtama": "Chandrashtama: the Moon 8th from the birth Moon (Phaladipika 26.2, 26.12)",
+    "disha_shool": "Disha shool (Narada and Vasishtha in the MC 11.9 commentary)",
+    "disha_shool_first_leg": "Disha shool on the first leg (Narada and Vasishtha in the MC 11.9 commentary)", "bad_tara": "Inauspicious tara",
     "janma_tara": "Janma tara", "panchaka": "Panchaka", "malefic_1st": "Malefic in the 1st",
     "malefic_7th": "Malefic in the 7th", "graha_8th": "Graha in the 8th",
     "malefic_4th": "Malefic in the 4th", "lagna_8th_from_birth": "Lagna 8th from birth",
     "bad_choghadiya": "Inauspicious choghadiya", "char_choghadiya": "Char choghadiya",
-    "moon_from_birth_moon": "Moon 4th or 12th from the birth Moon",
+    "moon_from_birth_moon": "Moon 4th or 12th from the birth Moon, or 2nd, 5th or 9th outside the bright fortnight (Phaladipika 26.2; MC 4.4)",
+    "moon_good_from_birth_moon": "Moon 1st, 3rd, 6th, 7th, 10th or 11th from the birth Moon, or 2nd, 5th or 9th in the bright fortnight (Phaladipika 26.2; MC 4.4)",
+    "travel_best_tithi": "The dark Pratipada, the best tithi for travel (MC 11.9 commentary)",
     "nakshatra_unfavoured": "Nakshatra not favoured for this act",
     "tithi_unfavoured": "Tithi not favoured for this act",
     "weekday_unfavoured": "Weekday not favoured for this act", "adhika_masa": "Adhika masa",
     "pitru_paksha_practice": "Pitru Paksha: many families avoid new purchases; the texts read give no such rule (popular practice)", "moon_behind": "Moon behind (Chandra vasa)",
     "moon_left": "Moon on the left", "moon_ahead": "Moon ahead or on the right",
-    "yogini_ahead": "Yogini ahead or on the right", "yogini_behind": "Yogini behind or on the left",
+    "yogini_ahead": "Yogini ahead or on the left (MC 11.31)", "yogini_behind": "Yogini behind or on the right (MC 11.31)",
     "kharmas": "Kharmas", "amrita_siddhi": "Siddhi (amrta) yoga", "sarvartha_siddhi": "Sarvartha Siddhi",
+    "ravi_yoga": "Ravi yoga: the Moon's star the 4th, 6th, 9th, 10th, 13th or 20th from the Sun's (MC 1.27)",
+    "kuyoga_lifted": "A bad weekday yoga lifted by a Ravi or siddhi yoga, or by a favourable Moon from the birth Moon (MC 1.41-42)",
+    "nakshatra_gandanta": "Nakshatra gandanta: within 2 ghatikas of the Ashlesha-Magha, Jyeshtha-Mula or Revati-Ashvini junction (MC 6.41; SS 11.22)",
+    "nakshatra_junction_near": "Nakshatra junction within 4 ghatikas, the commentary's middling fault (MC 6.41)",
+    "nakshatra_junction_quarter": "Nakshatra junction quarter: the last quarter of Ashlesha, Jyeshtha or Revati or the first of Magha, Mula or Ashvini (SS 11.21)",
+    "lagna_gandanta": "Lagna gandanta: half a ghatika either side of the Cancer-Leo, Scorpio-Sagittarius or Pisces-Aries boundary (MC 6.41)",
+    "tithi_gandanta": "Tithi gandanta: one ghatika either side of the end of the 5th, 10th or 15th tithi (MC 6.41)",
     "lagna_lord_strong": "Lagna lord strong", "benefic_kendra": "Benefic in a kendra",
     "abhijit": "Abhijit muhurta", "movable_lagna": "Movable lagna", "fixed_lagna": "Fixed lagna",
     "favoured_hora": "Favoured hora", "malefic_hora": "Mars or Saturn hora",
@@ -967,27 +980,55 @@ MUHURTA_RULE_NAMES = {
 VETOES = {
     "rahu_kalam", "yamaganda", "gulika", "durmuhurta", "bad_yoga_window", "bhadra_earth",
     "amavasya", "rikta_tithi", "ashtami", "marana_yoga", "dagdha_yoga", "moon_8th",
-    "chandrashtama", "disha_shool", "visha_yoga", "siddhi_pair_act_ban", "bhadra_face",
+    "disha_shool", "visha_yoga", "siddhi_pair_act_ban", "bhadra_face",
     "utpata_yoga", "kana_yoga", "mahapata", "adhika_masa_home", "month_home", "dakshinayana", "weekday_home", "month_mundan",
     "nakshatra_mundan", "tithi_mundan", "weekday_mundan", "lagna_mundan", "house_8_mundan",
     "kendra_malefic_mundan", "navamsa_mundan", "birth_star", "birth_month", "lagna_8th_from_birth_mundan",
     "eldest_jyeshtha", "selling_star", "riding_weekday",
     "sun_sign_home", "jupiter_venus_state", "jupiter_sign", "movable_lagna_home", "movable_navamsa",
     "house_4_8_occupied", "moon_1_6_12", "pot_chakra", "door_tithi", "door_sun",
+    "nakshatra_gandanta", "lagna_gandanta", "tithi_gandanta",
 }  # fmt: skip
-NOTES = {"pitru_paksha_practice"}  # shown, never scored
+NOTES = {"pitru_paksha_practice", "kuyoga_lifted"}  # shown, never scored
 CURRENT_PRACTICE = "Current practice; no classical source"
-MUHURTA_RULE_NOTES = dict.fromkeys(
-    (
-        "moon_behind", "moon_left", "moon_ahead", "yogini_ahead", "yogini_behind",
-        "bad_choghadiya", "char_choghadiya", "moon_from_birth_moon",
+MUHURTA_RULE_NOTES = {
+    **dict.fromkeys(("bad_choghadiya", "char_choghadiya"), CURRENT_PRACTICE),
+    # travel.md (the lead's decisions of 15 Oct 2026)
+    **dict.fromkeys(
+        ("moon_behind", "moon_left", "moon_ahead"),
+        "Current practice; no classical source. MC 11.36 (1945 printing, p. 359) gives a "
+        "different rule: with the Sun and the Moon both in the northern course go north or "
+        "east, both in the southern go west or south; if their courses differ, travel by day "
+        "in the Sun's direction and by night in the Moon's.",
     ),
-    CURRENT_PRACTICE,
-)  # fmt: skip
+    # panchang-yogas.md (the lead's decisions of 15 Oct 2026)
+    **dict.fromkeys(
+        ("utpata_yoga", "marana_yoga", "kana_yoga", "dagdha_yoga", "visha_yoga"),
+        "A Ravi or siddhi yoga at the same moment lifts it (MC 1.27, 1.42); a siddhi pair "
+        "turned to visha lifts nothing. In the personal search a favourable Moon from the "
+        "birth Moon lifts it too (MC 1.41). MC 1.41-42 records other views, not applied: "
+        "some lift these yogas after the first yama, some hold them only for travel, and "
+        "some lift them with a pure lagna.",
+    ),
+    **dict.fromkeys(
+        ("bhadra_earth", "bad_yoga_window"),
+        "Never lifted by a good yoga (MC 1.42 commentary, p. 35). For an unavoidable act, "
+        "Bhadra, Tuesday, Vyatipata, Vaidhriti, the pratyari star and the birth star are "
+        "acceptable after midday (the same commentary); not applied.",
+    ),
+    **dict.fromkeys(
+        ("yogini_ahead", "yogini_behind"),
+        "MC 11.31 and its commentary (1925 printing, pp. 348-349): in front or on the left "
+        "the Yogini is not commended, on the right or behind she is. Popular almanacs "
+        "reverse left and right. A minor factor: the commentary weighs it mainly in war "
+        "journeys.",
+    ),
+}
 SUPPORTS = {
     "amrita_siddhi", "sarvartha_siddhi", "lagna_lord_strong", "benefic_kendra", "abhijit",
     "moon_ahead", "yogini_behind", "char_choghadiya", "movable_lagna", "fixed_lagna",
     "favoured_hora", "siddhi_yoga", "bhadra_tail", "bhadra_day_night",
+    "moon_good_from_birth_moon", "travel_best_tithi", "ravi_yoga",
 }  # fmt: skip
 
 
