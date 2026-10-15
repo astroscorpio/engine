@@ -634,7 +634,9 @@ HORA_SYSTEMS = {
     },
 }
 PURNIMA_EARLIER_NOTE = (
-    "Some almanacs list a Purnima vrat on this earlier day; popular practice, source pending."
+    "Family custom (kula-dharma) keeps the Purnima vrata on this earlier, Caturdashi-joined day; "
+    "the Dharmasindhu accepts it only when the Caturdashi lasts under 18 nadis (7 h 12 min) after "
+    "that day's sunrise (DS p. 20), so earlierDate is given only then."
 )
 # observances.md s6
 AMAVASYA_NAMES = {

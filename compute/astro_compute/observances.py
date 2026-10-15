@@ -45,6 +45,8 @@ from .models import EkadashiQuery
 from .timeutil import aware, iso, local_jd
 
 ARUNODAYA = 96 / 1440  # 4 ghatikas before sunrise, in days (NS p. 53)
+NADI = 24 / 1440
+KULA_DHARMA_NADIS = 18
 
 # Names from the Ekadashi-mahatmya with bhasha-tika (Banaras, 1934), by folio,
 # keyed by the purnimanta month and paksha as the text names them
@@ -305,6 +307,10 @@ def _full_or_new(start: float, end: float, _next_end: float, q: EkadashiQuery) -
     num = Mu.tithi_at(start + 1e-6, q.ayanamsa)
     if held:
         vrata, rule, earlier = held[-1], "later_day", 0
+        # DS p. 20: the earlier, Caturdashi-joined day as family custom only when the
+        # Caturdashi lasts under 18 nadis after its sunrise (decision 9, 15 Oct 2026).
+        if num == 15 and start - s[0] >= KULA_DHARMA_NADIS * NADI:
+            earlier = None
     else:
         vrata, rule, earlier = 0, "only_day", None
     last = vrata

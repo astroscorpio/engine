@@ -96,7 +96,10 @@ RULES: list[tuple[re.Pattern, str]] = [
         (r"^[SK]\d+ \w+$", "tithi_unfavoured"),
         (r"^(Sun|Mon|Tues|Wednes|Thurs|Fri|Satur)day$", "weekday_unfavoured"),
         (r"^adhika \w+$", "adhika_masa"),
-        (r"^Pitru Paksha: many families avoid new purchases \(popular practice\)$", "pitru_paksha_practice"),
+        (
+            r"^Pitru Paksha: many families avoid new purchases \(popular practice\)$",
+            "pitru_paksha_practice",
+        ),
         (r"^Moon behind \(Chandra vasa\)$", "moon_behind"),
         (r"^Moon on the left$", "moon_left"),
         (r"^Moon (ahead|on the right)$", "moon_ahead"),

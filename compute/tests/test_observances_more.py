@@ -18,8 +18,17 @@ def test_purnima_and_amavasya_fasts_take_the_later_day():
             day = next(d for d in r["days"] if d["date"] == v["date"])
             if v["rule"] == "later_day":
                 # the last day with the tithi at sunrise, joined to the next Pratipada
-                assert day["tithiAtSunrise"] == tithi_id and v["earlierDate"] < v["date"]
+                assert day["tithiAtSunrise"] == tithi_id
+                if kind == "amavasya":
+                    assert v["earlierDate"] < v["date"]
         assert out["source"]["text"] == "Nirnaya-sindhu"
+    # DS p. 20: a Purnima's earlier day only when the Caturdashi lasts under 18 nadis
+    # after its sunrise. For New Delhi 2026 these are Drik's four extra Purnima vrats.
+    status, out = call("GET", "/v1/observances/purnima", DELHI)
+    earlier = sorted(
+        r["vrata"]["earlierDate"] for r in out["occurrences"] if r["vrata"]["earlierDate"]
+    )
+    assert earlier == ["2026-04-01", "2026-05-30", "2026-08-27", "2026-10-25"]
 
 
 def test_shraddha_amavasya_follows_aparahna_then_kutapa():

@@ -213,8 +213,10 @@ def test_magha_festivals_2026():
     assert v["pujaWindow"]["start"][:10] == v["date"] and v["forenoon"][1]["covered"]
     (r,) = _rows("ratha-saptami")
     assert (r["date"], r["rule"]) == ("2026-01-25", "arunodaya")
-    assert r["arunodaya"]["end"][:10] == r["date"] and r["arunodaya"]["start"] < r["arunodaya"]["end"]
+    dawn = r["arunodaya"]
+    assert dawn["end"][:10] == r["date"] and dawn["start"] < dawn["end"]
     (b,) = _rows("bhishma-ashtami")
     assert (b["date"], b["rule"]) == ("2026-01-26", "one_day")
     assert b["tarpanaWindow"]["start"][:10] == b["date"]
-    assert all(k["rule"] in FESTIVAL_RULES[n] for k, n in ((v, "vasanta-panchami"), (r, "ratha-saptami"), (b, "bhishma-ashtami")))
+    rows = ((v, "vasanta-panchami"), (r, "ratha-saptami"), (b, "bhishma-ashtami"))
+    assert all(k["rule"] in FESTIVAL_RULES[n] for k, n in rows)
