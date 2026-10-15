@@ -70,3 +70,13 @@ def test_finder_mundan_act_vetoes_the_wrong_weekday_and_the_eldest_jyeshtha():
     at = "2027-06-10T10:00:00+05:30"
     assert "eldest_jyeshtha" in vetoes(at, eldest="true")
     assert "eldest_jyeshtha" not in vetoes(at)
+
+
+def test_an_empty_mundan_year_names_its_nearest_days():
+    status, out = call("GET", "/v1/muhurat/mundan", {"year": "2029", **DELHI})
+    assert status == 200, out
+    assert out["days"] == [] and out["nearest"]
+    tests = {"barred_stretches", "lagna", "house_8", "kendra_malefic"}
+    assert tests <= set(MUNDAN_RULES)
+    for n in out["nearest"]:
+        assert n["rules"] and set(n["rules"]) <= tests

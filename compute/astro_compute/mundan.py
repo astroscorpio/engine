@@ -50,10 +50,18 @@ SOURCE = {
 }
 
 
-def _lagna_windows(a: float, b: float, num: int, q) -> list[tuple[float, float, int]]:
+def _lagna_windows(
+    a: float, b: float, num: int, q, fails: dict | None = None
+) -> list[tuple[float, float, int]]:
     """Stretches of [a, b] with the lagna and its navamsa in a benefic's sign (MC 5.29
     "lagnamshayoh"), the 8th empty but for Venus, and no waning Moon (outside tithis
-    9-22, BJ 2.5 as the engine reads it), Mars, Saturn or Sun in a kendra."""
+    9-22, BJ 2.5 as the engine reads it), Mars, Saturn or Sun in a kendra. fails, if
+    given, gathers the minutes each test removes."""
+    fails = {} if fails is None else fails
+
+    def fail(rule: str, x: float, y: float) -> None:
+        fails[rule] = fails.get(rule, 0.0) + (y - x) * 1440
+
     ay = q.ayanamsa
     bad = {"Mars", "Saturn", "Sun"} | (set() if 9 <= num <= 22 else {"Moon"})
 
@@ -63,15 +71,19 @@ def _lagna_windows(a: float, b: float, num: int, q) -> list[tuple[float, float, 
     out = []
     for x0, y0, lagna in _spans(lambda t: int(asc(t) // 30), a, b, 1 / 96):
         if lagna not in BENEFIC_SIGNS:
+            fail("lagna", x0, y0)
             continue
         for x, y, idx in _spans(lambda t: int(asc(t) // (30 / 9)), x0, y0, 1 / 288):
             if idx % 12 not in BENEFIC_SIGNS:
+                fail("lagna", x, y)
                 continue
             p = positions((x + y) / 2, ay)
             house = {g: (p[g].sign - lagna) % 12 + 1 for g in p}
             if any(h == 8 and g != "Venus" for g, h in house.items()):
+                fail("house_8", x, y)
                 continue
             if any(house[g] in KENDRA for g in bad):
+                fail("kendra_malefic", x, y)
                 continue
             out.append((x, y, lagna))
     return out
@@ -84,7 +96,7 @@ def mundan(q: EkadashiQuery, explain: dict | None = None) -> dict:
     in Leo or Capricorn, and a day yoga that covers every window."""
     y = _Year(q)
     ay, zone = y.ay, y.zone
-    out_days, excluded = [], []
+    out_days, excluded, near = [], [], []
     for i, (sr, _ss, nr) in enumerate(y.days):
         date = aware(sr, zone).date()
         if date.year != q.year:
@@ -146,7 +158,10 @@ def mundan(q: EkadashiQuery, explain: dict | None = None) -> dict:
                 explain[date.isoformat()] = next((r for r in order if r in reasons), "none")
             continue
         bars = [(x, y_) for x, y_, _ in y.bars] + _lagna_gandanta(sr, nr, q)
-        free = _subtract([(a, b) for a, b, *_ in pieces], bars)
+        spans = [(a, b) for a, b, *_ in pieces]
+        free = _subtract(spans, bars)
+        fails = {"barred_stretches": sum(b - a for a, b in spans) * 1440}
+        fails["barred_stretches"] -= sum(b - a for a, b in free) * 1440
         rows = []
         for a, b in free:
             num, nak, name, relax = next(
@@ -154,7 +169,7 @@ def mundan(q: EkadashiQuery, explain: dict | None = None) -> dict:
             )
             rows += [
                 (x, y_, num, nak, name, relax, lagna)
-                for x, y_, lagna in _lagna_windows(a, b, num, q)
+                for x, y_, lagna in _lagna_windows(a, b, num, q, fails)
             ]
         # The day-yoga stretches go from every window; a day left with none is excluded
         # for them, with the windows they cover.
@@ -200,12 +215,17 @@ def mundan(q: EkadashiQuery, explain: dict | None = None) -> dict:
                     **dict(zip(("reasons", "details"), _details(rules), strict=True)),
                 }
             )
-        elif explain is not None:
-            explain[date.isoformat()] = "lagna" if free else "window"
+        else:
+            ranked = sorted((k for k, m in fails.items() if m > 0.5), key=lambda k: -fails[k])
+            near.append({"date": date.isoformat(), "vara": vara, "rules": ranked})
+            if explain is not None:
+                explain[date.isoformat()] = "lagna" if free else "window"
     return {
         "year": q.year,
         "days": out_days,
         "excluded": excluded,
+        # An empty year names the days that failed only at the window (samskaras.md A5).
+        "nearest": [] if out_days else near,
         "blocks": _blocks(y, q, frozenset()),
         "source": SOURCE,
         "alsoSource": {**DS, "page": "5, 137"},

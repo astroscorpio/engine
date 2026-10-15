@@ -185,6 +185,7 @@ MUNDAN_RULES = {
     "visha": ("A siddhi (amrta) weekday-star pair on its tithi, which turns it to visha, removed unless a Ravi or siddhi yoga holds then (MC 1.27, 1.42; only a Ravi yoga lifts a visha)", "Muhurta Chintamani 1.20-21, pp. 19-20"),
     "krishna_last_three": ("A dark Trayodashi: DS keeps the dark fortnight except its last three days", "Dharmasindhu p. 137"),
     "infancy_old": ("Excluded: Jupiter's or Venus's infancy or old age beyond 3 days", "Muhurta Chintamani 5.27 (5.28 gives 3 as the shortest)"),
+    "barred_stretches": ("Bhadra on earth, the bad yogas' openings, gandanta, the sankranti and mahapata, removed from the windows", "Muhurta Chintamani 1.34-35, 1.43-45, 6.41, 6.59, 6.78"),
 }  # fmt: skip
 MUNDAN_NOTES = {
     "age": "From the 3rd year, in an odd year: the 3rd, 5th or 7th, counted from conception or from birth (MC 5.29; Vasishtha, p. 189). Dharmasindhu p. 137 also allows the 1st, 2nd, 3rd or 5th year, or with the upanayana, by family custom; families who tonsure with the upanayana use its muhurta.",
