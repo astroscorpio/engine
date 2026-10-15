@@ -1257,6 +1257,18 @@ MOVABLE = {0, 3, 6, 9}
 OLD_HOUSE_STARS = {"Shatabhisha", "Pushya", "Swati", "Dhanishta"}  # MC 13.2
 HOME_BARRED_VARAS = {"Sun", "Mars"}  # MC 13.4: "vy-arkari", without Sunday and Tuesday
 DOOR_TITHIS = {"E": {5, 10, 15}, "S": {1, 6, 11}, "W": {2, 7, 12}, "N": {3, 8, 13}}  # MC 13.5
+# MC 13.1 ("dvahstha"): the door's own stars. MC 11.33's commentary (p. 353) puts seven
+# in each quarter: from Krttika east, Magha south, Anuradha west, Dhanishtha north. The
+# west reaches seven only with Abhijit (our reading), which is not among the 27.
+DOOR_STARS = {
+    "E": {"Krittika", "Rohini", "Mrigashira", "Ardra", "Punarvasu", "Pushya", "Ashlesha"},
+    "S": {"Magha", "P.Phalguni", "U.Phalguni", "Hasta", "Chitra", "Swati", "Vishakha"},
+    "W": {"Anuradha", "Jyeshtha", "Mula", "P.Ashadha", "U.Ashadha", "Shravana"},
+    "N": {
+        "Dhanishta", "Shatabhisha", "P.Bhadrapada", "U.Bhadrapada", "Revati", "Ashwini",
+        "Bharani",
+    },
+}  # fmt: skip
 DOOR_SUN = {  # the Sun "on the left": the five houses from the 8th, 5th, 2nd or 11th
     "E": {8, 9, 10, 11, 12}, "S": {5, 6, 7, 8, 9}, "W": {2, 3, 4, 5, 6}, "N": {11, 12, 1, 2, 3},
 }  # fmt: skip
@@ -1303,6 +1315,8 @@ def _home_vetoes(v, month, p, moon, asc, house, n, door, old_house, planet_state
     if count <= 5 or 14 <= count <= 21:
         v.vetoes.append(f"pot chakra {count} (MC 13.6)")
     if door:
+        if NAKSHATRAS[moon.nakshatra] not in DOOR_STARS[door]:
+            v.vetoes.append(f"star not of the {door} door's quarter (MC 13.1, 11.33)")
         if n not in DOOR_TITHIS[door]:
             v.vetoes.append(f"tithi not for a {door} door (MC 13.5)")
         if house("Sun") not in DOOR_SUN[door]:

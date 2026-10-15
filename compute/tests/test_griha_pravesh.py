@@ -108,9 +108,13 @@ def test_windows_carry_the_doors_that_pass_mc_13_5():
     classes = {"purnima": "E", "panchami": "E", "dashami": "E", "pratipada": "S", "shashthi": "S"}
     classes |= {"ekadashi": "S", "dwitiya": "W", "saptami": "W", "dwadashi": "W"}
     classes |= {"tritiya": "N", "ashtami": "N", "trayodashi": "N"}
+    quarter = {n: d for d, stars in Mu.DOOR_STARS.items() for n in stars}
+    ids = dict(zip(Mu.NAKSHATRAS, NAKSHATRA_IDS, strict=True))
     for w in windows:
-        # One tithi class per door (MC 13.5): a window can pass at most its class's door.
-        assert set(w["doors"]) <= {classes[w["tithi"]]}
+        # One tithi class per door (MC 13.5) and one quarter per star (MC 11.33): a window
+        # can pass at most the door its tithi and its star both point to.
+        star = next(n for n, i in ids.items() if i == w["nakshatra"])
+        assert set(w["doors"]) <= {classes[w["tithi"]]} & {quarter[star]}
     assert Mu.DOOR_TITHIS["E"] == {5, 10, 15}
 
 

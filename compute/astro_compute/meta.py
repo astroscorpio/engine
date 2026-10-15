@@ -1046,6 +1046,7 @@ MUHURTA_RULE_NAMES = {
     "house_4_8_occupied": "A planet in the 4th or 8th (MC 13.4)",
     "moon_1_6_12": "The Moon in the 1st, 6th or 12th (Vasishtha in MC 13.3-4)",
     "pot_chakra": "Pot chakra: the Moon's star 1st-5th or 14th-21st from the Sun's (MC 13.6; DS p. 242)",
+    "door_star": "Star not of the door's quarter: seven to each quarter, from Krttika east, Magha south, Anuradha west and Dhanishtha north (MC 11.33 commentary, p. 353; MC 13.1)",
     "door_tithi": "Tithi not of the door's class (MC 13.5)",
     "door_sun": "The Sun not on the left for the door (MC 13.4-5)",
     "utpata_yoga": "Utpata yoga (MC 1.30)", "kana_yoga": "Kana yoga (MC 1.30)",
@@ -1114,7 +1115,7 @@ VETOES = {
     "kendra_malefic_mundan", "navamsa_mundan", "birth_star", "birth_month", "lagna_8th_from_birth_mundan",
     "eldest_jyeshtha", "selling_star", "riding_weekday",
     "sun_sign_home", "jupiter_venus_state", "jupiter_sign", "movable_lagna_home", "movable_navamsa",
-    "house_4_8_occupied", "moon_1_6_12", "pot_chakra", "door_tithi", "door_sun",
+    "house_4_8_occupied", "moon_1_6_12", "pot_chakra", "door_star", "door_tithi", "door_sun",
     "nakshatra_gandanta", "lagna_gandanta", "tithi_gandanta",
     "adhika_month_annaprashan", "tithi_annaprashan", "weekday_annaprashan", "nakshatra_annaprashan", "forenoon_annaprashan", "vishti_annaprashan", "yoga_annaprashan", "lagna_annaprashan", "house_10_annaprashan", "malefic_annaprashan", "moon_6_8_annaprashan", "guru_7_8_9_annaprashan", "lagna_8th_annaprashan", "navamsa_8th_annaprashan", "month_of_life", "sun_aquarius_akshararambh", "hari_sleeps", "tithi_akshararambh", "weekday_akshararambh", "nakshatra_akshararambh", "lagna_akshararambh", "house_8_akshararambh", "fifth_year",
 }  # fmt: skip

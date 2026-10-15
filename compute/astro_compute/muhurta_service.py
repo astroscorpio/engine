@@ -82,6 +82,7 @@ RULES: list[tuple[re.Pattern, str]] = [
         (r"^.+ in the 4th or 8th \(MC 13\.4\)$", "house_4_8_occupied"),
         (r"^Moon in the (1st|6th|12th) \(MC 13\.3-4\)$", "moon_1_6_12"),
         (r"^pot chakra \d+ \(MC 13\.6\)$", "pot_chakra"),
+        (r"^star not of the [NESW] door's quarter \(MC 13\.1, 11\.33\)$", "door_star"),
         (r"^tithi not for a [NESW] door \(MC 13\.5\)$", "door_tithi"),
         (r"^Sun not on the left for a [NESW] door \(MC 13\.4-5\)$", "door_sun"),
         # The junctions (MC 6.41; SS 11.21-22) and the lifted kuyogas (MC 1.41-42).

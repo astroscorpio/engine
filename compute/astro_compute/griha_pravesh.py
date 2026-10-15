@@ -226,12 +226,18 @@ def griha_pravesh(q: EkadashiQuery, explain: dict | None = None) -> dict:
     }
 
 
-def _doors(x: float, y_: float, num: int, lagna: int, ay: str) -> list[str]:
-    """The doors for which a window also passes MC 13.5, as the finder's door= applies
-    it: the tithi's class for that door and the Sun on the left (13.4-5)."""
+def _doors(x: float, y_: float, num: int, nak: int, lagna: int, ay: str) -> list[str]:
+    """The doors a window also passes, as the finder's door= applies them: the star of
+    the door's quarter (MC 13.1, 11.33), the tithi's class for that door and the Sun on
+    the left (13.4-5)."""
     sun = (luminaries((x + y_) / 2, ay)[0].sign - lagna) % 12 + 1
     n = (num - 1) % 15 + 1
-    return [d for d in "NESW" if n in Mu.DOOR_TITHIS[d] and sun in Mu.DOOR_SUN[d]]
+    star = Mu.NAKSHATRAS[nak]
+    return [
+        d
+        for d in "NESW"
+        if star in Mu.DOOR_STARS[d] and n in Mu.DOOR_TITHIS[d] and sun in Mu.DOOR_SUN[d]
+    ]
 
 
 def _windows(rows: list[tuple], zone, ay: str | None = None) -> list[dict]:
@@ -250,7 +256,7 @@ def _windows(rows: list[tuple], zone, ay: str | None = None) -> list[dict]:
             "_m": name,
         }
         if ay is not None:
-            row["doors"] = _doors(x, y_, num, lagna, ay)
+            row["doors"] = _doors(x, y_, num, nak, lagna, ay)
         last = out[-1] if out else None
         if (
             last
