@@ -273,7 +273,7 @@ def _full_or_new(start: float, end: float, _next_end: float, q: EkadashiQuery) -
     else:
         vrata, rule, earlier = 0, "only_day", None
     last = vrata
-    lunar = _lunar(s[1], num, q)
+    lunar = _lunar((start + end) / 2, num, q)  # s[1] can be in the next month
     vara = _vara(s[vrata], q)
     row = {
         "paksha": "shukla" if num <= 15 else "krishna",

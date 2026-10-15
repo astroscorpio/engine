@@ -99,3 +99,13 @@ def test_named_amavasyas():
     assert "mauni" in by_date["2026-01-18"]["names"] and "magha" in by_date["2026-02-17"]["names"]
     for r in out["occurrences"]:
         assert ("somavati" in r["names"]) == (r["vrata"]["vara"] == "monday")
+
+
+def test_amavasya_touching_no_sunrise_keeps_its_month():
+    # Kolkata, 16 May 2026: the Amavasya runs 05:11 to 01:31 and touches no sunrise.
+    # The next sunrise is already in adhika Jyeshtha; the month is the one it ends.
+    kolkata = {"year": "2026", "lat": "22.5726", "lon": "88.3639", "tz": "Asia/Kolkata"}
+    status, out = call("GET", "/v1/observances/amavasya", kolkata)
+    (row,) = [r for r in out["occurrences"] if r["vrata"]["date"] == "2026-05-16"]
+    assert row["vrata"]["rule"] == "only_day"
+    assert row["lunarMonth"] == {"amanta": "vaishakha", "purnimanta": "jyeshtha", "adhika": False}

@@ -146,13 +146,82 @@ OBSERVANCE_RULES = {
         "both_covered_later": ("It covers pradosha on both days: the later day; Mayukha (after Sumantu) takes the earlier", "Nirnaya-sindhu p. 72, footnote"),
         "neither_covered_later": ("It reaches neither day's pradosha: the later day; Mayukha (after Sumantu) takes the earlier", "Nirnaya-sindhu p. 72, footnote"),
         "equal_touch_later": ("It touches both pradoshas equally: the later day; Mayukha takes the earlier", "Nirnaya-sindhu p. 72, footnote"),
-        "more_pradosha": ("Partly on both days, unequally: the day with more of it (the other opinion recorded there)", "Nirnaya-sindhu p. 72, footnote"),
+        "more_pradosha": ("It covers part of pradosha, on one evening only or unequally on both: the day with more of it (the other opinion recorded there)", "Nirnaya-sindhu p. 72, footnote"),
     },
 }  # fmt: skip
 OBSERVANCE_RULES["sankashti"] = {
     "moonrise": ("The krishna Chaturthi current at moonrise", "Nirnaya-sindhu p. 47; Viramitrodaya, Samaya-prakasha, p. 38"),
     "both_earlier": ("Current at both moonrises: the earlier day, joined with Trtiya (some, in NS); others take the later day", "Nirnaya-sindhu p. 47"),
     "neither_later": ("Current at neither moonrise: the later day", "Nirnaya-sindhu p. 47"),
+}  # fmt: skip
+FESTIVAL_RULES = {
+    "dipavali": {
+        "pradosha": ("The Amavasya current at pradosha", "Nirnaya-sindhu pp. 299-300"),
+        "danda_next_night_later": ("It touches at least one danda (24 minutes) of the next night: the later day (Tithi-tattva)", "Nirnaya-sindhu p. 300"),
+        "neither_later": ("Current at neither pradosha: the later day (our fallback)", None),
+    },
+    "shivaratri": {
+        "midnight_both_pradosha_later": ("Midnight on both days, pradosha only on the later: the later day (Madhava, endorsed by NS); Hemadri takes the first", "Nirnaya-sindhu p. 336"),
+        "midnight_both_pradosha": ("Midnight on both days, pradosha only on the first: the first day", "Nirnaya-sindhu p. 337"),
+        "midnight_both_first": ("Midnight on both days, pradosha on both or neither: the first day (Hemadri)", "Nirnaya-sindhu p. 335"),
+        "by_midnight": ("Midnight decides: the day with (more of) it, so the first when it has all of midnight (Isana-samhita)", "Nirnaya-sindhu pp. 336-337"),
+        "by_pradosha": ("No midnight on either day: the day with pradosha", "Nirnaya-sindhu p. 337"),
+        "neither_later": ("Neither window on either day: the later day (our fallback)", None),
+    },
+    "ganesha-chaturthi": {
+        "next_day_midday": ("The Chaturthi reaches the next day's midday: the next day", "Nirnaya-sindhu pp. 47, 198 (Brhaspati)"),
+        "trtiya_joined_earlier": ("Otherwise the earlier day, joined with Trtiya", "Nirnaya-sindhu pp. 47, 198"),
+    },
+    "raksha-bandhan": {
+        "aparahna": ("In the afternoon of the earlier day, after Bhadra, even when the Upakarma falls on the next day", "Nirnaya-sindhu p. 180"),
+        "after_bhadra_night": ("Bhadra fills the earlier day's afternoon: tied when it ends, even at night (Nirnayamrta)", "Nirnaya-sindhu p. 180"),
+        "bhadra_past_sunrise": ("Bhadra lasts past the next sunrise: the later day once it ends (our fallback)", None),
+        "later_aparahna": ("The Purnima begins after the earlier day's sunset: the later day's afternoon (our reading)", "Nirnaya-sindhu p. 180"),
+        "no_aparahna": ("The Purnima reaches no afternoon: after Bhadra, before it ends (our fallback)", None),
+    },
+    "janmashtami": {
+        "first_only": ("The Ashtami at midnight on the first day only: the first", "Nirnaya-sindhu pp. 189-190"),
+        "second_only": ("At midnight on the second day only: the second", "Nirnaya-sindhu pp. 189-190"),
+        "both_later": ("At midnight on both days, equally: the second; the Ashtami joined with Saptami is avoided (Brahma-vaivarta)", "Nirnaya-sindhu p. 190"),
+        "neither_later": ("At midnight on neither day: the second", "Nirnaya-sindhu p. 190"),
+        "more": ("Partly on both days, unequally: the day with more of it", "Nirnaya-sindhu p. 190"),
+    },
+    "jayanti": {
+        "first": ("The Ashtami and Rohini together at midnight on the first day only: the first, even when joined with Saptami (Padma)", "Nirnaya-sindhu p. 190"),
+        "second": ("Together at midnight on the second day only: the second", "Nirnaya-sindhu p. 190"),
+        "both_later": ("Together at midnight on both days: the second (Brahma-vaivarta)", "Nirnaya-sindhu pp. 190-191"),
+        "split_later": ("The Ashtami at the first midnight, Rohini at the second: the second, for the Jayanti joining (Madhava); Hemadri takes the first", "Nirnaya-sindhu p. 191"),
+    },
+    "sharad-navaratri": {
+        "pratipada_at_sunrise": ("The Pratipada current at sunrise, even for two muhurtas; never the one joined with Amavasya", "Nirnaya-sindhu pp. 240-241"),
+        "vrddhi_first": ("The Pratipada at two sunrises: the first (our reading); the second, joined with Dvitiya, is praised (Devi Purana, Rudrayamala)", "Nirnaya-sindhu p. 241"),
+        "no_sunrise": ("The Pratipada touches no sunrise: its only day, though joined with Amavasya (the texts read do not cover this case)", None),
+    },
+    "vijayadashami": {
+        "aparahna": ("The Dashami in the afternoon of one day only: that day", "Nirnaya-sindhu p. 284"),
+        "aparahna_both_earlier": ("In the afternoon of both days, covering or touching it: the earlier", "Nirnaya-sindhu p. 284"),
+        "shravana_later": ("In the afternoon of both days, with Shravana in the later day's afternoon: the later", "Nirnaya-sindhu pp. 283-284"),
+        "pradosha_both_later": ("Pradosha on both days, the afternoon only on the later: the later", "Nirnaya-sindhu p. 284"),
+        "pradosha": ("No afternoon on either day: the day with pradosha, the secondary time", "Nirnaya-sindhu p. 284"),
+        "neither_later": ("Neither window on either day: the later day (our fallback)", None),
+    },
+    "holika-dahana": {
+        "pradosha": ("The Purnima current at pradosha, after Bhadra (Narada)", "Nirnaya-sindhu p. 342"),
+        "pradosha_both_later": ("Pradosha on both days: the later, since Bhadra falls on the first", "Nirnaya-sindhu p. 342"),
+        "after_bhadra_night": ("Bhadra fills the pradosha: lit at night when Bhadra ends", "Nirnaya-sindhu p. 343"),
+        "shrinking_later": ("The Purnima reaches no Bhadra-free night before it ends: the next day's pradosha, in Pratipada (Bhavishya via Nirnayamrta)", "Nirnaya-sindhu p. 343"),
+    },
+}  # fmt: skip
+FESTIVAL_NOTES = {
+    "dipavali": "Lakshmi is worshipped at pradosha on this day (Bhavishya, NS p. 299). Divodasiya prefers an Amavasya covering both pradosha and midnight (NS p. 300); nishithaCovered says whether it does. No fixed-lagna (Vrishabha) muhurat is sourced.",
+    "mahashivaratri": "The dark Chaturdashi ending amanta Magha (purnimanta Phalguna). Some texts take pradosha, others midnight (NS p. 334). A Chaturdashi joined with Amavasya is avoided (Skanda, p. 337).",
+    "masik-shivaratri": "Every dark Chaturdashi, by the same tests (NS p. 340). Hemadri keeps the name for the Magha one only and takes the day with more of the night, the earlier when equal.",
+    "ganesha-chaturthi": "Worship at midday (pujaWindow, the 3rd fifth of the daytime, NS p. 28). Do not look at the Moon while the Chaturthi runs (moonAvoid; Markandeya in NS p. 198); a Moon that rose in Chaturthi may be seen once Panchami begins.",
+    "raksha-bandhan": "The Shravana Purnima. The raksha is tied in the afternoon (the last third of the daytime, our reading) of the earlier day, never in Bhadra and never on the Purnima joined with Pratipada (NS p. 180). bhadra is the Vishti karana, the Purnima's first half. An eclipse day free of Bhadra is still kept.",
+    "janmashtami": "The dark Ashtami ending amanta Shravana (purnimanta Bhadrapada). Midnight decides (NS p. 189). Jayanti is the Ashtami joined with Rohini; NS holds both vratas due, though people keep only Janmashtami (p. 187). udayaDate is the sunrise view (the Ashtami at the later sunrise), which Vaishnava calendars follow; NS sets it aside as baseless (p. 191).",
+    "sharad-navaratri": "Kalasha-sthapana on Ashvina shukla Pratipada, in the morning (Devi Purana via Tithi-tattva, NS p. 241). sthapanaWindow is the first fifth of the daytime (our reading of morning). twoMuhurtas says whether the Pratipada lasts two muhurtas after that sunrise. NS also quotes a line against the first sixteen nadis (p. 240) without their measure; not computed.",
+    "vijayadashami": "Ashvina shukla Dashami. pujaWindow is the afternoon (the last third of the daytime, our reading) while the Dashami runs. Aparajita puja is done in the afternoon facing north-east (Skanda via Hemadri, p. 283). The Vijaya moment is just after twilight as the first stars appear (Narada, p. 284); not computed.",
+    "holika-dahana": "The Phalguna Purnima, lit at nightfall (Narada, NS p. 342); never in Bhadra (p. 343), so dahanWindow is free of it. Not in an adhika month (p. 344). Bhadra's face is five nadis and its neck one (Ratnamala, p. 344); the whole of Bhadra is left out here.",
 }  # fmt: skip
 SANKASHTI_NOTE = (
     "Krishna paksha, by common practice; the texts read do not state the fortnight. Moonrise "
@@ -499,6 +568,11 @@ def _english() -> dict:
         },
         "shraddhaNote": SHRADDHA_NOTE,
         "sankashtiNote": SANKASHTI_NOTE,
+        "festivalRules": {
+            group: {k: {"name": n, "source": src} for k, (n, src) in rules.items()}
+            for group, rules in FESTIVAL_RULES.items()
+        },
+        "festivalNotes": FESTIVAL_NOTES,
         "purnimaEarlierDateNote": PURNIMA_EARLIER_NOTE,
         "amavasyaNames": {
             k: {"name": n, "note": note, "source": src}
