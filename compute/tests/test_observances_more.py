@@ -77,3 +77,24 @@ def test_pradosha_2026_at_delhi_matches_the_cited_rules():
         "2026-03-01",
         "more_pradosha",
     )
+
+
+def test_sankashti_on_the_chaturthi_current_at_moonrise():
+    status, out = call("GET", "/v1/observances/sankashti", DELHI)
+    assert status == 200, out
+    rows = out["occurrences"]
+    assert 12 <= len(rows) <= 14
+    for r in rows:
+        assert r["rule"] in OBSERVANCE_RULES["sankashti"]
+        chosen = next(d for d in r["days"] if d["date"] == r["date"])
+        assert r["angaraki"] == (r["vara"] == "tuesday") == (chosen["vara"] == "tuesday")
+        if r["rule"] == "moonrise":
+            assert chosen["current"] and sum(d["current"] for d in r["days"]) == 1
+
+
+def test_named_amavasyas():
+    status, out = call("GET", "/v1/observances/amavasya", DELHI)
+    by_date = {r["vrata"]["date"]: r for r in out["occurrences"]}
+    assert "mahalaya" in by_date["2026-10-10"]["names"]
+    for r in out["occurrences"]:
+        assert ("somavati" in r["names"]) == (r["vrata"]["vara"] == "monday")

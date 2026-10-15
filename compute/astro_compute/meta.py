@@ -149,6 +149,29 @@ OBSERVANCE_RULES = {
         "more_pradosha": ("Partly on both days, unequally: the day with more of it (the other opinion recorded there)", "Nirnaya-sindhu p. 72, footnote"),
     },
 }  # fmt: skip
+OBSERVANCE_RULES["sankashti"] = {
+    "moonrise": ("The krishna Chaturthi current at moonrise", "Nirnaya-sindhu p. 47; Viramitrodaya, Samaya-prakasha, p. 38"),
+    "both_earlier": ("Current at both moonrises: the earlier day, joined with Trtiya (some, in NS); others take the later day", "Nirnaya-sindhu p. 47"),
+    "neither_later": ("Current at neither moonrise: the later day", "Nirnaya-sindhu p. 47"),
+}  # fmt: skip
+SANKASHTI_NOTE = (
+    "Krishna paksha, by common practice; the texts read do not state the fortnight. Moonrise "
+    "is the visible rise, the Moon's upper limb with refraction (our convention; the texts "
+    "do not say). On a Tuesday it is popularly Angaraki: a Chaturthi on a Tuesday 'gives "
+    "fruit like the equinox' (Satatapa, Nirnaya-sindhu p. 73); the name was not found in the "
+    "pages read."
+)
+PURNIMA_EARLIER_NOTE = (
+    "Some almanacs list a Purnima vrat on this earlier day; popular practice, source pending."
+)
+# observances.md s6
+AMAVASYA_NAMES = {
+    "mahalaya": ("Mahalaya Amavasya", "The last day of the Mahalaya fortnight, the dark fortnight after the Bhadrapada full moon", "Nirnaya-sindhu p. 215"),
+    "magha": ("Magha Amavasya (popularly Mauni Amavasya)", "The text does not call it Mauni; silence belongs to the Magha bath (p. 324)", "Nirnaya-sindhu p. 341"),
+    "somavati": ("Somavati Amavasya (Monday)", "A Monday Amavasya 'gives fruit like the equinox'; the commentary says 'somavari amavas'", "Nirnaya-sindhu p. 73 (Satatapa, Vyasa)"),
+    "bhauma": ("Bhauma Amavasya (Tuesday)", "On a Tuesday Amavasya, bathing in the Ganga gives the fruit of a thousand cows", "Nirnaya-sindhu p. 73 (Satatapa)"),
+    "shani": ("Shani Amavasya (Saturday)", "Popular observance; no classical source found", None),
+}  # fmt: skip
 SHRADDHA_NOTE = (
     "Hemadri makes the kutapa primary for households without sacred fires; Harita's rule by "
     "Vedic branch decides equal coverage (Nirnaya-sindhu pp. 82, 86-87). Kshaya and vrddhi "
@@ -474,6 +497,12 @@ def _english() -> dict:
             for group, rules in OBSERVANCE_RULES.items()
         },
         "shraddhaNote": SHRADDHA_NOTE,
+        "sankashtiNote": SANKASHTI_NOTE,
+        "purnimaEarlierDateNote": PURNIMA_EARLIER_NOTE,
+        "amavasyaNames": {
+            k: {"name": n, "note": note, "source": src}
+            for k, (n, note, src) in AMAVASYA_NAMES.items()
+        },
         # keyed by the rows' nameId: "<purnimanta month>_<paksha>", or "adhika_<paksha>"
         "ekadashiNames": {
             nid: {

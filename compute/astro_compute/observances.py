@@ -36,7 +36,7 @@ import datetime as dt
 
 from jyotisha import muhurta as Mu
 from jyotisha import panchanga as P
-from jyotisha.ephemeris import _rise_set, sunrise
+from jyotisha.ephemeris import _rise_set, moon_rise_set, sunrise
 
 from .errors import unsupported_location
 from .fmt import provenance
@@ -228,7 +228,15 @@ def ekadashi(q: EkadashiQuery) -> dict:
 
 # --- Purnima, Amavasya, Pradosha (docs/sources/observances.md s5, pradosha.md) -------
 
-NS_73 = {**SOURCE, "verse": "Purnima-nirnaya; Darsha-shraddha-kala", "page": "72-73, 81-82"}
+NS_73 = {**SOURCE, "verse": "Purnima-nirnaya; Darsha-shraddha-kala", "page": "72-73, 81-87"}
+# observances.md s6: names a given Amavasya can carry (meta.amavasyaNames).
+MAHALAYA_AMANTA = "bhadrapada"  # the dark fortnight after the Bhadrapada full moon (NS p. 215)
+MAGHA_PURNIMANTA = "magha"  # pending research: which month system NS p. 341 uses
+WEEKDAY_NAMES = {"monday": "somavati", "tuesday": "bhauma", "saturday": "shani"}
+
+
+def _vara(sunrise_jd: float, q) -> str:
+    return VARA_ID[P.VARA_LORDS[P.vara_index(sunrise_jd, q.lon, q.tz)]]
 
 
 def _lunar(jd: float, num: int, q: EkadashiQuery) -> dict:
@@ -262,17 +270,28 @@ def _full_or_new(start: float, end: float, _next_end: float, q: EkadashiQuery) -
     else:
         vrata, rule, earlier = 0, "only_day", None
     last = vrata
+    lunar = _lunar(s[1], num, q)
+    vara = _vara(s[vrata], q)
     row = {
         "paksha": "shukla" if num <= 15 else "krishna",
-        "lunarMonth": _lunar(s[1], num, q),
+        "lunarMonth": lunar,
         "tithi": {"start": iso(start, zone), "end": iso(end, zone)},
         "vrata": {
             "date": day[vrata],
+            "vara": vara,
             "rule": rule,
             "earlierDate": day[earlier] if earlier is not None and earlier != vrata else None,
         },
     }
     if num == 30:
+        names = []
+        if lunar["amanta"] == MAHALAYA_AMANTA and not lunar["adhika"]:
+            names.append("mahalaya")
+        if lunar["purnimanta"] == MAGHA_PURNIMANTA and not lunar["adhika"]:
+            names.append("magha")
+        if vara in WEEKDAY_NAMES:
+            names.append(WEEKDAY_NAMES[vara])
+        row["names"] = names
         last = max(last, _shraddha(row, start, end, s, len(held), q))
     row["days"] = [
         {
@@ -401,6 +420,56 @@ def _pradosha(start: float, end: float, _next_end: float, q: EkadashiQuery) -> d
         "rule": rule,
         "variantDate": day[variant] if variant is not None else None,
     }
+
+
+def _sankashti(start: float, end: float, _next_end: float, q: EkadashiQuery) -> dict:
+    """NS p. 47, VM p. 38: the Chaturthi current at moonrise. At both moonrises:
+    the earlier day (joined with Trtiya), others the later; at neither: the
+    later day. Moonrise is the visible rise, upper limb with refraction (our
+    convention: the texts do not say)."""
+    zone = q.tz
+    s = _sunrises(start, q.lat, q.lon, 3)
+    day = [aware(t, zone).date().isoformat() for t in s]
+    rows, current = [], []
+    for i in (0, 1):
+        rise, _ = moon_rise_set(s[i], s[i + 1], q.lat, q.lon, upper_limb=True)
+        current.append(rise is not None and start <= rise < end)
+        rows.append(
+            {
+                "date": day[i],
+                "vara": _vara(s[i], q),
+                "moonrise": iso(rise, zone) if rise is not None else None,
+                "current": current[-1],
+            }
+        )
+    variant = None
+    if current == [True, False]:
+        chosen, rule = 0, "moonrise"
+    elif current == [False, True]:
+        chosen, rule = 1, "moonrise"
+    elif all(current):
+        chosen, rule, variant = 0, "both_earlier", 1
+    else:
+        chosen, rule = 1, "neither_later"
+    num = Mu.tithi_at(start + 1e-6, q.ayanamsa)
+    return {
+        "paksha": "krishna",
+        "lunarMonth": _lunar(s[1], num, q),
+        "tithi": {"start": iso(start, zone), "end": iso(end, zone)},
+        "days": rows,
+        "date": day[chosen],
+        "vara": rows[chosen]["vara"],
+        "moonrise": rows[chosen]["moonrise"],
+        "rule": rule,
+        "variantDate": day[variant] if variant is not None else None,
+        "angaraki": rows[chosen]["vara"] == "tuesday",
+    }
+
+
+def sankashti(q: EkadashiQuery) -> dict:
+    rows = _collect(q, {19}, _sankashti, lambda r: (r["date"],))
+    source = {**SOURCE, "verse": "Sankashta-chaturthi", "page": "47"}
+    return {"year": q.year, "occurrences": rows, "source": source, "engine": provenance(q.ayanamsa)}
 
 
 def purnima(q: EkadashiQuery) -> dict:

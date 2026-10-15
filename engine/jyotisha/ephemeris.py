@@ -345,19 +345,19 @@ def next_sunrise(jd_ut: float, lat: float, lon_east: float) -> float:
 
 
 def moon_rise_set(
-    start_jd: float, end_jd: float, lat: float, lon_east: float
+    start_jd: float, end_jd: float, lat: float, lon_east: float, upper_limb: bool = False
 ) -> tuple[float | None, float | None]:
     """First moonrise and first moonset inside [start_jd, end_jd), or None.
 
-    Disc centre with refraction, the same convention as the sunrise above.
-    The Moon skips one rising (and one setting) roughly every month, so a
-    civil day without either is normal, not an error.
+    Disc centre with refraction, the same convention as the sunrise above;
+    ``upper_limb`` gives the visible rise and set (the upper limb, with
+    refraction). The Moon skips one rising (and one setting) roughly every
+    month, so a civil day without either is normal, not an error.
     """
+    limb = 0 if upper_limb else swe.BIT_DISC_CENTER
     out = []
     for flag in (swe.CALC_RISE, swe.CALC_SET):
-        res, tret = swe.rise_trans(
-            start_jd, swe.MOON, flag | swe.BIT_DISC_CENTER, (lon_east, lat, 0.0)
-        )
+        res, tret = swe.rise_trans(start_jd, swe.MOON, flag | limb, (lon_east, lat, 0.0))
         t = tret[0]
         out.append(t if res == 0 and start_jd <= t < end_jd else None)
     return out[0], out[1]
