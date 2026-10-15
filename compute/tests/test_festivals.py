@@ -220,3 +220,17 @@ def test_magha_festivals_2026():
     assert b["tarpanaWindow"]["start"][:10] == b["date"]
     rows = ((v, "vasanta-panchami"), (r, "ratha-saptami"), (b, "bhishma-ashtami"))
     assert all(k["rule"] in FESTIVAL_RULES[n] for k, n in rows)
+
+
+def test_decision_21_kinds_2026():
+    (k,) = _rows("kalashtami")
+    assert k["rule"] in FESTIVAL_RULES["kalashtami"] and k["popularName"] == "Kaal Bhairav Jayanti"
+    assert k["lunarMonth"]["amanta"] == "kartika" and k["pujaWindow"]["start"][:10] == k["date"]
+    (d,) = _rows("dattatreya-jayanti")
+    assert d["rule"] in FESTIVAL_RULES["dattatreya-jayanti"]
+    assert d["lunarMonth"]["amanta"] == "margashirsha"
+    (g,) = _rows("ganesha-jayanti")
+    assert g["rule"] in FESTIVAL_RULES["ganesha-jayanti"] and g["lunarMonth"]["amanta"] == "magha"
+    (h,) = _rows("holashtak")
+    assert h["date"] < h["endDate"] and h["period"]["start"] < h["period"]["end"]
+    assert h["rule"] == "holashtak_period" and "pushkar" in h["regions"]

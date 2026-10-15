@@ -141,3 +141,16 @@ def test_parana_follows_dharmasindhu():
     # Without parana=true the rows are as before.
     status, out = call("GET", "/v1/observances/ekadashi", DELHI)
     assert "parana" not in out["ekadashis"][0]
+
+
+def test_popular_names_on_sankashti_and_ekadashi():
+    status, out = call("GET", "/v1/observances/sankashti", DELHI)
+    sakat = [r for r in out["occurrences"] if r.get("popularName") == "Sakat Chauth"]
+    assert len(sakat) == 1 and sakat[0]["lunarMonth"]["purnimanta"] == "magha"
+    assert sakat[0]["riteSource"]["page"] == "ff. 82-86"
+    status, out = call("GET", "/v1/observances/ekadashi", DELHI)
+    moksha = next(r for r in out["ekadashis"] if r["nameId"] == "margashirsha_shukla")
+    # 2026: Mokshada falls with the Sun in Dhanus, so it is Vaikuntha Ekadashi too.
+    assert moksha["alsoKnownAs"] == ["Vaikuntha Ekadashi", "Gita Jayanti"]
+    vaikuntha = [r for r in out["ekadashis"] if "Vaikuntha Ekadashi" in r["alsoKnownAs"]]
+    assert all(r["paksha"] == "shukla" for r in vaikuntha)

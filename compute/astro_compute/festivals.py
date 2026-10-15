@@ -972,6 +972,106 @@ def _bhishma(start: float, end: float, _next: float, q: EkadashiQuery) -> dict |
     }
 
 
+# --- Decision 21 (festivals.md s21, 15 Oct 2026) -----------------------------------
+
+
+def _kalashtami(start: float, end: float, _next: float, q: EkadashiQuery) -> dict | None:
+    """NS p. 313: the fast on the Ashtami covering midday (the 3rd fifth); covering it on
+    both days, wholly or in part, the earlier. Covering neither, the day whose sunrise
+    it holds (our reading). variantDate is the Kaustubha's pradosha rule (both days:
+    the later), which DS p. 84 reports."""
+    base = _base(start, end, 23, q)
+    if not _in_month(base, "kartika"):
+        return None
+    s, days = _days(start, end, q, ("madhyahna", "pradosha"))
+    mid = [d["madhyahna"]["covered"] > 0 for d in days]
+    if mid[0] != mid[1]:
+        chosen, rule = (0 if mid[0] else 1), "midday"
+    elif mid[0]:
+        chosen, rule = 0, "midday_both_earlier"
+    else:
+        chosen, rule = 1, "midday_neither_sunrise_day"
+    pr = [d["pradosha"]["covered"] > 0 for d in days]
+    kaustubha = (0 if pr[0] else 1) if pr[0] != pr[1] else 1
+    w = days[chosen]["_w"]["madhyahna"]
+    return {
+        **base,
+        "days": _strip(days),
+        "date": days[chosen]["date"],
+        "vara": days[chosen]["vara"],
+        "rule": rule,
+        "variantDate": days[kaustubha]["date"] if kaustubha != chosen else None,
+        "popularName": "Kaal Bhairav Jayanti",
+        "pujaWindow": _span(_clip(start, end, w) or w, q),
+    }
+
+
+def _dattatreya(start: float, end: float, _next: float, q: EkadashiQuery) -> dict | None:
+    """NS p. 315, DS p. 84: the Margashirsha Purnima covering pradosha; at both pradoshas
+    or neither, the later day (our reading, by the general Purnima rule, NS p. 73)."""
+    base = _base(start, end, 15, q)
+    if not _in_month(base, "margashirsha"):
+        return None
+    _, days = _days(start, end, q, ("pradosha",))
+    cov = [d["pradosha"]["covered"] > 0 for d in days]
+    if cov[0] != cov[1]:
+        chosen, rule = (0 if cov[0] else 1), "pradosha"
+    else:
+        chosen, rule = 1, "pradosha_both_later" if cov[0] else "pradosha_neither_later"
+    w = days[chosen]["_w"]["pradosha"]
+    return {
+        **base,
+        "days": _strip(days),
+        "date": days[chosen]["date"],
+        "vara": days[chosen]["vara"],
+        "rule": rule,
+        "pujaWindow": _span(_clip(start, end, w) or w, q),
+    }
+
+
+def _ganesha_jayanti(start: float, end: float, _next: float, q: EkadashiQuery) -> dict | None:
+    """DS p. 89: the Vinayaka-vrata of Magha shukla Caturthi follows the Bhadrapada rule
+    (s4: the next day if the Caturthi reaches its midday, else the Trtiya-joined
+    earlier day). The Tila or Varada night vow takes pradosha (a note)."""
+    base = _base(start, end, 4, q)
+    if not _in_month(base, "magha"):
+        return None
+    _, days = _days(start, end, q, ("madhyahna",))
+    if days[1]["madhyahna"]["covered"] > 0:
+        chosen, rule = 1, "next_day_midday"
+    else:
+        chosen, rule = 0, "trtiya_joined_earlier"
+    return {
+        **base,
+        "days": _strip(days),
+        "date": days[chosen]["date"],
+        "vara": days[chosen]["vara"],
+        "rule": rule,
+        "popularName": "Ganesh Jayanti",
+        "pujaWindow": {k: days[chosen]["madhyahna"][k] for k in ("start", "end")},
+    }
+
+
+def _holashtak(start: float, end: float, _next: float, q: EkadashiQuery) -> dict | None:
+    """MC 1.40 with the Shighrabodha in its commentary: the eight days from the Phalguna
+    shukla Ashtami to the Purnima, avoided for marriage and auspicious acts only on the
+    Beas, Ravi and Sutlej and at Pushkar; elsewhere auspicious."""
+    base = _base(start, end, 8, q)
+    if not _in_month(base, "phalguna"):
+        return None
+    t = start
+    for _ in range(8):  # the Ashtami to the Purnima
+        t = _edge(t, q, True)
+    return {
+        **base,
+        "date": _date(start, q),
+        "endDate": _date(t, q),
+        "rule": "holashtak_period",
+        "period": _tithi(start, t, q),
+        "regions": ["beas", "ravi", "sutlej", "pushkar"],
+    }
+
+
 def _year(q: EkadashiQuery, num: int, build) -> list[dict]:
     rows = _collect(
         q, {num}, lambda a, b, c, qq: build(a, b, c, qq) or {"date": None}, lambda r: (r["date"],)
@@ -1008,6 +1108,10 @@ FESTIVALS = {
     "vasanta-panchami": (5, _vasanta, "p. 329", "pp. 9, 89"),
     "ratha-saptami": (7, _ratha, "pp. 329-332", "p. 89"),
     "bhishma-ashtami": (8, _bhishma, "pp. 332-333, 718", "pp. 89-90"),
+    "kalashtami": (23, _kalashtami, "pp. 312-313", "p. 84"),
+    "dattatreya-jayanti": (15, _dattatreya, "p. 315", "p. 84"),
+    "ganesha-jayanti": (4, _ganesha_jayanti, "p. 329", "p. 89"),
+    "holashtak": (8, _holashtak, None, None),
 }
 RITE_SOURCES = {
     "karva-chauth": VRATARAJA,
@@ -1016,10 +1120,18 @@ RITE_SOURCES = {
 }
 
 
+MC_140 = {
+    "text": "Muhurta-cintamani",
+    "verse": "1.40, with the Shighrabodha in the commentary",
+    "edition": "with Govinda's Piyushadhara, 1945",
+    "page": "33-34",
+}
+
+
 def festival(kind: str, q: EkadashiQuery) -> dict:
     num, build, pages, ds_pages = FESTIVALS[kind]
     rows = _year(q, num, build)
-    source = {**SOURCE, "verse": kind, "page": pages}
+    source = MC_140 if kind == "holashtak" else {**SOURCE, "verse": kind, "page": pages}
     return {
         "year": q.year,
         "festival": kind,

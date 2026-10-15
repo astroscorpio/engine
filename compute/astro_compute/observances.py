@@ -36,7 +36,7 @@ import datetime as dt
 
 from jyotisha import muhurta as Mu
 from jyotisha import panchanga as P
-from jyotisha.ephemeris import _rise_set, moon_rise_set, sunrise
+from jyotisha.ephemeris import _rise_set, luminaries, moon_rise_set, sunrise
 
 from .errors import unsupported_location
 from .fmt import provenance
@@ -97,6 +97,12 @@ def name_id(purnimanta: str, paksha: str, adhika: bool) -> str:
 
 
 EKADASHI = {11: "shukla", 26: "krishna"}
+VR_SAKAT = {
+    "text": "Vratraja",
+    "author": "Vishvanatha",
+    "edition": "Bombay pothi, Khemraj Shrikrishnadas (Internet Archive dates the copy to 1897)",
+    "page": "ff. 82-86",
+}
 SOURCE = {
     "text": "Nirnaya-sindhu",
     "verse": "Ekadashi-nirnaya, pariccheda 1",
@@ -173,6 +179,7 @@ def _one(start: float, end: float, dv_end: float, q: EkadashiQuery) -> dict:
         "otherNames": list(others),
         "alsoPrinted": {"name": printed, "source": NS_P51} if printed else None,
         "popularName": popular,
+        "alsoKnownAs": _also_known_as(nid, EKADASHI[num], s[smarta], q),
         "nameSource": {**EM, "verse": None, "page": folio},
         "nameNote": NAME_NOTES.get(nid),
         "tithi": {"start": iso(start, zone), "end": iso(end, zone)},
@@ -207,6 +214,18 @@ def _one(start: float, end: float, dv_end: float, q: EkadashiQuery) -> dict:
         if q.parana
         else {}
     )
+
+
+def _also_known_as(nid: str, paksha: str, fast_sunrise: float, q: EkadashiQuery) -> list[str]:
+    """Popular names the texts read do not use (festivals.md s21.4-21.5; decision 21):
+    Gita Jayanti on the Mokshada Ekadashi, and Vaikuntha Ekadashi on the shukla
+    Ekadashi kept with the Sun in Dhanus (the southern usage)."""
+    out = []
+    if paksha == "shukla" and luminaries(fast_sunrise, q.ayanamsa)[0].sign == 8:
+        out.append("Vaikuntha Ekadashi")
+    if nid == "margashirsha_shukla":
+        out.append("Gita Jayanti")
+    return out
 
 
 def _parana(sr: float, dv_start: float, dv_end: float, q: EkadashiQuery) -> dict:
@@ -509,6 +528,12 @@ def _sankashti(start: float, end: float, _next_end: float, q: EkadashiQuery) -> 
         "rule": rule,
         "variantDate": day[variant] if variant is not None else None,
         "angaraki": rows[chosen]["vara"] == "tuesday",
+        # VR ff. 82-86: the Sankashta-hara Ganapati vow of Magha krishna (purnimanta).
+        **(
+            {"popularName": "Sakat Chauth", "riteSource": VR_SAKAT}
+            if _lunar(s[1], num, q)["purnimanta"] == "magha"
+            else {}
+        ),
     }
 
 

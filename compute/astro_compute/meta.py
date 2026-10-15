@@ -149,6 +149,7 @@ VIVAH_NOTES = {
     "jupiterLeo": "Dharmasindhu p. 5 relaxes Jupiter in Leo by region: barred everywhere only in Magha or the Leo portion; after it, no fault south of the Godavari or north of the Ganga, but between the two rivers marriage stays barred for the whole stay. Not applied.",
     "solarMonths": "The solar-month school also allows Kartika with the Sun in Scorpio, Pausha with the Sun in Capricorn and Caitra with the Sun in Aries; MC's commentator sets it aside except for a marriage that cannot wait, and Dharmasindhu allows it by local custom. Not applied.",
     "moreStars": "Haradatta adds Citra, Shravana, Dhanishtha and Ashvini (Dharmasindhu p. 181). Not applied.",
+    "kharmas": "Kharmas, the popular name (not in the texts read), is the Sun in Dhanus or Mina, between the Dhanus and Makara sankrantis and between the Mina and Mesha sankrantis. Garga's bar (MC 6.13 commentary, p. 235) also includes the Sun in Leo.",
     "phase2": "The lagna (MC 6.84-85), jamitra, kartari, the navamsha rules, the other doshas of MC 6 and the couple's own charts are not applied yet.",
 }  # fmt: skip
 # mundan.md (the lead's decisions of 15 Oct 2026): rule ids for /muhurat/mundan.
@@ -525,6 +526,23 @@ FESTIVAL_RULES = {
         "more": ("Covered unequally on both days: the day with more", "Nirnaya-sindhu p. 718"),
         "neither_earlier": ("Covered on neither day: the earlier", "Nirnaya-sindhu p. 718"),
     },
+    "kalashtami": {
+        "midday": ("Kalashtami: the Ashtami covering midday (the 3rd fifth) on one day: that day", "Nirnaya-sindhu p. 313"),
+        "midday_both_earlier": ("Covering midday on both days, wholly or in part: the earlier", "Nirnaya-sindhu p. 313"),
+        "midday_neither_sunrise_day": ("Covering neither midday: the day whose sunrise it holds (our reading)", None),
+    },
+    "dattatreya-jayanti": {
+        "pradosha": ("The Margashirsha Purnima covering pradosha on one day: that day", "Nirnaya-sindhu p. 315; Dharmasindhu p. 84"),
+        "pradosha_both_later": ("Covering pradosha on both days: the later (our reading, by the Purnima rule of NS p. 73)", "Nirnaya-sindhu pp. 73, 315"),
+        "pradosha_neither_later": ("Covering neither pradosha: the later (our reading)", "Nirnaya-sindhu pp. 73, 315"),
+    },
+    "ganesha-jayanti": {
+        "next_day_midday": ("The Vinayaka-vrata: the Caturthi reaches the next day's midday: the next day, as for Bhadrapada", "Dharmasindhu p. 89; Nirnaya-sindhu pp. 47, 198"),
+        "trtiya_joined_earlier": ("Otherwise the earlier day, joined with the Trtiya", "Dharmasindhu p. 89"),
+    },
+    "holashtak": {
+        "holashtak_period": ("The eight days from the Phalguna shukla Ashtami to the Purnima, avoided for marriage and auspicious acts only on the Beas, Ravi and Sutlej and at Pushkar", "Muhurta Chintamani 1.40 and commentary (the Shighrabodha), pp. 33-34"),
+    },
     "durgashtami": {
         "sunrise_navami_joined": ("The Ashtami current at sunrise, even for a ghatika, joined to the Navami; never one touched by the Saptami", "Dharmasindhu p. 69; Nirnaya-sindhu pp. 262-263"),
         "under_one_ghatika_earlier": ("The Ashtami lasts under a ghatika after that sunrise: the earlier day", "Dharmasindhu p. 69; Nirnaya-sindhu p. 264"),
@@ -583,6 +601,10 @@ FESTIVAL_NOTES = {
     "vasanta-panchami": "The spring festival begins on the Magha shukla Panchami, and Rati and Kama are worshipped (Dharmasindhu p. 89). The Vratraja (f. 103, from Hemadri) has an oil bath, ornaments, and Hari worshipped with gulal, scents and food, then brahmanas fed; its own day rule takes the Panchami covering midday, the earlier day when it covers both or neither. Nirnaya-sindhu p. 329 names the day Shri-panchami, with Shri worshipped with kunda flowers; Madhava takes the earlier day, Hemadri the later. forenoon is sunrise to midday, our reading of DS's forenoon. Sarasvati is worshipped in the forenoon of the Caturthi-joined Panchami (the Samvatsara-pradipa in Raghunandana's Tithi-tattva, p. 24), which is DS's earlier day; NS, DS and the Vratraja do not name her for this day.",
     "ratha-saptami": "The bath at arunodaya (the 96 minutes before sunrise) on this Saptami equals one at a solar eclipse (Vishnu in the Candrika, NS p. 330). It is taken in still water with a lamp on the head, seven arka and seven badari leaves, and the mantra 'hara makari saptami'; then the arghya to the Sun, and gifts of a golden Sun or sesame cakes (NS pp. 330-332; DS p. 89). A single meal on the Shashthi. It is also a Manvadi, whose shraddha takes the forenoon (NS p. 332).",
     "bhishma-ashtami": "Tarpana with sesame water to Bhishma is obligatory and open to every varna; a shraddha for offspring is optional (NS pp. 332-333; DS pp. 89-90). It is done with the thread reversed, then the arghya. Nirnaya-sindhu lets a man whose father is living do it (the Padma); Dharmasindhu notes the Kaustubha says no and most say yes. tarpanaWindow is midday, the 8th and 9th day-muhurtas, as for every ekoddishta (NS p. 718).",
+    "kalashtami": "Kalashtami, the dark Ashtami ending amanta Kartika (Margashirsha krishna purnimanta), popularly Kaal Bhairav Jayanti; the name Jayanti is not in the texts, though NS p. 313 tells Bhairava's birth from the Shiva-rahasya. A fast, arghya, a night vigil and worship in the four night watches; three arghyas after worshipping Kalabhairava (NS pp. 312-313; DS p. 84). Nirnaya-sindhu takes the Ashtami covering midday, since Bhairava was born at midday, and rejects the pradosha view; for the night vigil alone it takes the Ashtami covering the night. variantDate is the Kaustubha's pradosha rule (both days: the later), which DS p. 84 reports; DS decides by pradosha when the earlier day has only pradosha and the later only midday.",
+    "dattatreya-jayanti": "Dattatreya's birth on the Margashirsha Purnima (the Skanda, Sahyadri-khanda, NS p. 315; DS p. 84), taken covering pradosha. pujaWindow is that pradosha while the Purnima runs.",
+    "ganesha-jayanti": "In the texts this is the Varada, Tila or Vinayaka Caturthi of Magha shukla; Ganesh Jayanti, Ganesha's birth, is the popular name and is not stated in them. The Vinayaka-vrata follows the Bhadrapada midday rule (DS p. 89); the night-meal vow to Dhundhiraja with sesame laddus (the Tila or Varada Caturthi) takes the Caturthi covering pradosha (DS p. 89; NS p. 329; Vratraja f. 82). pujaWindow is the chosen day's midday.",
+    "holashtak": "Muhurta Chintamani 1.40 avoids the eight days before Holika, the Phalguna shukla Ashtami to the Purnima (the Shighrabodha in the commentary), for marriage and other auspicious acts only on the banks of the Beas, Ravi and Sutlej and at Pushkar; the same work says that elsewhere the days are auspicious. The muhurta finder does not apply it.",
     "navaratriDays": "Navaratra names a worship set in nine tithis, the Pratipada to the Navami (DS p. 65). Each day's worship goes with the tithi at its sunrise (our reading of DS p. 66); a tithi touching two sunrises is worshipped on both days and one touching none on the day it falls in, so the Navaratri runs eight, nine or ten days. Some keep only eight worships when a day is lost (DS p. 66). The first day is the kalasha-sthapana day.",
     "durgashtami": "Mahashtami: the Ashtami at sunrise joined to the Navami, never one touched by the Saptami however slightly, even with Mula (NS p. 263, DS p. 69). Especially praised on a Tuesday (DS). Bhadra does not bar the worship (Devi-purana, NS p. 264). Those with sons do not fast on it (DS p. 69; NS p. 265).",
     "mahanavami": "The Navami joined to the Ashtami is taken for the worship and the fast when it covers three muhurtas before that day's sunset (NS pp. 272-273, DS p. 69), so Durgashtami and Mahanavami often fall on one day. The animal bali is on the Dashami-joined day (DS p. 69).",
@@ -592,7 +614,7 @@ FESTIVAL_NOTES = {
     "holiColours": "colours is the morning after the fire: Dharmasindhu p. 95 has the bath and the salutation of the Holika's ground or ash in the morning after the night's festival ('evam ratrau holikotsavam krtva pratah'; tying it to this morning is our reading), the rite behind the name Dhulivandana, popularly Dhulandi. Dharmasindhu puts the sprinkling of vermilion and scented powders on the dark Dvitiya and says that people in its day kept the festival up to the Panchami; no text cited here puts the colours on this morning.",
     "vasantotsava": "The spring festival on the dark Pratipada after the Holika Purnima (NS p. 345, DS p. 95): a bath, the salutation of the Holika fire's ground or ash, and mango blossoms eaten with sandal paste. DS puts the sprinkling of coloured powders on the next day, the dark Dvitiya, and says that people now keep it up to the Panchami. Neither text has colour play on the Pratipada. DS avoids the Holika day and the day after it for auspicious acts (p. 95).",
     "vijayadashami": "Ashvina shukla Dashami. pujaWindow is the afternoon (the 4th fifth of the daytime, our reading) while the Dashami runs. Aparajita puja is done in the afternoon facing north-east (Skanda via Hemadri, NS p. 283). The Vijaya moment is just after twilight as the first stars appear (Narada, p. 284); not computed.",
-    "holika-dahana": "The Phalguna Purnima, lit at night, never by day (Dharmasindhu p. 94). Bhadra's tail is the last 3 ghatikas of the tithi's 3rd prahara and its face the first 5 of the 4th (DS pp. 94-95, MC 1.44); the tail is auspicious, the face never used. Nirnaya-sindhu is stricter, lighting only after Bhadra ends (p. 343); its day is variantDate where it differs. Not in an adhika month (NS p. 344).",
+    "holika-dahana": "The Phalguna Purnima, lit at night, never by day (Dharmasindhu p. 94). Bhadra's tail is the last 3 ghatikas of the tithi's 3rd prahara and its face the first 5 of the 4th (DS pp. 94-95, MC 1.44); the tail is auspicious, the face never used. Nirnaya-sindhu is stricter, lighting only after Bhadra ends (p. 343); its day is variantDate where it differs. Not in an adhika month (NS p. 344). Ranga-panchami: Dharmasindhu p. 95 says that people now keep the colour festival up to the dark Panchami; the name and a day rule are not in the texts read (our reading: the Panchami current at sunrise).",
 }  # fmt: skip
 # panchang-yogas.md s1
 BHADRA_PARTS = {
