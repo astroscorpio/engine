@@ -175,6 +175,15 @@ def build(q: PanchangQuery) -> dict:
             if residence == "earth":
                 avoid.append((x, {"id": "vishti", "detail": "bhadra_earth", **win(x, y)}))
     avoid.sort(key=lambda r: r[0])
+    # MC 1.44: the face and tail of each Bhadra touching the day, from its tithi.
+    face_tail = []
+    for name, a, b in karanas:
+        mid = (a + b) / 2
+        tithi = next((t for t in tithis if t[1] <= mid < t[2]), None)
+        if name == "Vishti" and tithi and _clip(a, b, sr, nr):
+            parts = Mu.bhadra_face_tail(*tithi)
+            if parts:
+                face_tail.append(parts)
 
     chog = [
         {
@@ -271,6 +280,8 @@ def build(q: PanchangQuery) -> dict:
             "pradosha": win(d.pradosha.start, d.pradosha.end),
             "avoid": [row for _, row in avoid],
             "bhadra": bhadra,
+            "bhadraFace": [win(*ft[0]) for ft in face_tail if _clip(*ft[0], sr, nr)],
+            "bhadraTail": [win(*ft[1]) for ft in face_tail if _clip(*ft[1], sr, nr)],
         },
         "choghadiya": {"day": chog[:8], "night": chog[8:]},
         "horaSystem": q.hora,

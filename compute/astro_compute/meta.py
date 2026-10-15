@@ -287,6 +287,20 @@ FESTIVAL_NOTES = {
     "vijayadashami": "Ashvina shukla Dashami. pujaWindow is the afternoon (the 4th fifth of the daytime, our reading) while the Dashami runs. Aparajita puja is done in the afternoon facing north-east (Skanda via Hemadri, NS p. 283). The Vijaya moment is just after twilight as the first stars appear (Narada, p. 284); not computed.",
     "holika-dahana": "The Phalguna Purnima, lit at night, never by day (Dharmasindhu p. 94). Bhadra's tail is the last 3 ghatikas of the tithi's 3rd prahara and its face the first 5 of the 4th (DS pp. 94-95, MC 1.44); the tail is auspicious, the face never used. Nirnaya-sindhu is stricter, lighting only after Bhadra ends (p. 343); its day is variantDate where it differs. Not in an adhika month (NS p. 344).",
 }  # fmt: skip
+# panchang-yogas.md s1
+BHADRA_PARTS = {
+    "face": {
+        "name": "Bhadra's face",
+        "note": "The first 5 ghatis of one prahara (an eighth of the tithi), by tithi; bad.",
+        "source": "Muhurta Chintamani 1.44, pp. 35-36",
+    },
+    "tail": {
+        "name": "Bhadra's tail",
+        "note": "The last 3 ghatis of another prahara; auspicious.",
+        "source": "Muhurta Chintamani 1.44, pp. 35-36",
+    },
+    "dayNight": "MC 1.44 adds that a Bhadra in the second half of a tithi is auspicious by day, and one in the first half at night. The avoid list does not apply this yet.",
+}
 FESTIVAL_CAUTIONS = {
     "first_16_nadis": "The Pratipada's first sixteen nadis (6 h 24 min)",
     "chitra": "The Moon in Chitra",
@@ -632,6 +646,7 @@ def _english() -> dict:
             }
             for k, (n, d) in WINDOWS.items()
         },
+        "bhadraParts": BHADRA_PARTS,
         "bhadraResidences": {
             k: {"name": n, "description": d, "source": "Muhurta Chintamani 1.45, p. 38"}
             for k, (n, d) in BHADRA_RESIDENCES.items()

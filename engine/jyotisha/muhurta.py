@@ -327,6 +327,34 @@ def facing_options(tithi: int, moon_sign: int, prefer: tuple[str, ...] = ("N", "
     return sorted(ranked, key=lambda r: r["key"])
 
 
+# MC 1.44: for the Bhadra of tithi 4, 8, 11, 15 (bright) and 3, 7, 10, 14 (dark),
+# the prahara (an eighth of the tithi) whose first 5 ghatis are its face and the
+# one whose last 3 are its tail. DS pp. 94-95 keeps the 5 and 3 ghatis fixed.
+BHADRA_FACE_TAIL = {
+    4: (5, 8),
+    8: (2, 1),
+    11: (7, 6),
+    15: (4, 3),
+    18: (8, 7),
+    22: (3, 2),
+    25: (6, 5),
+    29: (1, 4),
+}
+
+
+def bhadra_face_tail(
+    tithi: int, start: float, end: float
+) -> tuple[tuple[float, float], tuple[float, float]] | None:
+    """Bhadra's face and tail inside the tithi that runs from start to end."""
+    if tithi not in BHADRA_FACE_TAIL:
+        return None
+    face, tail = BHADRA_FACE_TAIL[tithi]
+    prahara, ghati = (end - start) / 8, 24 / 1440
+    f0 = start + (face - 1) * prahara
+    t1 = start + tail * prahara
+    return (f0, f0 + 5 * ghati), (t1 - 3 * ghati, t1)
+
+
 def bhadra_residence(moon_sign: int) -> str:
     if moon_sign in BHADRA_EARTH:
         return "earth"

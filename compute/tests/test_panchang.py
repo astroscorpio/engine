@@ -144,3 +144,16 @@ def test_ravi_yoga_and_the_mc_1_30_columns():
     # Tuesday 20 Oct: Dhanishta (the 10th from Citra) is Tuesday's utpata.
     tuesday = ids("2026-10-20")
     assert tuesday["utpata"] == ("18:02", "06:26") and tuesday["ravi"] == ("06:25", "06:26")
+
+
+def test_bhadra_face_and_tail_follow_mc_1_44():
+    # 2 Mar 2026: the Purnima's Bhadra runs through the night. MC 1.44 puts its tail at
+    # the end of the tithi's 3rd prahara (3 ghatis) and its face at the start of the 4th (5).
+    status, out = call("GET", "/v1/panchang", {"date": "2026-03-02", **DELHI})
+    (face,), (tail,) = out["windows"]["bhadraFace"], out["windows"]["bhadraTail"]
+    assert tail["end"] == face["start"]
+    assert ts(face["end"]) - ts(face["start"]) == dt.timedelta(minutes=120)
+    assert ts(tail["end"]) - ts(tail["start"]) == dt.timedelta(minutes=72)
+    status, holi = call("GET", "/v1/festivals/holika-dahana", {**DELHI, "year": "2026"})
+    (row,) = holi["occurrences"]
+    assert (row["bhadraFace"], row["bhadraTail"]) == (face, tail)

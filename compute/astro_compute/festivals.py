@@ -469,9 +469,7 @@ def _holika(start: float, end: float, _next: float, q: EkadashiQuery) -> dict | 
     s, days = _days(start, end, q, ("pradosha",))
     bhadra = _bhadra(start, end, q)
     free = bhadra[1] if bhadra else start
-    prahara = (end - start) / 8
-    tail = (start + 3 * prahara - 3 * DANDA, start + 3 * prahara)
-    face = (start + 3 * prahara, start + 3 * prahara + 5 * DANDA)
+    face, tail = Mu.bhadra_face_tail(15, start, end)
     w = [d["_w"]["pradosha"] for d in days]
     p = [_share(start, end, x) for x in w]
     night = days[0]["_w"]["night"]
