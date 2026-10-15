@@ -828,7 +828,7 @@ def _holika(start: float, end: float, _next: float, q: EkadashiQuery) -> dict | 
     }
 
 
-# --- Karaka-caturthi, Karva Chauth (NS p. 293; DS pp. 9, 76; VR ff. 80-82) ---------
+# --- Karaka-caturthi, Karva Chauth (NS p. 293; DS pp. 9, 76; VR ff. 81-82) ---------
 
 
 TITHI_TATTVA = {
@@ -840,7 +840,7 @@ VRATARAJA = {
     "text": "Vratraja",
     "author": "Vishvanatha",
     "edition": "Bombay pothi, Khemraj Shrikrishnadas (Internet Archive dates the copy to 1897)",
-    "page": "ff. 80-82",
+    "page": "ff. 81-82",
 }
 
 
@@ -848,7 +848,7 @@ def _karva(start: float, end: float, _next: float, q: EkadashiQuery) -> dict | N
     """The dark Caturthi ending amanta Ashvina (Kartika krishna purnimanta), current at
     moonrise: at both moonrises the earlier, at neither the later, as for Sankashti
     (NS p. 293; DS pp. 9, 76). VR f. 82 keeps it at nightfall, with the arghya after
-    moonrise (f. 80): sunset and moonrise are the sourced times."""
+    moonrise (f. 81): sunset and moonrise are the sourced times."""
     row = _sankashti(start, end, _next, q)
     if row["lunarMonth"]["amanta"] != "ashwin" or row["lunarMonth"]["adhika"]:
         return None
@@ -1189,7 +1189,7 @@ def _akshaya(start: float, end: float, _next: float, q: EkadashiQuery) -> dict |
 
 
 def _parashurama(start: float, end: float, _next: float, q: EkadashiQuery) -> dict | None:
-    """DS p. 37 (VR ff. 42-43): the Tritiya covering the night's first watch (a quarter
+    """DS p. 37 (VR f. 43): the Tritiya covering the night's first watch (a quarter
     of the night, our reading); the earlier day only if its first watch alone is
     covered; both, wholly or in part, the later. Arghya at pradosha."""
     base = _base(start, end, 3, q)
@@ -1933,7 +1933,7 @@ CONTEXT = {
 RITE_SOURCES = {
     "karva-chauth": VRATARAJA,
     "akshaya-tritiya": {**VRATARAJA, "page": "ff. 43-44"},
-    "parashurama-jayanti": {**VRATARAJA, "page": "ff. 42-43"},
+    "parashurama-jayanti": {**VRATARAJA, "page": "f. 43"},
     "vasanta-panchami": {**VRATARAJA, "page": "f. 103"},
     "ratha-saptami": {**VRATARAJA, "page": "f. 115"},
     "sawan-somvar": {**VRATARAJA, "page": "ff. 350-354"},
