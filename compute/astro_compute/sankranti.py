@@ -118,6 +118,12 @@ def _one(t: float, sign: int, q) -> dict:
             rule, rows = _split(sr, nr, t, mid, q)
     first = rows[0]["date"]
     rise = sr if first == _date(sr, q) else nr
+    kari = None
+    if sign in (KARKA, MAKARA):
+        # DS p. 86: the ayana day and the day after (kari) are avoided for auspicious
+        # acts; an ingress at or after the night's midpoint makes them the next two.
+        start = sr if t < (ss + nr) / 2 else nr
+        kari = [_date(x, q) for x in _sunrises(start + 0.01, q.lat, q.lon, 2)]
     return {
         "sign": SIGN_IDS[sign],
         "class": cls,
@@ -129,6 +135,7 @@ def _one(t: float, sign: int, q) -> dict:
         "punyakala": rows,
         "variants": variants,
         "jyotishaTwilight": twilight,
+        "kari": kari,
         "sayana": iso(_sayana(t, sign), q.tz),
     }
 

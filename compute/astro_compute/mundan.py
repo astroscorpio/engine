@@ -68,19 +68,35 @@ def _lagna_windows(a: float, b: float, num: int, q) -> list[tuple[float, float, 
 
 
 def mundan(q: EkadashiQuery, explain: dict | None = None) -> dict:
-    """explain, if given, is filled with date -> the rule that rejected it."""
+    """explain, if given, is filled with date -> the rule that rejected it. excluded[]
+    holds the days that pass every rule except ones almanacs relax, as in griha-pravesh:
+    infancy and old age beyond 3 days, Venus set at 10 time-degrees but not 8, Jupiter
+    in Leo or Capricorn, and a day yoga that covers every window."""
     y = _Year(q)
     ay, zone = y.ay, y.zone
-    out_days = []
+    out_days, excluded = [], []
     for i, (sr, _ss, nr) in enumerate(y.days):
         date = aware(sr, zone).date()
         if date.year != q.year:
             continue
         vara = _vara(sr, q)
+        day_relax: dict[str, str] = {}
         why = None if vara in VARAS else "weekday"
-        if not why:
-            hit = next((p for p in y.states if i in y.states[p]), None)
-            why = hit and f"{hit.lower()}_{y.states[hit][i][0]}"
+        for planet, state in y.states.items():
+            if why or i not in state:
+                continue
+            kind, detail = state[i]
+            if i in y.relaxed[planet]:
+                why = f"{planet.lower()}_{kind}"
+            elif kind == "set":
+                day_relax["venus_set"] = (
+                    "Venus is within the Surya-siddhanta's 10 time-degrees of the Sun (9.6-7)"
+                )
+            else:
+                day_relax["infancy_old"] = (
+                    f"{planet} is in its {'infancy' if kind == 'infant' else 'old age'}, "
+                    f"{detail} (Muhurta Chintamani 5.27)"
+                )
         if why:
             if explain is not None:
                 explain[date.isoformat()] = why
@@ -92,12 +108,17 @@ def mundan(q: EkadashiQuery, explain: dict | None = None) -> dict:
             mid = (a + b) / 2
             num, (name, adhika, kshaya, _) = y.tithi(mid)
             sun, moon = luminaries(mid, ay)
+            relax: dict[str, str] = {}
+            jupiter = positions(mid, ay)["Jupiter"].sign
+            if jupiter in BARRED_JUPITER:
+                relax["jupiter_sign"] = (
+                    f"Jupiter is in {Mu.SIGNS[jupiter]}; Muhurta Chintamani 1.48 bars the "
+                    "whole of its stay"
+                )
             if adhika or kshaya or name == "Chaitra":
                 reasons.append("month")
             elif sun.sign not in UTTARAYANA:
                 reasons.append("dakshinayana")
-            elif positions(mid, ay)["Jupiter"].sign in BARRED_JUPITER:
-                reasons.append("jupiter_sign")
             elif moon.nakshatra not in STARS:
                 reasons.append("nakshatra")
             elif (num - 1) % 15 + 1 not in TITHIS:
@@ -105,45 +126,72 @@ def mundan(q: EkadashiQuery, explain: dict | None = None) -> dict:
             elif vara == "monday" and num > 15:
                 reasons.append("weekday")
             else:
-                pieces.append((a, b, num, moon.nakshatra, name))
+                pieces.append((a, b, num, moon.nakshatra, name, relax))
         if not pieces:
             if explain is not None:
-                order = ("weekday", "tithi", "nakshatra", "jupiter_sign", "dakshinayana", "month")
+                order = ("weekday", "tithi", "nakshatra", "dakshinayana", "month")
                 explain[date.isoformat()] = next((r for r in order if r in reasons), "none")
             continue
         free = _subtract([(a, b) for a, b, *_ in pieces], [(x, y_) for x, y_, _ in y.bars])
         rows = []
         for a, b in free:
-            num, nak, name = next((n, k, m) for x, y_, n, k, m in pieces if x <= a < y_)
+            num, nak, name, relax = next(
+                (n, k, m, r) for x, y_, n, k, m, r in pieces if x <= a < y_
+            )
             rows += [
-                (x, y_, num, nak, name, {}, lagna) for x, y_, lagna in _lagna_windows(a, b, num, q)
+                (x, y_, num, nak, name, relax, lagna)
+                for x, y_, lagna in _lagna_windows(a, b, num, q)
             ]
-        rows, _inside, _ = _day_yogas(rows, vara, ay)
-        if not rows:
+        # The day-yoga stretches go from every window; a day left with none is excluded
+        # for them, with the windows they cover.
+        rows, inside, yoga = _day_yogas(rows, vara, ay)
+        if rows or not inside:
+            yoga = {}
+        else:
+            rows = inside
+        strict = [r for r in rows if not r[5]] if not (day_relax or yoga) else []
+        if strict:
             if explain is not None:
-                explain[date.isoformat()] = "lagna" if free else "window"
-            continue
-        if explain is not None:
-            explain[date.isoformat()] = "listed"
-        windows = _windows(rows, zone)
-        nums = {w["_n"] for w in windows}
-        masa = Mu.MASA.index(windows[0]["_m"])
-        out_days.append(
-            {
-                "date": date.isoformat(),
-                "vara": vara,
-                "lunarMonth": {
-                    "amanta": MASA_IDS[masa],
-                    "purnimanta": MASA_IDS[(masa + 1) % 12] if min(nums) > 15 else MASA_IDS[masa],
-                    "adhika": False,
-                },
-                "windows": _public(windows),
-                "cautions": ["krishna_last_three"] if 28 in nums else [],
-            }
-        )
+                explain[date.isoformat()] = "listed"
+            windows = _windows(strict, zone)
+            nums = {w["_n"] for w in windows}
+            masa = Mu.MASA.index(windows[0]["_m"])
+            out_days.append(
+                {
+                    "date": date.isoformat(),
+                    "vara": vara,
+                    "lunarMonth": {
+                        "amanta": MASA_IDS[masa],
+                        "purnimanta": (
+                            MASA_IDS[(masa + 1) % 12] if min(nums) > 15 else MASA_IDS[masa]
+                        ),
+                        "adhika": False,
+                    },
+                    "windows": _public(windows),
+                    "cautions": ["krishna_last_three"] if 28 in nums else [],
+                }
+            )
+        elif rows:
+            rules = dict(day_relax) | yoga
+            for r in rows:
+                rules |= r[5]
+            if explain is not None:
+                explain[date.isoformat()] = "excluded:" + "+".join(sorted(rules))
+            excluded.append(
+                {
+                    "date": date.isoformat(),
+                    "vara": vara,
+                    "windows": _public(_windows(rows, zone)),
+                    "rules": sorted(rules),
+                    "reasons": [rules[k] for k in sorted(rules)],
+                }
+            )
+        elif explain is not None:
+            explain[date.isoformat()] = "lagna" if free else "window"
     return {
         "year": q.year,
         "days": out_days,
+        "excluded": excluded,
         "blocks": _blocks(y, q, frozenset()),
         "source": SOURCE,
         "alsoSource": {**DS, "page": "5, 137"},

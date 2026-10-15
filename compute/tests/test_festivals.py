@@ -1,3 +1,5 @@
+import datetime as dt
+
 from conftest import call
 
 from astro_compute import festivals as F
@@ -210,7 +212,7 @@ def test_magha_festivals_2026():
     assert (v["date"], v["rule"], v["popularName"]) == (
         "2026-01-23", "forenoon_later_alone", "Basant Panchami",
     )  # fmt: skip
-    assert v["pujaWindow"]["start"][:10] == v["date"] and v["forenoon"][1]["covered"]
+    assert v["pujaWindow"]["start"][:10] == v["date"] and v["forenoon"][1]["covered"] > 0
     (r,) = _rows("ratha-saptami")
     assert (r["date"], r["rule"]) == ("2026-01-25", "arunodaya")
     dawn = r["arunodaya"]
@@ -265,6 +267,10 @@ def test_akshaya_tritiya_parashurama_and_guru_purnima_2026():
     (g,) = _rows("guru-purnima")
     assert g["rule"] in FESTIVAL_RULES["guru-purnima"] and g["lunarMonth"]["amanta"] == "ashadha"
     assert (g["popularName"], g["displayName"]) == ("Guru Purnima", "Vyāsa-pūjā")
+    assert len(a["days"]) == 2 and all(0 <= d["forenoon"]["covered"] <= 1 for d in a["days"])
+    chosen = next(d for d in g["days"] if d["date"] == g["date"])
+    if g["rule"] == "three_muhurtas_later":
+        assert chosen["morning"]["covered"] == 1
 
 
 def test_bengal_durga_puja_follows_the_sunrise_tithi():
@@ -285,3 +291,90 @@ def test_bengal_durga_puja_follows_the_sunrise_tithi():
     # TT keeps Mahanavami on the sunrise Navami; NS and DS take the Ashtami day here.
     assert d["mahanavami"]["nsDsDate"] == d["mahashtami"]["date"]
     assert out["source"]["page"] == "63-82"
+
+
+def test_february_strips_carry_both_candidate_days():
+    (r,) = _rows("ratha-saptami")
+    assert len(r["days"]) == 2 and r["days"][0]["date"] < r["days"][1]["date"]
+    assert any(d["arunodaya"]["covered"] > 0 and d["date"] == r["date"] for d in r["days"])
+    (g,) = _rows("ganesha-jayanti")
+    assert g["vow"]["rule"] in FESTIVAL_RULES["ganesha-jayanti"]
+    assert all("pradosha" in d and "madhyahna" in d for d in g["days"])
+    assert g["vow"]["window"]["start"][:10] == g["vow"]["date"]
+
+
+def test_decision_26_kinds_2026():
+    vat = _rows("vat-savitri")
+    # 2026 has an adhika Jyeshtha: the Amavasya form falls before it, the Purnima form in the
+    # pure month, as no vow is begun or completed in a malamasa (DS p. 4).
+    assert [(o["form"], o["date"]) for o in vat] == [
+        ("amavasya", "2026-05-16"),
+        ("purnima", "2026-06-29"),
+    ]
+    for o in vat:
+        assert o["rule"] in FESTIVAL_RULES["vat-savitri"] and not o["lunarMonth"]["adhika"]
+        assert len(o["nights"]) == 3 and o["nights"][-1] == o["date"]
+        assert o["paranaAfter"] == o["tithi"]["end"]
+    # Ganga-dashahara keeps the adhika month (NS p. 144; DS p. 38).
+    (g,) = _rows("ganga-dussehra")
+    assert g["date"] == "2026-05-25" and g["lunarMonth"]["adhika"]
+    assert {"jyeshtha", "shukla", "dashami"} <= set(g["yogas"]) and g["rule"] in FESTIVAL_RULES[
+        "ganga-dussehra"
+    ]
+    assert g["pujaWindow"]["start"][:10] == g["date"] and len(g["days"]) == 2
+    (r,) = _rows("rath-yatra")
+    assert (r["date"], r["rule"]) == ("2026-07-16", "sunrise_tritiya_joined") and r["pushya"]
+    teej = {k: _rows(k)[0] for k in ("hariyali-teej", "kajari-teej", "hartalika-teej")}
+    assert [t["date"] for t in teej.values()] == ["2026-08-15", "2026-08-31", "2026-09-14"]
+    assert teej["kajari-teej"]["lunarMonth"]["purnimanta"] == "bhadrapada"
+    assert (teej["hariyali-teej"]["popularName"], teej["hariyali-teej"]["displayName"]) == (
+        "Hariyali Teej",
+        "Madhuśrāvaṇikā",
+    )
+    for k, t in teej.items():
+        assert t["rule"] in FESTIVAL_RULES[k]
+    (n,) = _rows("nag-panchami")
+    assert n["date"] == "2026-08-17" and n["rule"] in FESTIVAL_RULES["nag-panchami"]
+    assert n["muhurtas"]["panchami"] >= 3
+    (p,) = _rows("rishi-panchami")
+    assert p["date"] == "2026-09-15" and p["pujaWindow"]["start"][:10] == p["date"]
+    (a,) = _rows("anant-chaturdashi")
+    assert a["date"] == "2026-09-25" and a["rule"] in FESTIVAL_RULES["anant-chaturdashi"]
+    assert a["pujaWindow"]["start"][:10] == a["date"]
+
+
+def test_sawan_somvar_lists_both_month_systems():
+    status, out = call("GET", "/v1/festivals/sawan-somvar", DELHI)
+    assert status == 200, out
+    assert out["shravana"]["purnimanta"] == {"start": "2026-07-30", "end": "2026-08-28"}
+    rows = out["occurrences"]
+    assert all(r["vara"] == "monday" and r["rule"] == "shravana_monday" for r in rows)
+    # Every Monday of purnimanta Shravana, a week apart, none missing at either end.
+    pur = [dt.date.fromisoformat(r["date"]) for r in rows if "purnimanta" in r["systems"]]
+    first, last = (
+        dt.date.fromisoformat(out["shravana"]["purnimanta"][k]) for k in ("start", "end")
+    )
+    assert len(pur) == 4 and all(
+        b - a == dt.timedelta(7) for a, b in zip(pur, pur[1:], strict=False)
+    )
+    assert pur[0] - first < dt.timedelta(7) and last - pur[-1] < dt.timedelta(7)
+    # The two months share only the bright fortnight.
+    both = [r for r in rows if len(r["systems"]) == 2]
+    assert both and all(r["paksha"] == "shukla" for r in both)
+    assert out["source"]["text"] == "Dharmasindhu" and out["alsoSource"] is None
+
+
+def test_kalashtami_vigil_and_the_new_year_reasoning():
+    (k,) = _rows("kalashtami")
+    v = k["vigil"]
+    assert v["rule"] in FESTIVAL_RULES["kalashtami"] and v["window"]["start"] < v["window"]["end"]
+    status, out = call("GET", "/v1/festivals/kalashtami", {**DELHI, "year": "2027"})
+    (k27,) = out["occurrences"]
+    # 2027: the Ashtami holds only the first night, so the vigil is the eve of the fast.
+    assert (k27["vigil"]["date"], k27["vigil"]["rule"]) == ("2027-11-20", "vigil_one_night")
+    assert k27["date"] == "2027-11-21"
+    (c,) = _rows("chaitra-navaratri")
+    ny = c["newYear"]
+    assert ny["date"] == c["newYearDate"] and ny["rule"] in FESTIVAL_RULES["chaitra-navaratri"]
+    assert len(ny["days"]) == 2
+    assert any(d["covered"] for d in ny["days"]) == (ny["rule"] != "neither_earlier")

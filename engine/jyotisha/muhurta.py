@@ -10,7 +10,6 @@ cited where it comes from; none of it is a predictive claim (see README,
 
   CH  L. R. Chawdhri, *Practicals of Mantras and Tantras*
   MF  K. T. Shubhakaran, *Mystical Formulae*, Part 1
-  IJ  M. H. K. Shastri and L. K. Vashisth, *Inderjaal* (2023)
   SY  Swami Muktibodhananda, *Swara Yoga*
   UT  *Uddisa Tantra* attributed to Ravana (bilingual edition)
 
@@ -83,7 +82,8 @@ CHOGHADIYA_NAME = {
     "Sun": "Udveg", "Venus": "Char", "Mercury": "Labh", "Moon": "Amrit",
     "Saturn": "Kaal", "Jupiter": "Shubh", "Mars": "Rog",
 }  # fmt: skip
-CHOGHADIYA_GOOD = {"Amrit", "Shubh", "Labh", "Char"}  # IJ pdf 101: four auspicious, three not
+# Current practice, no classical source: four auspicious, three not.
+CHOGHADIYA_GOOD = {"Amrit", "Shubh", "Labh", "Char"}
 
 # CH pdf 100-101, quoting Rudrayamala Tantra: what each rising sign does to japa.
 # "So Taurus, Gemini, Leo, Sagittarius and Pisces lagnas are to be avoided."
@@ -109,15 +109,12 @@ COMMENCE_NAKSHATRAS_ALT = {"Pushya", "Hasta", "Mula"}
 COMMENCE_VARAS = {"Sun", "Moon", "Mercury", "Jupiter", "Venus"}
 COMMENCE_TITHIS = {2, 3, 5, 7, 10, 11, 13, 15}
 
-# IJ pdf 82: Yogini's seat by tithi (the book lists 1-8; the cycle repeats).
-# Behind or to the left is auspicious, in front or to the right is not.
-# Note IJ puts Chaturthi in the north-west and Saptami in the south-west,
-# the reverse of the common almanac table.
-YOGINI_DIRS = ["E", "N", "SE", "NW", "S", "W", "SW", "NE"]
-# The common almanac table, used for journeys.
-YOGINI_ALMANAC = ["E", "N", "SE", "SW", "S", "W", "NW", "NE"]
-# IJ pdf 98: the Moon's direction by sign (fire east, earth south, air west,
-# water north); IJ pdf 94 calls the Moon in front a giver of wealth.
+# Yogini's seat by tithi as the almanacs print it, the cycle of eight repeating
+# from the Navami; behind or to the left is auspicious, in front or to the right is
+# not. Current practice, no classical source.
+YOGINI = ["E", "N", "SE", "SW", "S", "W", "NW", "NE"]
+# The Moon's direction by sign (fire east, earth south, air west, water north), the
+# Moon in front being good. Current practice, no classical source.
 MOON_DIRS = ["E", "S", "W", "N"]
 BEARING = {"N": 0, "NE": 45, "E": 90, "SE": 135, "S": 180, "SW": 225, "W": 270, "NW": 315}
 
@@ -126,23 +123,6 @@ BEARING = {"N": 0, "NE": 45, "E": 90, "SE": 135, "S": 180, "SW": 225, "W": 270, 
 # Purna on Thursday are siddha.
 SIDDHA_YOGA = {"Venus": 1, "Mercury": 2, "Mars": 3, "Saturn": 4, "Jupiter": 5}
 TITHI_CLASS = ["Nanda", "Bhadra", "Jaya", "Rikta", "Purna"]
-
-# IJ pdf 100-101: the transiting Moon's house from the natal Moon.
-MOON_HOUSE_IJ = {
-    1: "welfare",
-    2: "satisfying",
-    3: "wealth",
-    4: "jarring",
-    5: "increases knowledge",
-    6: "profitable",
-    7: "repute",
-    8: "death",
-    9: "fruitful",
-    10: "fulfils desires",
-    11: "profitable",
-    12: "harmful",
-}
-MOON_HOUSE_BAD_IJ = {4, 8, 12}
 
 # Bhadra (Vishti karana) resides by the Moon's sign, and "its effect falls there"
 # (MC 1.45, p. 38): only Bhadra on earth is avoided here.
@@ -296,9 +276,9 @@ def commencement(tithi: int, vara: str, nakshatra: int) -> dict[str, bool]:
     }
 
 
-def yogini_direction(tithi: int, almanac: bool = False) -> str:
+def yogini_direction(tithi: int) -> str:
     n = (tithi - 1) % 15 + 1 if tithi != 30 else 8
-    return (YOGINI_ALMANAC if almanac else YOGINI_DIRS)[(n - 1) % 8]
+    return YOGINI[(n - 1) % 8]
 
 
 def moon_direction(moon_sign: int) -> str:
@@ -317,8 +297,8 @@ def relative_side(facing: str, direction: str) -> str:
 
 
 def facing_options(tithi: int, moon_sign: int, prefer: tuple[str, ...] = ("N", "E", "W")):
-    """Rank seat directions: Yogini behind/left (IJ pdf 82), then the book
-    preference order, then the Moon in front (IJ pdf 94)."""
+    """Rank seat directions: Yogini behind or to the left, then the preference
+    order, then the Moon in front (current practice, no classical source)."""
     yogini, moon = yogini_direction(tithi), moon_direction(moon_sign)
     ranked = []
     for rank, facing in enumerate(prefer):
@@ -788,8 +768,9 @@ PROFILES = {
             frozenset({"Mercury", "Jupiter"}),
             1.0,
         ),
-        # Vidyarambha (Muhurta Chintamani): Mrigashira, Hasta and Shravana with
-        # the two after each, Ashwini, Mula, the three Purvas and Pushya.
+        # Vidyarambha (Muhurta Chintamani 5.38): Mrigashira, Hasta and Shravana with
+        # the two after each, Ashwini, Mula, the three Purvas, and Pushya and Ashlesha
+        # ("guru-dvaye", as the commentary glosses it, 1945 printing p. 197).
         Profile(
             "education",
             "enrolment, starting a course, exams, beginning study",
@@ -810,6 +791,7 @@ PROFILES = {
                     "P.Ashadha",
                     "P.Bhadrapada",
                     "Pushya",
+                    "Ashlesha",
                 }
             ),  # fmt: skip
             1.5,
@@ -1191,7 +1173,7 @@ def evaluate(
             bad(("Moon on the left", 1.5))
         else:
             good((f"Moon {'ahead' if side == 'front' else 'on the right'}", 0.5))
-        yside = relative_side(toward, yogini_direction(t, almanac=True))
+        yside = relative_side(toward, yogini_direction(t))
         if yside in ("front", "right"):
             bad((f"Yogini {yside}", 1.5))
         else:

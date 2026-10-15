@@ -133,6 +133,5 @@ def test_find_ranks_the_clean_evening_window_first() -> None:
 
 
 def test_almanac_yogini_swaps_chaturthi_and_saptami() -> None:
-    assert M.yogini_direction(4, almanac=True) == "SW" and M.yogini_direction(4) == "NW"
-    assert M.yogini_direction(7, almanac=True) == "NW" and M.yogini_direction(7) == "SW"
+    assert M.yogini_direction(4) == "SW" and M.yogini_direction(7) == "NW"
     assert M.resolve_direction("276") == "W" and M.resolve_direction("nw") == "NW"

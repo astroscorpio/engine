@@ -354,6 +354,10 @@ def _full_or_new(start: float, end: float, _next_end: float, q: EkadashiQuery) -
             "earlierDate": day[earlier] if earlier is not None and earlier != vrata else None,
         },
     }
+    if num == 15:
+        # A popular name only: the texts give the Buddha avatara other days (festivals.md
+        # s26.2; decision 26, 15 Oct 2026).
+        row["names"] = ["buddha"] if lunar["amanta"] == "vaishakha" and not lunar["adhika"] else []
     if num == 30:
         names = []
         if lunar["amanta"] == MAHALAYA_AMANTA and not lunar["adhika"]:

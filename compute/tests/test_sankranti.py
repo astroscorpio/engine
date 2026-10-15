@@ -36,3 +36,14 @@ def test_makara_matches_the_southern_rule():
     m27 = next(r for r in year("2027")["sankrantis"] if r["sign"] == "capricorn")
     assert (m27["date"], m27["rule"]) == ("2027-01-15", "makara_night_next_day")
     assert m27["variants"]["baudhayana"] == ["2027-01-14", "2027-01-15"]
+
+
+def test_kari_days_follow_the_midnight_test():
+    # DS p. 86: Makara 2026 by day (14 Jan): that day and the next; Makara 2027 at
+    # 21:10, before the night's midpoint: 14 and 15 Jan.
+    m26 = next(r for r in year("2026")["sankrantis"] if r["sign"] == "capricorn")
+    assert m26["kari"] == ["2026-01-14", "2026-01-15"]
+    m27 = next(r for r in year("2027")["sankrantis"] if r["sign"] == "capricorn")
+    assert m27["kari"] == ["2027-01-14", "2027-01-15"]
+    others = [r for r in year("2027")["sankrantis"] if r["sign"] not in ("capricorn", "cancer")]
+    assert all(r["kari"] is None for r in others)

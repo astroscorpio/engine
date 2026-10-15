@@ -154,3 +154,14 @@ def test_popular_names_on_sankashti_and_ekadashi():
     assert moksha["alsoKnownAs"] == ["Vaikuntha Ekadashi", "Gita Jayanti"]
     vaikuntha = [r for r in out["ekadashis"] if "Vaikuntha Ekadashi" in r["alsoKnownAs"]]
     assert all(r["paksha"] == "shukla" for r in vaikuntha)
+
+
+def test_buddha_purnima_is_a_popular_name_on_the_vaishakha_purnima():
+    from astro_compute.meta import PURNIMA_NAMES
+
+    status, out = call("GET", "/v1/observances/purnima", DELHI)
+    assert status == 200, out
+    named = [(r["lunarMonth"]["amanta"], r["names"]) for r in out["occurrences"] if r["names"]]
+    assert named == [("vaishakha", ["buddha"])]
+    assert all("names" in r for r in out["occurrences"])
+    assert PURNIMA_NAMES["buddha"][2] == "Dharmasindhu p. 32; Nirnaya-sindhu pp. 116-117"
