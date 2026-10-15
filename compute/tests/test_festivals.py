@@ -424,7 +424,8 @@ def test_popular_practice_kinds_carry_their_basis_and_follow_our_rules():
     assert d["basis"] == "text"
 
 
-def test_chhath_with_two_sunsets_takes_the_later():
+def test_chhath_takes_the_first_sunrise_in_the_shashthi():
+    """Decision 28, on synthetic Shashthi spans placed around the 2026 days."""
     import datetime as dt
 
     import swisseph as swe
@@ -436,14 +437,24 @@ def test_chhath_with_two_sunsets_takes_the_later():
         return swe.julday(t.year, t.month, t.day, t.hour + t.minute / 60 + t.second / 3600)
 
     (c,) = _rows("chhath")
-    start = jd(c["tithi"]["start"])
     q = EkadashiQuery(year=2026, lat=28.6139, lon=77.2090, tz="Asia/Kolkata")
-    # Stretch the Shashthi past the next day's sunset: two sunsets now fall inside it.
-    end = jd(c["set"]["sandhyaArghya"]["sunset"]) + 1.05
-    long = F._chhath(start, end, end + 1, q)
-    assert long["rule"] == "two_sunsets_later"
-    nxt = (dt.date.fromisoformat(c["date"]) + dt.timedelta(1)).isoformat()
-    assert long["date"] == nxt and long["set"]["kharna"]["date"] == c["date"]
+    _, r0, r1, r2 = F._sunrises(jd(c["set"]["ushaArghya"]["sunrise"]) - 2.5, q.lat, q.lon, 4)
+    s0, s1 = F._sunset(r0, q), F._sunset(r1, q)
+    d0, d1, d2 = (F._date(r, q) for r in (r0, r1, r2))
+
+    def run(start, end):
+        out = F._chhath(start, end, end + 1, q)
+        return out["date"], out["rule"], out["variantDate"], out["cautions"]
+
+    # A sunset and the next sunrise both in it: the sunrise's day, not the sunset's.
+    assert run(s0 - 0.3, r1 + 0.06) == (d1, "sunrise_holds_shashthi", None, [])
+    # No sunrise in it: the day whose sunset falls in it.
+    assert run(r0 + 0.1, r1 - 0.06) == (d0, "sunset_in_shashthi", None, [])
+    # Two sunsets in it: the later, whose sunrise holds it; Kharna keeps the day before.
+    assert run(s0 - 0.04, s1 + 0.04) == (d1, "two_sunsets_later", None, [])
+    assert F._chhath(s0 - 0.04, s1 + 0.04, s1 + 1, q)["set"]["kharna"]["date"] == d0
+    # Starting minutes after a sunrise: the next day, with that day as some almanacs give it.
+    assert run(r1 + 0.006, r1 + 1.086) == (d2, "sunrise_holds_shashthi", d1, ["ghatika_margin"])
 
 
 def test_drik_diff_decisions_d1_to_d3():
@@ -509,3 +520,22 @@ def test_kalashtami_takes_ds_pradosha_day():
                 assert d0["pradosha"]["start"] <= w["start"] < w["end"] <= d0["pradosha"]["end"]
                 assert w["start"] >= o["tithi"]["start"]
     assert seen
+
+
+def test_chaiti_chhath_is_the_spring_shashthi_by_the_same_rule():
+    import datetime as dt
+
+    status, out = call("GET", "/v1/festivals/chaiti-chhath", DELHI)
+    assert status == 200, out
+    assert out["basis"] == "popular_practice" and out["source"] is None
+    assert all("415" not in x["page"] for x in out["context"])  # Kartika's line only
+    (c,) = out["occurrences"]
+    assert c["lunarMonth"]["amanta"] == "chaitra" and c["rule"] in FESTIVAL_RULES["chaiti-chhath"]
+    s = c["set"]
+    days = [s[k]["date"] for k in ("nahayKhay", "kharna", "sandhyaArghya", "ushaArghya")]
+    ords = [dt.date.fromisoformat(d).toordinal() for d in days]
+    steps = [b - a for a, b in zip(ords, ords[1:], strict=False)]
+    assert steps == [1, 1, 1] and c["date"] == s["sandhyaArghya"]["date"]
+    if c["rule"] == "sunset_in_shashthi":
+        assert c["tithi"]["start"] <= s["sandhyaArghya"]["sunset"] < c["tithi"]["end"]
+    assert (c["variantDate"] is None) == (c["cautions"] == [])

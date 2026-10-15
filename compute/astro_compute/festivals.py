@@ -1721,23 +1721,41 @@ ONAM_NADIKAS = 6 * DANDA  # 2 h 24 min of Shravana after sunrise
 LEO = 4
 
 
-def _chhath(start: float, end: float, _next: float, q: EkadashiQuery) -> dict | None:
-    """s27.1: the evening arghya on the day whose sunset falls within the Kartika shukla
-    Shashthi, else the day whose sunrise holds it; if two sunsets do, the later, on the
-    day whose sunrise holds it, so that each day keeps its own tithi (our reading,
-    research's ruling of 15 Oct 2026). The morning arghya at the next sunrise; Kharna
-    and nahay-khay the two days before."""
+def _chhath_day(start: float, end: float, s: list[float], sets: list[float]):
+    """Decision 28: the first day whose sunrise holds the Shashthi; holding none, the day
+    whose sunset falls in it (a tithi is never short enough to hold neither)."""
+    inside = [i for i in range(3) if start <= sets[i] < end]
+    held = [i for i in range(3) if start <= s[i] < end]
+    if held:
+        k = held[0]
+        two = len(inside) > 1 and inside[-1] == k
+        return k, "two_sunsets_later" if two else "sunrise_holds_shashthi"
+    return (inside[0] if inside else 1), "sunset_in_shashthi"
+
+
+def _chhath(
+    start: float, end: float, _next: float, q: EkadashiQuery, month: str = "kartika"
+) -> dict | None:
+    """s27.1 as decision 28 (16 Oct 2026) corrected it: the evening arghya on the first
+    day whose sunrise holds the Kartika shukla Shashthi, else the day whose sunset falls
+    in it; two sunsets in it give the later, whose sunrise holds it. Where moving the
+    Shashthi's start or end one ghatika either way changes the day, that other day is
+    variantDate, as some almanacs give it (caution ghatika_margin). The morning arghya
+    at the next sunrise; Kharna and nahay-khay the two days before. The spring Chhath
+    takes the Caitra shukla Shashthi by the same rule."""
     base = _base(start, end, 6, q)
-    if not _in_month(base, "kartika"):
+    if not _in_month(base, month):
         return None
     s = _sunrises(start, q.lat, q.lon, 4)  # s[0] <= start < s[1]
     sets = [_sunset(s[i], q) for i in range(3)]
-    inside = [i for i in range(3) if start <= sets[i] < end]
-    if inside:
-        k = inside[-1]
-        rule = "two_sunsets_later" if len(inside) > 1 else "sunset_in_shashthi"
-    else:
-        k, rule = next(i for i in (1, 2) if start <= s[i] < end), "sunrise_holds_shashthi"
+    k, rule = _chhath_day(start, end, s, sets)
+    moved = (
+        (start - DANDA, end),
+        (start + DANDA, end),
+        (start, end - DANDA),
+        (start, end + DANDA),
+    )
+    other = sorted({_chhath_day(a, b, s, sets)[0] for a, b in moved} - {k})
     day = lambda i: {"date": _date(s[i], q), "vara": _vara(s[i], q)}  # noqa: E731
     before = [
         _sunrises(s[k] - 1.5, q.lat, q.lon, 2)[0],  # two days before
@@ -1747,6 +1765,8 @@ def _chhath(start: float, end: float, _next: float, q: EkadashiQuery) -> dict | 
         **base,
         **day(k),
         "rule": rule,
+        "variantDate": _date(s[other[0]], q) if other else None,
+        "cautions": ["ghatika_margin"] if other else [],
         "set": {
             "nahayKhay": {"date": _date(before[0], q), "vara": _vara(before[0], q)},
             "kharna": {"date": _date(before[1], q), "vara": _vara(before[1], q)},
@@ -1938,12 +1958,13 @@ FESTIVALS = {
     "anant-chaturdashi": (14, _ananta, "pp. 210-211", "p. 58"),
     # Popular practice (s27): no source; context, where a text touches the day, below.
     "chhath": (6, _chhath, None, None),
+    "chaiti-chhath": (6, lambda a, b, c, q: _chhath(a, b, c, q, "chaitra"), None, None),
     "hanuman-jayanti": (15, _hanuman, None, None),
     "radhashtami": (8, _radhashtami, None, None),
     "onam": (None, None, None, None),
     "vishwakarma-puja": (None, None, None, None),
 }
-POPULAR = {"chhath", "hanuman-jayanti", "radhashtami", "onam", "vishwakarma-puja"}
+POPULAR = {"chhath", "chaiti-chhath", "hanuman-jayanti", "radhashtami", "onam", "vishwakarma-puja"}
 YEARLY = {"onam": _onam, "vishwakarma-puja": _vishwakarma}
 KRTYARATNAKARA = {
     "text": "Krtyaratnakara",
@@ -1956,6 +1977,10 @@ CONTEXT = {
         {**DS, "verse": "Surya-shashthi of Bhadrapada", "page": "55"},
         {**KRTYARATNAKARA, "verse": "the dark-Shashthi Sun vow (Bhavishya)", "page": "447-448"},
         {**KRTYARATNAKARA, "verse": "the Kartika Shashthi, to Karttikeya", "page": "415"},
+    ],
+    "chaiti-chhath": [
+        {**DS, "verse": "Surya-shashthi of Bhadrapada", "page": "55"},
+        {**KRTYARATNAKARA, "verse": "the dark-Shashthi Sun vow (Bhavishya)", "page": "447-448"},
     ],
     "vishwakarma-puja": [{**DS, "verse": "sankranti punyakala", "page": "2"}],
 }
