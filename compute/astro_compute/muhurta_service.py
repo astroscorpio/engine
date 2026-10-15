@@ -96,7 +96,7 @@ RULES: list[tuple[re.Pattern, str]] = [
         (r"^[SK]\d+ \w+$", "tithi_unfavoured"),
         (r"^(Sun|Mon|Tues|Wednes|Thurs|Fri|Satur)day$", "weekday_unfavoured"),
         (r"^adhika \w+$", "adhika_masa"),
-        (r"^Pitru Paksha$", "pitru_paksha"),
+        (r"^Pitru Paksha: many families avoid new purchases \(popular practice\)$", "pitru_paksha_practice"),
         (r"^Moon behind \(Chandra vasa\)$", "moon_behind"),
         (r"^Moon on the left$", "moon_left"),
         (r"^Moon (ahead|on the right)$", "moon_ahead"),
@@ -209,6 +209,7 @@ def find(req: MuhurtaRequest) -> dict:
                 "facts": facts(c.facts),
                 "defects": _rows(c.defects, "defect"),
                 "supports": _rows(c.supports, "support"),
+                "notes": [{"id": rule_id(label, "note"), "label": label} for label in c.notes],
             }
             for c in choices[: req.top]
         ],
@@ -245,6 +246,7 @@ def check(req: MuhurtaCheck) -> dict:
         "vetoes": [{"id": rule_id(label, "veto"), "label": label} for label in v.vetoes],
         "defects": _rows(v.defects, "defect"),
         "supports": _rows(v.supports, "support"),
+        "notes": [{"id": rule_id(label, "note"), "label": label} for label in v.notes],
         "facts": facts(v.facts),
         "engine": provenance(req.ayanamsa),
     }

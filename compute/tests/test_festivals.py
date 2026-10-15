@@ -202,3 +202,19 @@ def test_tulsi_vivah_and_tripurotsava():
         "Dev Deepawali",
     )
     assert p["window"]["start"][:10] == p["date"] and p["window"]["end"] <= p["tithi"]["end"]
+
+
+def test_magha_festivals_2026():
+    # Drik Panchang's New Delhi dates for 2026 (festivals.md s18-20).
+    (v,) = _rows("vasanta-panchami")
+    assert (v["date"], v["rule"], v["popularName"]) == (
+        "2026-01-23", "forenoon_later_alone", "Basant Panchami",
+    )  # fmt: skip
+    assert v["pujaWindow"]["start"][:10] == v["date"] and v["forenoon"][1]["covered"]
+    (r,) = _rows("ratha-saptami")
+    assert (r["date"], r["rule"]) == ("2026-01-25", "arunodaya")
+    assert r["arunodaya"]["end"][:10] == r["date"] and r["arunodaya"]["start"] < r["arunodaya"]["end"]
+    (b,) = _rows("bhishma-ashtami")
+    assert (b["date"], b["rule"]) == ("2026-01-26", "one_day")
+    assert b["tarpanaWindow"]["start"][:10] == b["date"]
+    assert all(k["rule"] in FESTIVAL_RULES[n] for k, n in ((v, "vasanta-panchami"), (r, "ratha-saptami"), (b, "bhishma-ashtami")))

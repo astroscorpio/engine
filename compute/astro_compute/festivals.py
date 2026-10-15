@@ -813,6 +813,11 @@ def _holika(start: float, end: float, _next: float, q: EkadashiQuery) -> dict | 
 # --- Karaka-caturthi, Karva Chauth (NS p. 293; DS pp. 9, 76; VR ff. 80-82) ---------
 
 
+TITHI_TATTVA = {
+    "text": "Tithi-tattva (Raghunandana), quoting the Samvatsara-pradipa",
+    "edition": "Smrti-tattva, part 1, Calcutta, 1895",
+    "page": "24",
+}
 VRATARAJA = {
     "text": "Vratraja",
     "author": "Vishvanatha",
@@ -888,6 +893,85 @@ def _tripura(start: float, end: float, _next: float, q: EkadashiQuery) -> dict |
     }
 
 
+# --- Magha shukla: Vasanta Panchami, Ratha-saptami, Bhishmashtami (festivals.md s18-20) --
+
+
+def _vasanta(start: float, end: float, _next: float, q: EkadashiQuery) -> dict | None:
+    """DS p. 89: the later day only when the Panchami covers the forenoon on the later
+    day alone; otherwise the earlier (DS p. 9: a Panchami is taken Caturthi-joined).
+    The forenoon is sunrise to midday, our reading."""
+    base = _base(start, end, 5, q)
+    if not _in_month(base, "magha"):
+        return None
+    s, _ = _days(start, end, q, ())
+    forenoon = [(s[i], (s[i] + _sunset(s[i], q)) / 2) for i in (0, 1)]
+    cov = [_share(start, end, w) > 0 for w in forenoon]
+    if cov[1] and not cov[0]:
+        chosen, rule = 1, "forenoon_later_alone"
+    else:
+        chosen, rule = 0, "both_earlier" if all(cov) else "earlier"
+    return {
+        **base,
+        "date": _date(s[chosen], q),
+        "vara": _vara(s[chosen], q),
+        "rule": rule,
+        "popularName": "Basant Panchami",
+        # Decision 18a (15 Oct 2026): Sarasvati's worship in the forenoon of the
+        # Caturthi-joined Panchami, the Samvatsara-pradipa in the Tithi-tattva.
+        "alsoNamed": [{"name": "Saraswati Puja", "source": TITHI_TATTVA}],
+        "forenoon": [
+            {"date": _date(s[i], q), **_span(forenoon[i], q), "covered": cov[i]} for i in (0, 1)
+        ],
+        "pujaWindow": _span(_clip(start, end, forenoon[chosen]), q),
+    }
+
+
+def _ratha(start: float, end: float, _next: float, q: EkadashiQuery) -> dict | None:
+    """NS p. 329, DS p. 89: the Saptami covering arunodaya, the four ghatikas before
+    sunrise; at both, the earlier. A short Saptami ending before the next arunodaya
+    goes to the first day, bathed at its arunodaya in the Shashthi (NS p. 330); one
+    touching neither arunodaya is taken on that day too (our reading)."""
+    base = _base(start, end, 7, q)
+    if not _in_month(base, "magha"):
+        return None
+    s = _sunrises(start, q.lat, q.lon, 3)  # s[0] <= start < s[1]
+    dawn = [(s[i] - ARUNODAYA, s[i]) for i in (1, 2)]
+    cov = [_share(start, end, w) > 0 for w in dawn]
+    if cov[0]:
+        rise, rule = s[1], "arunodaya_both_earlier" if cov[1] else "arunodaya"
+    elif cov[1]:
+        rise, rule = s[2], "arunodaya"
+    else:
+        rise, rule = s[0], "shashthi_joined_first_day"
+    return {
+        **base,
+        "date": _date(rise, q),
+        "vara": _vara(rise, q),
+        "rule": rule,
+        "arunodaya": _span((rise - ARUNODAYA, rise), q),
+    }
+
+
+def _bhishma(start: float, end: float, _next: float, q: EkadashiQuery) -> dict | None:
+    """DS p. 90: the Ashtami covering midday, the shraddha being ekoddishta, decided as
+    for every ekoddishta (NS p. 718): one day only, that day; both, the earlier if
+    equal, else the day with more; neither, the earlier. Midday is the 8th and 9th
+    day-muhurtas, from the kutapa to the rauhina."""
+    from .pitru_paksha import _pick  # pitru_paksha imports this module
+
+    base = _base(start, end, 8, q)
+    if not _in_month(base, "magha"):
+        return None
+    s = _sunrises(start, q.lat, q.lon, 3)
+    pick = _pick(start, end, s, q, "kutapaRauhina", lambda *_: (0, "neither_earlier"))
+    _, w = pick.pop("_chosen")
+    return {
+        **base,
+        **pick,
+        "tarpanaWindow": _span(w, q),
+    }
+
+
 def _year(q: EkadashiQuery, num: int, build) -> list[dict]:
     rows = _collect(
         q, {num}, lambda a, b, c, qq: build(a, b, c, qq) or {"date": None}, lambda r: (r["date"],)
@@ -921,8 +1005,15 @@ FESTIVALS = {
     "karva-chauth": (19, _karva, "p. 293", "pp. 9, 76"),
     "tulsi-vivah": (11, _tulsi, "p. 306", "pp. 81-82"),
     "tripurotsava": (15, _tripura, "pp. 311-312", "p. 84"),
+    "vasanta-panchami": (5, _vasanta, "p. 329", "pp. 9, 89"),
+    "ratha-saptami": (7, _ratha, "pp. 329-332", "p. 89"),
+    "bhishma-ashtami": (8, _bhishma, "pp. 332-333, 718", "pp. 89-90"),
 }
-RITE_SOURCES = {"karva-chauth": VRATARAJA}
+RITE_SOURCES = {
+    "karva-chauth": VRATARAJA,
+    "vasanta-panchami": {**VRATARAJA, "page": "f. 103"},
+    "ratha-saptami": {**VRATARAJA, "page": "f. 115"},
+}
 
 
 def festival(kind: str, q: EkadashiQuery) -> dict:

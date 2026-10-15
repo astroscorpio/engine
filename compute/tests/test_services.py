@@ -245,3 +245,20 @@ def test_vehicle_act_bars_selling_stars_and_non_riding_weekdays():
     tuesday = day + dt.timedelta((1 - day.weekday()) % 7)
     at = f"{tuesday.isoformat()}T12:00:00+05:30"
     assert "riding_weekday" in vetoes(at) and "riding_weekday" not in vetoes(at, "property")
+
+
+def test_season_rules_follow_the_texts():
+    # 2026: adhika Jyeshtha from 17 May; Pitru Paksha (the dark Bhadrapada) in early October.
+    def check(act, at, **extra):
+        status, out = call("GET", "/v1/muhurta/check", {"act": act, "at": at, **DELHI, **extra})
+        assert status == 200, out
+        return out
+
+    adhika = "2026-05-27T10:00:00+05:30"
+    ids = lambda rows: {r["id"] for r in rows}  # noqa: E731
+    assert "adhika_masa" in ids(check("travel", adhika, toward="E")["defects"])
+    assert "adhika_masa" not in ids(check("general", adhika)["defects"])
+    pitru = check("vehicle", "2026-10-05T10:00:00+05:30")
+    assert ids(pitru["notes"]) == {"pitru_paksha_practice"}
+    assert not any("pitru" in r["id"] for r in pitru["defects"])
+    assert not check("education", "2026-10-05T10:00:00+05:30")["notes"]

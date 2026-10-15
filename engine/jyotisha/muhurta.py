@@ -739,7 +739,7 @@ class Profile:
     varas: frozenset[str]
     other_vara: float
     horas: frozenset[str]
-    season: float  # Pitru Paksha and adhika masa, for a new beginning
+    season: float  # an adhika month, for travel (MC 1.46-47; DS p. 4)
     travel: bool = False
     home: bool = False
     mundan: bool = False
@@ -762,6 +762,8 @@ SELLING_STARS = frozenset(
 # Mercury.
 RIDING_STARS = BUYING_STARS | {"Mrigashira", "Punarvasu", "Hasta", "Pushya", "Dhanishta"}
 RIDING_VARAS = frozenset({"Jupiter", "Moon", "Sun", "Venus", "Mercury"})
+
+PURCHASE_ACTS = frozenset({"general", "vehicle", "property"})
 
 MUNDAN_STARS = frozenset(
     {
@@ -977,6 +979,7 @@ class Verdict:
     vetoes: list[str] = field(default_factory=list)
     defects: list[tuple[str, float]] = field(default_factory=list)
     supports: list[tuple[str, float]] = field(default_factory=list)
+    notes: list[str] = field(default_factory=list)  # shown, never scored
 
     @property
     def ok(self) -> bool:
@@ -1147,10 +1150,14 @@ def evaluate(
     )
     if d.vara not in profile.varas and not vetoed_vara:
         bad((VARA_NAME[d.vara], profile.other_vara))
-    if month.adhika and not profile.home:  # the home act vetoes it (MC 1.47)
+    # MC 1.46-47 and DS p. 4 bar an adhika month for marriage, house entry, the tonsure
+    # and travel (the lead's ruling of 15 Oct 2026); home and mundan veto it outright.
+    if month.adhika and profile.travel:
         bad((f"adhika {month.name}", profile.season))
-    if month.name == "Bhadrapada" and not month.adhika and t >= 16:
-        bad(("Pitru Paksha", profile.season))
+    # No text read bars buying in Pitru Paksha: shown for purchases, never scored.
+    pitru_paksha = month.name == "Bhadrapada" and not month.adhika and t >= 16
+    if pitru_paksha and profile.name in PURCHASE_ACTS:
+        v.notes.append("Pitru Paksha: many families avoid new purchases (popular practice)")
 
     # Supports. A siddhi (amrta) pair turns to visha on its tithi (MC 1.20-21) and
     # is avoided for its act (MC 1.22); it never lifts a veto (MC p. 35).
@@ -1368,6 +1375,7 @@ class Choice:
     defects: list[tuple[str, float]]
     supports: list[tuple[str, float]]
     key: tuple = field(default=(), repr=False)
+    notes: list[str] = field(default_factory=list)
 
 
 def _in_hours(jd: float, tz, hours: tuple[int, int]) -> bool:
@@ -1446,12 +1454,14 @@ def find(
                 eldest=eldest,
             )
             if v.ok:
-                key = (tuple(v.defects), tuple(v.supports), tuple(v.facts.items()))
+                key = (tuple(v.defects), tuple(v.supports), tuple(v.facts.items()), tuple(v.notes))
                 last = out[-1] if out else None
                 if last and last.key == key and abs(last.end - t) < step / 2:
                     last.end = t + step
                 else:
-                    out.append(Choice(t, t + step, v.score, v.facts, v.defects, v.supports, key))
+                    out.append(
+                        Choice(t, t + step, v.score, v.facts, v.defects, v.supports, key, v.notes)
+                    )
         t += step
     keep = [c for c in out if (c.end - c.start) * 1440 >= min_minutes - 1e-6]
     return sorted(keep, key=lambda c: (c.score, c.start))

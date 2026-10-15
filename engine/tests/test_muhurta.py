@@ -116,7 +116,9 @@ def test_journey_rules_read_direction_and_season() -> None:
     assert _check("travel", 2026, 9, 27, 12 + 40 / 60, **westward).vetoes == ["disha shool W"]
     monday = _check("travel", 2026, 9, 28, 11 + 40 / 60, **westward)
     assert monday.ok
-    assert {"Pitru Paksha", "Moon behind (Chandra vasa)", "Vipat tara"} <= _labels(monday)
+    # No text read penalises Pitru Paksha (the lead's ruling of 15 Oct 2026).
+    assert {"Moon behind (Chandra vasa)", "Vipat tara"} <= _labels(monday)
+    assert not any("Pitru" in label for label in _labels(monday)) and not monday.notes
     thursday = _check("travel", 2026, 9, 24, 14 + 45 / 60, **westward)
     assert {"Moon ahead", "disha shool S on the first leg"} <= _labels(thursday)
     assert thursday.score < monday.score

@@ -509,6 +509,22 @@ FESTIVAL_RULES = {
         "tripura_both_later": ("Current at dusk on both days: the later, as the Kartika Purnima is taken on the later day", "Nirnaya-sindhu p. 311"),
         "tripura_neither_later": ("Current at dusk on neither day: the later", "Nirnaya-sindhu p. 311"),
     },
+    "vasanta-panchami": {
+        "forenoon_later_alone": ("The Panchami covers the forenoon on the later day alone: the later day", "Dharmasindhu p. 89"),
+        "earlier": ("Otherwise the earlier day, joined with the Caturthi", "Dharmasindhu pp. 9, 89"),
+        "both_earlier": ("The forenoon covered on both days: the earlier", "Dharmasindhu p. 89"),
+    },
+    "ratha-saptami": {
+        "arunodaya": ("The Saptami covering arunodaya, the four ghatikas before sunrise", "Nirnaya-sindhu p. 329; Dharmasindhu p. 89"),
+        "arunodaya_both_earlier": ("Covering arunodaya on both days: the earlier", "Dharmasindhu p. 89; Vratraja f. 115"),
+        "shashthi_joined_first_day": ("A short Saptami ending before the next arunodaya: the first day, bathed at its arunodaya in the Shashthi (NS p. 330); one touching neither arunodaya goes there too (our reading)", "Nirnaya-sindhu p. 330; Dharmasindhu p. 89"),
+    },
+    "bhishma-ashtami": {
+        "one_day": ("The Ashtami covers midday on one day only: that day", "Dharmasindhu p. 90; Nirnaya-sindhu p. 718"),
+        "both_earlier": ("Covered on both days, fully or equally: the earlier", "Nirnaya-sindhu p. 718"),
+        "more": ("Covered unequally on both days: the day with more", "Nirnaya-sindhu p. 718"),
+        "neither_earlier": ("Covered on neither day: the earlier", "Nirnaya-sindhu p. 718"),
+    },
     "durgashtami": {
         "sunrise_navami_joined": ("The Ashtami current at sunrise, even for a ghatika, joined to the Navami; never one touched by the Saptami", "Dharmasindhu p. 69; Nirnaya-sindhu pp. 262-263"),
         "under_one_ghatika_earlier": ("The Ashtami lasts under a ghatika after that sunrise: the earlier day", "Dharmasindhu p. 69; Nirnaya-sindhu p. 264"),
@@ -564,6 +580,9 @@ FESTIVAL_NOTES = {
     "karva-chauth": "Karaka-caturthi, kept by women for their marital good fortune, sons and lasting prosperity (Vratraja f. 80). In the evening, at nightfall (f. 82), Gauri, Shiva, Ganapati and Shanmukha are worshipped under a drawn banyan, ten pots (karaka) with food are given to brahmanas and pots are exchanged with married women; the arghya is given to the Moon after moonrise (f. 80). The fast lasts until that arghya: our reading of the katha (ff. 81-82), in which eating at a false moonrise is the fault. sunset is that day's sunset and moonrise its moonrise (upper limb, as for Sankashti). The pre-dawn meal (sargi), the sieve and a fixed puja muhurat are not in the texts read.",
     "tulsi-vivah": "Dharmasindhu pp. 81-82 allows the Tulasi marriage on any of the three days from the Navami, any day from the Ekadashi to the Purnima, or under a marriage nakshatra in the Kartika bright fortnight, but records that it is done everywhere with the Prabodhotsava, the waking of Vishnu, in the early night of the parana day; window is that early night (pradosha, our reading). Nirnaya-sindhu p. 306 (the Padma via Hemadri) has a golden Hari worshipped with Tulasi for three days from the Navami, then the marriage rite. variantDate is the Vaishnava parana day where it differs. The rite: Vishnu as Damodara and Tulasi are bathed with turmeric, the god woken with bells, a curtain held between them during the mangalashtaka verses, and Tulasi given to Damodara as a bride (DS p. 82).",
     "tripurotsava": "Popularly Dev Deepawali, a name in none of the texts read. On the Kartika Purnima at dusk the Tripurotsava is held and lamps are given in temples, so that the creatures that see them are not born again (Bhargavarcana-dipika in NS p. 312; DS p. 84). window is that day's pradosha while the Purnima runs. The Purnima is especially holy with Krttika (maha-kartiki with Rohini), and the bull-release and great gifts belong to it (DS p. 84).",
+    "vasanta-panchami": "The spring festival begins on the Magha shukla Panchami, and Rati and Kama are worshipped (Dharmasindhu p. 89). The Vratraja (f. 103, from Hemadri) has an oil bath, ornaments, and Hari worshipped with gulal, scents and food, then brahmanas fed; its own day rule takes the Panchami covering midday, the earlier day when it covers both or neither. Nirnaya-sindhu p. 329 names the day Shri-panchami, with Shri worshipped with kunda flowers; Madhava takes the earlier day, Hemadri the later. forenoon is sunrise to midday, our reading of DS's forenoon. Sarasvati is worshipped in the forenoon of the Caturthi-joined Panchami (the Samvatsara-pradipa in Raghunandana's Tithi-tattva, p. 24), which is DS's earlier day; NS, DS and the Vratraja do not name her for this day.",
+    "ratha-saptami": "The bath at arunodaya (the 96 minutes before sunrise) on this Saptami equals one at a solar eclipse (Vishnu in the Candrika, NS p. 330). It is taken in still water with a lamp on the head, seven arka and seven badari leaves, and the mantra 'hara makari saptami'; then the arghya to the Sun, and gifts of a golden Sun or sesame cakes (NS pp. 330-332; DS p. 89). A single meal on the Shashthi. It is also a Manvadi, whose shraddha takes the forenoon (NS p. 332).",
+    "bhishma-ashtami": "Tarpana with sesame water to Bhishma is obligatory and open to every varna; a shraddha for offspring is optional (NS pp. 332-333; DS pp. 89-90). It is done with the thread reversed, then the arghya. Nirnaya-sindhu lets a man whose father is living do it (the Padma); Dharmasindhu notes the Kaustubha says no and most say yes. tarpanaWindow is midday, the 8th and 9th day-muhurtas, as for every ekoddishta (NS p. 718).",
     "navaratriDays": "Navaratra names a worship set in nine tithis, the Pratipada to the Navami (DS p. 65). Each day's worship goes with the tithi at its sunrise (our reading of DS p. 66); a tithi touching two sunrises is worshipped on both days and one touching none on the day it falls in, so the Navaratri runs eight, nine or ten days. Some keep only eight worships when a day is lost (DS p. 66). The first day is the kalasha-sthapana day.",
     "durgashtami": "Mahashtami: the Ashtami at sunrise joined to the Navami, never one touched by the Saptami however slightly, even with Mula (NS p. 263, DS p. 69). Especially praised on a Tuesday (DS). Bhadra does not bar the worship (Devi-purana, NS p. 264). Those with sons do not fast on it (DS p. 69; NS p. 265).",
     "mahanavami": "The Navami joined to the Ashtami is taken for the worship and the fast when it covers three muhurtas before that day's sunset (NS pp. 272-273, DS p. 69), so Durgashtami and Mahanavami often fall on one day. The animal bali is on the Dashami-joined day (DS p. 69).",
@@ -791,7 +810,7 @@ MUHURTA_RULE_NAMES = {
     "nakshatra_unfavoured": "Nakshatra not favoured for this act",
     "tithi_unfavoured": "Tithi not favoured for this act",
     "weekday_unfavoured": "Weekday not favoured for this act", "adhika_masa": "Adhika masa",
-    "pitru_paksha": "Pitru Paksha", "moon_behind": "Moon behind (Chandra vasa)",
+    "pitru_paksha_practice": "Pitru Paksha: many families avoid new purchases; the texts read give no such rule (popular practice)", "moon_behind": "Moon behind (Chandra vasa)",
     "moon_left": "Moon on the left", "moon_ahead": "Moon ahead or on the right",
     "yogini_ahead": "Yogini ahead or on the right", "yogini_behind": "Yogini behind or on the left",
     "kharmas": "Kharmas", "amrita_siddhi": "Siddhi (amrta) yoga", "sarvartha_siddhi": "Sarvartha Siddhi",
@@ -810,6 +829,7 @@ VETOES = {
     "sun_sign_home", "jupiter_venus_state", "jupiter_sign", "movable_lagna_home", "movable_navamsa",
     "house_4_8_occupied", "moon_1_6_12", "pot_chakra", "door_tithi", "door_sun",
 }  # fmt: skip
+NOTES = {"pitru_paksha_practice"}  # shown, never scored
 SUPPORTS = {
     "amrita_siddhi", "sarvartha_siddhi", "lagna_lord_strong", "benefic_kendra", "abhijit",
     "moon_ahead", "yogini_behind", "char_choghadiya", "movable_lagna", "fixed_lagna",
@@ -1084,7 +1104,13 @@ def _english() -> dict:
         "muhurtaRules": {
             rid: {
                 "name": MUHURTA_RULE_NAMES[rid],
-                "kind": "veto" if rid in VETOES else "support" if rid in SUPPORTS else "defect",
+                "kind": "veto"
+                if rid in VETOES
+                else "support"
+                if rid in SUPPORTS
+                else "note"
+                if rid in NOTES
+                else "defect",
             }
             for rid in sorted({rid for _, rid in RULES} | {"favoured_hora", "malefic_hora"})
         },
