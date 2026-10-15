@@ -678,12 +678,12 @@ def _season_blocks(y: _Year, q) -> list[dict]:
         m = months.setdefault(start, [name, adhika, kshaya, a, b])
         m[3], m[4] = min(m[3], a), max(m[4], b)
     runs = []
-    for name, adhika, kshaya, a, b in months.values():
-        mid = MASA_IDS[Mu.MASA.index(name)]
-        if adhika or kshaya:
-            runs.append(("adhika_month", a, b, mid))
-        elif GRADE.get(name) is None:
-            runs.append(("off_season", a, b, mid))
+    for start, (name, adhika, kshaya, a, b) in months.items():
+        rule = "adhika_month" if adhika or kshaya else "off_season" if name not in GRADE else None
+        if rule:
+            # The month's own new moons, not the edges of the year's tithi list.
+            end = Mu.lunar_month((a + b) / 2, y.ay).end
+            runs.append((rule, start, end, MASA_IDS[Mu.MASA.index(name)]))
 
     def ekadashis(month: str) -> list[float]:
         return [

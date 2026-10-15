@@ -120,6 +120,12 @@ def test_blocks_carry_the_season_and_excluded_days_their_facts():
     assert all(
         b["detail"] in SIGN_IDS for b in out["blocks"] if b["rule"] in ("jupiter_sign", "sun_sign")
     )
+    # Month runs follow the month's own new moons: consecutive ones meet.
+    runs = sorted(
+        (b["start"], b["end"]) for b in out["blocks"] if b["rule"] in ("off_season", "adhika_month")
+    )
+    assert all(a[1] <= b[0] for a, b in zip(runs, runs[1:], strict=False))
+    assert runs[0][0] < "2025-12-25"  # the Pausha begun in 2025, from its new moon
     (chaturmas,) = [b for b in out["blocks"] if b["rule"] == "chaturmas"]
     assert chaturmas["start"] < chaturmas["end"]
     facts = {}
