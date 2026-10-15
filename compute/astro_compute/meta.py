@@ -91,6 +91,18 @@ WINDOW_NOTES = {
     "pradosha": "Three muhurtas after sunset, a muhurta being a fifteenth of the night (MC 6.50-51; our reading). The first 72 minutes are sandhya, the evening twilight (Nirnaya-sindhu p. 29, Skanda). The Gauda view of two ghatikas (48 minutes) is rejected for vows by Nirnaya-sindhu p. 29.",
     "brahma": "Current practice: the 14th of the night's 15 muhurtas, ending one muhurta before sunrise. Manusmriti 4.92 names the brahma muhurta; Kulluka (1909, p. 149) reads it as the last yama of the night, and Govindaraja, as Kulluka reports him, as its last muhurta.",
 }
+# gochara.md: what the gochara endpoint leaves to notes (the lead's rulings, 15 Oct 2026).
+GOCHARA_NOTES = {
+    "count": "Houses are counted from the Moon sign, which is the 1st (Phaladipika 26.1).",
+    "exemptions": "The Sun and Saturn never block each other, nor do the Moon and Mercury (PD 26.3-6; MC 4.4a). The nodes neither have nor cause vedha (blocking by the seven grahas only is our reading).",
+    "nodes": "Rahu and Ketu follow PD 26.2, like the Sun. Muhurta Chintamani 4.1 treats them like Saturn instead: good in 3, 6 and 11, with Saturn's vedha (12, 9, 5).",
+    "reverseVedha": "MC 4.4-5 also make a planet in a bad house good when another occupies its paired good house (vama-vedha), counted three ways by Narada, Kasyapa and the commentator. Not computed.",
+    "brightMoon": "In the bright fortnight MC 4.4 also counts the Moon good in the 2nd, 5th and 9th unless blocked from the 6th, 8th and 4th (Narada). Not computed; PD's lines for those houses are bad.",
+    "timing": "Transits are classed by the sign occupied. PD 26.25: Mars and the Sun act in a sign's first third, Jupiter and Venus in the middle, the Moon and Saturn in the last, Mercury and Rahu throughout. MC 4.17's commentary has planets give the coming sign's results early (the Sun 5 days, Saturn 6 months). Neither is computed.",
+    "neutralised": "Narada (MC p. 144): a planet debilitated, in an enemy's sign or combust gives neither good nor bad transit results. Not computed.",
+    "regional": "Kasyapa (MC p. 144) holds that vedha applies only between the Himalaya and the Vindhya.",
+    "wording": "The lines are classical statements from the 1937 translation, quoted with their verses; some speak of death or danger to life. They are not forecasts.",
+}  # fmt: skip
 # attributes.md: each sign's element as its verse names it (Tajika-nilakanthi 1.2-13).
 TAJIKA_NILAKANTHI = {
     "text": "Tajika-nilakanthi",
@@ -715,6 +727,7 @@ def _english() -> dict:
         "sankashtiNote": SANKASHTI_NOTE,
         "paranaNote": PARANA_NOTE,
         "pitruPakshaNotes": PITRU_PAKSHA_NOTES,
+        "gocharaNotes": GOCHARA_NOTES,
         "horaSystems": HORA_SYSTEMS,
         "festivalRules": {
             group: {k: {"name": n, "source": src} for k, (n, src) in rules.items()}

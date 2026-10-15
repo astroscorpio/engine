@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import datetime as dt
+
 from jyotisha import ashtakavarga as AV
 from jyotisha.chart import Chart
 from jyotisha.ephemeris import (
@@ -12,13 +14,15 @@ from jyotisha.ephemeris import (
     positions,
     station_dates,
 )
+from jyotisha.muhurta import _scan
 
 from .chart_service import at_jd, cast
 from .errors import invalid
 from .fmt import point, provenance, r6
+from .gochara_results import PHALADIPIKA_26, RESULTS
 from .ids import ENGINE_GRAHA, GRAHA_ID, NAKSHATRA_IDS, SIGN_IDS
-from .models import EventsQuery, TransitRequest
-from .timeutil import iso, iso_utc, parse_instant
+from .models import EventsQuery, GocharaQuery, TransitRequest
+from .timeutil import iso, iso_utc, local_jd, parse_instant
 
 # Copies of jyotisha.hypotheses.GOCHARA_GOOD / VEDHA / NO_VEDHA_BETWEEN.
 # Importing hypotheses at runtime drags in the whole backtest stack, so the
@@ -75,7 +79,11 @@ SADE_SATI_CONVENTION = (
 
 
 def _gochara(natal: Chart, moving: dict) -> dict[str, tuple[str, str | None]]:
-    moon = natal.grahas["Moon"].sign
+    return _gochara_from(natal.grahas["Moon"].sign, moving)
+
+
+def _gochara_from(moon: int, moving: dict) -> dict[str, tuple[str, str | None]]:
+    """PD 26.2-8 from a Moon sign: (good|neutral|bad, the blocking graha's id)."""
     houses = {g: (moving[g].sign - moon) % 12 + 1 for g in GRAHAS}
     out = {}
     for g in GRAHAS:
@@ -302,4 +310,48 @@ def build(req: TransitRequest) -> dict:
         "sadeSati": _sade_sati(natal.grahas["Moon"].sign, when, ay, zone) if natal else None,
         "upcoming": _upcoming(when, req.days, ay, node, zone),
         "engine": provenance(ay, node),
+    }
+
+
+def moon_sign(q: GocharaQuery) -> dict:
+    """GET /v1/gochara: the general transit from a Moon sign over local days, cut
+    wherever a graha changes sign (gochara.md; PD 26)."""
+    moon = SIGN_IDS.index(q.moonSign)
+    t0 = local_jd(q.start, 0.0, q.tz, "date")
+    t1 = local_jd(q.end + dt.timedelta(days=1), 0.0, q.tz, "until")
+
+    def signs(t: float) -> tuple[int, ...]:
+        p = positions(t, q.ayanamsa, q.node)
+        return tuple(p[g].sign for g in GRAHAS)
+
+    cuts = [t0, *(t for t, _ in _scan(signs, t0, t1, 1 / 24)), t1]
+    segments = []
+    for a, b in zip(cuts, cuts[1:], strict=False):
+        moving = positions((a + b) / 2, q.ayanamsa, q.node)
+        table = _gochara_from(moon, moving)
+        rows = []
+        for g in GRAHAS:
+            house = (moving[g].sign - moon) % 12 + 1
+            verse, page, lines = RESULTS[g]
+            status, blocker = table[g]
+            rows.append(
+                {
+                    "id": GRAHA_ID[g],
+                    "sign": SIGN_IDS[moving[g].sign],
+                    "house": house,
+                    "retro": moving[g].retrograde,
+                    "gochara": status,
+                    "vedhaBy": blocker,
+                    "result": {"text": lines[house - 1], "verse": verse, "page": page},
+                }
+            )
+        segments.append({"start": iso(a, q.tz), "end": iso(b, q.tz), "grahas": rows})
+    return {
+        "moonSign": q.moonSign,
+        "tz": q.tz,
+        "from": q.start.isoformat(),
+        "until": q.end.isoformat(),
+        "segments": segments,
+        "source": PHALADIPIKA_26,
+        "engine": provenance(q.ayanamsa),
     }

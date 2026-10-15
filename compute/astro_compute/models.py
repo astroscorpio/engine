@@ -100,6 +100,32 @@ class DashaRequest(Model):
     at: str | None = None
 
 
+SignId = Literal[
+    "aries", "taurus", "gemini", "cancer", "leo", "virgo",
+    "libra", "scorpio", "sagittarius", "capricorn", "aquarius", "pisces",
+]  # fmt: skip
+
+
+class GocharaQuery(Model):
+    moonSign: SignId
+    start: dt.date
+    end: dt.date
+    tz: str = "Asia/Kolkata"
+    ayanamsa: Ayanamsa = "lahiri"
+    node: Node = "true"
+
+    @field_validator("tz")
+    @classmethod
+    def _zone(cls, value: str) -> str:
+        return check_zone(value)
+
+    @model_validator(mode="after")
+    def _range(self) -> GocharaQuery:
+        if not 0 <= (self.end - self.start).days <= 6:
+            raise ValueError("until must be from date to 6 days after it")
+        return self
+
+
 class TransitRequest(Model):
     chart: ChartIn | None = None
     at: str | None = None

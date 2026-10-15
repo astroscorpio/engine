@@ -34,6 +34,7 @@ from .models import (
     DashaRequest,
     EkadashiQuery,
     EventsQuery,
+    GocharaQuery,
     MatchingRequest,
     MonthQuery,
     MuhurtaCheck,
@@ -106,6 +107,7 @@ ROUTES: dict[tuple[str, str], Callable[[dict, bytes | str | None], dict]] = {
         for kind in festivals.FESTIVALS
     },
     ("GET", "/v1/transits"): lambda q, b: transit_service.build(_parse(TransitRequest, q)),
+    ("GET", "/v1/gochara"): lambda q, b: transit_service.moon_sign(_parse(GocharaQuery, q)),
     ("GET", "/v1/transits/events"): lambda q, b: transit_service.events(_parse(EventsQuery, q)),
     ("POST", "/v1/transits"): lambda q, b: transit_service.build(
         _parse(TransitRequest, _json_body(b))
