@@ -230,7 +230,7 @@ PITRU_PAKSHA_NOTES = {
     "bharani": "Bharani in the pitr-paksha is 'great': a shraddha then equals one at Gaya (Matsya via the Prthvicandrodaya, NS p. 225); popularly Maha-bharani. The texts read do not fix the hour; the day whose afternoon holds the star is shown.",
     "magha": "Magha is a shraddha occasion of its own (Vasishtha, Yajnavalkya; NS p. 233). The day whose afternoon holds the star is shown.",
     "matamaha": "Ashvina shukla Pratipada: the maternal grandfather's shraddha by a daughter's son, even newborn (Hemadri's Sangraha, NS p. 239). The Nirnaya-dipa takes the Pratipada current at sangava, a verse whose source NS doubts. Not in an intercalary month.",
-    "purnima": "The texts read give Purnima deaths no day of the fortnight. Popular calendars keep a Purnima shraddha on the Bhadrapada full moon; not shown.",
+    "purnima": "Some almanacs list a Purnima shraddha on the Bhadrapada full moon; the texts read give it no day, so none is shown.",
     "variant": "Madhava and the Prthvicandrodaya take the earlier day in kshaya and the later in vrddhi, of the following tithi, when the afternoon is covered on both days (NS pp. 719-720). Not computed: the comparison it rests on is not defined on the pages read.",
 }  # fmt: skip
 OBSERVANCE_RULES["sankashti"] = {
