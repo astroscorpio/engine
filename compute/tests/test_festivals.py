@@ -313,7 +313,7 @@ def test_decision_26_kinds_2026():
     ]
     for o in vat:
         assert o["rule"] in FESTIVAL_RULES["vat-savitri"] and not o["lunarMonth"]["adhika"]
-        assert len(o["nights"]) == 3 and o["nights"][-1] == o["date"]
+        assert len(o["nights"]) == 3 and o["nights"][-1] == (o["fastDate"] or o["date"])
         assert o["paranaAfter"] == o["tithi"]["end"]
     # Ganga-dashahara keeps the adhika month (NS p. 144; DS p. 38).
     (g,) = _rows("ganga-dussehra")
@@ -443,3 +443,32 @@ def test_chhath_with_two_sunsets_takes_the_later():
     assert long["rule"] == "two_sunsets_later"
     nxt = (dt.date.fromisoformat(c["date"]) + dt.timedelta(1)).isoformat()
     assert long["date"] == nxt and long["set"]["kharna"]["date"] == c["date"]
+
+
+def test_drik_diff_decisions_d1_to_d3():
+    import datetime as dt
+
+    def rows(kind, year):
+        status, out = call("GET", f"/v1/festivals/{kind}", {**DELHI, "year": str(year)})
+        assert status == 200, out
+        return out["occurrences"]
+
+    def next_day(d):
+        return (dt.date.fromisoformat(d) + dt.timedelta(1)).isoformat()
+
+    # D1: a Caturdashi of 18 nadis or more moves the puja a day on, the fast staying put.
+    long = [o for y in range(2026, 2031) for o in rows("vat-savitri", y) if o["fastDate"]]
+    assert long and all(o["rule"] == "puja_only_later" for o in long)
+    assert all(o["date"] == next_day(o["fastDate"]) and o["caturdashiNadis"] >= 18 for o in long)
+    # D2: a Dvitiya holding two sunrises takes the first.
+    two = [
+        o
+        for y in range(2026, 2031)
+        for o in rows("rath-yatra", y)
+        if o["rule"] == "two_sunrises_first"
+    ]
+    assert two and all(o["date"] == o["tithi"]["start"][:10] for o in two)
+    # D3: Akshaya Tritiya by DS p. 36, NS's later day as the variant.
+    both = [o for y in range(2026, 2031) for o in rows("akshaya-tritiya", y)
+            if o["rule"] == "forenoon_both_earlier"]  # fmt: skip
+    assert both and all(o["variantDate"] == next_day(o["date"]) for o in both)

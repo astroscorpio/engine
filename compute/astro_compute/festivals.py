@@ -1156,9 +1156,10 @@ def _forenoon(sr: float, q) -> tuple[float, float]:
 
 
 def _akshaya(start: float, end: float, _next: float, q: EkadashiQuery) -> dict | None:
-    """NS p. 134 (VR f. 43): the Vaishakha shukla Tritiya covering the forenoon; on
-    both days, the later. variantDate is DS p. 36's rule for both days: the later
-    only if the Tritiya lasts more than three muhurtas into it, else the earlier."""
+    """DS p. 36 (decision D3, 15 Oct 2026): the Vaishakha shukla Tritiya covering the
+    forenoon; on both days, the later only if the Tritiya lasts more than three
+    day-muhurtas into it, else the earlier. variantDate is NS p. 134's day (VR f. 43):
+    on both days, the later. Covering neither forenoon: the later (our reading)."""
     base = _base(start, end, 3, q)
     if not _in_month(base, "vaishakha"):
         return None
@@ -1168,12 +1169,11 @@ def _akshaya(start: float, end: float, _next: float, q: EkadashiQuery) -> dict |
     if cov[0] != cov[1]:
         chosen, rule = (0 if cov[0] else 1), "forenoon"
     elif cov[0]:
-        chosen, rule = 1, "forenoon_both_later"
+        long = end - s[1] > 3 * _muhurta(s[1], q)
+        chosen, rule = (1, "forenoon_both_three_muhurtas") if long else (0, "forenoon_both_earlier")
     else:
         chosen, rule = 1, "forenoon_neither_later"
-    ds = chosen
-    if all(cov):
-        ds = 1 if end - s[1] > 3 * (_sunset(s[1], q) - s[1]) / 15 else 0
+    ns = 1 if all(cov) else chosen  # NS p. 134: on both days, the later
     strip = _strip(days)
     for d, w in zip(strip, fore, strict=True):
         d["forenoon"] = {**_span(w, q), "covered": round(_share(start, end, w), 3)}
@@ -1183,7 +1183,7 @@ def _akshaya(start: float, end: float, _next: float, q: EkadashiQuery) -> dict |
         "date": days[chosen]["date"],
         "vara": days[chosen]["vara"],
         "rule": rule,
-        "variantDate": days[ds]["date"] if ds != chosen else None,
+        "variantDate": days[ns]["date"] if ns != chosen else None,
         "pujaWindow": _span(_clip(start, end, fore[chosen]) or fore[chosen], q),
     }
 
@@ -1282,8 +1282,10 @@ def _vat_savitri(start: float, end: float, _next: float, q: EkadashiQuery) -> di
     day (DS). The nights are that day and the two before it, the parana at the tithi's end
     (NS p. 148). The Amavasya form (the Nirnayamrta, NS p. 147) keeps the same rule on the
     new moon ending amanta Vaishakha, the dark fortnight of purnimanta Jyeshtha (our
-    reading). Neither form in an adhika month (DS p. 4). DS's puja-only form (Purnima only)
-    takes the later day when the Caturdashi lasts 18 nadis after the vow day's sunrise."""
+    reading). Neither form in an adhika month (DS p. 4). The date is DS's puja-only day
+    (decision D1, 15 Oct 2026): the later day when the Caturdashi lasts 18 nadis or more
+    after the fast day's sunrise, else the fast day, which is then fastDate; the Amavasya
+    form takes it through NS p. 148, "ayam nirnayo 'mayam api jneyah" (our reading)."""
     num = Mu.tithi_at((start + end) / 2, q.ayanamsa)
     base = _base(start, end, num, q)
     if not _in_month(base, "jyeshtha" if num == 15 else "vaishakha"):
@@ -1295,19 +1297,21 @@ def _vat_savitri(start: float, end: float, _next: float, q: EkadashiQuery) -> di
         k, rule = 0, "caturdashi_joined"
     else:
         k, rule = 1, "under_three_muhurtas_later"
-    puja_only = num == 15 and k == 0 and start - s[0] >= 18 * DANDA
-    day = dt.date.fromisoformat(_date(s[k], q))
+    puja = 1 if k == 0 and start - s[0] >= 18 * DANDA else k
+    if puja != k:
+        rule = "puja_only_later"
+    fast = dt.date.fromisoformat(_date(s[k], q))
     return {
         **base,
         "form": "purnima" if num == 15 else "amavasya",
-        "date": day.isoformat(),
-        "vara": _vara(s[k], q),
+        "date": _date(s[puja], q),
+        "vara": _vara(s[puja], q),
         "rule": rule,
+        "fastDate": fast.isoformat() if puja != k else None,
         "muhurtasBeforeSunset": round(before / mu, 2),
         "caturdashiNadis": round((start - s[0]) / DANDA, 1),
-        "nights": [(day - dt.timedelta(days=i)).isoformat() for i in (2, 1, 0)],
+        "nights": [(fast - dt.timedelta(days=i)).isoformat() for i in (2, 1, 0)],
         "paranaAfter": iso(end, q.tz),
-        "pujaOnlyDate": _date(s[1], q) if puja_only else None,
     }
 
 
@@ -1388,7 +1392,8 @@ def _rath(start: float, end: float, _next: float, q: EkadashiQuery) -> dict | No
     """NS p. 149, quoting the Skanda in the Tithi-tattva: the chariot festival on the
     Ashadha shukla Dvitiya joined with Pushya, or on the tithi alone. The day is the
     Dvitiya at sunrise, Trtiya-joined as the paired-tithi rule pairs them; at two sunrises
-    the later, at none the day it falls on (our reading)."""
+    the first (our reading, matched to prevailing practice: decision D2, 15 Oct 2026), at
+    none the day it falls on (our reading)."""
     base = _base(start, end, 2, q)
     if not _in_month(base, "ashadha"):
         return None
@@ -1397,7 +1402,7 @@ def _rath(start: float, end: float, _next: float, q: EkadashiQuery) -> dict | No
     if not held:
         k, rule = 0, "no_sunrise_day_it_falls_on"
     else:
-        k, rule = held[-1], "two_sunrises_later" if len(held) == 2 else "sunrise_tritiya_joined"
+        k, rule = held[0], "two_sunrises_first" if len(held) == 2 else "sunrise_tritiya_joined"
     pushya = _spans(lambda t: Mu.nakshatra_at(t, q.ayanamsa), PUSHYA, start, end, 0.1)
     return {
         **base,
@@ -1936,8 +1941,8 @@ RITE_SOURCES = {
     "parashurama-jayanti": {**VRATARAJA, "page": "f. 43"},
     "vasanta-panchami": {**VRATARAJA, "page": "f. 103"},
     "ratha-saptami": {**VRATARAJA, "page": "f. 115"},
-    "sawan-somvar": {**VRATARAJA, "page": "ff. 350-354"},
-    "hartalika-teej": {**VRATARAJA, "page": "f. 48 ff."},
+    "sawan-somvar": {**VRATARAJA, "page": "ff. 347-354"},
+    "hartalika-teej": {**VRATARAJA, "page": "ff. 48-52"},
 }
 # NS p. 149 quotes the Skanda from the Tithi-tattva (part 1, p. 19).
 TT_RATHA = {**TITHI_TATTVA, "text": "Tithi-tattva (Raghunandana), quoting the Skanda", "page": "19"}
