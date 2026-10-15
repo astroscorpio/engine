@@ -190,6 +190,14 @@ MUNDAN_NOTES = {
     "months": "Dharmasindhu p. 137 names Magha, Phalguna, Vaishakha and Jyeshtha as good months; Muhurta Chintamani asks for the Sun's northern course and not Caitra, which this list applies.",
     "placements": "Malefics are best in the 3rd, 6th or 11th, benefics in a kendra (MC 5.29-30), and Kashyapa keeps the Moon out of the 6th, 8th and 12th (p. 191). Not applied here.",
 }  # fmt: skip
+# vehicle-purchase.md (the lead's decisions of 15 Oct 2026): /muhurat/vehicle, /muhurat/property.
+PURCHASE_NOTES = {
+    "buying": "Muhurta Chintamani 2.16 names six stars good for buying: Revati, Shatabhisha, Ashvini, Svati, Shravana and Citra. The selling stars of 2.17 (the three Purvas, Vishakha, Krttika, Ashlesha, Bharani) are barred for buying, and the commentary counts the rest middling (p. 63).",
+    "vehicle": "A vehicle day needs a buying star, a riding weekday (Thursday, Monday, Sunday, Friday or Wednesday: the Vyavaharoccaya on mounting an elephant, horse or chariot, in MC's commentary on 2.18) and no rikta tithi. The rikta bar is MC 2.18's rule for horses, applied to vehicles as our reading.",
+    "delivery": "delivery[] widens the stars to the Vyavaharoccaya's eleven riding stars (adding Mrgashira, Punarvasu, Hasta, Pushya and Dhanishtha), for taking delivery or a first drive.",
+    "property": "No rule for buying land or a house was found in the texts read, so property days follow the general buying rule of MC 2.16. Moving in is griha-pravesh.",
+    "windows": "Windows are the stretches where the muhurta finder's act (vehicle or property) raises no veto: Rahu kalam, Yamaganda, Gulika and durmuhurta, the bad yogas' opening, Bhadra on earth, the day yogas, mahapata, the Moon in the 8th from the lagna, the rikta tithis and Amavasya. Only the buyer's muhurta is checked when the seller must sell at once (MC 2.16 commentary).",
+}  # fmt: skip
 # vargas.md (the lead's decision of 15 Oct 2026): what BPHS 7.1-6 reads each varga for,
 # and the six modern readings kept, labelled and uncited.
 BPHS_1939 = {
@@ -738,6 +746,7 @@ MUHURTA_RULE_NAMES = {
     "eldest_jyeshtha": "Jyeshtha, for an eldest child (Ratnamala, MC 5.33 commentary)",
     "selling_star": "A selling star, barred for buying: the three Purvas, Vishakha, Krttika, Ashlesha, Bharani (MC 2.16-17)",
     "riding_weekday": "Not a riding weekday: Thursday, Monday, Sunday, Friday or Wednesday (the Vyavaharoccaya in MC 2.18 commentary)",
+    "not_buying_star": "Not one of the six buying stars: middling for buying (MC 2.16 and its commentary)",
     "middling_month_home": "Kartika or Margashirsha: middling, for necessity (Narada in MC 13.1)",
     "sun_sign_home": "The Sun in Cancer, Virgo or Aquarius (Guru in MC 13.1)",
     "jupiter_venus_state": "Jupiter or Venus set, old or infant (MC 1.46-48, 5.27)",
@@ -990,6 +999,7 @@ def _english() -> dict:
         "grihaPraveshNotes": GRIHA_PRAVESH_NOTES,
         "mundanRules": {k: {"name": n, "source": src} for k, (n, src) in MUNDAN_RULES.items()},
         "mundanNotes": MUNDAN_NOTES,
+        "purchaseNotes": PURCHASE_NOTES,
         "horaSystems": HORA_SYSTEMS,
         "festivalRules": {
             group: {k: {"name": n, "source": src} for k, (n, src) in rules.items()}

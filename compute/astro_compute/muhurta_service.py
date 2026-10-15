@@ -43,6 +43,7 @@ RULES: list[tuple[re.Pattern, str]] = [
         # Buying (MC 2.16-18).
         (r"^[\w.]+: a selling star, barred for buying \(MC 2\.16-17\)$", "selling_star"),
         (r"^\w+day: not a riding weekday \(MC 2\.18 commentary\)$", "riding_weekday"),
+        (r"^[\w.]+: not a buying star \(MC 2\.16\)$", "not_buying_star"),
         (r"^(Sunday|Tuesday) \(MC 13\.4\)$", "weekday_home"),
         (r"^middling month for house entry \(Narada\)$", "middling_month_home"),
         (r"^Sun in \w+ \(Guru, MC 13\.1\)$", "sun_sign_home"),

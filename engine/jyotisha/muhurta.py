@@ -1133,7 +1133,9 @@ def evaluate(
     if yoga in BAD_YOGA_GHATIS and not v.vetoes:
         bad((f"{yoga} yoga, past its opening", 0.5))
     stars = profile.nakshatras | (OLD_HOUSE_STARS if profile.home and old_house else set())
-    if nak not in stars and not profile.mundan and nak not in profile.barred_nakshatras:
+    if profile.barred_nakshatras and nak not in stars | profile.barred_nakshatras:
+        bad((f"{nak}: not a buying star (MC 2.16)", profile.other_nakshatra))  # middling
+    elif nak not in stars and not profile.mundan and not profile.barred_nakshatras:
         cls = NAKSHATRA_CLASS[nak]
         bad((f"{nak} ({cls})", profile.other_nakshatra + (profile.harsh if cls in HARSH else 0)))
     if t != 30 and n not in profile.tithis and n not in (4, 8, 9, 14) and not profile.mundan:
