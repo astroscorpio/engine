@@ -495,7 +495,28 @@ UTPATA = {
     5: "Pushya",
     6: "U.Phalguni",
 }
-KANA = {0: "Jyeshtha", 2: "P.Bhadrapada", 3: "Bharani", 4: "Ardra", 5: "Magha", 6: "Chitra"}
+KANA = {
+    0: "Jyeshtha",
+    1: "Abhijit",
+    2: "P.Bhadrapada",
+    3: "Bharani",
+    4: "Ardra",
+    5: "Magha",
+    6: "Chitra",
+}
+# Abhijit, the 28th nakshatra: the last quarter of U.Ashadha and the first fifteenth
+# of Shravana (Muhurta-martanda 1909, travel v. 4, p. 139), in sidereal degrees.
+ABHIJIT = (276 + 40 / 60, 280 + 53 / 60 + 20 / 3600)
+
+
+def nakshatra_28(longitude: float) -> str:
+    """The nakshatra of a sidereal longitude, with Abhijit carved out of its two
+    neighbours, as MC 1.30's 28-nakshatra count needs."""
+    if ABHIJIT[0] <= longitude < ABHIJIT[1]:
+        return "Abhijit"
+    return NAKSHATRAS[int(longitude // (360 / 27)) % 27]
+
+
 SIDDHI = {
     0: "Mula",
     1: "Shravana",

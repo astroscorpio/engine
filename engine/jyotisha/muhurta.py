@@ -28,6 +28,7 @@ from .ephemeris import (
     NAKSHATRAS,
     SIGNS,
     ascendant,
+    declination_view,
     luminaries,
     next_sunrise,
     positions,
@@ -353,6 +354,66 @@ def bhadra_face_tail(
     f0 = start + (face - 1) * prahara
     t1 = start + tail * prahara
     return (f0, f0 + 5 * ghati), (t1 - 3 * ghati, t1)
+
+
+def mahapatas(t0: float, t1: float) -> list[tuple[str, float, float, float]]:
+    """Mahapata, the equal declination of the Sun and Moon (MC 1.34 commentary;
+    Surya-siddhanta 11, Burgess). Vyatipata: tropical longitudes summing to about
+    180 degrees, declinations equal on the same side. Vaidhriti: summing to about
+    360, equal and opposite. The half-duration is the sum of the semi-diameters
+    over the difference of the daily motions in longitude (11.14-15). Returns
+    (kind, moment, start, end) for each one whose span touches [t0, t1]."""
+
+    def total(t: float) -> float:
+        return (declination_view(t, "Sun")[0] + declination_view(t, "Moon")[0]) % 360
+
+    out = []
+    # Near the solstices the declinations change slowly and the moment can fall
+    # more than a day from the crossing, so crossings within two days count.
+    step, t = 0.25, t0 - 2
+    prev = total(t)
+    while t < t1 + 2:
+        nxt = t + step
+        cur = total(nxt)
+        for kind, target, sign in (("vyatipata", 180.0, 1), ("vaidhriti", 0.0, -1)):
+            if (prev - target) % 360 > 180 and (cur - target) % 360 <= 180:
+                moment = _declinations_meet(t - 1.5, nxt + 1.5, sign)
+                if moment is None:
+                    continue
+                _, _, sun_speed, sun_semi = declination_view(moment, "Sun")
+                _, _, moon_speed, moon_semi = declination_view(moment, "Moon")
+                half = (sun_semi + moon_semi) / abs(moon_speed - sun_speed)
+                if moment + half > t0 and moment - half < t1:
+                    out.append((kind, moment, moment - half, moment + half))
+        t, prev = nxt, cur
+    return sorted(out, key=lambda r: r[1])
+
+
+def _declinations_meet(a: float, b: float, sign: int) -> float | None:
+    """The moment in [a, b] nearest its middle where the Moon's declination equals
+    sign times the Sun's (11.9-12), or None when they never meet there."""
+
+    def gap(t: float) -> float:
+        return declination_view(t, "Moon")[1] - sign * declination_view(t, "Sun")[1]
+
+    roots, step = [], 1 / 24
+    t, g = a, gap(a)
+    while t < b:
+        u = min(t + step, b)
+        h = gap(u)
+        if g == 0 or (g < 0) != (h < 0):
+            lo, hi, glo = t, u, g
+            for _ in range(40):
+                mid = (lo + hi) / 2
+                gm = gap(mid)
+                if (glo < 0) != (gm < 0):
+                    hi = mid
+                else:
+                    lo, glo = mid, gm
+            roots.append((lo + hi) / 2)
+        t, g = u, h
+    middle = (a + b) / 2
+    return min(roots, key=lambda r: abs(r - middle)) if roots else None
 
 
 def bhadra_residence(moon_sign: int) -> str:

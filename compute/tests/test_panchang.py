@@ -136,14 +136,32 @@ def test_ravi_yoga_and_the_mc_1_30_columns():
         status, out = call("GET", "/v1/panchang", {"date": date, **DELHI})
         return {r["id"]: (r["start"][11:16], r["end"][11:16]) for r in out["specialYogas"]}
 
-    # Monday 19 Oct 2026: Mrtyu in U.Ashadha, then Shravana is Monday's siddhi; with the
-    # Sun in Citra, Shravana is the 9th nakshatra from it, a Ravi yoga (MC 1.27).
+    # Monday 19 Oct 2026: MC 1.30 counts 28 nakshatras, so Abhijit (the last quarter
+    # of U.Ashadha and the first fifteenth of Shravana) is Monday's kana, between
+    # Mrtyu (U.Ashadha) and Siddhi (Shravana). Ravi yoga counts 27 nakshatras: with
+    # the Sun in Citra, Shravana is the 9th (MC 1.27), from where Shravana begins.
     monday = ids("2026-10-19")
-    assert monday["marana"] == ("06:25", "15:38")
-    assert monday["siddhi"] == monday["ravi"] == ("15:38", "06:25")
+    assert monday["marana"][1] == monday["kana"][0] and monday["kana"][1] == monday["siddhi"][0]
+    assert monday["ravi"][0] < monday["siddhi"][0]
     # Tuesday 20 Oct: Dhanishta (the 10th from Citra) is Tuesday's utpata.
     tuesday = ids("2026-10-20")
     assert tuesday["utpata"] == ("18:02", "06:26") and tuesday["ravi"] == ("06:25", "06:26")
+
+
+def test_mahapata_is_the_moment_of_equal_declinations():
+    from jyotisha.ephemeris import declination_view
+
+    from astro_compute.timeutil import parse_instant
+
+    status, out = call("GET", "/v1/panchang", {"date": "2026-10-21", **DELHI})
+    (row,) = [r for r in out["specialYogas"] if r["id"] == "mahapata"]
+    assert row["detail"] == "vyatipata" and row["start"] < row["moment"] < row["end"]
+    t = parse_instant(row["moment"], DELHI["tz"])
+    (sun_lon, sun_dec, _, _), (moon_lon, moon_dec, _, _) = (
+        declination_view(t, "Sun"),
+        declination_view(t, "Moon"),
+    )
+    assert abs(moon_dec - sun_dec) < 0.02 and abs((sun_lon + moon_lon) % 360 - 180) < 15
 
 
 def test_bhadra_face_and_tail_follow_mc_1_44():

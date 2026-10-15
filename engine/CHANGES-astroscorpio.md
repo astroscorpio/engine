@@ -19,3 +19,6 @@ The engine is the jyotisha package as of 14 Oct 2026, with the changes below. Th
 | `rare.py` | `UTPATA`, `KANA`, `SIDDHI` (the other columns of MC 1.30) and `RAVI_YOGA_COUNTS` (MC 1.27), new | The panchang names these weekday-nakshatra yogas. Monday's Kāṇa is Abhijit, the 28th nakshatra, which the 27-nakshatra tables leave out. |
 | `hypotheses.py` | `VEDHA["Venus"]`: 11 is blocked from the 3rd and 12 from the 6th (the two were swapped) | Phaladipika 26.8 pairs the good houses 1-5, 8, 9, 12, 11 with the vedha houses 8, 7, 1, 10, 9, 5, 11, 6, 3; Muhurta Chintamani 4.3 agrees. |
 | `muhurta.py` | `BHADRA_FACE_TAIL` and `bhadra_face_tail(tithi, start, end)`, new | Bhadra's face and tail by tithi (MC 1.44), with the 5 and 3 ghatis fixed (Dharmasindhu pp. 94-95). |
+| `ephemeris.py` | `declination_view(jd, "Sun"|"Moon")`, new | Tropical longitude, declination with latitude, daily motion and semi-diameter, for mahapata. |
+| `muhurta.py` | `mahapatas(t0, t1)`, new | Mahapata as equal declinations of the Sun and Moon (MC 1.34 commentary), found per Surya-siddhanta 11 (Burgess), with its half-duration from 11.14-15. |
+| `rare.py` | `KANA[1] = "Abhijit"`, `ABHIJIT`, `nakshatra_28()`, new | MC 1.30 counts 28 nakshatras; Abhijit is the last quarter of U.Ashadha and the first fifteenth of Shravana (Muhurta-martanda 1909, p. 139). |

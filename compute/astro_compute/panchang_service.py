@@ -26,6 +26,7 @@ from jyotisha.rare import (
     SARVARTHA_SIDDHI,
     SIDDHI,
     UTPATA,
+    nakshatra_28,
 )
 
 from .errors import unsupported_location
@@ -216,14 +217,32 @@ def build(q: PanchangQuery) -> dict:
                         special.append((part[0], {"id": yid, **win(*part)}))
         for yid, hit in (
             ("sarvartha_siddhi", name in SARVARTHA_SIDDHI.get(weekday, set())),
-            ("utpata", UTPATA.get(weekday) == name),
-            ("marana", MARANA.get(weekday) == name),
-            ("kana", KANA.get(weekday) == name),
-            ("siddhi", SIDDHI.get(weekday) == name),
             ("dagdha", DAGDHA.get(weekday) == name),
         ):
             if hit:
                 special.append((clipped[0], {"id": yid, **win(*clipped)}))
+    # MC 1.30 counts 28 nakshatras: Monday's kana is Abhijit, carved out of
+    # U.Ashadha and Shravana (Muhurta-martanda, p. 139).
+    for name, a, b in spans(lambda t: nakshatra_28(luminaries(t, ay)[1].longitude), sr, nr):
+        clipped = _clip(a, b, sr, nr)
+        for yid, table in (
+            ("utpata", UTPATA),
+            ("marana", MARANA),
+            ("kana", KANA),
+            ("siddhi", SIDDHI),
+        ):
+            if clipped and table.get(weekday) == name:
+                special.append((clipped[0], {"id": yid, **win(*clipped)}))
+    # MC 1.34 commentary: mahapata, the Sun's and Moon's declinations equal.
+    for kind, moment, a, b in Mu.mahapatas(sr, nr):
+        clipped = _clip(a, b, sr, nr)
+        if clipped:
+            special.append(
+                (
+                    clipped[0],
+                    {"id": "mahapata", "detail": kind, "moment": at(moment), **win(*clipped)},
+                )
+            )
     # MC 1.27: Ravi yoga, the Moon's nakshatra counted from the Sun's (inclusively).
     sun_naks = spans(lambda t: luminaries(t, ay)[0].nakshatra, sr, nr)
     for m, ma, mb in naks:

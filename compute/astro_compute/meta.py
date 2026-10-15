@@ -395,8 +395,9 @@ SPECIAL_YOGAS = {
     "siddha": ("Siddha", "Muhurta Chintamani 1.4, Kasyapa in the commentary, p. 12", "good"),
     "marana": ("Marana (Mrtyu)", "Muhurta Chintamani 1.30, p. 23", "avoid"),
     "utpata": ("Utpata", "Muhurta Chintamani 1.30, p. 23: the first of each weekday's run of four nakshatras; 'its effect is like its name'", "avoid"),
-    "kana": ("Kana", "Muhurta Chintamani 1.30, p. 23: the third of the run. Monday's is Abhijit, the 28th nakshatra, which is not computed", "avoid"),
+    "kana": ("Kana", "Muhurta Chintamani 1.30, p. 23: the third of the run. Monday's is Abhijit, the last quarter of Uttara Ashadha and the first fifteenth of Shravana (Muhurta-martanda 1909, p. 139)", "avoid"),
     "siddhi": ("Siddhi (weekday and nakshatra)", "Muhurta Chintamani 1.30, p. 23: the fourth of the run; 'its effect is like its name'", "good"),
+    "mahapata": ("Mahapata (equal declinations)", "Muhurta Chintamani 1.34, commentary p. 30: the moment the Sun's and Moon's declinations are equal, computed by the Surya-siddhanta 11 (Burgess): Vyatipata-type with longitudes summing to about 180 degrees and declinations equal, Vaidhriti-type summing to about 360 and opposite; it lasts the sum of the semi-diameters over the difference of the daily motions either side (11.14-15). Narada, quoted in MC, avoids the whole day", "avoid"),
     "ravi": ("Ravi yoga", "Muhurta Chintamani 1.27, p. 22: the Moon's nakshatra the 4th, 6th, 9th, 10th, 13th or 20th from the Sun's, counted inclusively (our reading); it 'destroys a host of defects'", "good"),
     "dagdha": ("Dagdha", "Muhurta Chintamani 1.5, Narada in the commentary, p. 13", "avoid"),
 }  # fmt: skip

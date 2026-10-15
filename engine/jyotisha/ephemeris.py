@@ -9,6 +9,7 @@ single largest untested input to every downstream claim.
 from __future__ import annotations
 
 import datetime as dt
+import math
 import os
 from dataclasses import dataclass
 from functools import cached_property
@@ -206,6 +207,20 @@ def luminaries(jd_ut: float, ayanamsa: str = "lahiri") -> tuple[Position, Positi
     s = swe.calc_ut(jd_ut, swe.SUN, flags)[0]
     m = swe.calc_ut(jd_ut, swe.MOON, flags)[0]
     return Position("Sun", s[0] % 360, s[3], s[1]), Position("Moon", m[0] % 360, m[3], m[1])
+
+
+SUN_RADIUS_KM, MOON_RADIUS_KM, AU_KM = 695_700.0, 1_737.4, 149_597_870.7
+
+
+def declination_view(jd_ut: float, name: str) -> tuple[float, float, float, float]:
+    """Tropical longitude, declination (the Moon's includes her latitude), daily
+    motion in longitude and angular semi-diameter of "Sun" or "Moon", in degrees."""
+    body = swe.SUN if name == "Sun" else swe.MOON
+    ecl = swe.calc_ut(jd_ut, body, swe.FLG_SWIEPH | swe.FLG_SPEED)[0]
+    equ = swe.calc_ut(jd_ut, body, swe.FLG_SWIEPH | swe.FLG_EQUATORIAL)[0]
+    radius = SUN_RADIUS_KM if body == swe.SUN else MOON_RADIUS_KM
+    semi = math.degrees(math.asin(radius / (ecl[2] * AU_KM)))
+    return ecl[0] % 360, equ[1], ecl[3], semi
 
 
 def ascendant(
