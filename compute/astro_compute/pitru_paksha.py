@@ -28,12 +28,17 @@ from .festivals import _date, _spans
 from .fmt import provenance
 from .ids import tithi_id
 from .models import EkadashiQuery
-from .observances import SOURCE, _edges, _lunar, _overlap, _sunrises, _sunset, _vara
+from .observances import SOURCE, _edges, _lunar, _overlap, _shraddha, _sunrises, _sunset, _vara
 from .timeutil import iso
 
 WINDOWS = {"aparahna": (9, 12), "kutapaRauhina": (7, 9), "sangava": (3, 6)}
 BHARANI, MAGHA, HASTA = 1, 9, 12  # nakshatra indexes, Ashvini = 0
 PAGES = {**SOURCE, "verse": "Mahalaya (pitr-paksha) shraddha", "page": "215-239, 717-720"}
+DS_P61 = {
+    "text": "Dharmasindhu",
+    "edition": "Kasinatha Upadhyaya, ed. Krsna Sastri Navare, Nirnaya-sagara Press, Bombay, 1888",
+    "page": "61",
+}
 
 
 def _window(sunrise_jd: float, q, name: str) -> tuple[float, float]:
@@ -116,13 +121,37 @@ def _row(start: float, end: float, num: int, q) -> dict:
         row["aparahna"] = aft["aparahna"]
         row["variantDate"] = aft["date"] if aft["date"] != mid["date"] else None
         return row
+    if num == 30:  # the darsha rule sets the Mahalaya Amavasya too (Dharmasindhu p. 61)
+        return row | _amavasya(start, end, q)
     pick = _pick(start, end, s, q, "aparahna", _parvana_neither)
     row |= {k: v for k, v in pick.items() if k != "_chosen"}
-    if num in (28, 30):
-        row["gajacchaya"] = _gajacchaya(
-            start, end, pick["_chosen"], MAGHA if num == 28 else HASTA, q
-        )
+    if num == 28:
+        row["gajacchaya"] = _gajacchaya(start, end, pick["_chosen"], MAGHA, q)
     return row
+
+
+def _amavasya(start: float, end: float, q) -> dict:
+    """NS pp. 81-87, as for every darsha shraddha (observances.md s5): the
+    Amavasya touching one day's aparahna (the last third of the daytime); both or
+    neither go to the kutapa tie-breaks."""
+    s = _sunrises(start, q.lat, q.lon, 4)
+    held = [t for t in s if start <= t < end]
+    darsha: dict = {"vrata": {"date": None}}
+    _shraddha(darsha, start, end, s, len(held), q)
+    sh = darsha["shraddha"]
+    day = next(t for t in s if _date(t, q) == sh["date"])
+    dm = (_sunset(day, q) - day) / 15
+    afternoon = (day, (day + 10 * dm, day + 15 * dm))
+    return {
+        "date": sh["date"],
+        "vara": _vara(day, q),
+        "rule": sh["rule"],
+        "ruleGroup": "shraddha",
+        "aparahna": sh["aparahna"],
+        "kutapa": sh["kutapa"],
+        "source": {**DS_P61, "verse": "Mahalaya and darsha shraddha on one day"},
+        "gajacchaya": _gajacchaya(start, end, afternoon, HASTA, q),
+    }
 
 
 def pitru_paksha(q: EkadashiQuery) -> dict:

@@ -18,7 +18,7 @@ def test_pitru_paksha_2026_at_delhi_matches_drik():
     assert (out["bharani"]["date"], out["magha"]["date"]) == ("2026-09-29", "2026-10-07")
     assert out["matamaha"]["date"] == "2026-10-11"
     for r in out["tithis"]:
-        group = "ekoddishta" if r["tithi"] == "chaturdashi" else "mahalaya"
+        group = {"chaturdashi": "ekoddishta", "amavasya": "shraddha"}.get(r["tithi"], "mahalaya")
         assert r["rule"] in OBSERVANCE_RULES[group]
     assert "kutapaRauhina" in out["tithis"][13] and "gajacchaya" in out["tithis"][14]
 
