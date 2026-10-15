@@ -1,17 +1,21 @@
 """GET /v1/festivals/<id>: the festival days of a year at a place.
 
-Rules from docs/sources/festivals.md, all from Nirnaya-sindhu (1898 printing;
-"NS"). Windows:
-  pratah     the 1st fifth of the daytime (NS p. 28 divides the day in five;
-             "morning" read as its first part, our reading);
+Rules from docs/sources/festivals.md: Nirnaya-sindhu (1898 printing; "NS") and,
+where research recommends it, the Dharmasindhu (1888 printing; "DS"), with NS's
+own day kept as variantDate where the two differ. Windows:
   madhyahna  the 3rd fifth of the daytime (NS p. 28);
-  aparahna   the last third of the daytime (NS p. 81 defines it so for
-             shraddha; used for the festivals too, our reading);
+  aparahna   the 4th fifth of the daytime (our reading of NS p. 28's five-part
+             day; DS p. 32 uses it too). NS's monthly shraddha keeps its own
+             last third (observances.py);
+  abhijit    the 8th of the 15 day muhurtas;
   pradosha   three muhurtas after sunset, a muhurta a fifteenth of the night;
   nishitha   two ghatikas around the middle of the night (Madhava, NS p. 335),
              taken as a fifteenth of the night centred on its midpoint (our
              reading of the ghatika's length).
-Bhadra is the Vishti karana: in a Purnima, its first half.
+A ghatika is 24 minutes and a yama a quarter of the daytime (NS p. 82). Bhadra
+is the Vishti karana: in a Purnima, its first half, with its tail the last 3
+ghatikas of the tithi's 3rd prahara (an eighth) and its face the first 5 of the
+4th (DS pp. 94-95, MC 1.44).
 NS names a new moon (and the dark fortnight before it) by the amanta month it
 ends, so month tests below use the amanta month.
 """
@@ -26,7 +30,12 @@ from .observances import SOURCE, _collect, _lunar, _overlap, _rise_set, _sunrise
 from .timeutil import aware, iso
 
 DANDA = 24 / 1440  # one ghatika (danda), in days
-ROHINI, SHRAVANA = 3, 21  # nakshatra indexes, Ashvini = 0
+ROHINI, CHITRA, SHRAVANA = 3, 13, 21  # nakshatra indexes, Ashvini = 0
+VAIDHRITI = 26  # yoga index, Vishkambha = 0
+DS = {
+    "text": "Dharmasindhu",
+    "edition": "Kasinatha Upadhyaya, ed. Krsna Sastri Navare, Nirnaya-sagara Press, Bombay, 1888",
+}
 
 
 def _night(sunrise_jd: float, q) -> tuple[float, float]:
@@ -39,9 +48,9 @@ def _windows(sunrise_jd: float, q) -> dict[str, tuple[float, float]]:
     night, day = nr - ss, ss - sunrise_jd
     mid = ss + night / 2
     return {
-        "pratah": (sunrise_jd, sunrise_jd + day / 5),
         "madhyahna": (sunrise_jd + 2 * day / 5, sunrise_jd + 3 * day / 5),
-        "aparahna": (sunrise_jd + 2 * day / 3, ss),
+        "aparahna": (sunrise_jd + 3 * day / 5, sunrise_jd + 4 * day / 5),
+        "abhijit": (sunrise_jd + 7 * day / 15, sunrise_jd + 8 * day / 15),
         "pradosha": (ss, ss + 3 * night / 15),
         "nishitha": (mid - night / 30, mid + night / 30),
         "night": (ss, nr),
@@ -213,44 +222,54 @@ def _ganesha(start: float, end: float, _next: float, q: EkadashiQuery) -> dict |
     }
 
 
-# --- Raksha Bandhan (NS p. 180) ----------------------------------------------------
+# --- Raksha Bandhan (NS pp. 179-180; DS p. 49) -------------------------------------
+
+
+def _after(t: float, w: tuple[float, float]) -> tuple[float, float] | None:
+    """The part of window w after moment t."""
+    return (max(t, w[0]), w[1]) if t < w[1] else None
+
+
+def _raksha_ns(start: float, end: float, s: list[float], days: list[dict], free: float) -> int:
+    """NS p. 180: the earlier day's afternoon, even when the Upakarma is on the
+    next day; after Bhadra, even at night; never the Purnima joined with Pratipada."""
+    if start < days[0]["_w"]["aparahna"][1] and free < s[1]:
+        return 0
+    return 1
 
 
 def _raksha(start: float, end: float, _next: float, q: EkadashiQuery) -> dict | None:
-    """In the earlier day's afternoon, even when the Upakarma falls on the next
-    day; never in Bhadra (if Bhadra is there, at its end, even at night:
-    Nirnayamrta); never on the Purnima joined with Pratipada."""
+    """DS p. 49: the Purnima current at sunrise and lasting more than three
+    muhurtas after it: that day, in the afternoon or at pradosha, free of Bhadra.
+    Otherwise the earlier day, at pradosha or about then, free of Bhadra."""
     base = _base(start, end, 15, q)
     if not _in_month(base, "shravana"):
         return None
-    s, days = _days(start, end, q, ("aparahna",))
+    s, days = _days(start, end, q, ("aparahna", "pradosha"))
     bhadra = _bhadra(start, end, q)
     free = bhadra[1] if bhadra else start  # the Purnima after Bhadra
-    a0, a1 = days[0]["_w"]["aparahna"], days[1]["_w"]["aparahna"]
-    if start < a0[1]:  # it reaches the earlier day's afternoon
-        tie = _clip(free, end, a0)
-        if tie:
-            chosen, rule = 0, "aparahna"
-        elif free < s[1]:
-            chosen, rule, tie = 0, "after_bhadra_night", (free, min(end, s[1]))
-        else:
-            chosen, rule, tie = 1, "bhadra_past_sunrise", _clip(free, end, a1) or (free, end)
-    else:  # it begins after the earlier day's sunset
-        tie = _clip(free, end, a1)
-        chosen, rule = 1, ("later_aparahna" if tie else "no_aparahna")
-        tie = tie or (free, end)
+    w0, w1 = days[0]["_w"], days[1]["_w"]
+    muhurta = (w1["night"][0] - s[1]) / 15
+    if start <= s[1] < end and end - s[1] > 3 * muhurta:
+        chosen, rule = 1, "udaya_three_muhurtas"
+        tie = _after(free, w1["aparahna"]) or _after(free, w1["pradosha"])
+    else:
+        chosen, rule = 0, "earlier_pradosha"
+        tie = _after(free, w0["pradosha"]) or (free, min(end, s[1]))
+    ns = _raksha_ns(start, end, s, days, free)
     return {
         **base,
         "days": _strip(days),
         "date": days[chosen]["date"],
         "vara": days[chosen]["vara"],
         "rule": rule,
+        "variantDate": days[ns]["date"] if ns != chosen else None,
         "tieWindow": _span(tie, q),
         "bhadra": _span(bhadra, q),
     }
 
 
-# --- Janmashtami and Jayanti (NS pp. 183-191) ---------------------------------------
+# --- Janmashtami and Jayanti (NS pp. 183-192; DS pp. 49-51) --------------------------
 
 
 def _by_midnight(n: list[float]) -> tuple[int, str]:
@@ -298,6 +317,13 @@ def _janmashtami(start: float, end: float, _next: float, q: EkadashiQuery) -> di
     j = [any(_overlap(a, b, *w) > 0 for a, b in both) for w in nish]
     chosen, rule = _by_midnight(n)
     jay = _jayanti(j, n, r, bool(both))
+    variant = None
+    # The split year: one observance on the Rohini day (Madhava, DS pp. 50-51),
+    # if that day's Ashtami lasts a muhurta after sunrise (DS); NS p. 192 keeps
+    # two fasts, the first day being its Janmashtami.
+    muhurta = (days[1]["_w"]["night"][0] - s[1]) / 15
+    if jay and jay[1] == "split_later" and start <= s[1] and end - s[1] >= muhurta:
+        variant, chosen, rule = chosen, 1, "split_rohini_day"
     # The sunrise view NS sets aside (p. 191): the Ashtami at the later sunrise.
     at_sunrise = [i for i in (1, 2) if start <= s[i] < end]
     out = _strip(days)
@@ -310,6 +336,7 @@ def _janmashtami(start: float, end: float, _next: float, q: EkadashiQuery) -> di
         "date": days[chosen]["date"],
         "vara": days[chosen]["vara"],
         "rule": rule,
+        "variantDate": days[variant]["date"] if variant is not None else None,
         "nishitha": days[chosen]["nishitha"],
         "rohini": _span(near, q),
         "jayanti": {
@@ -324,44 +351,58 @@ def _janmashtami(start: float, end: float, _next: float, q: EkadashiQuery) -> di
     }
 
 
-# --- Sharad Navaratri and Vijayadashami (NS pp. 240-241, 283-284) ----------------------
+# --- Sharad Navaratri and Vijayadashami (NS pp. 240-241, 283-284; DS pp. 65, 71) ---------
 
 
 def _navaratri(start: float, end: float, _next: float, q: EkadashiQuery) -> dict | None:
-    """Kalasha-sthapana on the Pratipada current at sunrise, "even for two
-    muhurtas"; never the one joined with Amavasya (the day it begins on); in
-    the morning (Devi Purana via Tithi-tattva)."""
+    """DS p. 65 (NS pp. 240-241): the Pratipada current at sunrise, best lasting
+    three muhurtas after it, then two, by some texts one; never the day joined with
+    Amavasya, unless the Pratipada lasts under a muhurta after sunrise or touches
+    none. Filling a whole day and more, it is kept on the first. Begun within ten
+    ghatikas of sunrise, failing that at the Abhijit muhurta; never in the
+    afternoon or at night."""
     base = _base(start, end, 1, q)
     if not _in_month(base, "ashwin"):
         return None
-    s, days = _days(start, end, q, ("pratah",), 3)
+    s, days = _days(start, end, q, (), 3)
     held = [i for i in (1, 2) if start <= s[i] < end]
-    variant = None
-    if len(held) == 1:
-        chosen, rule = held[0], "pratipada_at_sunrise"
-    elif held:
-        chosen, rule, variant = held[0], "vrddhi_first", held[1]
+    muhurta = [(d["_w"]["night"][0] - s[i]) / 15 for i, d in enumerate(days)]
+    if not held:
+        chosen, rule = 0, "no_sunrise_amavasya_joined"
+    elif len(held) == 2:
+        chosen, rule = 1, "full_day_first"
+    elif end - s[1] < muhurta[1]:
+        chosen, rule = 0, "under_one_muhurta_amavasya_joined"
     else:
-        chosen, rule = 0, "no_sunrise"
-    w = days[chosen]["_w"]
-    muhurta = (w["night"][0] - s[chosen]) / 15
+        chosen, rule = 1, "pratipada_at_sunrise"
+    sr, w = s[chosen], days[chosen]["_w"]
+    window = _clip(start, end, (sr, sr + 10 * DANDA)) or _clip(start, end, w["abhijit"])
+    cautions = []
+    if window:
+        ay = q.ayanamsa
+        if window[0] < start + 16 * DANDA:
+            cautions.append("first_16_nadis")
+        if CHITRA in {Mu.nakshatra_at(t, ay) for t in window}:
+            cautions.append("chitra")
+        if VAIDHRITI in {Mu.yoga_at(t, ay) for t in window}:
+            cautions.append("vaidhriti")
     return {
         **base,
-        "days": _strip(days[: 3 if variant == 2 else 2]),
+        "days": _strip(days[: 3 if held == [1, 2] and chosen == 2 else 2]),
         "date": days[chosen]["date"],
         "vara": days[chosen]["vara"],
         "rule": rule,
-        "variantDate": days[variant]["date"] if variant is not None else None,
-        "sthapanaWindow": _span(_clip(start, end, w["pratah"]), q),
-        "twoMuhurtas": end - s[chosen] >= 2 * muhurta if held else None,
+        "muhurtasAfterSunrise": round((end - sr) / muhurta[chosen], 2) if chosen else None,
+        "sthapanaWindow": _span(window, q),
+        "cautions": cautions,
     }
 
 
 def _vijayadashami(start: float, end: float, _next: float, q: EkadashiQuery) -> dict | None:
-    """NS p. 284: the afternoon is the main time, pradosha the secondary. The
-    afternoon on both days (covered or touched): the earlier, but the later if
-    Shravana is current in the later day's afternoon (pp. 283-284); pradosha on
-    both days with the afternoon only on the later: the later."""
+    """NS p. 284 (DS p. 71): the afternoon is the main time, pradosha the
+    secondary. The afternoon on both days (covered or touched): the earlier, but
+    the later if Shravana is current in the later day's afternoon (pp. 283-284);
+    pradosha on both days with the afternoon only on the later: the later."""
     base = _base(start, end, 10, q)
     if not _in_month(base, "ashwin"):
         return None
@@ -392,41 +433,86 @@ def _vijayadashami(start: float, end: float, _next: float, q: EkadashiQuery) -> 
     }
 
 
-# --- Holika-dahana (NS pp. 342-344) -------------------------------------------------
+# --- Holika-dahana (NS pp. 342-344; DS pp. 94-95) ------------------------------------
+
+
+def _holika_ns(start: float, end: float, s: list[float], w: list, free: float) -> int:
+    """NS: the Purnima at pradosha, on both days the later; with Bhadra over the
+    first pradosha, lit at night once Bhadra ends; reaching neither pradosha, or
+    Bhadra past the night, the next day in Pratipada (p. 343)."""
+    p = [_share(start, end, x) for x in w]
+    if p[1] > 0:
+        return 1
+    return 0 if p[0] > 0 and (_clip(free, end, w[0]) or free < s[1]) else 1
+
+
+def _clear_of(w: tuple[float, float] | None, face: tuple[float, float]):
+    """Window w with the face cut out: the part before it, else the part after."""
+    if not w or _overlap(*w, *face) == 0:
+        return w
+    return _clip(w[0], w[1], (w[0], face[0])) or _clip(w[0], w[1], (face[1], w[1]))
 
 
 def _holika(start: float, end: float, _next: float, q: EkadashiQuery) -> dict | None:
-    """The Phalguna Purnima at pradosha, lit at nightfall (Narada). On both days
-    the later, since Bhadra is on the first. Never in Bhadra: with Bhadra over
-    the pradosha, lit at night once it ends. Reaching neither pradosha, or Bhadra
-    past the night: the next day's pradosha, in Pratipada (Bhavishya via
-    Nirnayamrta). Not in an adhika month."""
+    """DS p. 94. The Purnima at pradosha, free of Bhadra. Pradosha on both days,
+    or partly on the second: the second, Bhadra being on the first. The first
+    day's pradosha in Bhadra and none on the second: if the Purnima lasts 3 1/2
+    yamas into the second day and the Pratipada grows, the second day's pradosha
+    in Pratipada; if the Pratipada shrinks, the first night, in Bhadra's tail or
+    avoiding its face; otherwise after Bhadra if it ends before midnight, else in
+    Bhadra avoiding its face. Pradosha on neither day: the first night, in
+    Bhadra's tail, else in Bhadra after pradosha. Never by day; not in an
+    adhika month."""
     base = _base(start, end, 15, q)
     if not _in_month(base, "phalguna"):
         return None
     s, days = _days(start, end, q, ("pradosha",))
     bhadra = _bhadra(start, end, q)
     free = bhadra[1] if bhadra else start
+    prahara = (end - start) / 8
+    tail = (start + 3 * prahara - 3 * DANDA, start + 3 * prahara)
+    face = (start + 3 * prahara, start + 3 * prahara + 5 * DANDA)
     w = [d["_w"]["pradosha"] for d in days]
     p = [_share(start, end, x) for x in w]
-    first = _clip(free, end, w[0])
+    night = days[0]["_w"]["night"]
+    midnight = (night[0] + night[1]) / 2
+    pr = _clip(start, end, w[0])
+    tail_at_night = tail[0] >= max(night[0], start) and tail[1] <= night[1]
     if p[1] > 0:
-        chosen, fire = 1, _clip(free, end, w[1])
-        rule = "pradosha_both_later" if p[0] > 0 else "pradosha"
-    elif first:
-        chosen, rule, fire = 0, "pradosha", first
-    elif p[0] > 0 and free < s[1]:
-        chosen, rule, fire = 0, "after_bhadra_night", (free, min(end, s[1]))
-    else:
-        chosen, rule, fire = 1, "shrinking_later", w[1]
+        chosen, rule, fire = 1, "pradosha_later", _clip(start, end, w[1])
+    elif pr and _clip(free, end, w[0]):
+        chosen, rule, fire = 0, "pradosha", _clip(free, end, w[0])
+    elif pr:  # the first pradosha in Bhadra, none on the second day
+        yama = (days[1]["_w"]["night"][0] - s[1]) / 4
+        long = start <= s[1] < end and end - s[1] >= 3.5 * yama
+        if long and _next - end > end - start:
+            chosen, rule, fire = 1, "sardha_triyama_later", w[1]
+        elif long:
+            chosen, rule = 0, "shrinking_pratipada_tail"
+            fire = tail if tail_at_night else _clear_of(pr, face)
+        elif free <= midnight:
+            chosen, rule, fire = 0, "after_bhadra_before_midnight", (free, midnight)
+        else:
+            chosen, rule, fire = 0, "bhadra_avoiding_face", _clear_of(pr, face)
+    else:  # pradosha on neither day
+        chosen = 0
+        after = _clip(max(start, w[0][1]), min(free, night[1]), night)
+        if tail_at_night and tail[0] >= w[0][1]:
+            rule, fire = "neither_tail", tail
+        else:
+            rule, fire = "neither_after_pradosha", _clear_of(after, face)
+    ns = _holika_ns(start, end, s, w, free)
     return {
         **base,
         "days": _strip(days),
         "date": days[chosen]["date"],
         "vara": days[chosen]["vara"],
         "rule": rule,
+        "variantDate": days[ns]["date"] if ns != chosen else None,
         "dahanWindow": _span(fire, q),
         "bhadra": _span(bhadra, q),
+        "bhadraTail": _span(tail, q),
+        "bhadraFace": _span(face, q),
     }
 
 
@@ -437,21 +523,27 @@ def _year(q: EkadashiQuery, num: int, build) -> list[dict]:
     return [r for r in rows if r.get("date")]
 
 
+# kind: (tithi, builder, NS pages, DS pages or None)
 FESTIVALS = {
-    "dipavali": (30, _dipavali, "pp. 299-300"),
-    "mahashivaratri": (29, lambda a, b, c, q: _shivaratri(a, b, c, q, True), "pp. 334-337"),
-    "masik-shivaratri": (29, lambda a, b, c, q: _shivaratri(a, b, c, q, False), "p. 340"),
-    "ganesha-chaturthi": (4, _ganesha, "pp. 47, 198"),
-    "raksha-bandhan": (15, _raksha, "p. 180"),
-    "janmashtami": (23, _janmashtami, "pp. 183-191"),
-    "sharad-navaratri": (1, _navaratri, "pp. 240-241"),
-    "vijayadashami": (10, _vijayadashami, "pp. 283-284"),
-    "holika-dahana": (15, _holika, "pp. 342-344"),
+    "dipavali": (30, _dipavali, "pp. 299-300", None),
+    "mahashivaratri": (
+        29,
+        lambda a, b, c, q: _shivaratri(a, b, c, q, True),
+        "pp. 334-337",
+        None,
+    ),
+    "masik-shivaratri": (29, lambda a, b, c, q: _shivaratri(a, b, c, q, False), "p. 340", None),
+    "ganesha-chaturthi": (4, _ganesha, "pp. 47, 198", None),
+    "raksha-bandhan": (15, _raksha, "pp. 179-180", "p. 49"),
+    "janmashtami": (23, _janmashtami, "pp. 183-192", "pp. 49-51"),
+    "sharad-navaratri": (1, _navaratri, "pp. 240-241", "pp. 65-66"),
+    "vijayadashami": (10, _vijayadashami, "pp. 283-284", "p. 71"),
+    "holika-dahana": (15, _holika, "pp. 342-344", "pp. 94-95"),
 }
 
 
 def festival(kind: str, q: EkadashiQuery) -> dict:
-    num, build, pages = FESTIVALS[kind]
+    num, build, pages, ds_pages = FESTIVALS[kind]
     rows = _year(q, num, build)
     source = {**SOURCE, "verse": kind, "page": pages}
     return {
@@ -459,5 +551,6 @@ def festival(kind: str, q: EkadashiQuery) -> dict:
         "festival": kind,
         "occurrences": rows,
         "source": source,
+        "alsoSource": {**DS, "verse": kind, "page": ds_pages} if ds_pages else None,
         "engine": provenance(q.ayanamsa),
     }

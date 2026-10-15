@@ -38,7 +38,7 @@ VEDHA = {
     "Mars": {3: 12, 6: 9, 11: 5},
     "Mercury": {2: 5, 4: 3, 6: 9, 8: 1, 10: 8, 11: 12},
     "Jupiter": {2: 12, 5: 4, 7: 3, 9: 10, 11: 8},
-    "Venus": {1: 8, 2: 7, 3: 1, 4: 10, 5: 9, 8: 5, 9: 11, 11: 6, 12: 3},
+    "Venus": {1: 8, 2: 7, 3: 1, 4: 10, 5: 9, 8: 5, 9: 11, 11: 3, 12: 6},
     "Saturn": {3: 12, 6: 9, 11: 5},
 }
 NO_VEDHA_BETWEEN = [{"Sun", "Saturn"}, {"Moon", "Mercury"}]
@@ -60,7 +60,7 @@ SADE_SATI_SOURCE = {
     "text": "Phaladipika",
     "verse": "26.22-23",
     "edition": "Mantresvara, tr. V. Subrahmanya Sastri, 1937",
-    "page": "293-294",
+    "page": "294-295",
 }
 SADE_SATI_NAME_NOTE = (
     'The name sāḍhe-sātī ("seven and a half" years) is a later Hindi and Marathi one, in print '

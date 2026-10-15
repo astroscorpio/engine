@@ -234,11 +234,8 @@ FESTIVAL_RULES = {
         "trtiya_joined_earlier": ("Otherwise the earlier day, joined with Trtiya", "Nirnaya-sindhu pp. 47, 198"),
     },
     "raksha-bandhan": {
-        "aparahna": ("In the afternoon of the earlier day, after Bhadra, even when the Upakarma falls on the next day", "Nirnaya-sindhu p. 180"),
-        "after_bhadra_night": ("Bhadra fills the earlier day's afternoon: tied when it ends, even at night (Nirnayamrta)", "Nirnaya-sindhu p. 180"),
-        "bhadra_past_sunrise": ("Bhadra lasts past the next sunrise: the later day once it ends (our fallback)", None),
-        "later_aparahna": ("The Purnima begins after the earlier day's sunset: the later day's afternoon (our reading)", "Nirnaya-sindhu p. 180"),
-        "no_aparahna": ("The Purnima reaches no afternoon: after Bhadra, before it ends (our fallback)", None),
+        "udaya_three_muhurtas": ("The Purnima lasts more than three muhurtas after the later sunrise: that day, in the afternoon or at pradosha, free of Bhadra", "Dharmasindhu p. 49"),
+        "earlier_pradosha": ("Otherwise the earlier day, at pradosha or about then, free of Bhadra", "Dharmasindhu p. 49"),
     },
     "janmashtami": {
         "first_only": ("The Ashtami at midnight on the first day only: the first", "Nirnaya-sindhu pp. 189-190"),
@@ -246,6 +243,7 @@ FESTIVAL_RULES = {
         "both_later": ("At midnight on both days, equally: the second; the Ashtami joined with Saptami is avoided (Brahma-vaivarta)", "Nirnaya-sindhu p. 190"),
         "neither_later": ("At midnight on neither day: the second", "Nirnaya-sindhu p. 190"),
         "more": ("Partly on both days, unequally: the day with more of it", "Nirnaya-sindhu p. 190"),
+        "split_rohini_day": ("The Ashtami holds the first midnight and meets Rohini on the second day: one observance, on the Rohini day (Madhava). Nirnaya-sindhu keeps two fasts, the first day being its Janmashtami (variantDate); Hemadri keeps the first", "Dharmasindhu pp. 50-51; Nirnaya-sindhu pp. 191-192"),
     },
     "jayanti": {
         "first": ("The Ashtami and Rohini together at midnight on the first day only: the first, even when joined with Saptami (Padma)", "Nirnaya-sindhu p. 190"),
@@ -254,23 +252,28 @@ FESTIVAL_RULES = {
         "split_later": ("The Ashtami at the first midnight, Rohini at the second: the second, for the Jayanti joining (Madhava); Hemadri takes the first", "Nirnaya-sindhu p. 191"),
     },
     "sharad-navaratri": {
-        "pratipada_at_sunrise": ("The Pratipada current at sunrise, even for two muhurtas; never the one joined with Amavasya", "Nirnaya-sindhu pp. 240-241"),
-        "vrddhi_first": ("The Pratipada at two sunrises: the first (our reading); the second, joined with Dvitiya, is praised (Devi Purana, Rudrayamala)", "Nirnaya-sindhu p. 241"),
-        "no_sunrise": ("The Pratipada touches no sunrise: its only day, though joined with Amavasya (the texts read do not cover this case)", None),
+        "pratipada_at_sunrise": ("The Pratipada current at sunrise, best lasting three muhurtas after it, then two, by some texts one; never the one joined with Amavasya", "Dharmasindhu p. 65; Nirnaya-sindhu pp. 240-241"),
+        "full_day_first": ("The Pratipada fills a whole day and runs into the next: the first, as complete", "Dharmasindhu p. 65"),
+        "under_one_muhurta_amavasya_joined": ("The Pratipada lasts under a muhurta after sunrise: the day joined with Amavasya", "Dharmasindhu p. 65"),
+        "no_sunrise_amavasya_joined": ("The Pratipada touches no sunrise: its only day, joined with Amavasya", "Dharmasindhu p. 65"),
     },
     "vijayadashami": {
         "aparahna": ("The Dashami in the afternoon of one day only: that day", "Nirnaya-sindhu p. 284"),
         "aparahna_both_earlier": ("In the afternoon of both days, covering or touching it: the earlier", "Nirnaya-sindhu p. 284"),
-        "shravana_later": ("In the afternoon of both days, with Shravana in the later day's afternoon: the later", "Nirnaya-sindhu pp. 283-284"),
+        "shravana_later": ("In the afternoon of both days, with Shravana in the later day's afternoon: the later", "Nirnaya-sindhu pp. 283-284; Dharmasindhu p. 71"),
         "pradosha_both_later": ("Pradosha on both days, the afternoon only on the later: the later", "Nirnaya-sindhu p. 284"),
         "pradosha": ("No afternoon on either day: the day with pradosha, the secondary time", "Nirnaya-sindhu p. 284"),
         "neither_later": ("Neither window on either day: the later day (our fallback)", None),
     },
     "holika-dahana": {
-        "pradosha": ("The Purnima current at pradosha, after Bhadra (Narada)", "Nirnaya-sindhu p. 342"),
-        "pradosha_both_later": ("Pradosha on both days: the later, since Bhadra falls on the first", "Nirnaya-sindhu p. 342"),
-        "after_bhadra_night": ("Bhadra fills the pradosha: lit at night when Bhadra ends", "Nirnaya-sindhu p. 343"),
-        "shrinking_later": ("The Purnima reaches no Bhadra-free night before it ends: the next day's pradosha, in Pratipada (Bhavishya via Nirnayamrta)", "Nirnaya-sindhu p. 343"),
+        "pradosha_later": ("Pradosha on both days, or partly on the second: the second, since Bhadra falls on the first", "Dharmasindhu p. 94; Nirnaya-sindhu p. 342"),
+        "pradosha": ("The Purnima at the first day's pradosha, free of Bhadra (Narada)", "Dharmasindhu p. 94; Nirnaya-sindhu p. 342"),
+        "sardha_triyama_later": ("The first pradosha in Bhadra; the Purnima lasts 3 1/2 yamas into the second day and the Pratipada grows: the second day's pradosha, in Pratipada (Bhavishya)", "Dharmasindhu p. 94; Nirnaya-sindhu p. 343"),
+        "shrinking_pratipada_tail": ("As above but the Pratipada shrinks: the first night, in Bhadra's tail or in Bhadra avoiding its face", "Dharmasindhu p. 94"),
+        "after_bhadra_before_midnight": ("The first pradosha in Bhadra, which ends before midnight: once it ends, before midnight (the midnight limit is our reading)", "Dharmasindhu p. 94"),
+        "bhadra_avoiding_face": ("Bhadra ends after midnight: at pradosha in Bhadra, avoiding only its face (the others in Nirnaya-sindhu; 'the practice of the learned')", "Dharmasindhu p. 94; Nirnaya-sindhu pp. 343-344"),
+        "neither_tail": ("Pradosha on neither day: the first night, in Bhadra's tail", "Dharmasindhu p. 94"),
+        "neither_after_pradosha": ("Pradosha on neither day and no tail at night: in Bhadra after pradosha, avoiding its face (a first-half Bhadra is allowed at night, MC 1.44)", "Dharmasindhu p. 94"),
     },
 }  # fmt: skip
 FESTIVAL_NOTES = {
@@ -278,12 +281,17 @@ FESTIVAL_NOTES = {
     "mahashivaratri": "The dark Chaturdashi ending amanta Magha (purnimanta Phalguna). Some texts take pradosha, others midnight (NS p. 334). A Chaturdashi joined with Amavasya is avoided (Skanda, p. 337).",
     "masik-shivaratri": "Every dark Chaturdashi, by the same tests (NS p. 340). Hemadri keeps the name for the Magha one only and takes the day with more of the night, the earlier when equal.",
     "ganesha-chaturthi": "Worship at midday (pujaWindow, the 3rd fifth of the daytime, NS p. 28). Do not look at the Moon while the Chaturthi runs (moonAvoid; Markandeya in NS p. 198); a Moon that rose in Chaturthi may be seen once Panchami begins.",
-    "raksha-bandhan": "The Shravana Purnima. The raksha is tied in the afternoon (the last third of the daytime, our reading) of the earlier day, never in Bhadra and never on the Purnima joined with Pratipada (NS p. 180). bhadra is the Vishti karana, the Purnima's first half. An eclipse day free of Bhadra is still kept.",
-    "janmashtami": "The dark Ashtami ending amanta Shravana (purnimanta Bhadrapada). Midnight decides (NS p. 189). Jayanti is the Ashtami joined with Rohini; NS holds both vratas due, though people keep only Janmashtami (p. 187). udayaDate is the sunrise view (the Ashtami at the later sunrise), which Vaishnava calendars follow; NS sets it aside as baseless (p. 191).",
-    "sharad-navaratri": "Kalasha-sthapana on Ashvina shukla Pratipada, in the morning (Devi Purana via Tithi-tattva, NS p. 241). sthapanaWindow is the first fifth of the daytime (our reading of morning). twoMuhurtas says whether the Pratipada lasts two muhurtas after that sunrise. NS also quotes a line against the first sixteen nadis (p. 240) without their measure; not computed.",
-    "vijayadashami": "Ashvina shukla Dashami. pujaWindow is the afternoon (the last third of the daytime, our reading) while the Dashami runs. Aparajita puja is done in the afternoon facing north-east (Skanda via Hemadri, p. 283). The Vijaya moment is just after twilight as the first stars appear (Narada, p. 284); not computed.",
-    "holika-dahana": "The Phalguna Purnima, lit at nightfall (Narada, NS p. 342); never in Bhadra (p. 343), so dahanWindow is free of it. Not in an adhika month (p. 344). Bhadra's face is five nadis and its neck one (Ratnamala, p. 344); the whole of Bhadra is left out here.",
+    "raksha-bandhan": "The Shravana Purnima. Dharmasindhu p. 49 sets the day by how long the Purnima lasts after the later sunrise; tieWindow is that day's afternoon (the 4th fifth of the daytime, our reading) or pradosha, free of Bhadra. Nirnaya-sindhu p. 180 keeps the earlier day's afternoon, after Bhadra even at night, and never the Purnima joined with Pratipada; its day is variantDate where it differs. bhadra is the Vishti karana, the Purnima's first half. It is kept on eclipse and sankranti days too.",
+    "janmashtami": "The dark Ashtami ending amanta Shravana (purnimanta Bhadrapada). Midnight decides (NS p. 189). Jayanti is the Ashtami joined with Rohini; NS holds both vratas due, though people keep only Janmashtami (p. 187). In a split year the date is the Rohini day (Madhava, Dharmasindhu pp. 50-51) and variantDate is Nirnaya-sindhu's first-day fast (it keeps both, p. 192). udayaDate is the sunrise view, which Vaishnava calendars follow; NS sets it aside as baseless (p. 191).",
+    "sharad-navaratri": "Kalasha-sthapana on Ashvina shukla Pratipada. sthapanaWindow is the first ten ghatikas (four hours) after sunrise while the Pratipada runs, failing that the Abhijit muhurta; never in the afternoon or at night (Dharmasindhu pp. 65-66). muhurtasAfterSunrise is how long the Pratipada lasts after that sunrise. cautions lists the Pratipada's first sixteen nadis, Chitra and Vaidhriti where they touch the window: avoided where the time allows, never at the cost of the forenoon (DS p. 65).",
+    "vijayadashami": "Ashvina shukla Dashami. pujaWindow is the afternoon (the 4th fifth of the daytime, our reading) while the Dashami runs. Aparajita puja is done in the afternoon facing north-east (Skanda via Hemadri, NS p. 283). The Vijaya moment is just after twilight as the first stars appear (Narada, p. 284); not computed.",
+    "holika-dahana": "The Phalguna Purnima, lit at night, never by day (Dharmasindhu p. 94). Bhadra's tail is the last 3 ghatikas of the tithi's 3rd prahara and its face the first 5 of the 4th (DS pp. 94-95, MC 1.44); the tail is auspicious, the face never used. Nirnaya-sindhu is stricter, lighting only after Bhadra ends (p. 343); its day is variantDate where it differs. Not in an adhika month (NS p. 344).",
 }  # fmt: skip
+FESTIVAL_CAUTIONS = {
+    "first_16_nadis": "The Pratipada's first sixteen nadis (6 h 24 min)",
+    "chitra": "The Moon in Chitra",
+    "vaidhriti": "Vaidhriti yoga",
+}
 SANKASHTI_NOTE = (
     "Krishna paksha, by common practice; the texts read do not state the fortnight. Moonrise "
     "is the visible rise, the Moon's upper limb with refraction (our convention; the texts "
@@ -340,7 +348,7 @@ ASPECTS = {
     ),
 }
 # PD 6.5: "There are some who declare that there is no Kemadruma where ..."
-# PD 26.22-23 (1937, pp. 293-294), quoted as printed; no predictions of our own.
+# PD 26.22-23 (1937, pp. 294-295), quoted as printed; no predictions of our own.
 SADE_SATI_PHASES = {
     "rising": (12, "When Saturn is in the 12th house, the native will be wearied by being engaged in a worthless and fruitless business. He will be robbed of his moneys by his enemies. His wife and sons will suffer from sickness.", "26.23"),
     "peak": (1, "During Saturn's transit through the Janmarasi, the native will suffer from disease; he will perform funeral rites;", "26.22"),
@@ -367,16 +375,16 @@ YOGA_NOTES = {
     "bphs_42_our_reading": "Our reading of BPHS 42: every named graha in the 11th, or in or aspecting the lagna",
 }  # fmt: skip
 SPECIAL_YOGAS = {
-    "amrita_siddhi": ("Siddhi (amrta) yoga", "Narada, quoted in Muhurta Chintamani 1.21's commentary, p. 20. Avoided on its excluded tithi (1.20-21) and for its act (1.22: Tuesday-Ashwini for entering a house, Saturday-Rohini for a journey, Thursday-Pushya for a marriage); it never lifts Bhadra, Vyatipata or Vaidhriti (p. 35)"),
-    "visha": ("Visha yoga", "Muhurta Chintamani 1.20-21, pp. 19-20: a siddhi pair on its excluded tithi (Daivajna-manohara calls these visha)"),
-    "sarvartha_siddhi": ("Sarvartha Siddhi", "Muhurta Chintamani 1.28-29, p. 22, main reading (a footnoted variant reads Anuradha for Purva Phalguni on Friday)"),
-    "siddha": ("Siddha", "Muhurta Chintamani 1.4, Kasyapa in the commentary, p. 12"),
-    "marana": ("Marana (Mrtyu)", "Muhurta Chintamani 1.30, p. 23"),
-    "utpata": ("Utpata", "Muhurta Chintamani 1.30, p. 23: the first of each weekday's run of four nakshatras; 'its effect is like its name'"),
-    "kana": ("Kana", "Muhurta Chintamani 1.30, p. 23: the third of the run. Monday's is Abhijit, the 28th nakshatra, which is not computed"),
-    "siddhi": ("Siddhi (weekday and nakshatra)", "Muhurta Chintamani 1.30, p. 23: the fourth of the run; 'its effect is like its name'"),
-    "ravi": ("Ravi yoga", "Muhurta Chintamani 1.27, p. 22: the Moon's nakshatra the 4th, 6th, 9th, 10th, 13th or 20th from the Sun's, counted inclusively (our reading); it 'destroys a host of defects'"),
-    "dagdha": ("Dagdha", "Muhurta Chintamani 1.5, Narada in the commentary, p. 13"),
+    "amrita_siddhi": ("Siddhi (amrta) yoga", "Narada, quoted in Muhurta Chintamani 1.21's commentary, p. 20. Avoided on its excluded tithi (1.20-21) and for its act (1.22: Tuesday-Ashwini for entering a house, Saturday-Rohini for a journey, Thursday-Pushya for a marriage); it never lifts Bhadra, Vyatipata or Vaidhriti (p. 35)", "good"),
+    "visha": ("Visha yoga", "Muhurta Chintamani 1.20-21, pp. 19-20: a siddhi pair on its excluded tithi (Daivajna-manohara calls these visha)", "avoid"),
+    "sarvartha_siddhi": ("Sarvartha Siddhi", "Muhurta Chintamani 1.28-29, p. 22, main reading (a footnoted variant reads Anuradha for Purva Phalguni on Friday)", "good"),
+    "siddha": ("Siddha", "Muhurta Chintamani 1.4, Kasyapa in the commentary, p. 12", "good"),
+    "marana": ("Marana (Mrtyu)", "Muhurta Chintamani 1.30, p. 23", "avoid"),
+    "utpata": ("Utpata", "Muhurta Chintamani 1.30, p. 23: the first of each weekday's run of four nakshatras; 'its effect is like its name'", "avoid"),
+    "kana": ("Kana", "Muhurta Chintamani 1.30, p. 23: the third of the run. Monday's is Abhijit, the 28th nakshatra, which is not computed", "avoid"),
+    "siddhi": ("Siddhi (weekday and nakshatra)", "Muhurta Chintamani 1.30, p. 23: the fourth of the run; 'its effect is like its name'", "good"),
+    "ravi": ("Ravi yoga", "Muhurta Chintamani 1.27, p. 22: the Moon's nakshatra the 4th, 6th, 9th, 10th, 13th or 20th from the Sun's, counted inclusively (our reading); it 'destroys a host of defects'", "good"),
+    "dagdha": ("Dagdha", "Muhurta Chintamani 1.5, Narada in the commentary, p. 13", "avoid"),
 }  # fmt: skip
 AYANAMSAS = {
     "lahiri": "Lahiri (Chitrapaksha)", "raman": "B. V. Raman", "krishnamurti": "Krishnamurti (KP)",
@@ -628,7 +636,10 @@ def _english() -> dict:
             k: {"name": n, "description": d, "source": "Muhurta Chintamani 1.45, p. 38"}
             for k, (n, d) in BHADRA_RESIDENCES.items()
         },
-        "specialYogas": {k: {"name": n, "source": src} for k, (n, src) in SPECIAL_YOGAS.items()},
+        "specialYogas": {
+            k: {"name": n, "source": src, "quality": quality}
+            for k, (n, src, quality) in SPECIAL_YOGAS.items()
+        },
         "dignities": {k: {"name": v} for k, v in DIGNITIES.items()},
         "dignityNotes": {k: {"name": v} for k, v in DIGNITY_NOTES.items()},
         "aspects": ASPECTS,
@@ -653,6 +664,7 @@ def _english() -> dict:
             for group, rules in FESTIVAL_RULES.items()
         },
         "festivalNotes": FESTIVAL_NOTES,
+        "festivalCautions": FESTIVAL_CAUTIONS,
         "purnimaEarlierDateNote": PURNIMA_EARLIER_NOTE,
         "amavasyaNames": {
             k: {"name": n, "note": note, "source": src}

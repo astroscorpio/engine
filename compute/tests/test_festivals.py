@@ -43,21 +43,68 @@ def test_new_festivals_2026_at_delhi_match_drik():
         "2026-09-04",
     )
     (n,) = _rows("sharad-navaratri")
-    assert (n["date"], n["rule"], n["twoMuhurtas"]) == ("2026-10-11", "pratipada_at_sunrise", True)
+    assert (n["date"], n["rule"]) == ("2026-10-11", "pratipada_at_sunrise")
+    # Ten ghatikas from sunrise; Drik flags Chitra and Vaidhriti that morning too.
+    assert n["sthapanaWindow"]["start"][11:16] == "06:20" and n["cautions"] == [
+        "chitra",
+        "vaidhriti",
+    ]
     (v,) = _rows("vijayadashami")
     # The Dashami touches both afternoons; Shravana ends on the 20th.
     assert (v["date"], v["rule"]) == ("2026-10-20", "aparahna_both_earlier")
     assert not v["shravanaInLaterAparahna"]
+    # The Dashami covers all of the 20th's afternoon, the 4th fifth of the day.
+    afternoon = v["days"][0]["aparahna"]
+    assert v["pujaWindow"] == {"start": afternoon["start"], "end": afternoon["end"]}
 
 
-def test_raksha_and_holika_windows_avoid_bhadra():
-    for kind in ("raksha-bandhan", "holika-dahana"):
-        (r,) = _rows(kind)
-        assert r["rule"] in FESTIVAL_RULES[kind]
-        window = r["tieWindow" if kind == "raksha-bandhan" else "dahanWindow"]
-        assert window["start"] >= r["bhadra"]["end"] and window["start"] < window["end"]
-        if r["rule"] != "shrinking_later":  # that one is lit in Pratipada
-            assert r["tithi"]["start"] <= window["start"] and window["end"] <= r["tithi"]["end"]
+def test_raksha_and_holika_follow_dharmasindhu_with_ns_as_variant():
+    (r,) = _rows("raksha-bandhan")
+    # The Purnima runs 3h51m past the 28th's sunrise (over three muhurtas): DS keeps
+    # the 28th, its afternoon; NS keeps the 27th, after Bhadra at night.
+    assert (r["date"], r["rule"], r["variantDate"]) == (
+        "2026-08-28",
+        "udaya_three_muhurtas",
+        "2026-08-27",
+    )
+    assert r["tieWindow"]["start"] >= r["bhadra"]["end"]
+    (h,) = _rows("holika-dahana")
+    # Bhadra fills the 2nd's pradosha; the Purnima lasts 3 1/2 yamas into the 3rd
+    # and the Pratipada grows: the 3rd's pradosha (DS p. 94), NS's 2nd as variant.
+    assert (h["date"], h["rule"], h["variantDate"]) == (
+        "2026-03-03",
+        "sardha_triyama_later",
+        "2026-03-02",
+    )
+    assert h["dahanWindow"]["start"][11:16] == "18:21"
+    assert r["rule"] in FESTIVAL_RULES["raksha-bandhan"]
+    assert h["rule"] in FESTIVAL_RULES["holika-dahana"]
+
+
+def test_split_years_and_bhadra_face():
+    def one(kind, year):
+        status, out = call("GET", f"/v1/festivals/{kind}", {**DELHI, "year": year})
+        assert status == 200, out
+        (row,) = out["occurrences"]
+        return row
+
+    # 2027: the Ashtami holds the 24th's midnight and meets Rohini on the 25th.
+    j = one("janmashtami", "2027")
+    assert (j["date"], j["rule"], j["variantDate"]) == (
+        "2027-08-25",
+        "split_rohini_day",
+        "2027-08-24",
+    )
+    # 2027: a Pratipada touching no sunrise is kept on its Amavasya-joined day (DS p. 65).
+    n = one("sharad-navaratri", "2027")
+    assert (n["date"], n["rule"]) == ("2027-09-30", "no_sunrise_amavasya_joined")
+    # 2027: Bhadra ends after midnight, so the fire is at pradosha in Bhadra, clear of its face.
+    h = one("holika-dahana", "2027")
+    assert h["rule"] == "bhadra_avoiding_face"
+    assert (
+        h["dahanWindow"]["end"] <= h["bhadraFace"]["start"]
+        or h["dahanWindow"]["start"] >= h["bhadraFace"]["end"]
+    )
 
 
 def test_janmashtami_tables():
