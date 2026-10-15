@@ -195,6 +195,41 @@ def _one(start: float, end: float, dv_end: float, q: EkadashiQuery) -> dict:
             "dashamiAtArunodaya": pierced,
         },
         "differs": day[smarta] != day[vaishnava],
+    } | (
+        {
+            "parana": {
+                "smarta": _parana(s[smarta + 1], end, dv_end, q),
+                "vaishnava": _parana(s[vaishnava + 1], end, dv_end, q),
+            }
+        }
+        if q.parana
+        else {}
+    )
+
+
+def _parana(sr: float, dv_start: float, dv_end: float, q: EkadashiQuery) -> dict:
+    """DS p. 19, NS pp. 70-71, on the day after the fast (sr its sunrise): within
+    Dvadashi, after Hari-vasara (its first quarter), in the first three muhurtas
+    after sunrise (the majority); Hari-vasara outlasting them, the afternoon (the
+    4th fifth of the day), never midday (some); no Dvadashi left at sunrise,
+    on Trayodashi."""
+    dm = (_sunset(sr, q) - sr) / 15
+    hari_vasara = dv_start + (dv_end - dv_start) / 4
+    if dv_end <= sr:
+        a, b, rule = sr, sr + 3 * dm, "trayodashi"
+    else:
+        a, b, rule = max(sr, hari_vasara), min(sr + 3 * dm, dv_end), "morning"
+        if a >= b:
+            a, b, rule = max(sr + 9 * dm, hari_vasara), min(sr + 12 * dm, dv_end), "afternoon"
+        if a >= b:
+            a, b, rule = hari_vasara, dv_end, "within_dvadashi"
+    return {
+        "date": aware(sr, q.tz).date().isoformat(),
+        "start": iso(a, q.tz),
+        "end": iso(b, q.tz),
+        "rule": rule,
+        "hariVasaraEnd": iso(hari_vasara, q.tz) if hari_vasara > sr else None,
+        "breakBefore": iso(dv_end, q.tz) if dv_end > sr else None,
     }
 
 

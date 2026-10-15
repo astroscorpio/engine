@@ -109,3 +109,26 @@ def test_amavasya_touching_no_sunrise_keeps_its_month():
     (row,) = [r for r in out["occurrences"] if r["vrata"]["date"] == "2026-05-16"]
     assert row["vrata"]["rule"] == "only_day"
     assert row["lunarMonth"] == {"amanta": "vaishakha", "purnimanta": "jyeshtha", "adhika": False}
+
+
+def test_parana_follows_dharmasindhu():
+    status, out = call("GET", "/v1/observances/ekadashi", {**DELHI, "parana": "true"})
+    assert status == 200, out
+    by_fast = {r["smarta"]["date"]: r for r in out["ekadashis"]}
+    for r in out["ekadashis"]:
+        for side in ("smarta", "vaishnava"):
+            p = r["parana"][side]
+            assert p["rule"] in OBSERVANCE_RULES["parana"] and p["start"] < p["end"]
+            if p["rule"] != "trayodashi":  # broken inside Dvadashi, after Hari-vasara
+                assert p["end"] <= r["dvadashiEnd"] == p["breakBefore"]
+                assert p["hariVasaraEnd"] is None or p["start"] >= p["hariVasaraEnd"]
+    # 20 Nov: Hari-vasara outlasts the first three muhurtas, so the afternoon; the
+    # Vaishnava fast on the 21st finds no Dvadashi left, so Trayodashi (Drik agrees).
+    prabodhini = by_fast["2026-11-20"]["parana"]
+    assert (prabodhini["smarta"]["rule"], prabodhini["vaishnava"]["rule"]) == (
+        "afternoon",
+        "trayodashi",
+    )
+    # Without parana=true the rows are as before.
+    status, out = call("GET", "/v1/observances/ekadashi", DELHI)
+    assert "parana" not in out["ekadashis"][0]

@@ -377,21 +377,20 @@ def mahapatas(t0: float, t1: float) -> list[tuple[str, float, float, float]]:
         cur = total(nxt)
         for kind, target, sign in (("vyatipata", 180.0, 1), ("vaidhriti", 0.0, -1)):
             if (prev - target) % 360 > 180 and (cur - target) % 360 <= 180:
-                moment = _declinations_meet(t - 1.5, nxt + 1.5, sign)
-                if moment is None:
-                    continue
-                _, _, sun_speed, sun_semi = declination_view(moment, "Sun")
-                _, _, moon_speed, moon_semi = declination_view(moment, "Moon")
-                half = (sun_semi + moon_semi) / abs(moon_speed - sun_speed)
-                if moment + half > t0 and moment - half < t1:
-                    out.append((kind, moment, moment - half, moment + half))
+                # Near the equator the declinations can meet twice (11.19).
+                for moment in _declinations_meet(t - 1.5, nxt + 1.5, sign):
+                    _, _, sun_speed, sun_semi = declination_view(moment, "Sun")
+                    _, _, moon_speed, moon_semi = declination_view(moment, "Moon")
+                    half = (sun_semi + moon_semi) / abs(moon_speed - sun_speed)
+                    if moment + half > t0 and moment - half < t1:
+                        out.append((kind, moment, moment - half, moment + half))
         t, prev = nxt, cur
     return sorted(out, key=lambda r: r[1])
 
 
-def _declinations_meet(a: float, b: float, sign: int) -> float | None:
-    """The moment in [a, b] nearest its middle where the Moon's declination equals
-    sign times the Sun's (11.9-12), or None when they never meet there."""
+def _declinations_meet(a: float, b: float, sign: int) -> list[float]:
+    """Every moment in [a, b] where the Moon's declination equals sign times the
+    Sun's (11.9-12); none when they never meet there (11.19)."""
 
     def gap(t: float) -> float:
         return declination_view(t, "Moon")[1] - sign * declination_view(t, "Sun")[1]
@@ -412,8 +411,7 @@ def _declinations_meet(a: float, b: float, sign: int) -> float | None:
                     lo, glo = mid, gm
             roots.append((lo + hi) / 2)
         t, g = u, h
-    middle = (a + b) / 2
-    return min(roots, key=lambda r: abs(r - middle)) if roots else None
+    return roots
 
 
 def bhadra_residence(moon_sign: int) -> str:

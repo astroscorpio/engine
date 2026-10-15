@@ -149,6 +149,29 @@ OBSERVANCE_RULES = {
         "more_pradosha": ("It covers part of pradosha, on one evening only or unequally on both: the day with more of it (the other opinion recorded there)", "Nirnaya-sindhu p. 72, footnote"),
     },
 }  # fmt: skip
+# observances.md s9 (provisional: the lead's decision 3)
+OBSERVANCE_RULES["parana"] = {
+    "morning": (
+        "Within the first three muhurtas after sunrise, once Hari-vasara (Dvadashi's first quarter) is over and before Dvadashi ends (the majority)",
+        "Dharmasindhu p. 19; Nirnaya-sindhu p. 71",
+    ),
+    "afternoon": (
+        "Hari-vasara outlasts the first three muhurtas: the afternoon (the 4th fifth of the day) within Dvadashi, never at midday (some)",
+        "Dharmasindhu p. 19",
+    ),
+    "trayodashi": (
+        "No Dvadashi is left at sunrise: on Trayodashi, in the first three muhurtas",
+        "Dharmasindhu p. 19",
+    ),
+    "within_dvadashi": ("After Hari-vasara and before Dvadashi ends (our fallback)", None),
+}
+PARANA_NOTE = (
+    "Break the fast before Dvadashi ends (breakBefore): letting Dvadashi pass is a grave fault "
+    "(Dharmasindhu p. 19). In a difficulty, water counts as breaking it (Devala, Nirnaya-sindhu "
+    "p. 71). With a short Dvadashi the morning and midday rites move to dawn so the meal falls "
+    "inside it (NS p. 70). Nirnaya-sindhu's own teachers prefer the afternoon even when the "
+    "morning is open (p. 71)."
+)
 # observances.md s8 (provisional: the lead's decision 8)
 OBSERVANCE_RULES["mahalaya"] = {
     "one_day": (
@@ -397,7 +420,7 @@ SPECIAL_YOGAS = {
     "utpata": ("Utpata", "Muhurta Chintamani 1.30, p. 23: the first of each weekday's run of four nakshatras; 'its effect is like its name'", "avoid"),
     "kana": ("Kana", "Muhurta Chintamani 1.30, p. 23: the third of the run. Monday's is Abhijit, the last quarter of Uttara Ashadha and the first fifteenth of Shravana (Muhurta-martanda 1909, p. 139)", "avoid"),
     "siddhi": ("Siddhi (weekday and nakshatra)", "Muhurta Chintamani 1.30, p. 23: the fourth of the run; 'its effect is like its name'", "good"),
-    "mahapata": ("Mahapata (equal declinations)", "Muhurta Chintamani 1.34, commentary p. 30: the moment the Sun's and Moon's declinations are equal, computed by the Surya-siddhanta 11 (Burgess): Vyatipata-type with longitudes summing to about 180 degrees and declinations equal, Vaidhriti-type summing to about 360 and opposite; it lasts the sum of the semi-diameters over the difference of the daily motions either side (11.14-15). Narada, quoted in MC, avoids the whole day", "avoid"),
+    "mahapata": ("Mahapata (equal declinations)", "Muhurta Chintamani 1.34, commentary p. 30: the moment the Sun's and Moon's declinations are equal, computed by the Surya-siddhanta 11 (Burgess): Vyatipata-type with longitudes summing to about 180 degrees and declinations equal, Vaidhriti-type summing to about 360 and opposite; its half-duration is per Surya-siddhanta 11.14, sixty times the half-sum of the two discs over the difference of the daily motions, in nadis; near the equator it can occur twice, near a solstice not at all (11.19). Narada, quoted in MC, avoids the whole day", "avoid"),
     "ravi": ("Ravi yoga", "Muhurta Chintamani 1.27, p. 22: the Moon's nakshatra the 4th, 6th, 9th, 10th, 13th or 20th from the Sun's, counted inclusively (our reading); it 'destroys a host of defects'", "good"),
     "dagdha": ("Dagdha", "Muhurta Chintamani 1.5, Narada in the commentary, p. 13", "avoid"),
 }  # fmt: skip
@@ -673,6 +696,7 @@ def _english() -> dict:
         },
         "shraddhaNote": SHRADDHA_NOTE,
         "sankashtiNote": SANKASHTI_NOTE,
+        "paranaNote": PARANA_NOTE,
         "pitruPakshaNotes": PITRU_PAKSHA_NOTES,
         "horaSystems": HORA_SYSTEMS,
         "festivalRules": {
