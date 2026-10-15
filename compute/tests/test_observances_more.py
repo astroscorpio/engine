@@ -52,6 +52,21 @@ def test_pradosha_vrata_on_the_trayodashi_covering_pradosha():
         chosen = next(d for d in r["days"] if d["date"] == r["date"])
         assert chosen["vara"] == r["vara"]
         if r["rule"] == "covers_pradosha":
-            assert chosen["covered"] == 1 and r["variantDate"] is None
+            assert chosen["covered"] > 0 and r["variantDate"] is None
+            assert sum(d["covered"] > 0 for d in r["days"]) == 1
         else:
             assert r["variantDate"] == r["days"][0]["date"] and r["date"] == r["days"][1]["date"]
+
+
+def test_pradosha_2026_at_delhi_takes_the_evening_the_trayodashi_reaches():
+    # 12 Jun 2026: Trayodashi 19:37 to 16:08 next day reaches the 12th's pradosha only.
+    status, out = call("GET", "/v1/observances/pradosha", DELHI)
+    rows = {r["tithi"]["start"][:10]: r for r in out["occurrences"]}
+    assert (rows["2026-06-12"]["date"], rows["2026-06-12"]["rule"]) == (
+        "2026-06-12",
+        "covers_pradosha",
+    )
+    assert (
+        rows["2026-02-28"]["rule"] == "both_covered_later"
+        and rows["2026-02-28"]["date"] == "2026-03-01"
+    )

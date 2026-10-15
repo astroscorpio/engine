@@ -359,8 +359,9 @@ def _pradosha_window(sunrise_jd: float, q: EkadashiQuery) -> tuple[float, float]
 
 
 def _pradosha(start: float, end: float, _next_end: float, q: EkadashiQuery) -> dict:
-    """NS p. 72 footnote: the Trayodashi covering pradosha. Both or neither: the
-    later day, with Mayukha's earlier day (after Sumantu) as a variant."""
+    """NS p. 72 footnote: the Trayodashi present in pradosha (pradosha-vyapini).
+    Both days or neither: the later day, with Mayukha's earlier day (after
+    Sumantu) as a variant."""
     zone = q.tz
     s = _sunrises(start, q.lat, q.lon, 3)  # the day it begins and the next
     day = [aware(t, zone).date().isoformat() for t in s]
@@ -369,7 +370,7 @@ def _pradosha(start: float, end: float, _next_end: float, q: EkadashiQuery) -> d
     for i in (0, 1):
         p0, p1 = _pradosha_window(s[i], q)
         covered = _overlap(start, end, p0, p1) / (p1 - p0)
-        covers.append(covered >= 1 - 1e-9)
+        covers.append(covered > 0)  # vyapini: present in pradosha (our reading)
         rows.append(
             {
                 "date": day[i],
