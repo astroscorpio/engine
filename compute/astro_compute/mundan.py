@@ -18,11 +18,21 @@ from jyotisha.ephemeris import ascendant, luminaries, positions
 
 from .fmt import provenance
 from .griha_pravesh import BARRED_JUPITER, UTTARAYANA, _blocks, _public, _windows
-from .ids import MASA_IDS
+from .ids import MASA_IDS, SIGN_IDS
 from .models import EkadashiQuery
 from .observances import _vara
 from .timeutil import aware
-from .vivah import DS, _day_yogas, _lagna_gandanta, _spans, _subtract, _Year
+from .vivah import (
+    DS,
+    _day_yogas,
+    _details,
+    _lagna_gandanta,
+    _spans,
+    _state_facts,
+    _subtract,
+    _venus_facts,
+    _Year,
+)
 
 # MC 5.29 "shakropetair vimaitrair mrdu-cara-laghu-bhaih": Ashvini, Mrgashira,
 # Punarvasu, Pushya, Hasta, Citra, Svati, Jyeshtha, Shravana, Dhanishtha,
@@ -80,7 +90,7 @@ def mundan(q: EkadashiQuery, explain: dict | None = None) -> dict:
         if date.year != q.year:
             continue
         vara = _vara(sr, q)
-        day_relax: dict[str, str] = {}
+        day_relax: dict[str, tuple[str, dict]] = {}
         why = None if vara in VARAS else "weekday"
         for planet, state in y.states.items():
             if why or i not in state:
@@ -90,12 +100,14 @@ def mundan(q: EkadashiQuery, explain: dict | None = None) -> dict:
                 why = f"{planet.lower()}_{kind}"
             elif kind == "set":
                 day_relax["venus_set"] = (
-                    "Venus is within the Surya-siddhanta's 10 time-degrees of the Sun (9.6-7)"
+                    "Venus is within the Surya-siddhanta's 10 time-degrees of the Sun (9.6-7)",
+                    _venus_facts(*y.days[i][:2], q),
                 )
             else:
                 day_relax["infancy_old"] = (
                     f"{planet} is in its {'infancy' if kind == 'infant' else 'old age'}, "
-                    f"{detail} (Muhurta Chintamani 5.27)"
+                    f"{detail} (Muhurta Chintamani 5.27)",
+                    _state_facts(planet, kind, detail),
                 )
         if why:
             if explain is not None:
@@ -108,12 +120,13 @@ def mundan(q: EkadashiQuery, explain: dict | None = None) -> dict:
             mid = (a + b) / 2
             num, (name, adhika, kshaya, _) = y.tithi(mid)
             sun, moon = luminaries(mid, ay)
-            relax: dict[str, str] = {}
+            relax: dict[str, tuple[str, dict]] = {}
             jupiter = positions(mid, ay)["Jupiter"].sign
             if jupiter in BARRED_JUPITER:
                 relax["jupiter_sign"] = (
                     f"Jupiter is in {Mu.SIGNS[jupiter]}; Muhurta Chintamani 1.48 bars the "
-                    "whole of its stay"
+                    "whole of its stay",
+                    {"sign": SIGN_IDS[jupiter]},
                 )
             if adhika or kshaya or name == "Chaitra":
                 reasons.append("month")
@@ -184,7 +197,7 @@ def mundan(q: EkadashiQuery, explain: dict | None = None) -> dict:
                     "vara": vara,
                     "windows": _public(_windows(rows, zone)),
                     "rules": sorted(rules),
-                    "reasons": [rules[k] for k in sorted(rules)],
+                    **dict(zip(("reasons", "details"), _details(rules), strict=True)),
                 }
             )
         elif explain is not None:

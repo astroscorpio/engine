@@ -108,6 +108,7 @@ VIVAH_RULES = {
     "season_best": ("Magha, Phalguna, Vaishakha or Jyeshtha (amanta): best", "Muhurta Chintamani 6.13 commentary, p. 235 (Narada); Dharmasindhu p. 181"),
     "season_middling": ("Ashadha shukla 1-10, Kartika from shukla 11, or Margashirsha: middling", "Muhurta Chintamani 6.13 commentary, p. 235; 5.26, p. 186"),
     "chaturmas": ("Hari's sleep, Ashadha shukla 11 to Kartika shukla 11: barred", "Muhurta Chintamani 6.13 commentary, p. 235"),
+    "off_season": ("A lunar month outside the season (Pausha, Chaitra, Shravana, Bhadrapada, Ashvina): barred, or for Pausha and Chaitra excluded when the Sun's sign is allowed", "Muhurta Chintamani 6.13 and commentary"),
     "sun_sign": ("The Sun in Pisces, Sagittarius or Leo: barred", "Garga in Muhurta Chintamani 6.13 commentary, p. 235"),
     "adhika_month": ("An adhika or kshaya month, and the adhika months around a kshaya month: barred", "Muhurta Chintamani 1.47, pp. 39-40; Dharmasindhu p. 4"),
     "jupiter_set": ("Jupiter within 11 time-degrees of the Sun: set", "Surya-siddhanta 9.6-7; Muhurta Chintamani 1.46-48, 5.26"),

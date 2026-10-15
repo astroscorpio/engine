@@ -28,7 +28,17 @@ from .ids import MASA_IDS, NAKSHATRA_IDS, SIGN_IDS, tithi_id
 from .models import EkadashiQuery
 from .observances import _vara
 from .timeutil import aware, iso
-from .vivah import DS, _day_yogas, _lagna_gandanta, _spans, _subtract, _Year
+from .vivah import (
+    DS,
+    _day_yogas,
+    _details,
+    _lagna_gandanta,
+    _spans,
+    _state_facts,
+    _subtract,
+    _venus_facts,
+    _Year,
+)
 
 # Vasishtha in MC 13.1's commentary: Citra, the three Uttaras, Rohini, Mrgashira,
 # Anuradha, Dhanishtha, Revati, Shatabhisha (0-based indexes).
@@ -91,7 +101,7 @@ def griha_pravesh(q: EkadashiQuery, explain: dict | None = None) -> dict:
         vara = _vara(sr, q)
         # Rules the almanacs relax (the lead's list, 15 Oct 2026) give reasons for
         # excluded[]; the rest reject the day outright.
-        day_relax: dict[str, str] = {}
+        day_relax: dict[str, tuple[str, dict]] = {}
         why = vara if vara in ("sunday", "tuesday") else None
         for planet, state in y.states.items():
             if i not in state:
@@ -101,12 +111,14 @@ def griha_pravesh(q: EkadashiQuery, explain: dict | None = None) -> dict:
                 why = why or f"{planet.lower()}_{kind}"
             elif kind == "set":
                 day_relax["venus_set"] = (
-                    "Venus is within the Surya-siddhanta's 10 time-degrees of the Sun (9.6-7)"
+                    "Venus is within the Surya-siddhanta's 10 time-degrees of the Sun (9.6-7)",
+                    _venus_facts(*y.days[i][:2], q),
                 )
             else:
                 day_relax["infancy_old"] = (
                     f"{planet} is in its {'infancy' if kind == 'infant' else 'old age'}, "
-                    f"{detail} (Muhurta Chintamani 5.27)"
+                    f"{detail} (Muhurta Chintamani 5.27)",
+                    _state_facts(planet, kind, detail),
                 )
         if why:
             if explain is not None:
@@ -119,14 +131,15 @@ def griha_pravesh(q: EkadashiQuery, explain: dict | None = None) -> dict:
             mid = (a + b) / 2
             num, (name, adhika, kshaya, _) = y.tithi(mid)
             sun, moon = luminaries(mid, ay)
-            relax: dict[str, str] = {}
+            relax: dict[str, tuple[str, dict]] = {}
             if adhika or kshaya:
                 reasons.append("month")
                 continue
             if name in MIDDLING:
                 relax["middling_month"] = (
                     f"The lunar month is {name}, which Narada counts middling for house entry; "
-                    "Muhurta Chintamani 13.1 asks for the Sun's northern course"
+                    "Muhurta Chintamani 13.1 asks for the Sun's northern course",
+                    {"month": MASA_IDS[Mu.MASA.index(name)]},
                 )
             elif name not in MONTHS or sun.sign not in UTTARAYANA:
                 reasons.append("month")
@@ -137,13 +150,15 @@ def griha_pravesh(q: EkadashiQuery, explain: dict | None = None) -> dict:
                     continue
                 relax["sun_sign"] = (
                     "The Sun is in Aquarius, where Guru bars house entry "
-                    "(Muhurta Chintamani 13.1 commentary)"
+                    "(Muhurta Chintamani 13.1 commentary)",
+                    {"sign": SIGN_IDS[sun.sign]},
                 )
             jupiter = positions(mid, ay)["Jupiter"].sign
             if jupiter in BARRED_JUPITER:
                 relax["jupiter_sign"] = (
                     f"Jupiter is in {Mu.SIGNS[jupiter]}; Muhurta Chintamani 1.48 bars the "
-                    "whole of its stay"
+                    "whole of its stay",
+                    {"sign": SIGN_IDS[jupiter]},
                 )
             if moon.nakshatra not in STARS:
                 reasons.append("nakshatra")
@@ -193,7 +208,7 @@ def griha_pravesh(q: EkadashiQuery, explain: dict | None = None) -> dict:
                     "vara": vara,
                     "windows": _public(_windows(rows, zone)),
                     "rules": sorted(rules),
-                    "reasons": [rules[k] for k in sorted(rules)],
+                    **dict(zip(("reasons", "details"), _details(rules), strict=True)),
                 }
             )
         elif explain is not None:
@@ -302,10 +317,11 @@ def _blocks(y: _Year, q, barred_sun: frozenset | set = BARRED_SUN) -> list[dict]
             rule = rule_of(sign)
             if rule is None:
                 continue
-            if rows and rows[-1][0] == rule and rows[-1][2] == a:
-                rows[-1] = (rule, rows[-1][1], b, None)
+            detail = SIGN_IDS[sign] if rule in ("jupiter_sign", "sun_sign") else None
+            if rows and rows[-1][0] == rule and rows[-1][2] == a and rows[-1][3] == detail:
+                rows[-1] = (rule, rows[-1][1], b, detail)
             else:
-                rows.append((rule, a, b, None))
+                rows.append((rule, a, b, detail))
     y0, y1 = f"{q.year}-01-01", f"{q.year + 1}-01-01"
     out = [
         {"rule": rule, "start": iso(a, zone), "end": iso(b, zone), "detail": detail}

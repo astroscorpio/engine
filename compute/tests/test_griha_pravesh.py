@@ -91,3 +91,8 @@ def test_excluded_days_carry_only_the_relaxed_rules():
     # November 2026 is Kartika and Margashirsha, with Jupiter in Leo.
     late = [d for d in out["excluded"] if d["date"] >= "2026-11-21"]
     assert late and all({"middling_month", "jupiter_sign"} <= set(d["rules"]) for d in late)
+    for d in late:
+        facts = {x["rule"]: x for x in d["details"]}
+        assert [x["rule"] for x in d["details"]] == d["rules"]
+        assert facts["jupiter_sign"]["sign"] == "leo"
+        assert facts["middling_month"]["month"] in ("kartika", "margashirsha")

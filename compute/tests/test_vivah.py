@@ -106,3 +106,33 @@ def test_excluded_days_carry_their_relaxed_rules():
     # Jupiter enters Leo on 31 Oct 2026: November's candidates are excluded, with the reason.
     late = [d for d in out["excluded"] if d["date"] >= "2026-11-21"]
     assert late and all("jupiter_sign" in d["rules"] for d in late)
+
+
+def test_blocks_carry_the_season_and_excluded_days_their_facts():
+    from astro_compute.ids import SIGN_IDS
+
+    out = year("2026")
+    rules = {b["rule"] for b in out["blocks"]}
+    assert {"chaturmas", "off_season", "adhika_month"} <= rules  # 2026 has an adhika Jyeshtha
+    off = {b["detail"] for b in out["blocks"] if b["rule"] == "off_season"}
+    assert "shravana" in off and off <= {"pausha", "chaitra", "shravana", "bhadrapada", "ashwin"}
+    assert {b["detail"] for b in out["blocks"] if b["rule"] == "adhika_month"} == {"jyeshtha"}
+    assert all(
+        b["detail"] in SIGN_IDS for b in out["blocks"] if b["rule"] in ("jupiter_sign", "sun_sign")
+    )
+    (chaturmas,) = [b for b in out["blocks"] if b["rule"] == "chaturmas"]
+    assert chaturmas["start"] < chaturmas["end"]
+    facts = {}
+    for e in out["excluded"]:
+        assert [d["rule"] for d in e["details"]] == e["rules"] and len(e["reasons"]) == len(
+            e["rules"]
+        )
+        facts |= {d["rule"]: d for d in e["details"]}
+    assert facts, "2026 has excluded days"
+    for d in facts.values():
+        if d["rule"] == "vedha_slow":
+            assert d["planets"] and d["star"] and d["pierces"]
+        if d["rule"] in ("utpata", "marana", "kana", "dagdha", "visha"):
+            assert d["weekday"] and d["star"]
+        if d["rule"] == "infancy_old":
+            assert d["planet"] in ("jupiter", "venus") and d["state"] in ("infant", "old")

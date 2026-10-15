@@ -53,6 +53,7 @@ def test_every_window_keeps_the_tonsure_rules_at_its_middle():
         assert e["date"] not in listed and e["windows"] and e["vara"] in M.VARAS
         assert e["rules"] and set(e["rules"]) <= relaxable and set(e["rules"]) <= set(MUNDAN_RULES)
         assert len(e["reasons"]) == len(e["rules"])
+        assert [d["rule"] for d in e["details"]] == e["rules"]
 
 
 def test_finder_mundan_act_vetoes_the_wrong_weekday_and_the_eldest_jyeshtha():

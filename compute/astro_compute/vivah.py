@@ -21,6 +21,7 @@ from __future__ import annotations
 
 import datetime as dt
 import math
+import re
 
 import swisseph as swe
 from jyotisha import muhurta as Mu
@@ -41,7 +42,7 @@ from jyotisha.rare import (
 
 from .errors import unsupported_location
 from .fmt import provenance
-from .ids import MASA_IDS, NAKSHATRA_IDS, tithi_id
+from .ids import GRAHA_ID, MASA_IDS, NAKSHATRA_ID, NAKSHATRA_IDS, SIGN_IDS, tithi_id
 from .models import EkadashiQuery
 from .observances import _edges, _rise_set, _sunset, _vara
 from .timeutil import aware, iso, local_jd
@@ -111,6 +112,34 @@ def _subtract(pieces: list[tuple[float, float]], bars: list[tuple[float, float]]
             segs = nxt
         out += [s for s in segs if s[1] - s[0] > 1e-6]
     return out
+
+
+STATE_DETAIL = re.compile(r"(\d+) days (?:before setting|after rising) in the (east|west)")
+ECLIPSE_DETAIL = re.compile(r"(lunar|solar) eclipse, ([0-9.]+) of the disc")
+
+
+def _star_id(name: str) -> str:
+    return "abhijit" if name == "Abhijit" else NAKSHATRA_ID[name]
+
+
+def _state_facts(planet: str, kind: str, detail: str | None) -> dict:
+    """infancy_old's facts for excluded[].details: planet, state, side and day count."""
+    facts = {"planet": GRAHA_ID[planet], "state": kind}
+    m = STATE_DETAIL.match(detail or "")
+    if m:
+        facts |= {"side": m.group(2), "days": int(m.group(1))}
+    return facts
+
+
+def _venus_facts(sr: float, ss: float, q) -> dict:
+    """venus_set's facts: Venus's distance from the Sun in time-degrees (SS 9.6-7)."""
+    return {"planet": "venus", "distance": round(Mu.kalamsa("Venus", sr, ss, q.lat, q.lon)[0], 2)}
+
+
+def _details(rules: dict) -> tuple[list[str], list[dict]]:
+    """{rule: (reason, facts)} -> the excluded day's reasons and details, by rule id."""
+    keys = sorted(rules)
+    return [rules[k][0] for k in keys], [{"rule": k, **rules[k][1]} for k in keys]
 
 
 def _month(jd: float, ay: str, cache: dict) -> tuple[str, bool, bool, float]:
@@ -252,8 +281,8 @@ def _day_yogas(rows: list[tuple], vara: str, ay: str):
     finder vetoes: MC 1.30's utpata, mrtyu and kana (28 nakshatras), Narada's dagdha
     (MC 1.5 commentary) and a siddhi pair on its visha tithi (MC 1.20-21). A Ravi or
     siddhi yoga at the same moment lifts them (MC 1.27, 1.42); only a Ravi yoga lifts
-    the visha. Returns the rows outside them, the rows inside, and {rule id: reason}
-    for those inside (the lead's decisions of 15 Oct 2026)."""
+    the visha. Returns the rows outside them, the rows inside, and {rule id: (reason,
+    facts)} for those inside (the lead's decisions of 15 Oct 2026)."""
     w = WEEKDAYS.index(vara)
     day = vara.capitalize()
 
@@ -276,22 +305,21 @@ def _day_yogas(rows: list[tuple], vara: str, ay: str):
             ("kana", "Kana", KANA),
         ):
             if table.get(w) == n28:
-                out.add((rid, f"{n28} on a {day} is {name} yoga (Muhurta Chintamani 1.30)"))
+                text = f"{n28} on a {day} is {name} yoga (Muhurta Chintamani 1.30)"
+                out.add((rid, text, (("weekday", vara), ("star", _star_id(n28)))))
         if DAGDHA.get(w) == n27:
-            out.add(
-                ("dagdha", f"{n27} on a {day} is Dagdha yoga (Narada in Muhurta Chintamani 1.5)")
-            )
+            text = f"{n27} on a {day} is Dagdha yoga (Narada in Muhurta Chintamani 1.5)"
+            out.add(("dagdha", text, (("weekday", vara), ("star", _star_id(n27)))))
         if siddhi:
             out.clear()
         if AMRITA_SIDDHI.get(w) == n27 and visha_day:
             tithi = Mu.TITHI_NAMES[AMRITA_VISHA_TITHI[w] - 1]
-            out.add(
-                (
-                    "visha",
-                    f"{n27} on a {day} is a siddhi pair, turned to visha on {tithi} "
-                    "(Muhurta Chintamani 1.20-21)",
-                )
+            text = (
+                f"{n27} on a {day} is a siddhi pair, turned to visha on {tithi} "
+                "(Muhurta Chintamani 1.20-21)"
             )
+            facts = (("weekday", vara), ("star", _star_id(n27)))
+            out.add(("visha", text, (*facts, ("tithi", tithi_id(AMRITA_VISHA_TITHI[w])))))
         return frozenset(out)
 
     free, inside, why = [], [], {}
@@ -299,7 +327,7 @@ def _day_yogas(rows: list[tuple], vara: str, ay: str):
         for a, b, hits in _spans(fn, r[0], r[1], 1 / 48):
             if hits:
                 inside.append((a, b, *r[2:]))
-                why |= dict(hits)
+                why |= {rid: (text, dict(facts)) for rid, text, facts in hits}
             else:
                 free.append((a, b, *r[2:]))
     return free, inside, why
@@ -323,11 +351,12 @@ def vivah(q: EkadashiQuery, explain: dict | None = None) -> dict:
         vara = _vara(sr, q)
         # Rules the almanacs relax (the lead's list, 15 Oct 2026) give reasons; the
         # rest exclude the day outright.
-        day_relax: dict[str, str] = {}
+        day_relax: dict[str, tuple[str, dict]] = {}
         strict_why = None
         if vara == "tuesday":
             day_relax["tuesday"] = (
-                "Tuesday, which Vasishtha avoids always (Muhurta Chintamani 6.53)"
+                "Tuesday, which Vasishtha avoids always (Muhurta Chintamani 6.53)",
+                {"weekday": vara},
             )
         for planet, state in y.states.items():
             if i not in state:
@@ -337,16 +366,22 @@ def vivah(q: EkadashiQuery, explain: dict | None = None) -> dict:
                 strict_why = strict_why or f"{planet.lower()}_{kind}"
             elif kind == "set":
                 day_relax["venus_set"] = (
-                    "Venus is within the Surya-siddhanta's 10 time-degrees of the Sun (9.6-7)"
+                    "Venus is within the Surya-siddhanta's 10 time-degrees of the Sun (9.6-7)",
+                    _venus_facts(sr, ss, q),
                 )
             else:
                 day_relax["infancy_old"] = (
                     f"{planet} is in its {'infancy' if kind == 'infant' else 'old age'}, "
-                    f"{detail} (Muhurta Chintamani 5.27)"
+                    f"{detail} (Muhurta Chintamani 5.27)",
+                    _state_facts(planet, kind, detail),
                 )
         hit = next((d for a, b, d in eclipse_bars if a <= sr + 0.5 <= b), None)
         if hit:
-            day_relax["eclipse"] = f"Within the days barred around a {hit} (Dharmasindhu p. 181)"
+            m = ECLIPSE_DETAIL.match(hit)
+            day_relax["eclipse"] = (
+                f"Within the days barred around a {hit} (Dharmasindhu p. 181)",
+                {"kind": m.group(1), "magnitude": float(m.group(2))} if m else {},
+            )
         if strict_why:
             if explain is not None:
                 explain[date.isoformat()] = strict_why
@@ -357,7 +392,7 @@ def vivah(q: EkadashiQuery, explain: dict | None = None) -> dict:
         for a, b in zip(cuts, cuts[1:], strict=False):
             mid = (a + b) / 2
             num, (name, adhika, kshaya, _) = y.tithi(mid)
-            relax: dict[str, str] = {}
+            relax: dict[str, tuple[str, dict]] = {}
             grade = GRADE.get(name)
             if adhika or kshaya:
                 reasons.append("adhika_month")
@@ -372,7 +407,8 @@ def vivah(q: EkadashiQuery, explain: dict | None = None) -> dict:
                     continue
                 relax["solar_month"] = (
                     f"The lunar month is {name}; Muhurta Chintamani's commentary sets aside "
-                    "counting by the solar month"
+                    "counting by the solar month",
+                    {"month": MASA_IDS[Mu.MASA.index(name)], "sunSign": SIGN_IDS[sun.sign]},
                 )
             if sun.sign in BARRED_SUN:
                 reasons.append("sun_sign")
@@ -381,7 +417,8 @@ def vivah(q: EkadashiQuery, explain: dict | None = None) -> dict:
             if p["Jupiter"].sign in BARRED_JUPITER:
                 relax["jupiter_sign"] = (
                     f"Jupiter is in {Mu.SIGNS[p['Jupiter'].sign]}; Muhurta Chintamani 1.48 "
-                    "bars marriage for its whole stay"
+                    "bars marriage for its whole stay",
+                    {"sign": SIGN_IDS[p["Jupiter"].sign]},
                 )
             nak = moon.nakshatra
             if nak not in NAKSHATRAS_OK:
@@ -393,7 +430,8 @@ def vivah(q: EkadashiQuery, explain: dict | None = None) -> dict:
                 continue
             if base in TITHI_NAME:
                 relax["rikta"] = (
-                    f"{TITHI_NAME[base]} is a rikta tithi, barred by Muhurta Chintamani 6.53"
+                    f"{TITHI_NAME[base]} is a rikta tithi, barred by Muhurta Chintamani 6.53",
+                    {"tithi": tithi_id(num)},
                 )
             piercers = _pierced(nak, moon.longitude, p)
             if piercers and not set(piercers) <= SLOW:
@@ -403,7 +441,12 @@ def vivah(q: EkadashiQuery, explain: dict | None = None) -> dict:
                 star = Mu.NAKSHATRAS[nak]
                 relax["vedha_slow"] = (
                     f"{', '.join(piercers)} in {VEDHA_PAIRS[star]} pierces {star} "
-                    "(Muhurta Chintamani 6.54)"
+                    "(Muhurta Chintamani 6.54)",
+                    {
+                        "planets": [GRAHA_ID[g] for g in piercers],
+                        "star": _star_id(VEDHA_PAIRS[star]),
+                        "pierces": NAKSHATRA_IDS[nak],
+                    },
                 )
             pieces.append((a, b, num, nak, grade or "middling", name, relax))
         if not pieces:
@@ -446,7 +489,7 @@ def vivah(q: EkadashiQuery, explain: dict | None = None) -> dict:
                         for w in _windows(rows, q)
                     ],
                     "rules": sorted(rules),
-                    "reasons": [rules[k] for k in sorted(rules)],
+                    **dict(zip(("reasons", "details"), _details(rules), strict=True)),
                 }
             )
         elif explain is not None:
@@ -456,7 +499,8 @@ def vivah(q: EkadashiQuery, explain: dict | None = None) -> dict:
         "year": q.year,
         "days": out_days,
         "excluded": excluded,
-        "blocks": _blocks(y.days, y.states, eclipse_bars, y.sun_sign, y.jupiter, q),
+        "blocks": _blocks(y.days, y.states, eclipse_bars, y.sun_sign, y.jupiter, q)
+        + _season_blocks(y, q),
         "source": SOURCE,
         "alsoSource": DS,
         "engine": provenance(ay),
@@ -602,13 +646,60 @@ def _blocks(days, set_state, eclipse_bars, sun_sign, jupiter, q) -> list[dict]:
     for a, b, sign in sun_sign:
         if sign in BARRED_SUN:
             rows.append(
-                {"rule": "sun_sign", "start": iso(a, zone), "end": iso(b, zone), "detail": None}
+                {
+                    "rule": "sun_sign",
+                    "start": iso(a, zone),
+                    "end": iso(b, zone),
+                    "detail": SIGN_IDS[sign],
+                }
             )
     for a, b, sign in jupiter:
         if sign in BARRED_JUPITER:
             rows.append(
-                {"rule": "jupiter_sign", "start": iso(a, zone), "end": iso(b, zone), "detail": None}
+                {
+                    "rule": "jupiter_sign",
+                    "start": iso(a, zone),
+                    "end": iso(b, zone),
+                    "detail": SIGN_IDS[sign],
+                }
             )
     y0, y1 = f"{q.year}-01-01", f"{q.year + 1}-01-01"
     rows = [r for r in rows if r["end"] >= y0 and r["start"] < y1]
     return sorted(rows, key=lambda r: r["start"])
+
+
+def _season_blocks(y: _Year, q) -> list[dict]:
+    """The season as runs, at the instants the day test uses: chaturmas from the Ashadha
+    shukla Ekadashi to the Kartika shukla Ekadashi, each amanta month outside MC's season
+    (off_season, its month id in detail), and the adhika or kshaya months."""
+    months: dict[float, list] = {}
+    for a, b, _ in y.tithis:
+        name, adhika, kshaya, start = y.tithi_month[a]
+        m = months.setdefault(start, [name, adhika, kshaya, a, b])
+        m[3], m[4] = min(m[3], a), max(m[4], b)
+    runs = []
+    for name, adhika, kshaya, a, b in months.values():
+        mid = MASA_IDS[Mu.MASA.index(name)]
+        if adhika or kshaya:
+            runs.append(("adhika_month", a, b, mid))
+        elif GRADE.get(name) is None:
+            runs.append(("off_season", a, b, mid))
+
+    def ekadashis(month: str) -> list[float]:
+        return [
+            a
+            for a, _, n in y.tithis
+            if n == 11 and y.tithi_month[a][0] == month and not y.tithi_month[a][1]
+        ]
+
+    ends = ekadashis("Kartika")
+    for start in ekadashis("Ashadha"):
+        end = next((x for x in ends if x > start), None)
+        if end is not None:
+            runs.append(("chaturmas", start, end, None))
+    y0, y1 = f"{q.year}-01-01", f"{q.year + 1}-01-01"
+    rows = [
+        {"rule": rule, "start": iso(a, q.tz), "end": iso(b, q.tz), "detail": detail}
+        for rule, a, b, detail in runs
+    ]
+    return [r for r in rows if r["end"] >= y0 and r["start"] < y1]
