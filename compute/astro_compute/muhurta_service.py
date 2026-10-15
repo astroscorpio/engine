@@ -22,6 +22,21 @@ FINE_DAYS = 7  # minute-by-minute up to a week, 5-minute steps beyond
 RULES: list[tuple[re.Pattern, str]] = [
     (re.compile(p), rid)
     for p, rid in (
+        # House entry (MC 13), first: their labels end in a citation.
+        (r"^adhika \w+ \(MC 1\.47\)$", "adhika_masa_home"),
+        (r"^\w+: no house entry \(MC 13\.[14]\)$", "month_home"),
+        (r"^dakshinayana \(MC 13\.1\)$", "dakshinayana"),
+        (r"^middling month for house entry \(Narada\)$", "middling_month_home"),
+        (r"^Sun in \w+ \(Guru, MC 13\.1\)$", "sun_sign_home"),
+        (r"^(Jupiter|Venus) (set|old|infant) \(MC 1\.46-48, 5\.27\)$", "jupiter_venus_state"),
+        (r"^Jupiter in \w+ \(MC 1\.48\)$", "jupiter_sign"),
+        (r"^movable lagna \(MC 13\.4\)$", "movable_lagna_home"),
+        (r"^movable navamsa \(MC 13\.4\)$", "movable_navamsa"),
+        (r"^.+ in the 4th or 8th \(MC 13\.4\)$", "house_4_8_occupied"),
+        (r"^Moon in the (1st|6th|12th) \(MC 13\.3-4\)$", "moon_1_6_12"),
+        (r"^pot chakra \d+ \(MC 13\.6\)$", "pot_chakra"),
+        (r"^tithi not for a [NESW] door \(MC 13\.5\)$", "door_tithi"),
+        (r"^Sun not on the left for a [NESW] door \(MC 13\.4-5\)$", "door_sun"),
         (r"^Rahu kalam$", "rahu_kalam"),
         (r"^Yamaganda$", "yamaganda"),
         (r"^Gulika$", "gulika"),
@@ -152,6 +167,8 @@ def find(req: MuhurtaRequest) -> dict:
         hours=Mu.parse_hours(req.hours) if req.hours else None,
         toward=req.toward,
         first_leg=req.firstLeg,
+        door=req.door if req.act == "home" else None,
+        old_house=req.oldHouse and req.act == "home",
         ayanamsa=req.ayanamsa,
         step_minutes=1 if days <= FINE_DAYS else 5,
     )
@@ -189,6 +206,8 @@ def check(req: MuhurtaCheck) -> dict:
         natal_lagna,
         toward=req.toward,
         first_leg=req.firstLeg,
+        door=req.door if req.act == "home" else None,
+        old_house=req.oldHouse and req.act == "home",
         ayanamsa=req.ayanamsa,
         tz=req.tz,
     )

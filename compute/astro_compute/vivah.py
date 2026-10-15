@@ -34,7 +34,6 @@ from .observances import _edges, _rise_set, _sunset, _vara
 from .timeutil import aware, iso, local_jd
 
 GHATI = 24 / 1440
-SIDEREAL_DAY = 360.9856  # time-degrees per solar day
 GRADE = {
     "Magha": "best", "Phalguna": "best", "Vaishakha": "best", "Jyeshtha": "best",
     "Ashadha": "middling", "Kartika": "middling", "Margashirsha": "middling",
@@ -61,13 +60,6 @@ WEAK_TITHI = {6, 8, 21, 23}
 TITHI_JUNCTIONS = {6, 11, 16, 21, 26, 1}
 NAKSHATRA_JUNCTIONS = {9, 18, 0}
 SANKRANTI_GHATIS = 16.5  # half of MC 6.78's 33 each side (research's reading)
-SET_DISTANCE = {"Jupiter": 11.0}  # Venus: 8 retrograde, 10 direct (SS 9.6-7)
-# MC 5.27 (the lead's choice; DS p. 5's 7 days and MC 5.28's 10, 7 or 3 are notes):
-# (days old before setting, days infant after rising) by the side of the sky.
-OLD_INFANT_DAYS = {
-    "Venus": ({"east": 15, "west": 5}, {"east": 3, "west": 10}),
-    "Jupiter": ({"east": 15, "west": 15}, {"east": 15, "west": 15}),
-}
 # DS p. 181 note: days barred after and before an eclipse, by the fraction covered.
 ECLIPSE_DAYS = ((1.0, 8, 4), (0.75, 6, 3), (0.5, 4, 2), (0.0, 3, 1.5))
 SOURCE = {
@@ -121,66 +113,6 @@ def _month(jd: float, ay: str, cache: dict) -> tuple[str, bool, bool, float]:
     return cache[key]
 
 
-def _kalamsa(name: str, sr: float, ss: float, q) -> tuple[float, bool]:
-    """Distance from the Sun in time-degrees, and whether the planet is east of the
-    Sun (an evening planet): the gap between its setting and the Sun's, or for a
-    morning planet between their risings, at the place."""
-    body = swe.JUPITER if name == "Jupiter" else swe.VENUS
-    sun, planet = (swe.calc_ut(sr, b, swe.FLG_SWIEPH)[0][0] for b in (swe.SUN, body))
-    east = (planet - sun) % 360 < 180
-    if min((planet - sun) % 360, (sun - planet) % 360) > 30:
-        return 999.0, east  # far from the Sun; near opposition the nearest setting is ambiguous
-    geo = (q.lon, q.lat, 0.0)
-    flag = swe.CALC_SET if east else swe.CALC_RISE
-    res, tret = swe.rise_trans((ss if east else sr) - 0.5, body, flag | swe.BIT_DISC_CENTER, geo)
-    if res != 0:
-        return 0.0, east
-    gap = (tret[0] - ss) if east else (sr - tret[0])
-    return gap * SIDEREAL_DAY, east
-
-
-def _bad_set_days(days: list[tuple[float, float]], q) -> dict[str, dict[int, tuple[str, str]]]:
-    """Per planet, day index -> (set | old | infant, detail). MC 5.27: Venus is an
-    infant 3 days after rising in the east and 10 after rising in the west, old 15
-    days before setting in the east and 5 before setting in the west; Jupiter 15
-    and 15 (it always sets in the west and rises in the east)."""
-    out = {}
-    for name in ("Jupiter", "Venus"):
-        flags, sides = [], []
-        for sr, ss in days:
-            limit = SET_DISTANCE.get(name)
-            if limit is None:
-                speed = swe.calc_ut(sr, swe.VENUS, swe.FLG_SWIEPH | swe.FLG_SPEED)[0][3]
-                limit = 8.0 if speed < 0 else 10.0
-            gap, east = _kalamsa(name, sr, ss, q)
-            flags.append(gap < limit)
-            sides.append(east)
-        state: dict[int, tuple[str, str]] = {}
-        i = 0
-        while i < len(flags):
-            if not flags[i]:
-                i += 1
-                continue
-            j = i
-            while j + 1 < len(flags) and flags[j + 1]:
-                j += 1
-            # An evening planet (east of the Sun) sets in the west; a morning one
-            # rises in the east.
-            setting = "west" if i > 0 and sides[i - 1] else "east"
-            rising = "west" if j + 1 < len(flags) and sides[j + 1] else "east"
-            old_days, infant_days = OLD_INFANT_DAYS[name]
-            before, after = old_days[setting], infant_days[rising]
-            for k in range(max(0, i - before), i):
-                state.setdefault(k, ("old", f"{before} days before setting in the {setting}"))
-            for k in range(i, j + 1):
-                state[k] = ("set", None)
-            for k in range(j + 1, min(len(flags), j + 1 + after)):
-                state.setdefault(k, ("infant", f"{after} days after rising in the {rising}"))
-            i = j + 1
-        out[name] = state
-    return out
-
-
 def _eclipses(t0: float, t1: float, q) -> list[tuple[float, float, str]]:
     """(barred from, barred to, detail) for eclipses visible at the place."""
     geo = (q.lon, q.lat, 0.0)
@@ -209,181 +141,281 @@ def _eclipses(t0: float, t1: float, q) -> list[tuple[float, float, str]]:
     return out
 
 
+class _Year:
+    """What a year's dates list needs at a place: the Vedic days (40 either side, so
+    Jupiter's and Venus's runs reach across the year's ends), Jupiter's and Venus's
+    states, the tithi, Moon-quarter, Sun-sign and Jupiter-sign spans, the amanta
+    month of each tithi, and the barred stretches (Bhadra on earth, the bad yogas,
+    gandanta, the Sun's sankranti and mahapata)."""
+
+    def __init__(self, q: EkadashiQuery, pad: int = 40):
+        self.q, self.ay, self.zone = q, q.ayanamsa, q.tz
+        ay = q.ayanamsa
+        self.t0 = local_jd(dt.date(q.year, 1, 1), 0.0, q.tz, "year")
+        self.t1 = local_jd(dt.date(q.year, 12, 31), 23.99, q.tz, "year")
+        try:
+            days = []
+            sr = _rise_set(self.t0 - pad - 1, q.lat, q.lon, True)
+            while sr < self.t1 + pad:
+                nr = _rise_set(sr + 0.1, q.lat, q.lon, True)
+                days.append((sr, _sunset(sr, q), nr))
+                sr = nr
+        except RuntimeError as exc:
+            raise unsupported_location(
+                "the Sun does not rise on a day needed here; the dates cannot be formed"
+            ) from exc
+        self.days = days
+        pairs = [(s, e) for s, e, _ in days]
+        self.states = Mu.jupiter_venus_states(pairs, q.lat, q.lon)
+        # The almanac count, for excluded[]: Venus at 8 time-degrees either way and
+        # three days of infancy and old age (MC 5.28's shortest).
+        three = {"east": 3, "west": 3}
+        self.relaxed = Mu.jupiter_venus_states(
+            pairs, q.lat, q.lon, {"Venus": (three, three), "Jupiter": (three, three)}, 8.0
+        )
+        lo, hi = days[0][0], days[-1][2]
+        edges = _edges(q)
+        self.tithis = [(a, b, n) for (a, n), (b, _) in zip(edges, edges[1:], strict=False)]
+        y0, y1 = self.tithis[0][0], self.tithis[-1][1]
+        self.moon_pada = _spans(
+            lambda t: int(luminaries(t, ay)[1].longitude // (360 / 108)), y0, y1, 1 / 12
+        )
+        self.sun_sign = _spans(lambda t: luminaries(t, ay)[0].sign, lo, hi, 1.0)
+        self.jupiter = _spans(lambda t: positions(t, ay)["Jupiter"].sign, lo, hi, 2.0)
+        months: dict = {}
+        self.tithi_month = {a: _month((a + b) / 2, ay, months) for a, b, _ in self.tithis}
+        bars: list[tuple[float, float, str]] = []
+        for name, (a, b) in Mu._yoga_spans(y0, y1, ay):
+            if name in Mu.BAD_YOGA_GHATIS:
+                n = Mu.BAD_YOGA_GHATIS[name]
+                end = b if n is None else a + (b - a) / 2 if n == "half" else min(b, a + n * GHATI)
+                bars.append((a, end, "bad_yoga"))
+        for a, b, n in self.tithis:
+            if n in TITHI_JUNCTIONS:
+                bars.append((a - GHATI, a + GHATI, "gandanta_tithi"))
+            if n in (4, 8, 11, 15, 18, 22, 25, 29):
+                for x, y, v in _spans(lambda t: Mu.karana_at(t, ay), a, b, 0.05):
+                    if v != "Vishti":
+                        continue
+                    for u, w, sign in _spans(lambda t: luminaries(t, ay)[1].sign, x, y, 1 / 24):
+                        if Mu.bhadra_residence(sign) == "earth":
+                            bars.append((u, w, "bhadra"))
+        prev = None
+        for a, _, v in self.moon_pada:
+            nak = int(v) // 4
+            if prev is not None and nak != prev and nak in NAKSHATRA_JUNCTIONS:
+                bars.append((a - 2 * GHATI, a + 2 * GHATI, "gandanta_nakshatra"))
+            prev = nak
+        for b, _, _ in self.sun_sign[1:]:  # each sign change
+            bars.append((b - SANKRANTI_GHATIS * GHATI, b + SANKRANTI_GHATIS * GHATI, "sankranti"))
+        bars += [(a, b, "mahapata") for _, _, a, b in Mu.mahapatas(y0, y1)]
+        self.bars = bars
+
+    def cuts(self, sr: float, nr: float) -> list[float]:
+        out = {sr, nr}
+        for spans in (self.tithis, self.moon_pada, self.sun_sign, self.jupiter):
+            out |= {x for a, b, _ in spans for x in (a, b) if sr < x < nr}
+        return sorted(out)
+
+    def tithi(self, t: float) -> tuple[int, tuple]:
+        start, num = next((x, n) for x, y, n in self.tithis if x <= t < y)
+        return num, self.tithi_month[start]
+
+
+ALLOWED_SOLAR = {0, 1, 2, 7, 9, 10}  # MC 6.13's first half: Sun in these signs
+SLOW = {"Jupiter", "Saturn", "Rahu", "Ketu"}
+TITHI_NAME = {4: "Chaturthi", 9: "Navami", 14: "Chaturdashi"}
+
+
 def vivah(q: EkadashiQuery, explain: dict | None = None) -> dict:
     """explain, if given, is filled with date -> the first rule that rejected it."""
-    ay, zone = q.ayanamsa, q.tz
-    t0 = local_jd(dt.date(q.year, 1, 1), 0.0, zone, "year")
-    t1 = local_jd(dt.date(q.year, 12, 31), 23.99, zone, "year")
-    pad = 40
-    try:
-        # Every sunrise from 40 days before the year to 40 after it: the setting runs
-        # of Jupiter and Venus reach across the year's ends.
-        days = []
-        sr = _rise_set(t0 - pad - 1, q.lat, q.lon, True)
-        while sr < t1 + pad:
-            nr = _rise_set(sr + 0.1, q.lat, q.lon, True)
-            days.append((sr, _sunset(sr, q), nr))
-            sr = nr
-    except RuntimeError as exc:
-        raise unsupported_location(
-            "the Sun does not rise on a day needed here; marriage days cannot be formed"
-        ) from exc
-    set_state = _bad_set_days([(s, e) for s, e, _ in days], q)
-    eclipse_bars = _eclipses(t0, t1, q)
-
-    lo, hi = days[0][0], days[-1][2]
-    edges = _edges(q)
-    tithis = [(a, b, n) for (a, n), (b, _) in zip(edges, edges[1:], strict=False)]
-    y0, y1 = tithis[0][0], tithis[-1][1]  # the year and a few days either side
-    moon_pada = _spans(lambda t: int(luminaries(t, ay)[1].longitude // (360 / 108)), y0, y1, 1 / 12)
-    sun_sign = _spans(lambda t: luminaries(t, ay)[0].sign, lo, hi, 1.0)
-    jupiter = _spans(lambda t: positions(t, ay)["Jupiter"].sign, lo, hi, 2.0)
-    yogas = Mu._yoga_spans(y0, y1, ay)
-
-    bars: list[tuple[float, float, str]] = []
-    for name, (a, b) in yogas:
-        n = Mu.BAD_YOGA_GHATIS.get(name, 0)
-        if name in Mu.BAD_YOGA_GHATIS:
-            end = b if n is None else a + (b - a) / 2 if n == "half" else min(b, a + n * GHATI)
-            bars.append((a, end, "bad_yoga"))
-    for a, b, n in tithis:
-        if n in TITHI_JUNCTIONS:
-            bars.append((a - GHATI, a + GHATI, "gandanta_tithi"))
-        if n in (4, 8, 11, 15, 18, 22, 25, 29):
-            for x, y, v in _spans(lambda t: Mu.karana_at(t, ay), a, b, 0.05):
-                if v != "Vishti":
-                    continue
-                for u, w, sign in _spans(lambda t: luminaries(t, ay)[1].sign, x, y, 1 / 24):
-                    if Mu.bhadra_residence(sign) == "earth":
-                        bars.append((u, w, "bhadra"))
-    prev = None
-    for a, _, v in moon_pada:
-        nak = int(v) // 4
-        if prev is not None and nak != prev and nak in NAKSHATRA_JUNCTIONS:
-            bars.append((a - 2 * GHATI, a + 2 * GHATI, "gandanta_nakshatra"))
-        prev = nak
-    for b, _, _ in sun_sign[1:]:  # each sign change
-        bars.append((b - SANKRANTI_GHATIS * GHATI, b + SANKRANTI_GHATIS * GHATI, "sankranti"))
-    bars += [(a, b, "mahapata") for _, _, a, b in Mu.mahapatas(y0, y1)]
-
-    months: dict = {}
-    tithi_month = {a: _month((a + b) / 2, ay, months) for a, b, _ in tithis}
-    out_days = []
-    for i, (sr, ss, nr) in enumerate(days):
+    y = _Year(q)
+    ay, zone = y.ay, y.zone
+    eclipse_bars = _eclipses(y.t0, y.t1, q)
+    out_days, excluded = [], []
+    for i, (sr, ss, nr) in enumerate(y.days):
         date = aware(sr, zone).date()
         if date.year != q.year:
             continue
         vara = _vara(sr, q)
-        why = None
+        # Rules the almanacs relax (the lead's list, 15 Oct 2026) give reasons; the
+        # rest exclude the day outright.
+        day_relax: dict[str, str] = {}
+        strict_why = None
         if vara == "tuesday":
-            why = "tuesday"
-        elif any(i in set_state[p] for p in set_state):
-            why = next(f"{p.lower()}_{set_state[p][i][0]}" for p in set_state if i in set_state[p])
-        elif any(a <= sr + 0.5 <= b for a, b, _ in eclipse_bars):
-            why = "eclipse"
-        if why:
+            day_relax["tuesday"] = (
+                "Tuesday, which Vasishtha avoids always (Muhurta Chintamani 6.53)"
+            )
+        for planet, state in y.states.items():
+            if i not in state:
+                continue
+            kind, detail = state[i]
+            if i in y.relaxed[planet]:
+                strict_why = strict_why or f"{planet.lower()}_{kind}"
+            elif kind == "set":
+                day_relax["venus_set"] = (
+                    "Venus is within the Surya-siddhanta's 10 time-degrees of the Sun (9.6-7)"
+                )
+            else:
+                day_relax["infancy_old"] = (
+                    f"{planet} is in its {'infancy' if kind == 'infant' else 'old age'}, "
+                    f"{detail} (Muhurta Chintamani 5.27)"
+                )
+        hit = next((d for a, b, d in eclipse_bars if a <= sr + 0.5 <= b), None)
+        if hit:
+            day_relax["eclipse"] = f"Within the days barred around a {hit} (Dharmasindhu p. 181)"
+        if strict_why:
             if explain is not None:
-                explain[date.isoformat()] = why
+                explain[date.isoformat()] = strict_why
             continue
         reasons: list[str] = []
-        cuts = {sr, nr}
-        for spans in (tithis, moon_pada, sun_sign, jupiter):
-            cuts |= {x for a, b, _ in spans for x in (a, b) if sr < x < nr}
-        cuts = sorted(cuts)
         pieces = []
+        cuts = y.cuts(sr, nr)
         for a, b in zip(cuts, cuts[1:], strict=False):
             mid = (a + b) / 2
-            start, num = next((x, n) for x, y, n in tithis if x <= mid < y)
-            name, adhika, kshaya, _ = tithi_month[start]
+            num, (name, adhika, kshaya, _) = y.tithi(mid)
+            relax: dict[str, str] = {}
             grade = GRADE.get(name)
-            if grade is None or adhika or kshaya:
-                reasons.append("adhika_month" if adhika or kshaya else "month")
+            if adhika or kshaya:
+                reasons.append("adhika_month")
                 continue
+            sun, moon = luminaries(mid, ay)
             if (name == "Ashadha" and num > 10) or (name == "Kartika" and num < 11):
                 reasons.append("chaturmas")
                 continue
-            sun, moon = luminaries(mid, ay)
+            if grade is None:
+                if name in ("Shravana", "Bhadrapada", "Ashwin") or sun.sign not in ALLOWED_SOLAR:
+                    reasons.append("month")
+                    continue
+                relax["solar_month"] = (
+                    f"The lunar month is {name}; Muhurta Chintamani's commentary sets aside "
+                    "counting by the solar month"
+                )
             if sun.sign in BARRED_SUN:
                 reasons.append("sun_sign")
                 continue
             p = positions(mid, ay)
             if p["Jupiter"].sign in BARRED_JUPITER:
-                reasons.append("jupiter_sign")
-                continue
+                relax["jupiter_sign"] = (
+                    f"Jupiter is in {Mu.SIGNS[p['Jupiter'].sign]}; Muhurta Chintamani 1.48 "
+                    "bars marriage for its whole stay"
+                )
             nak = moon.nakshatra
             if nak not in NAKSHATRAS_OK:
                 reasons.append("nakshatra")
                 continue
-            if num in RIKTA:
+            base = (num - 1) % 15 + 1
+            if num == 30:
                 reasons.append("tithi")
                 continue
-            if _pierced(nak, moon.longitude, p):
+            if base in TITHI_NAME:
+                relax["rikta"] = (
+                    f"{TITHI_NAME[base]} is a rikta tithi, barred by Muhurta Chintamani 6.53"
+                )
+            piercers = _pierced(nak, moon.longitude, p)
+            if piercers and not set(piercers) <= SLOW:
                 reasons.append("vedha")
                 continue
-            pieces.append((a, b, num, nak, grade, name))
+            if piercers:
+                star = Mu.NAKSHATRAS[nak]
+                relax["vedha_slow"] = (
+                    f"{', '.join(piercers)} in {VEDHA_PAIRS[star]} pierces {star} "
+                    "(Muhurta Chintamani 6.54)"
+                )
+            pieces.append((a, b, num, nak, grade or "middling", name, relax))
         if not pieces:
             if explain is not None:
                 explain[date.isoformat()] = _first(reasons)
             continue
-        free = _subtract([(a, b) for a, b, *_ in pieces], [(x, y) for x, y, _ in bars])
-        if not free and explain is not None:
-            hit = [k for x, y, k in bars if any(x < b and y > a for a, b, *_ in pieces)]
-            explain[date.isoformat()] = "window:" + "+".join(sorted(set(hit)))
-        windows = []
+        free = _subtract([(a, b) for a, b, *_ in pieces], [(x, y_) for x, y_, _ in y.bars])
+        rows = []
         for a, b in free:
-            num, nak, grade, name = next((n, k, g, m) for x, y, n, k, g, m in pieces if x <= a < y)
-            row = {
-                "start": iso(a, zone),
-                "end": iso(b, zone),
-                "nakshatra": NAKSHATRA_IDS[nak],
-                "tithi": tithi_id(num),
-                "paksha": "shukla" if num <= 15 else "krishna",
-                "_n": num,
-                "_g": grade,
-                "_m": name,
-            }
-            if windows and windows[-1]["end"] == row["start"] and windows[-1]["_n"] == num:
-                windows[-1]["end"] = row["end"]
-            else:
-                windows.append(row)
-        if not windows:
+            num, nak, grade, name, relax = next(
+                (n, k, g, m, r) for x, y_, n, k, g, m, r in pieces if x <= a < y_
+            )
+            rows.append((a, b, num, nak, grade, name, relax))
+        strict = [r for r in rows if not r[6]] if not day_relax else []
+        if strict:
+            if explain is not None:
+                explain[date.isoformat()] = "listed"
+            out_days.append(_listed(date, vara, ss, strict, q))
             continue
-        if explain is not None:
-            explain[date.isoformat()] = "listed"
-        nums = {w["_n"] for w in windows}
-        cautions = []
-        if nums & WEAK_TITHI:
-            cautions.append("weak_tithi")
-        if vara in ("sunday", "saturday"):
-            bad = nums & {12, 13, 27, 28}
-            cautions.append("middling_weekday_dvadashi_trayodashi" if bad else "middling_weekday")
-        if any(n > 15 for n in nums):
-            cautions.append("krishna_paksha")
-        grade = "best" if any(w["_g"] == "best" for w in windows) else "middling"
-        month = next(w["_m"] for w in windows)
-        masa = Mu.MASA.index(month)
-        out_days.append(
-            {
-                "date": date.isoformat(),
-                "vara": vara,
-                "grade": grade,
-                "lunarMonth": {
-                    "amanta": MASA_IDS[masa],
-                    "purnimanta": MASA_IDS[(masa + 1) % 12] if min(nums) > 15 else MASA_IDS[masa],
-                    "adhika": False,
-                },
-                "windows": [{k: v for k, v in w.items() if not k.startswith("_")} for w in windows],
-                "cautions": cautions,
-                "godhuli": _godhuli(ss, vara, q),
-            }
-        )
+        if rows:
+            rules = dict(day_relax)
+            for r in rows:
+                rules |= r[6]
+            if explain is not None:
+                explain[date.isoformat()] = "excluded:" + "+".join(sorted(rules))
+            excluded.append(
+                {
+                    "date": date.isoformat(),
+                    "vara": vara,
+                    "windows": [
+                        {k: v for k, v in w.items() if not k.startswith("_")}
+                        for w in _windows(rows, q)
+                    ],
+                    "rules": sorted(rules),
+                    "reasons": [rules[k] for k in sorted(rules)],
+                }
+            )
+        elif explain is not None:
+            hit = [k for x, y_, k in y.bars if any(x < b and y_ > a for a, b, *_ in pieces)]
+            explain[date.isoformat()] = "window:" + "+".join(sorted(set(hit)))
     return {
         "year": q.year,
         "days": out_days,
-        "blocks": _blocks(days, set_state, eclipse_bars, sun_sign, jupiter, q),
+        "excluded": excluded,
+        "blocks": _blocks(y.days, y.states, eclipse_bars, y.sun_sign, y.jupiter, q),
         "source": SOURCE,
         "alsoSource": DS,
         "engine": provenance(ay),
+    }
+
+
+def _windows(rows: list[tuple], q) -> list[dict]:
+    """Window rows, joining neighbours that share a tithi."""
+    out: list[dict] = []
+    for a, b, num, nak, *_ in rows:
+        row = {
+            "start": iso(a, q.tz),
+            "end": iso(b, q.tz),
+            "nakshatra": NAKSHATRA_IDS[nak],
+            "tithi": tithi_id(num),
+            "paksha": "shukla" if num <= 15 else "krishna",
+            "_n": num,
+        }
+        if out and out[-1]["end"] == row["start"] and out[-1]["_n"] == num:
+            out[-1]["end"] = row["end"]
+        else:
+            out.append(row)
+    return out
+
+
+def _listed(date: dt.date, vara: str, ss: float, rows: list[tuple], q) -> dict:
+    windows = _windows(rows, q)
+    nums = {w["_n"] for w in windows}
+    cautions = []
+    if nums & WEAK_TITHI:
+        cautions.append("weak_tithi")
+    if vara in ("sunday", "saturday"):
+        bad = nums & {12, 13, 27, 28}
+        cautions.append("middling_weekday_dvadashi_trayodashi" if bad else "middling_weekday")
+    if any(n > 15 for n in nums):
+        cautions.append("krishna_paksha")
+    grade = "best" if any(r[4] == "best" for r in rows) else "middling"
+    masa = Mu.MASA.index(rows[0][5])
+    return {
+        "date": date.isoformat(),
+        "vara": vara,
+        "grade": grade,
+        "lunarMonth": {
+            "amanta": MASA_IDS[masa],
+            "purnimanta": MASA_IDS[(masa + 1) % 12] if min(nums) > 15 else MASA_IDS[masa],
+            "adhika": False,
+        },
+        "windows": [{k: v for k, v in w.items() if not k.startswith("_")} for w in windows],
+        "cautions": cautions,
+        "godhuli": _godhuli(ss, vara, q),
     }
 
 
@@ -403,26 +435,29 @@ def _first(reasons: list[str]) -> str:
     return next((r for r in order if r in reasons), "none")
 
 
-def _pierced(nak: int, moon_lon: float, p: dict) -> bool:
-    """MC 6.54: a malefic anywhere in the paired star pierces the whole star; a
-    benefic only the Moon's quarter that pairs with its own (1-4, 2-3)."""
+def _pierced(nak: int, moon_lon: float, p: dict) -> list[str]:
+    """MC 6.54: the planets piercing the Moon's star. A malefic anywhere in the
+    paired star pierces the whole star; a benefic only the Moon's quarter that pairs
+    with its own (1-4, 2-3)."""
     pair = VEDHA_PAIRS.get(Mu.NAKSHATRAS[nak])
     if pair is None:
-        return False
+        return []
     moon_pada = int((moon_lon % (360 / 27)) // (360 / 108)) + 1
+    out = []
     for g in MALEFICS + BENEFICS:
         lon = p[g].longitude
         if nakshatra_28(lon) != pair:
             continue
         if g in MALEFICS:
-            return True
+            out.append(g)
+            continue
         if pair == "Abhijit":
             pada = int((lon - ABHIJIT[0]) // ((ABHIJIT[1] - ABHIJIT[0]) / 4)) + 1
         else:
             pada = int((lon % (360 / 27)) // (360 / 108)) + 1
         if PADA_PAIR[pada] == moon_pada:
-            return True
-    return False
+            out.append(g)
+    return out
 
 
 def _godhuli(ss: float, vara: str, q) -> dict | None:

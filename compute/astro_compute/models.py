@@ -240,6 +240,8 @@ class MuhurtaRequest(Model):
     hours: str | None = Field(default=None, pattern=r"^\d{2}:\d{2}-\d{2}:\d{2}$")
     toward: Compass | None = None
     firstLeg: Compass | None = None
+    door: Literal["N", "E", "S", "W"] | None = None  # home: the main door faces (MC 13.5)
+    oldHouse: bool = False  # home: an old or rebuilt house (MC 13.2)
     top: int = Field(default=10, ge=1, le=50)
     chart: ChartIn | None = None
     ayanamsa: Ayanamsa = "lahiri"
@@ -260,6 +262,8 @@ class MuhurtaCheck(Model):
     tz: str
     toward: Compass | None = None
     firstLeg: Compass | None = None
+    door: Literal["N", "E", "S", "W"] | None = None  # home: the main door faces (MC 13.5)
+    oldHouse: bool = False  # home: an old or rebuilt house (MC 13.2)
     chart: ChartIn | None = None
     ayanamsa: Ayanamsa = "lahiri"
 

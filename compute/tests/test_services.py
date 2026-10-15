@@ -192,3 +192,35 @@ def test_muhurta_scorer_rules_of_15_oct():
     pata = next(r for r in day("2026-10-21")["specialYogas"] if r["id"] == "mahapata")
     vetoes, _ = check(pata["moment"], 0)
     assert "mahapata" in vetoes
+
+
+def test_home_profile_follows_mc_13():
+    import datetime as dt
+
+    def moment(date, minutes):
+        status, out = call("GET", "/v1/panchang", {"date": date, **DELHI})
+        assert status == 200, out
+        at = dt.datetime.fromisoformat(out["sunrise"]) + dt.timedelta(minutes=minutes)
+        return at.isoformat(), out["tithi"]["num"]
+
+    def vetoes(at, **extra):
+        query = {"act": "home", "at": at, **DELHI, **extra}
+        status, out = call("GET", "/v1/muhurta/check", query)
+        assert status == 200, out
+        return {r["id"] for r in out["vetoes"]}
+
+    # Shravana (2026's runs from 12 Aug, after the adhika Jyeshtha): no entry into a new
+    # house (MC 13.1), but an old one may (MC 13.2).
+    at, _ = moment("2026-08-25", 300)
+    assert "month_home" in vetoes(at)
+    assert "month_home" not in vetoes(at, oldHouse="true")
+    # The door decides the tithi class (MC 13.5): East Purna, South Nanda, West
+    # Bhadra, North Jaya.
+    at, num = moment("2027-02-10", 10)
+    n = (num - 1) % 15 + 1
+    classes = {"E": {5, 10, 15}, "S": {1, 6, 11}, "W": {2, 7, 12}, "N": {3, 8, 13}}
+    wrong = next(d for d, c in classes.items() if n not in c)
+    assert "door_tithi" in vetoes(at, door=wrong)
+    right = next((d for d, c in classes.items() if n in c), None)
+    if right:
+        assert "door_tithi" not in vetoes(at, door=right)

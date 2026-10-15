@@ -23,6 +23,8 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 
+import swisseph as swe
+
 from .chart import EXALTATION, OWN_SIGNS, SIGN_LORDS
 from .ephemeris import (
     NAKSHATRAS,
@@ -420,6 +422,95 @@ def _declinations_meet(a: float, b: float, sign: int) -> list[float]:
     return roots
 
 
+# Surya-siddhanta 9.6-7: Jupiter and Venus are set within these distances of the
+# Sun in time-degrees (Venus 8 while retrograde, 10 otherwise).
+SIDEREAL_DAY = 360.9856  # time-degrees per solar day
+# MC 5.27: (days old before setting, days infant after rising) by the side of the sky.
+OLD_INFANT_DAYS = {
+    "Venus": ({"east": 15, "west": 5}, {"east": 3, "west": 10}),
+    "Jupiter": ({"east": 15, "west": 15}, {"east": 15, "west": 15}),
+}
+
+
+def kalamsa(name: str, sr: float, ss: float, lat: float, lon: float) -> tuple[float, bool]:
+    """Jupiter's or Venus's distance from the Sun in time-degrees, and whether it is
+    east of the Sun (an evening planet): the gap between its setting and the Sun's,
+    or for a morning planet between their risings, at the place."""
+    body = swe.JUPITER if name == "Jupiter" else swe.VENUS
+    sun, planet = (swe.calc_ut(sr, b, swe.FLG_SWIEPH)[0][0] for b in (swe.SUN, body))
+    east = (planet - sun) % 360 < 180
+    if min((planet - sun) % 360, (sun - planet) % 360) > 30:
+        return 999.0, east  # far from the Sun; near opposition the nearest setting is ambiguous
+    flag = (swe.CALC_SET if east else swe.CALC_RISE) | swe.BIT_DISC_CENTER
+    res, tret = swe.rise_trans((ss if east else sr) - 0.5, body, flag, (lon, lat, 0.0))
+    if res != 0:
+        return 0.0, east
+    return ((tret[0] - ss) if east else (sr - tret[0])) * SIDEREAL_DAY, east
+
+
+def jupiter_venus_states(
+    days: list[tuple[float, float]],
+    lat: float,
+    lon: float,
+    counts: dict | None = None,
+    venus_direct: float = 10.0,
+) -> dict[str, dict[int, tuple[str, str | None]]]:
+    """Per planet, day index (of consecutive (sunrise, sunset) days) -> (set | old |
+    infant, detail), by MC 5.27's counts unless ``counts`` replaces them: an evening
+    planet sets in the west and a morning one rises in the east. ``venus_direct`` is
+    Venus's distance near superior conjunction (SS 9.6-7: 10)."""
+    counts = counts or OLD_INFANT_DAYS
+    out = {}
+    for name in ("Jupiter", "Venus"):
+        flags, sides = [], []
+        for sr, ss in days:
+            if name == "Jupiter":
+                limit = 11.0
+            else:
+                speed = swe.calc_ut(sr, swe.VENUS, swe.FLG_SWIEPH | swe.FLG_SPEED)[0][3]
+                limit = 8.0 if speed < 0 else venus_direct
+            gap, east = kalamsa(name, sr, ss, lat, lon)
+            flags.append(gap < limit)
+            sides.append(east)
+        state: dict[int, tuple[str, str | None]] = {}
+        i = 0
+        while i < len(flags):
+            if not flags[i]:
+                i += 1
+                continue
+            j = i
+            while j + 1 < len(flags) and flags[j + 1]:
+                j += 1
+            setting = "west" if i > 0 and sides[i - 1] else "east"
+            rising = "west" if j + 1 < len(flags) and sides[j + 1] else "east"
+            old_days, infant_days = counts[name]
+            before, after = old_days[setting], infant_days[rising]
+            for k in range(max(0, i - before), i):
+                state.setdefault(k, ("old", f"{before} days before setting in the {setting}"))
+            for k in range(i, j + 1):
+                state[k] = ("set", None)
+            for k in range(j + 1, min(len(flags), j + 1 + after)):
+                state.setdefault(k, ("infant", f"{after} days after rising in the {rising}"))
+            i = j + 1
+        out[name] = state
+    return out
+
+
+def planet_states_around(start: float, end: float, lat: float, lon: float) -> dict[int, dict]:
+    """Jupiter's and Venus's states for each Vedic day touching [start, end], keyed
+    by the day's sunrise to the minute; the runs reach 16 days either side."""
+    sr = sunrise(start - 16, lat, lon)
+    days = []
+    while sr < end + 16:
+        days.append((sr, sunset(sr + 0.01, lat, lon)))
+        sr = next_sunrise(sr + 0.01, lat, lon)
+    states = jupiter_venus_states(days, lat, lon)
+    return {
+        round(sr * 1440): {g: states[g][i][0] for g in states if i in states[g]}
+        for i, (sr, _) in enumerate(days)
+    }
+
+
 def bhadra_residence(moon_sign: int) -> str:
     if moon_sign in BHADRA_EARTH:
         return "earth"
@@ -730,7 +821,7 @@ PROFILES = {
             _classes("dhruva", "mridu") | {"Dhanishta", "Shatabhisha"},
             1.5,
             1.5,
-            frozenset({2, 3, 5, 7, 10, 11, 12, 13}),
+            frozenset(range(1, 16)),  # MC 13.4 bars only rikta and Amavasya (vetoed)
             1.0,
             frozenset({"Moon", "Mercury", "Jupiter", "Venus", "Saturn"}),
             1.0,
@@ -835,6 +926,9 @@ def evaluate(
     toward: str | None = None,
     first_leg: str | None = None,
     ayanamsa: str = "lahiri",
+    door: str | None = None,
+    old_house: bool = False,
+    planet_states: dict[str, str] | None = None,
 ) -> Verdict:
     """Judge one moment.  ``natal_moon`` (and ``natal_lagna``) may be None when
     no birth chart is known; the birth-relative rules (tara, chandrashtama,
@@ -847,7 +941,8 @@ def evaluate(
     n = (t - 1) % 15 + 1
     yoga = YOGA_NAMES[int(((p["Sun"].longitude + moon.longitude) % 360) // (360 / 27))]
     karana = _karana(elongation)
-    lagna = lagna_at(jd, lat, lon, ayanamsa)
+    asc = ascendant(jd, lat, lon, ayanamsa)[0]
+    lagna = asc.sign
     nak = NAKSHATRAS[moon.nakshatra]
     w = WEEKDAY_INDEX[d.vara]
     hora, chog = d.at(d.horas, jd), d.at(d.choghadiyas, jd)
@@ -894,7 +989,7 @@ def evaluate(
             v.vetoes.append("Vishti (Bhadra on earth)")
     if t == 30:
         v.vetoes.append("Amavasya")
-    elif n in (4, 8, 9, 14):
+    elif n in ((4, 9, 14) if profile.home else (4, 8, 9, 14)):
         v.vetoes.append(tithi_label(t))
     # MC 1.30 counts 28 nakshatras (Monday's kana is Abhijit). Utpata and kana
     # carry marana's veto (the lead's ruling); siddhi is a support below.
@@ -916,6 +1011,9 @@ def evaluate(
         v.vetoes.append("Chandrashtama")
     if profile.travel and toward and relative_side(toward, DISHA_SHOOL[d.vara]) == "front":
         v.vetoes.append(f"disha shool {DISHA_SHOOL[d.vara]}")
+
+    if profile.home:
+        _home_vetoes(v, month, p, moon, asc, house, n, door, old_house, planet_states)
 
     # Defects.
     if tr in BAD_TARA:
@@ -950,14 +1048,15 @@ def evaluate(
         bad((f"Moon {moon_house(natal_moon.sign, moon.sign)}th from birth Moon", 1.0))
     if yoga in BAD_YOGA_GHATIS and not v.vetoes:
         bad((f"{yoga} yoga, past its opening", 0.5))
-    if nak not in profile.nakshatras:
+    stars = profile.nakshatras | (OLD_HOUSE_STARS if profile.home and old_house else set())
+    if nak not in stars:
         cls = NAKSHATRA_CLASS[nak]
         bad((f"{nak} ({cls})", profile.other_nakshatra + (profile.harsh if cls in HARSH else 0)))
     if t != 30 and n not in profile.tithis and n not in (4, 8, 9, 14):
         bad((tithi_label(t), profile.other_tithi))
     if d.vara not in profile.varas:
         bad((VARA_NAME[d.vara], profile.other_vara))
-    if month.adhika:
+    if month.adhika and not profile.home:  # the home act vetoes it (MC 1.47)
         bad((f"adhika {month.name}", profile.season))
     if month.name == "Bhadrapada" and not month.adhika and t >= 16:
         bad(("Pitru Paksha", profile.season))
@@ -1005,15 +1104,69 @@ def evaluate(
             good(("Char choghadiya", 0.5))
         if lagna in (0, 3, 6, 9):
             good(("movable lagna", 0.5))
-    if profile.home:
-        if lagna in (1, 4, 7, 10):
-            good(("fixed lagna", 0.5))
-        fourth = [g for g in MALEFICS if house(g) == 4]
-        if fourth:
-            bad((f"{', '.join(fourth)} in the 4th", 1.0))
-        if p["Sun"].sign in (8, 11):
-            bad(("Kharmas", 1.5))
+    if profile.home and lagna in (1, 4, 7, 10):
+        good(("fixed lagna", 0.5))  # MC 13.1 ("sthire"); dual signs are allowed (Vasishtha)
     return v
+
+
+# MC 13 (griha-pravesh.md; the lead's rulings of 15 Oct 2026).
+HOME_BEST = {"Magha", "Phalguna", "Vaishakha", "Jyeshtha"}  # in uttarayana
+HOME_MIDDLING = {"Kartika", "Margashirsha"}  # Narada: for necessity
+UTTARAYANA = {9, 10, 11, 0, 1, 2}  # the Sun in Capricorn to Gemini
+MOVABLE = {0, 3, 6, 9}
+OLD_HOUSE_STARS = {"Shatabhisha", "Pushya", "Swati", "Dhanishta"}  # MC 13.2
+DOOR_TITHIS = {"E": {5, 10, 15}, "S": {1, 6, 11}, "W": {2, 7, 12}, "N": {3, 8, 13}}  # MC 13.5
+DOOR_SUN = {  # the Sun "on the left": the five houses from the 8th, 5th, 2nd or 11th
+    "E": {8, 9, 10, 11, 12}, "S": {5, 6, 7, 8, 9}, "W": {2, 3, 4, 5, 6}, "N": {11, 12, 1, 2, 3},
+}  # fmt: skip
+
+
+def _home_vetoes(v, month, p, moon, asc, house, n, door, old_house, planet_states) -> None:
+    """House entry (MC 13): the month (13.1, 13.4; Guru on the Sun's sign), Jupiter
+    and Venus (1.46-48, 5.27; not for an old house, 13.2), no movable lagna or
+    navamsa and the 4th and 8th empty (13.4), the Moon not in the 1st, 6th or 12th
+    (the 8th is vetoed for every act), the pot chakra (13.6), and with a door
+    direction its tithi class and the Sun on the left (13.4-5)."""
+    sun = p["Sun"].sign
+    if month.adhika:
+        v.vetoes.append(f"adhika {month.name} (MC 1.47)")
+    if month.name in ("Chaitra", "Ashadha"):
+        v.vetoes.append(f"{month.name}: no house entry (MC 13.4)")
+    elif month.name in HOME_BEST:
+        if sun not in UTTARAYANA:
+            v.vetoes.append("dakshinayana (MC 13.1)")
+    elif month.name in HOME_MIDDLING or (old_house and month.name == "Shravana"):
+        if not old_house:
+            v.defects.append(("middling month for house entry (Narada)", 1.5))
+    else:
+        v.vetoes.append(f"{month.name}: no house entry (MC 13.1)")
+    if sun in (3, 5, 10):
+        v.vetoes.append(f"Sun in {SIGNS[sun]} (Guru, MC 13.1)")
+    if not old_house:
+        for g, state in sorted((planet_states or {}).items()):
+            v.vetoes.append(f"{g} {state} (MC 1.46-48, 5.27)")
+        if p["Jupiter"].sign in (4, 9):
+            v.vetoes.append(f"Jupiter in {SIGNS[p['Jupiter'].sign]} (MC 1.48)")
+    if asc.sign in MOVABLE:
+        v.vetoes.append("movable lagna (MC 13.4)")
+    elif int(asc.longitude // (30 / 9)) % 12 in MOVABLE:
+        v.vetoes.append("movable navamsa (MC 13.4)")
+    held = [g for g in p if house(g) in (4, 8) and not (g == "Moon" and house(g) == 8)]
+    if held:
+        v.vetoes.append(f"{', '.join(held)} in the 4th or 8th (MC 13.4)")
+    if house("Moon") in (1, 6, 12):
+        v.vetoes.append(f"Moon in the {ORDINAL[house('Moon')]} (MC 13.3-4)")
+    count = (moon.nakshatra - p["Sun"].nakshatra) % 27 + 1
+    if count <= 5 or 14 <= count <= 21:
+        v.vetoes.append(f"pot chakra {count} (MC 13.6)")
+    if door:
+        if n not in DOOR_TITHIS[door]:
+            v.vetoes.append(f"tithi not for a {door} door (MC 13.5)")
+        if house("Sun") not in DOOR_SUN[door]:
+            v.vetoes.append(f"Sun not on the left for a {door} door (MC 13.4-5)")
+
+
+ORDINAL = {1: "1st", 6: "6th", 12: "12th"}
 
 
 def check(
@@ -1028,9 +1181,13 @@ def check(
     """One moment, for "can I do it now?"."""
     ayanamsa = kw.get("ayanamsa", "lahiri")
     tz = kw.pop("tz", None)
+    d = day(jd, lat, lon, ayanamsa, tz)
+    if profile.home and not kw.get("old_house"):
+        states = planet_states_around(jd, jd, lat, lon)
+        kw["planet_states"] = states.get(round(d.sunrise * 1440), {})
     return evaluate(
         profile,
-        day(jd, lat, lon, ayanamsa, tz),
+        d,
         lunar_month(jd, ayanamsa),
         jd,
         lat,
@@ -1084,6 +1241,8 @@ def find(
     ayanamsa: str = "lahiri",
     step_minutes: int = 1,
     min_minutes: int = 5,
+    door: str | None = None,
+    old_house: bool = False,
 ) -> list[Choice]:
     """Unvetoed windows in [start, end), best score first.
 
@@ -1095,6 +1254,7 @@ def find(
         raise ValueError("a travel search needs the destination direction (--toward)")
     step = step_minutes / 1440
     d, month = day(start, lat, lon, ayanamsa, tz), lunar_month(start, ayanamsa)
+    states = planet_states_around(start, end, lat, lon) if profile.home and not old_house else {}
     out: list[Choice] = []
     t = start
     while t < end:
@@ -1115,6 +1275,9 @@ def find(
                 toward=toward,
                 first_leg=first_leg,
                 ayanamsa=ayanamsa,
+                door=door,
+                old_house=old_house,
+                planet_states=states.get(round(d.sunrise * 1440), {}),
             )
             if v.ok:
                 key = (tuple(v.defects), tuple(v.supports), tuple(v.facts.items()))

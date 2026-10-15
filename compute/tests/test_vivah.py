@@ -50,3 +50,20 @@ def test_no_listed_day_inside_a_block():
         if b["rule"] in ("jupiter_set", "venus_set", "jupiter_sign", "eclipse"):
             inside = [d["date"] for d in out["days"] if b["start"][:10] < d["date"] < b["end"][:10]]
             assert not inside, (b, inside)
+
+
+def test_excluded_days_carry_their_relaxed_rules():
+    out = year("2026")
+    relaxable = {
+        "vedha_slow", "jupiter_sign", "tuesday", "rikta", "solar_month", "infancy_old",
+        "venus_set", "eclipse",
+    }  # fmt: skip
+    listed = {d["date"] for d in out["days"]}
+    assert out["excluded"]
+    for d in out["excluded"]:
+        assert d["date"] not in listed and d["windows"]
+        assert set(d["rules"]) <= relaxable and len(d["reasons"]) == len(d["rules"])
+        assert all(not k.startswith("_") for w in d["windows"] for k in w)
+    # Jupiter enters Leo on 31 Oct 2026: November's candidates are excluded, with the reason.
+    late = [d for d in out["excluded"] if d["date"] >= "2026-11-21"]
+    assert late and all("jupiter_sign" in d["rules"] for d in late)

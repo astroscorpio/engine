@@ -128,6 +128,10 @@ VIVAH_RULES = {
     "sankranti": ("16.5 ghatikas either side of the Sun's sign change, removed (half of MC's 33 each side, our reading)", "Muhurta Chintamani 6.78, p. 293"),
     "mahapata": ("Mahapata, equal declinations of the Sun and Moon, removed", "Muhurta Chintamani 6.59"),
     "eclipse": ("Days after and before an eclipse visible here: 3 and 1.5 for a quarter of the disc, 4 and 2 for half, 6 and 3 for three quarters, 8 and 4 for total (bins ours)", "Dharmasindhu p. 181, note"),
+    "solar_month": ("Excluded: the lunar month is not one of the season's, though the Sun's sign is (the solar-month count MC's commentary sets aside)", "Muhurta Chintamani 6.13 commentary, p. 235"),
+    "rikta": ("Excluded: a rikta tithi (Chaturthi, Navami, Chaturdashi)", "Muhurta Chintamani 6.53, p. 275"),
+    "vedha_slow": ("Excluded: pierced only by a slow planet (Jupiter, Saturn, Rahu, Ketu) sitting in the paired star", "Muhurta Chintamani 6.54, p. 276"),
+    "infancy_old": ("Excluded: Jupiter's or Venus's infancy or old age beyond 3 days", "Muhurta Chintamani 5.27 (5.28 gives 3 as the shortest)"),
     "godhuli": ("Godhuli, the alternative: half a ghatika either side of sunset; Thursday only before it, Saturday only after; none with the Moon 1st, 6th or 8th from the lagna, or Mars 1st, 7th or 8th", "Muhurta Chintamani 6.97-99, pp. 305-307"),
     "weak_tithi": ("Shashthi or Ashtami: 'little fruit' (DS); Vasishtha drops them", "Dharmasindhu p. 181; Muhurta Chintamani 6.53"),
     "middling_weekday": ("Sunday or Saturday: middling", "Vasishtha in Muhurta Chintamani 6.53; Dharmasindhu p. 181"),
@@ -141,6 +145,44 @@ VIVAH_NOTES = {
     "solarMonths": "The solar-month school also allows Kartika with the Sun in Scorpio, Pausha with the Sun in Capricorn and Caitra with the Sun in Aries; MC's commentator sets it aside except for a marriage that cannot wait, and Dharmasindhu allows it by local custom. Not applied.",
     "moreStars": "Haradatta adds Citra, Shravana, Dhanishtha and Ashvini (Dharmasindhu p. 181). Not applied.",
     "phase2": "The lagna (MC 6.84-85), jamitra, kartari, the navamsha rules, the other doshas of MC 6 and the couple's own charts are not applied yet.",
+}  # fmt: skip
+# griha-pravesh.md (the lead's decisions of 15 Oct 2026): rule ids for /muhurat/griha-pravesh.
+GRIHA_PRAVESH_RULES = {
+    "month": ("Magha, Phalguna, Vaishakha or Jyeshtha (amanta), with the Sun in its northern course", "Muhurta Chintamani 13.1, p. 437; Narada, p. 438"),
+    "adhika_month": ("An adhika or kshaya month: barred", "Muhurta Chintamani 1.47, pp. 39-40; Dharmasindhu p. 4"),
+    "dakshinayana": ("The Sun in its southern course, Cancer to Sagittarius: barred", "Muhurta Chintamani 13.1, p. 437"),
+    "sun_sign": ("The Sun in Cancer, Virgo or Aquarius: barred", "Guru in Muhurta Chintamani 13.1 commentary, p. 439"),
+    "jupiter_set": ("Jupiter within 11 time-degrees of the Sun: set", "Surya-siddhanta 9.6-7; Muhurta Chintamani 1.46, applied by the 13.1 commentary, p. 438"),
+    "jupiter_old": ("The 15 days before Jupiter sets", "Muhurta Chintamani 5.27"),
+    "jupiter_infant": ("The 15 days after Jupiter rises", "Muhurta Chintamani 5.27"),
+    "venus_set": ("Venus within 8 time-degrees of the Sun (retrograde) or 10 (direct): set", "Surya-siddhanta 9.6-7; Muhurta Chintamani 1.46, applied by the 13.1 commentary, p. 438"),
+    "venus_old": ("The 15 days before Venus sets in the east, or the 5 before it sets in the west", "Muhurta Chintamani 5.27"),
+    "venus_infant": ("The 3 days after Venus rises in the east, or the 10 after it rises in the west", "Muhurta Chintamani 5.27"),
+    "jupiter_sign": ("Jupiter in Leo or Capricorn: barred for its whole stay", "Muhurta Chintamani 1.48, p. 40; 13.2, 1925 printing p. 440"),
+    "nakshatra": ("The Moon in Citra, the three Uttaras, Rohini, Mrgashira, Anuradha, Dhanishtha, Revati or Shatabhisha", "Vasishtha in Muhurta Chintamani 13.1 commentary, p. 439"),
+    "pot_chakra": ("The pot chakra: counting the Sun's star as the 1st, the Moon's star is not 1-5 or 14-21", "Muhurta Chintamani 13.6, p. 446; Dharmasindhu p. 242"),
+    "tithi": ("Not a rikta tithi (4, 9, 14) or Amavasya", "Muhurta Chintamani 13.4, p. 442"),
+    "weekday": ("Not a Sunday or Tuesday", "Muhurta Chintamani 13.4, p. 442"),
+    "lagna": ("A fixed lagna, or a dual one; never a movable one", "Muhurta Chintamani 13.1, 13.4; Vasishtha, p. 443"),
+    "navamsa": ("The lagna's navamsa not movable", "Muhurta Chintamani 13.4 commentary, p. 442"),
+    "houses_4_8": ("The 4th and 8th houses empty of every planet", "Muhurta Chintamani 13.4 and commentary, p. 443"),
+    "moon_house": ("The Moon not in the 1st, 6th, 8th or 12th from the lagna", "Vasishtha in Muhurta Chintamani 13.3-4 commentary"),
+    "bhadra": ("Bhadra on earth removed from the window, as for marriage", "Muhurta Chintamani 1.43-45; 13.1 commentary, p. 439"),
+    "bad_yoga": ("The bad yogas' opening ghatis, Parigha's first half, and Vyatipata and Vaidhriti whole, removed, as for marriage", "Muhurta Chintamani 1.34-35; 13.1 commentary, p. 439"),
+    "gandanta_tithi": ("One ghatika either side of the ends of the 5th, 10th and 15th tithis, removed", "Muhurta Chintamani 6.41, p. 265; 13.1 commentary, p. 439"),
+    "gandanta_nakshatra": ("Two ghatikas either side of Ashlesha-Magha, Jyeshtha-Mula and Revati-Ashvini, removed", "Muhurta Chintamani 6.41, p. 265; 13.1 commentary, p. 439"),
+    "sankranti": ("16.5 ghatikas either side of the Sun's sign change, removed (half of MC's 33 each side, our reading)", "Muhurta Chintamani 6.78, p. 293; 13.1 commentary, p. 439"),
+    "mahapata": ("Mahapata, equal declinations of the Sun and Moon, removed", "Muhurta Chintamani 6.59; 13.1 commentary, p. 439"),
+    "krishna_after_dashami": ("The dark fortnight after Dashami: Vasishtha keeps the dark fortnight only up to Dashami", "Vasishtha in Muhurta Chintamani 13.1 commentary, p. 438"),
+    "saturday": ("Saturday: stability, with a fear of thieves", "Vasishtha in Muhurta Chintamani 13.4 commentary, p. 443"),
+}  # fmt: skip
+GRIHA_PRAVESH_NOTES = {
+    "vastuPuja": "The vastu-puja and bhuta-bali are done the day before entry, under the soft, fixed, swift or movable stars or Mula (Muhurta Chintamani 13.3a, 1925 printing p. 441; Dharmasindhu p. 242).",
+    "door": "The door's direction sets the tithi class and the side the Sun must be on (Muhurta Chintamani 13.5). The muhurta finder applies them when a door direction is given; this list does not.",
+    "oldHouse": "An old house, or one rebuilt after fire or flood, also allows Margashirsha, Kartika and Shravana and four more stars, without the checks on Jupiter and Venus (Muhurta Chintamani 13.2). The muhurta finder's old-house option applies it; this list is for a new house.",
+    "owner": "The lagna should not be the 8th sign from the owner's birth lagna or Moon sign, and is best 3rd, 6th, 10th or 11th from them (Muhurta Chintamani 13.1, 13.4). These need the owner's chart and are not applied here.",
+    "placements": "Benefics in a trine, a kendra, or the 11th, 2nd or 3rd, and malefics in the 3rd, 6th or 11th, are preferred (Muhurta Chintamani 13.3b). Not applied here.",
+    "months": "Narada counts Kartika and Margashirsha as middling months for house entry (Muhurta Chintamani 13.1 commentary, p. 438); Muhurta Chintamani's verse asks for the Sun's northern course, so this list keeps to the four best months.",
 }  # fmt: skip
 # attributes.md: each sign's element as its verse names it (Tajika-nilakanthi 1.2-13).
 TAJIKA_NILAKANTHI = {
@@ -542,6 +584,18 @@ MUHURTA_RULE_NAMES = {
     "bhadra_face": "Bhadra's face (MC 1.44)",
     "bhadra_tail": "Bhadra's tail: no penalty (MC 1.44)",
     "bhadra_day_night": "Bhadra in a tithi's second half by day, or first half at night: no penalty (MC 1.44)",
+    "adhika_masa_home": "Adhika month (MC 1.47)", "month_home": "Month without house entry (MC 13.1, 13.4)",
+    "dakshinayana": "The Sun's southern course (MC 13.1)",
+    "middling_month_home": "Kartika or Margashirsha: middling, for necessity (Narada in MC 13.1)",
+    "sun_sign_home": "The Sun in Cancer, Virgo or Aquarius (Guru in MC 13.1)",
+    "jupiter_venus_state": "Jupiter or Venus set, old or infant (MC 1.46-48, 5.27)",
+    "jupiter_sign": "Jupiter in Leo or Capricorn (MC 1.48)",
+    "movable_lagna_home": "Movable lagna (MC 13.4)", "movable_navamsa": "Movable navamsa (MC 13.4 commentary)",
+    "house_4_8_occupied": "A planet in the 4th or 8th (MC 13.4)",
+    "moon_1_6_12": "The Moon in the 1st, 6th or 12th (Vasishtha in MC 13.3-4)",
+    "pot_chakra": "Pot chakra: the Moon's star 1st-5th or 14th-21st from the Sun's (MC 13.6; DS p. 242)",
+    "door_tithi": "Tithi not of the door's class (MC 13.5)",
+    "door_sun": "The Sun not on the left for the door (MC 13.4-5)",
     "utpata_yoga": "Utpata yoga (MC 1.30)", "kana_yoga": "Kana yoga (MC 1.30)",
     "mahapata": "Mahapata, equal declinations (MC 1.34)", "siddhi_yoga": "Siddhi yoga (MC 1.30)",
     "visha_yoga": "Visha yoga: a siddhi pair on its excluded tithi (MC 1.20-21)",
@@ -570,7 +624,9 @@ VETOES = {
     "rahu_kalam", "yamaganda", "gulika", "durmuhurta", "bad_yoga_window", "bhadra_earth",
     "amavasya", "rikta_tithi", "ashtami", "marana_yoga", "dagdha_yoga", "moon_8th",
     "chandrashtama", "disha_shool", "visha_yoga", "siddhi_pair_act_ban", "bhadra_face",
-    "utpata_yoga", "kana_yoga", "mahapata",
+    "utpata_yoga", "kana_yoga", "mahapata", "adhika_masa_home", "month_home", "dakshinayana",
+    "sun_sign_home", "jupiter_venus_state", "jupiter_sign", "movable_lagna_home", "movable_navamsa",
+    "house_4_8_occupied", "moon_1_6_12", "pot_chakra", "door_tithi", "door_sun",
 }  # fmt: skip
 SUPPORTS = {
     "amrita_siddhi", "sarvartha_siddhi", "lagna_lord_strong", "benefic_kendra", "abhijit",
@@ -769,6 +825,10 @@ def _english() -> dict:
         "gocharaNotes": GOCHARA_NOTES,
         "vivahRules": {k: {"name": n, "source": src} for k, (n, src) in VIVAH_RULES.items()},
         "vivahNotes": VIVAH_NOTES,
+        "grihaPraveshRules": {
+            k: {"name": n, "source": src} for k, (n, src) in GRIHA_PRAVESH_RULES.items()
+        },
+        "grihaPraveshNotes": GRIHA_PRAVESH_NOTES,
         "horaSystems": HORA_SYSTEMS,
         "festivalRules": {
             group: {k: {"name": n, "source": src} for k, (n, src) in rules.items()}
