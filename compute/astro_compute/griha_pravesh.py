@@ -9,7 +9,13 @@ passes the pot chakra (13.6; DS p. 242); the tithi is not 4, 9, 14 or Amavasya; 
 the day is not a Sunday or Tuesday (13.4). Its windows add a fixed or dual lagna
 whose navamsa is not movable, the 4th and 8th empty, and the Moon not in the 1st,
 6th, 8th or 12th (13.4; Vasishtha), less the marriage chapter's barred stretches
-(the commentary on 13.1, p. 439).
+(the commentary on 13.1, p. 439) and the day yogas the muhurta finder vetoes.
+
+excluded[] holds the days that pass every rule except ones almanacs relax (the
+lead's list, 15 Oct 2026): Narada's middling months Kartika and Margashirsha, Guru's
+bar on the Sun in Aquarius, infancy and old age beyond 3 days, Venus set at 10
+time-degrees but not 8, Jupiter in Leo or Capricorn, and a day yoga that covers
+every window.
 """
 
 from __future__ import annotations
@@ -22,14 +28,16 @@ from .ids import MASA_IDS, NAKSHATRA_IDS, SIGN_IDS, tithi_id
 from .models import EkadashiQuery
 from .observances import _vara
 from .timeutil import aware, iso
-from .vivah import DS, _spans, _subtract, _Year
+from .vivah import DS, _day_yogas, _spans, _subtract, _Year
 
 # Vasishtha in MC 13.1's commentary: Citra, the three Uttaras, Rohini, Mrgashira,
 # Anuradha, Dhanishtha, Revati, Shatabhisha (0-based indexes).
 STARS = {13, 11, 20, 25, 3, 4, 16, 22, 26, 23}
 MONTHS = {"Magha", "Phalguna", "Vaishakha", "Jyeshtha"}
+MIDDLING = {"Kartika", "Margashirsha"}  # Narada, MC 13.1 commentary: for excluded[] only
 UTTARAYANA = {9, 10, 11, 0, 1, 2}  # the Sun in Capricorn to Gemini
 BARRED_SUN = {3, 5, 10}  # Cancer, Virgo, Aquarius (Guru)
+AQUARIUS = 10
 BARRED_JUPITER = {4, 9}
 MOVABLE = {0, 3, 6, 9}
 RIKTA = {4, 9, 14, 19, 24, 29, 30}
@@ -75,19 +83,31 @@ def griha_pravesh(q: EkadashiQuery, explain: dict | None = None) -> dict:
     """explain, if given, is filled with date -> the rule that rejected it."""
     y = _Year(q)
     ay, zone = y.ay, y.zone
-    out_days = []
+    out_days, excluded = [], []
     for i, (sr, _ss, nr) in enumerate(y.days):
         date = aware(sr, zone).date()
         if date.year != q.year:
             continue
         vara = _vara(sr, q)
-        why = None
-        if vara in ("sunday", "tuesday"):
-            why = vara
-        else:
-            hit = next((p for p in y.states if i in y.states[p]), None)
-            if hit:
-                why = f"{hit.lower()}_{y.states[hit][i][0]}"
+        # Rules the almanacs relax (the lead's list, 15 Oct 2026) give reasons for
+        # excluded[]; the rest reject the day outright.
+        day_relax: dict[str, str] = {}
+        why = vara if vara in ("sunday", "tuesday") else None
+        for planet, state in y.states.items():
+            if i not in state:
+                continue
+            kind, detail = state[i]
+            if i in y.relaxed[planet]:
+                why = why or f"{planet.lower()}_{kind}"
+            elif kind == "set":
+                day_relax["venus_set"] = (
+                    "Venus is within the Surya-siddhanta's 10 time-degrees of the Sun (9.6-7)"
+                )
+            else:
+                day_relax["infancy_old"] = (
+                    f"{planet} is in its {'infancy' if kind == 'infant' else 'old age'}, "
+                    f"{detail} (Muhurta Chintamani 5.27)"
+                )
         if why:
             if explain is not None:
                 explain[date.isoformat()] = why
@@ -99,81 +119,144 @@ def griha_pravesh(q: EkadashiQuery, explain: dict | None = None) -> dict:
             mid = (a + b) / 2
             num, (name, adhika, kshaya, _) = y.tithi(mid)
             sun, moon = luminaries(mid, ay)
-            if name not in MONTHS or adhika or kshaya:
+            relax: dict[str, str] = {}
+            if adhika or kshaya:
                 reasons.append("month")
-            elif sun.sign not in UTTARAYANA or sun.sign in BARRED_SUN:
-                reasons.append("sun_sign")
-            elif positions(mid, ay)["Jupiter"].sign in BARRED_JUPITER:
-                reasons.append("jupiter_sign")
-            elif moon.nakshatra not in STARS:
+                continue
+            if name in MIDDLING:
+                relax["middling_month"] = (
+                    f"The lunar month is {name}, which Narada counts middling for house entry; "
+                    "Muhurta Chintamani 13.1 asks for the Sun's northern course"
+                )
+            elif name not in MONTHS or sun.sign not in UTTARAYANA:
+                reasons.append("month")
+                continue
+            if sun.sign in BARRED_SUN:
+                if sun.sign != AQUARIUS:
+                    reasons.append("sun_sign")
+                    continue
+                relax["sun_sign"] = (
+                    "The Sun is in Aquarius, where Guru bars house entry "
+                    "(Muhurta Chintamani 13.1 commentary)"
+                )
+            jupiter = positions(mid, ay)["Jupiter"].sign
+            if jupiter in BARRED_JUPITER:
+                relax["jupiter_sign"] = (
+                    f"Jupiter is in {Mu.SIGNS[jupiter]}; Muhurta Chintamani 1.48 bars the "
+                    "whole of its stay"
+                )
+            if moon.nakshatra not in STARS:
                 reasons.append("nakshatra")
-            elif not _pot_chakra(sun.nakshatra, moon.nakshatra):
+                continue
+            if not _pot_chakra(sun.nakshatra, moon.nakshatra):
                 reasons.append("pot_chakra")
-            elif num in RIKTA:
+                continue
+            if num in RIKTA:
                 reasons.append("tithi")
-            else:
-                pieces.append((a, b, num, moon.nakshatra, name))
+                continue
+            pieces.append((a, b, num, moon.nakshatra, name, relax))
         if not pieces:
             if explain is not None:
                 explain[date.isoformat()] = _first_gp(reasons)
             continue
         free = _subtract([(a, b) for a, b, *_ in pieces], [(x, y_) for x, y_, _ in y.bars])
-        windows: list[dict] = []
+        rows = []
         for a, b in free:
-            num, nak, name = next((n, k, m) for x, y_, n, k, m in pieces if x <= a < y_)
-            for x, y_, lagna in _lagna_windows(a, b, q):
-                row = {
-                    "start": iso(x, zone),
-                    "end": iso(y_, zone),
-                    "lagna": SIGN_IDS[lagna],
-                    "nakshatra": NAKSHATRA_IDS[nak],
-                    "tithi": tithi_id(num),
-                    "paksha": "shukla" if num <= 15 else "krishna",
-                    "_n": num,
-                    "_m": name,
-                }
-                last = windows[-1] if windows else None
-                if (
-                    last
-                    and last["end"] == row["start"]
-                    and all(last[k] == row[k] for k in ("lagna", "nakshatra", "tithi"))
-                ):
-                    last["end"] = row["end"]
-                else:
-                    windows.append(row)
-        if not windows:
+            num, nak, name, relax = next(
+                (n, k, m, r) for x, y_, n, k, m, r in pieces if x <= a < y_
+            )
+            rows += [
+                (x, y_, num, nak, name, relax, lagna) for x, y_, lagna in _lagna_windows(a, b, q)
+            ]
+        # The day-yoga stretches go from every window; a day left with none is
+        # excluded for them, with the windows they cover.
+        rows, inside, yoga = _day_yogas(rows, vara, ay)
+        if rows or not inside:
+            yoga = {}
+        else:
+            rows = inside
+        strict = [r for r in rows if not r[5]] if not (day_relax or yoga) else []
+        if strict:
             if explain is not None:
-                explain[date.isoformat()] = "lagna" if free else "window"
-            continue
-        if explain is not None:
-            explain[date.isoformat()] = "listed"
-        nums = {w["_n"] for w in windows}
-        cautions = []
-        if nums & {26, 27, 28}:
-            cautions.append("krishna_after_dashami")
-        if vara == "saturday":
-            cautions.append("saturday")
-        masa = Mu.MASA.index(windows[0]["_m"])
-        out_days.append(
-            {
-                "date": date.isoformat(),
-                "vara": vara,
-                "lunarMonth": {
-                    "amanta": MASA_IDS[masa],
-                    "purnimanta": MASA_IDS[(masa + 1) % 12] if min(nums) > 15 else MASA_IDS[masa],
-                    "adhika": False,
-                },
-                "windows": [{k: v for k, v in w.items() if not k.startswith("_")} for w in windows],
-                "cautions": cautions,
-            }
-        )
+                explain[date.isoformat()] = "listed"
+            out_days.append(_listed(date, vara, strict, zone))
+        elif rows:
+            rules = dict(day_relax) | yoga
+            for r in rows:
+                rules |= r[5]
+            if explain is not None:
+                explain[date.isoformat()] = "excluded:" + "+".join(sorted(rules))
+            excluded.append(
+                {
+                    "date": date.isoformat(),
+                    "vara": vara,
+                    "windows": _public(_windows(rows, zone)),
+                    "rules": sorted(rules),
+                    "reasons": [rules[k] for k in sorted(rules)],
+                }
+            )
+        elif explain is not None:
+            explain[date.isoformat()] = "lagna" if free else "window"
     return {
         "year": q.year,
         "days": out_days,
+        "excluded": excluded,
         "blocks": _blocks(y, q),
         "source": SOURCE,
         "alsoSource": DS,
         "engine": provenance(ay),
+    }
+
+
+def _windows(rows: list[tuple], zone) -> list[dict]:
+    """Window rows, joining neighbours that share the lagna, nakshatra and tithi."""
+    out: list[dict] = []
+    for x, y_, num, nak, name, _relax, lagna in rows:
+        row = {
+            "start": iso(x, zone),
+            "end": iso(y_, zone),
+            "lagna": SIGN_IDS[lagna],
+            "nakshatra": NAKSHATRA_IDS[nak],
+            "tithi": tithi_id(num),
+            "paksha": "shukla" if num <= 15 else "krishna",
+            "_n": num,
+            "_m": name,
+        }
+        last = out[-1] if out else None
+        if (
+            last
+            and last["end"] == row["start"]
+            and all(last[k] == row[k] for k in ("lagna", "nakshatra", "tithi"))
+        ):
+            last["end"] = row["end"]
+        else:
+            out.append(row)
+    return out
+
+
+def _public(windows: list[dict]) -> list[dict]:
+    return [{k: v for k, v in w.items() if not k.startswith("_")} for w in windows]
+
+
+def _listed(date, vara: str, rows: list[tuple], zone) -> dict:
+    windows = _windows(rows, zone)
+    nums = {w["_n"] for w in windows}
+    cautions = []
+    if nums & {26, 27, 28}:
+        cautions.append("krishna_after_dashami")
+    if vara == "saturday":
+        cautions.append("saturday")
+    masa = Mu.MASA.index(windows[0]["_m"])
+    return {
+        "date": date.isoformat(),
+        "vara": vara,
+        "lunarMonth": {
+            "amanta": MASA_IDS[masa],
+            "purnimanta": MASA_IDS[(masa + 1) % 12] if min(nums) > 15 else MASA_IDS[masa],
+            "adhika": False,
+        },
+        "windows": _public(windows),
+        "cautions": cautions,
     }
 
 

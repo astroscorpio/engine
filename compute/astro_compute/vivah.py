@@ -13,7 +13,8 @@ and the day is not a Tuesday, nor within Jupiter's or Venus's setting or the 7 d
 either side (DS p. 5; distances per Surya-siddhanta 9.6-7), nor an eclipse's barred
 days (DS p. 181 note). From the window go Bhadra on earth, the bad yogas' opening
 ghatis (Vyatipata and Vaidhriti whole), gandanta (MC 6.41), the Sun's sankranti
-(MC 6.78) and mahapata.
+(MC 6.78), mahapata, and the day yogas the muhurta finder vetoes (MC 1.20-21, 1.30;
+Narada's dagdha).
 """
 
 from __future__ import annotations
@@ -24,7 +25,16 @@ import math
 import swisseph as swe
 from jyotisha import muhurta as Mu
 from jyotisha.ephemeris import luminaries, positions
-from jyotisha.rare import ABHIJIT, nakshatra_28
+from jyotisha.rare import (
+    ABHIJIT,
+    AMRITA_SIDDHI,
+    AMRITA_VISHA_TITHI,
+    DAGDHA,
+    KANA,
+    MARANA,
+    UTPATA,
+    nakshatra_28,
+)
 
 from .errors import unsupported_location
 from .fmt import provenance
@@ -222,6 +232,58 @@ class _Year:
         return num, self.tithi_month[start]
 
 
+WEEKDAYS = ("sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday")
+
+
+def _day_yogas(rows: list[tuple], vara: str, ay: str):
+    """Split rows (start, end, ...) at the weekday-nakshatra stretches the muhurta
+    finder vetoes: MC 1.30's utpata, mrtyu and kana (28 nakshatras), Narada's dagdha
+    (MC 1.5 commentary) and a siddhi pair on its visha tithi (MC 1.20-21). Returns
+    the rows outside them, the rows inside, and {rule id: reason} for those inside
+    (the lead's decision of 15 Oct 2026)."""
+    w = WEEKDAYS.index(vara)
+    day = vara.capitalize()
+
+    def fn(t: float) -> frozenset:
+        lon = luminaries(t, ay)[1].longitude
+        n28, n27 = nakshatra_28(lon), Mu.NAKSHATRAS[int(lon // (360 / 27)) % 27]
+        out = set()
+        for rid, name, table in (
+            ("utpata", "Utpata", UTPATA),
+            ("marana", "Mrtyu", MARANA),
+            ("kana", "Kana", KANA),
+        ):
+            if table.get(w) == n28:
+                out.add((rid, f"{n28} on a {day} is {name} yoga (Muhurta Chintamani 1.30)"))
+        if DAGDHA.get(w) == n27:
+            out.add(
+                ("dagdha", f"{n27} on a {day} is Dagdha yoga (Narada in Muhurta Chintamani 1.5)")
+            )
+        if (
+            AMRITA_SIDDHI.get(w) == n27
+            and (Mu.tithi_at(t, ay) - 1) % 15 + 1 == AMRITA_VISHA_TITHI[w]
+        ):
+            tithi = Mu.TITHI_NAMES[AMRITA_VISHA_TITHI[w] - 1]
+            out.add(
+                (
+                    "visha",
+                    f"{n27} on a {day} is a siddhi pair, turned to visha on {tithi} "
+                    "(Muhurta Chintamani 1.20-21)",
+                )
+            )
+        return frozenset(out)
+
+    free, inside, why = [], [], {}
+    for r in rows:
+        for a, b, hits in _spans(fn, r[0], r[1], 1 / 48):
+            if hits:
+                inside.append((a, b, *r[2:]))
+                why |= dict(hits)
+            else:
+                free.append((a, b, *r[2:]))
+    return free, inside, why
+
+
 ALLOWED_SOLAR = {0, 1, 2, 7, 9, 10}  # MC 6.13's first half: Sun in these signs
 SLOW = {"Jupiter", "Saturn", "Rahu", "Ketu"}
 TITHI_NAME = {4: "Chaturthi", 9: "Navami", 14: "Chaturdashi"}
@@ -334,14 +396,21 @@ def vivah(q: EkadashiQuery, explain: dict | None = None) -> dict:
                 (n, k, g, m, r) for x, y_, n, k, g, m, r in pieces if x <= a < y_
             )
             rows.append((a, b, num, nak, grade, name, relax))
-        strict = [r for r in rows if not r[6]] if not day_relax else []
+        # The day-yoga stretches go from every window; a day left with none is
+        # excluded for them, with the windows they cover.
+        rows, inside, yoga = _day_yogas(rows, vara, ay)
+        if rows or not inside:
+            yoga = {}
+        else:
+            rows = inside
+        strict = [r for r in rows if not r[6]] if not (day_relax or yoga) else []
         if strict:
             if explain is not None:
                 explain[date.isoformat()] = "listed"
             out_days.append(_listed(date, vara, ss, strict, q))
             continue
         if rows:
-            rules = dict(day_relax)
+            rules = dict(day_relax) | yoga
             for r in rows:
                 rules |= r[6]
             if explain is not None:

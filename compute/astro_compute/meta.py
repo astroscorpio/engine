@@ -14,7 +14,7 @@ from jyotisha import muhurta as Mu
 from jyotisha.chart import BENEFICS, MALEFICS, SIGN_LORDS
 from jyotisha.ephemeris import NAKSHATRAS, SIGNS
 from jyotisha.panchanga import FIXED_KARANAS, KARANA_NAMES, YOGA_NAMES
-from jyotisha.vargas import VARGA_NAMES, VARGA_SIGNIFIES
+from jyotisha.vargas import VARGA_NAMES
 
 from . import avakahada as AV
 from . import matching as M
@@ -132,6 +132,11 @@ VIVAH_RULES = {
     "rikta": ("Excluded: a rikta tithi (Chaturthi, Navami, Chaturdashi)", "Muhurta Chintamani 6.53, p. 275"),
     "vedha_slow": ("Excluded: pierced only by a slow planet (Jupiter, Saturn, Rahu, Ketu) sitting in the paired star", "Muhurta Chintamani 6.54, p. 276"),
     "infancy_old": ("Excluded: Jupiter's or Venus's infancy or old age beyond 3 days", "Muhurta Chintamani 5.27 (5.28 gives 3 as the shortest)"),
+    "utpata": ("Utpata yoga, the weekday's star in MC 1.30's utpata column (28 nakshatras), removed", "Muhurta Chintamani 1.30, p. 23"),
+    "marana": ("Mrtyu yoga, the weekday's star in MC 1.30's mrtyu column, removed", "Muhurta Chintamani 1.30, p. 23"),
+    "kana": ("Kana yoga, the weekday's star in MC 1.30's kana column (Monday's is Abhijit), removed", "Muhurta Chintamani 1.30, p. 23"),
+    "dagdha": ("Dagdha yoga, Narada's burnt weekday-star pairs, removed", "Narada in Muhurta Chintamani 1.5 commentary, p. 13"),
+    "visha": ("A siddhi (amrta) weekday-star pair on its tithi, which turns it to visha, removed", "Muhurta Chintamani 1.20-21, pp. 19-20"),
     "godhuli": ("Godhuli, the alternative: half a ghatika either side of sunset; Thursday only before it, Saturday only after; none with the Moon 1st, 6th or 8th from the lagna, or Mars 1st, 7th or 8th", "Muhurta Chintamani 6.97-99, pp. 305-307"),
     "weak_tithi": ("Shashthi or Ashtami: 'little fruit' (DS); Vasishtha drops them", "Dharmasindhu p. 181; Muhurta Chintamani 6.53"),
     "middling_weekday": ("Sunday or Saturday: middling", "Vasishtha in Muhurta Chintamani 6.53; Dharmasindhu p. 181"),
@@ -146,6 +151,31 @@ VIVAH_NOTES = {
     "moreStars": "Haradatta adds Citra, Shravana, Dhanishtha and Ashvini (Dharmasindhu p. 181). Not applied.",
     "phase2": "The lagna (MC 6.84-85), jamitra, kartari, the navamsha rules, the other doshas of MC 6 and the couple's own charts are not applied yet.",
 }  # fmt: skip
+# vargas.md (the lead's decision of 15 Oct 2026): what BPHS 7.1-6 reads each varga for,
+# and the six modern readings kept, labelled and uncited.
+BPHS_1939 = {
+    "text": "Brhat-Parashara-hora-shastra",
+    "edition": "with Devachandra Jha's Vimarsha-sudha, 1939",
+    "page": "57",
+}
+VARGA_USES = {
+    1: ("The body.", "7.1", None),
+    2: ("Wealth and possessions.", "7.1", None),
+    3: ("Happiness from siblings.", "7.2", "courage"),
+    4: ("Fortune.", "7.2", "property and home"),
+    7: ("Children and grandchildren.", "7.2", None),
+    9: ("The spouse.", "7.3", None),
+    10: ("Great results in life.", "7.3", "career"),
+    12: ("The parents.", "7.3", None),
+    16: ("Comforts and vehicles.", "7.3-4", None),
+    20: ("Worship and devotion.", "7.4", None),
+    24: ("Learning.", "7.5", None),
+    27: ("Strengths and weaknesses.", "7.5", None),
+    30: ("Misfortunes.", "7.5", None),
+    40: ("Good and bad results.", "7.5", "maternal legacy"),
+    45: ("All matters.", "7.6", "paternal legacy"),
+    60: ("All matters.", "7.6", "past karma"),
+}
 # griha-pravesh.md (the lead's decisions of 15 Oct 2026): rule ids for /muhurat/griha-pravesh.
 GRIHA_PRAVESH_RULES = {
     "month": ("Magha, Phalguna, Vaishakha or Jyeshtha (amanta), with the Sun in its northern course", "Muhurta Chintamani 13.1, p. 437; Narada, p. 438"),
@@ -173,6 +203,13 @@ GRIHA_PRAVESH_RULES = {
     "gandanta_nakshatra": ("Two ghatikas either side of Ashlesha-Magha, Jyeshtha-Mula and Revati-Ashvini, removed", "Muhurta Chintamani 6.41, p. 265; 13.1 commentary, p. 439"),
     "sankranti": ("16.5 ghatikas either side of the Sun's sign change, removed (half of MC's 33 each side, our reading)", "Muhurta Chintamani 6.78, p. 293; 13.1 commentary, p. 439"),
     "mahapata": ("Mahapata, equal declinations of the Sun and Moon, removed", "Muhurta Chintamani 6.59; 13.1 commentary, p. 439"),
+    "utpata": ("Utpata yoga, the weekday's star in MC 1.30's utpata column (28 nakshatras), removed", "Muhurta Chintamani 1.30, p. 23"),
+    "marana": ("Mrtyu yoga, the weekday's star in MC 1.30's mrtyu column, removed", "Muhurta Chintamani 1.30, p. 23"),
+    "kana": ("Kana yoga, the weekday's star in MC 1.30's kana column (Monday's is Abhijit), removed", "Muhurta Chintamani 1.30, p. 23"),
+    "dagdha": ("Dagdha yoga, Narada's burnt weekday-star pairs, removed", "Narada in Muhurta Chintamani 1.5 commentary, p. 13"),
+    "visha": ("A siddhi (amrta) weekday-star pair on its tithi, which turns it to visha, removed", "Muhurta Chintamani 1.20-21, pp. 19-20"),
+    "middling_month": ("Excluded: Kartika or Margashirsha, which Narada counts middling for house entry, outside MC 13.1's northern course", "Narada in Muhurta Chintamani 13.1 commentary, p. 438"),
+    "infancy_old": ("Excluded: Jupiter's or Venus's infancy or old age beyond 3 days", "Muhurta Chintamani 5.27 (5.28 gives 3 as the shortest)"),
     "krishna_after_dashami": ("The dark fortnight after Dashami: Vasishtha keeps the dark fortnight only up to Dashami", "Vasishtha in Muhurta Chintamani 13.1 commentary, p. 438"),
     "saturday": ("Saturday: stability, with a fear of thieves", "Vasishtha in Muhurta Chintamani 13.4 commentary, p. 443"),
 }  # fmt: skip
@@ -877,7 +914,13 @@ def _english() -> dict:
             }
         },
         "vargas": {
-            f"D{d}": {"name": VARGA_NAMES[d], "signifies": VARGA_SIGNIFIES[d]} for d in VARGA_NAMES
+            f"D{d}": {
+                "name": VARGA_NAMES[d],
+                "signifies": VARGA_USES[d][0],
+                "source": {**BPHS_1939, "verse": VARGA_USES[d][1]},
+                "modernReading": VARGA_USES[d][2],
+            }
+            for d in VARGA_NAMES
         },
         "states": {
             group: {sid: {"name": sid.capitalize()} for sid in ids} for group, ids in STATES.items()

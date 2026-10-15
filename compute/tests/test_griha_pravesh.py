@@ -3,6 +3,7 @@ import datetime as dt
 import swisseph as swe
 from conftest import DELHI, call
 from jyotisha.ephemeris import ascendant, luminaries, positions
+from test_vivah import day_yoga
 
 from astro_compute import griha_pravesh as G
 from astro_compute.ids import NAKSHATRA_IDS, SIGN_IDS
@@ -53,6 +54,7 @@ def test_every_window_keeps_every_rule_at_its_middle():
             assert not any(h in (4, 8) for h in house.values()), (w, house)
             assert house["Moon"] not in (1, 6, 8, 12)
             assert p["Jupiter"].sign not in G.BARRED_JUPITER
+            assert not day_yoga(w, d["vara"]), (d["date"], w)
 
 
 def test_blocks_and_rejections_use_known_rules():
@@ -69,3 +71,23 @@ def test_blocks_and_rejections_use_known_rules():
     reasons = set(why.values())
     assert {"pot_chakra", "listed", "month"} <= reasons
     assert sum(v == "listed" for v in why.values()) == len(out["days"])
+
+
+def test_excluded_days_carry_only_the_relaxed_rules():
+    out = year("2026")
+    relaxable = {
+        "middling_month", "sun_sign", "infancy_old", "venus_set", "jupiter_sign",
+        "utpata", "marana", "kana", "dagdha", "visha",
+    }  # fmt: skip
+    assert set(GRIHA_PRAVESH_RULES) >= relaxable
+    listed = {d["date"] for d in out["days"]}
+    assert out["excluded"]
+    for d in out["excluded"]:
+        assert d["date"] not in listed and d["windows"]
+        assert d["vara"] not in ("sunday", "tuesday")
+        assert set(d["rules"]) <= relaxable and len(d["reasons"]) == len(d["rules"])
+        for w in d["windows"]:
+            assert w["nakshatra"] in STARS and w["lagna"] in FIXED_DUAL
+    # November 2026 is Kartika and Margashirsha, with Jupiter in Leo.
+    late = [d for d in out["excluded"] if d["date"] >= "2026-11-21"]
+    assert late and all({"middling_month", "jupiter_sign"} <= set(d["rules"]) for d in late)
