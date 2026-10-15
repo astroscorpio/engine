@@ -195,6 +195,78 @@ MUNDAN_NOTES = {
     "months": "Dharmasindhu p. 137 names Magha, Phalguna, Vaishakha and Jyeshtha as good months; Muhurta Chintamani asks for the Sun's northern course and not Caitra, which this list applies.",
     "placements": "Malefics are best in the 3rd, 6th or 11th, benefics in a kendra (MC 5.29-30), and Kashyapa keeps the Moon out of the 6th, 8th and 12th (p. 191). Not applied here.",
 }  # fmt: skip
+# samskaras.md (the lead's decisions of 15 Oct 2026)
+ANNAPRASHAN_RULES = {
+    "adhika_month": ("Not an adhika or kshaya month", "Dharmasindhu pp. 4, 135"),
+    "fortnight": ("The bright fortnight", "Narada in Muhurta Chintamani 5.17 commentary, p. 179"),
+    "tithi": ("Tithi 2, 3, 5, 7, 10 or 13 of the bright fortnight", "Muhurta Chintamani 5.17 commentary, p. 178; Dharmasindhu p. 135"),
+    "weekday": ("Monday, Wednesday, Thursday or Friday", "Muhurta Chintamani 5.17"),
+    "nakshatra": ("The Moon in Ashvini, Rohini, Mrgashira, Punarvasu, Pushya, the three Uttaras, Hasta, Citra, Svati, Anuradha, Shravana, Dhanishtha, Shatabhisha or Revati", "Dharmasindhu p. 135; Vasishtha in Muhurta Chintamani 5.17 commentary, p. 179"),
+    "forenoon": ("The forenoon, sunrise to midday", "Narada in Muhurta Chintamani 5.17 commentary, p. 179"),
+    "lagna": ("The lagna not Aries, Scorpio or Pisces", "Muhurta Chintamani 5.17"),
+    "house_10": ("The 10th house empty", "Muhurta Chintamani 5.18; Narada, p. 180"),
+    "malefic_1_4_7": ("No malefic (Sun, Mars, Saturn, Rahu, Ketu) in the 1st, 4th or 7th", "Muhurta Chintamani 5.18"),
+    "moon_6_8": ("The Moon not in the 6th or 8th", "Muhurta Chintamani 5.18"),
+    "vishti_yogas": ("The whole spans of Vishti (Bhadra), Vaidhriti, Vyatipata, Ganda, Atiganda, Vajra, Shula and Parigha, removed; the whole Vishti, whatever its residence, is our reading", "Dharmasindhu p. 135; Muhurta Chintamani 5.17 commentary, p. 179"),
+    "sunday": ("Excluded: Sunday, which some allow", "Dharmasindhu p. 135"),
+    "bhadra": MUNDAN_RULES["bhadra"],
+    "bad_yoga": MUNDAN_RULES["bad_yoga"],
+    "gandanta_tithi": MUNDAN_RULES["gandanta_tithi"],
+    "gandanta_nakshatra": MUNDAN_RULES["gandanta_nakshatra"],
+    "gandanta_lagna": MUNDAN_RULES["gandanta_lagna"],
+    "sankranti": MUNDAN_RULES["sankranti"],
+    "mahapata": MUNDAN_RULES["mahapata"],
+    "utpata": MUNDAN_RULES["utpata"],
+    "marana": MUNDAN_RULES["marana"],
+    "kana": MUNDAN_RULES["kana"],
+    "dagdha": MUNDAN_RULES["dagdha"],
+    "visha": MUNDAN_RULES["visha"],
+    "jupiter_set": MUNDAN_RULES["jupiter_set"],
+    "jupiter_old": MUNDAN_RULES["jupiter_old"],
+    "jupiter_infant": MUNDAN_RULES["jupiter_infant"],
+    "venus_set": MUNDAN_RULES["venus_set"],
+    "venus_old": MUNDAN_RULES["venus_old"],
+    "venus_infant": MUNDAN_RULES["venus_infant"],
+    "infancy_old": MUNDAN_RULES["infancy_old"],
+}  # fmt: skip
+ANNAPRASHAN_NOTES = {
+    "birthStar": "The child's birth star is allowed: Narada and Vasishtha call it good for the first rice (MC 5.17 commentary, p. 179), and the commentator calls the birth star and the 10th and 19th from it more praiseworthy (p. 180). Some exclude it (MC 5.18; DS p. 135).",
+    "months": "Boys in the 6th, 8th, 10th or 12th month, or at one year; girls in the 5th, 7th, 9th or 11th (MC 5.17; DS p. 135). The time the family's own grhya-sutra names comes first, and then Jupiter's and Venus's setting is not considered (MC's commentary, p. 179).",
+    "noPureDay": "When no pure day is available, a family at the prescribed month may go ahead: the saying that rites up to the first rice carry no malamasa or asta fault applies only then, and if the sixth month has the asta fault the eighth is used (DS p. 135).",
+    "rite": "Vishnu, Shiva, the Moon, the Sun, the guardians of the directions, Earth, the directions and brahmanas are worshipped. On the mother's lap the child is fed payasa with curd, honey and ghee, from a gold or bronze vessel, by a hand holding gold, with mantras. Then tools, weapons, cloth and books are set before the child: what it first touches, by that it will live (DS p. 135).",
+}  # fmt: skip
+AKSHARARAMBH_RULES = {
+    "season": ("The Sun's northern course, Capricorn to Gemini, but not in Aquarius", "Muhurta Chintamani 5.37; Dharmasindhu p. 138"),
+    "hari_sleeps": ("Not from the Devashayani Ekadashi to the Karka sankranti, while Vishnu sleeps", "Markandeya in Muhurta Chintamani 5.37 commentary, p. 197"),
+    "tithi": ("Tithi 2, 3, 5, 10, 11 or 12, outside the dark fortnight's last three days", "Muhurta Chintamani 5.37; Dharmasindhu p. 138"),
+    "weekday": ("Monday, Wednesday, Thursday or Friday", "Muhurta Chintamani 5.37"),
+    "nakshatra": ("The Moon in Hasta, Ashvini, Pushya, Shravana, Svati, Revati, Punarvasu, Ardra, Citra or Anuradha", "Muhurta Chintamani 5.37; Dharmasindhu p. 138"),
+    "lagna": ("Taurus, Gemini, Virgo, Sagittarius or Pisces rising", "Muhurta Chintamani 5.37"),
+    "house_8": ("The 8th house empty", "Nrsimha and Shridhara in Muhurta Chintamani 5.37 commentary, pp. 197-198"),
+    "dakshinayana": ("The Sun's southern course, Cancer to Sagittarius: barred", "Muhurta Chintamani 5.37; Dharmasindhu p. 138"),
+    "sun_sign": ("The Sun in Aquarius: barred", "Dharmasindhu p. 138"),
+    "ds_only": ("Excluded: allowed by DS only (the 13th tithi, Mrgashira, Dhanishtha, Shatabhisha, Sunday)", "Dharmasindhu p. 138"),
+    "mc_only": ("Excluded: allowed by MC only (the 6th tithi)", "Muhurta Chintamani 5.37"),
+    "bhadra": MUNDAN_RULES["bhadra"],
+    "bad_yoga": MUNDAN_RULES["bad_yoga"],
+    "gandanta_tithi": MUNDAN_RULES["gandanta_tithi"],
+    "gandanta_nakshatra": MUNDAN_RULES["gandanta_nakshatra"],
+    "gandanta_lagna": MUNDAN_RULES["gandanta_lagna"],
+    "sankranti": MUNDAN_RULES["sankranti"],
+    "mahapata": MUNDAN_RULES["mahapata"],
+    "utpata": MUNDAN_RULES["utpata"],
+    "marana": MUNDAN_RULES["marana"],
+    "kana": MUNDAN_RULES["kana"],
+    "dagdha": MUNDAN_RULES["dagdha"],
+    "visha": MUNDAN_RULES["visha"],
+}  # fmt: skip
+AKSHARARAMBH_NOTES = {
+    "age": "The child's 5th year (MC 5.37; DS p. 138; Vasishtha in MC's commentary).",
+    "texts": "MC 5.37 also allows the 6th tithi, which its commentary doubts because Markandeya bars it (p. 197). Dharmasindhu p. 138 also allows the 13th, Mrgashira, Dhanishtha, Shatabhisha and Sunday. The list keeps what both allow; the days one text alone allows are in excluded[] (ds_only, mc_only). Neither text lists the first letters among the acts barred in an adhika month or while Jupiter or Venus is set.",
+    "rite": "Ganesha, Vishnu, Sarasvati and Lakshmi are worshipped (MC 5.37). Dharmasindhu p. 138 adds one's Veda and its sutra author, the teacher, brahmanas and the nurse; the child walks three times around them and begins the letters with the pranava, and Sarasvati is invoked.",
+    "vijayadashami": "The Kerala Vidyarambham on Vijayadashami is regional practice; MC and DS ask for the Sun's northern course. Dharmasindhu p. 68 has only the Navaratri Sarasvati-puja in books, invoked under Mula and sent off under Shravana.",
+    "vasantaPanchami": "Vasanta Panchami fits the textual rule in tithi and season, the Sun usually still in Capricorn; vasantaPanchami marks the years its weekday and star qualify too.",
+}  # fmt: skip
 # vehicle-purchase.md (the lead's decisions of 15 Oct 2026): /muhurat/vehicle, /muhurat/property.
 PURCHASE_NOTES = {
     "buying": "Muhurta Chintamani 2.16 names six stars good for buying: Revati, Shatabhisha, Ashvini, Svati, Shravana and Citra. The selling stars of 2.17 (the three Purvas, Vishakha, Krttika, Ashlesha, Bharani) are barred for buying, and the commentary counts the rest middling (p. 63).",
@@ -1234,6 +1306,14 @@ def _english() -> dict:
         "grihaPraveshNotes": GRIHA_PRAVESH_NOTES,
         "mundanRules": {k: {"name": n, "source": src} for k, (n, src) in MUNDAN_RULES.items()},
         "mundanNotes": MUNDAN_NOTES,
+        "annaprashanRules": {
+            k: {"name": n, "source": src} for k, (n, src) in ANNAPRASHAN_RULES.items()
+        },
+        "annaprashanNotes": ANNAPRASHAN_NOTES,
+        "akshararambhRules": {
+            k: {"name": n, "source": src} for k, (n, src) in AKSHARARAMBH_RULES.items()
+        },
+        "akshararambhNotes": AKSHARARAMBH_NOTES,
         "sankrantiNotes": SANKRANTI_NOTES,
         "purchaseNotes": PURCHASE_NOTES,
         "horaSystems": HORA_SYSTEMS,

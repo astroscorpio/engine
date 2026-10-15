@@ -29,6 +29,7 @@ from . import (
     panchang_service,
     pitru_paksha,
     purchase,
+    samskara,
     sankranti,
     transit_service,
     vivah,
@@ -122,6 +123,10 @@ ROUTES: dict[tuple[str, str], Callable[[dict, bytes | str | None], dict]] = {
         _parse(EkadashiQuery, q)
     ),
     ("GET", "/v1/muhurat/mundan"): lambda q, b: mundan.mundan(_parse(EkadashiQuery, q)),
+    ("GET", "/v1/muhurat/annaprashan"): lambda q, b: samskara.annaprashan(_parse(EkadashiQuery, q)),
+    ("GET", "/v1/muhurat/akshararambh"): lambda q, b: samskara.akshararambh(
+        _parse(EkadashiQuery, q)
+    ),
     ("GET", "/v1/muhurat/vehicle"): lambda q, b: purchase.vehicle(_parse(EkadashiQuery, q)),
     ("GET", "/v1/muhurat/property"): lambda q, b: purchase.property_(_parse(EkadashiQuery, q)),
     ("GET", "/v1/transits/events"): lambda q, b: transit_service.events(_parse(EventsQuery, q)),
