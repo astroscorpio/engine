@@ -267,7 +267,7 @@ def _first_gp(reasons: list[str]) -> str:
     return next((r for r in order if r in reasons), "none")
 
 
-def _blocks(y: _Year, q) -> list[dict]:
+def _blocks(y: _Year, q, barred_sun: frozenset | set = BARRED_SUN) -> list[dict]:
     """The year's day-level bars, merged into runs: Jupiter's and Venus's states, the
     Sun's southern course and its barred signs, and Jupiter in Leo or Capricorn."""
     zone = q.tz
@@ -292,7 +292,7 @@ def _blocks(y: _Year, q) -> list[dict]:
         (
             y.sun_sign,
             lambda s: (
-                "dakshinayana" if s not in UTTARAYANA else "sun_sign" if s in BARRED_SUN else None
+                "dakshinayana" if s not in UTTARAYANA else "sun_sign" if s in barred_sun else None
             ),
         ),
         (y.jupiter, lambda s: "jupiter_sign" if s in BARRED_JUPITER else None),

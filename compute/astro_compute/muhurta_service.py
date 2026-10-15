@@ -25,7 +25,20 @@ RULES: list[tuple[re.Pattern, str]] = [
         # House entry (MC 13), first: their labels end in a citation.
         (r"^adhika \w+ \(MC 1\.47\)$", "adhika_masa_home"),
         (r"^\w+: no house entry \(MC 13\.[14]\)$", "month_home"),
-        (r"^dakshinayana \(MC 13\.1\)$", "dakshinayana"),
+        (r"^dakshinayana \(MC (13\.1|5\.26, 5\.29)\)$", "dakshinayana"),
+        # The first tonsure (MC 5.26-30).
+        (r"^Chaitra: no tonsure \(MC 5\.29\)$", "month_mundan"),
+        (r"^(Jupiter|Venus) (set|old|infant) \(MC 5\.26-27\)$", "jupiter_venus_state"),
+        (r"^[\w.]+: not a tonsure star \(MC 5\.29\)$", "nakshatra_mundan"),
+        (r"^[SK]\d+ \w+: not a tonsure tithi \(MC 5\.29\)$", "tithi_mundan"),
+        (r"^\w+day: not a tonsure weekday \(MC 5\.29; Parashara\)$", "weekday_mundan"),
+        (r"^\w+ lagna: not a benefic's \(MC 5\.29\)$", "lagna_mundan"),
+        (r"^.+ in the 8th \(MC 5\.29\)$", "house_8_mundan"),
+        (r"^.+ in a kendra \(MC 5\.30\)$", "kendra_malefic_mundan"),
+        (r"^the child's birth star \(DS p\. 137\)$", "birth_star"),
+        (r"^the child's birth month \(MC p\. 190\)$", "birth_month"),
+        (r"^lagna 8th from the child's birth \(MC 5\.29\)$", "lagna_8th_from_birth_mundan"),
+        (r"^Jyeshtha, for an eldest child \(MC 5\.33 commentary\)$", "eldest_jyeshtha"),
         (r"^(Sunday|Tuesday) \(MC 13\.4\)$", "weekday_home"),
         (r"^middling month for house entry \(Narada\)$", "middling_month_home"),
         (r"^Sun in \w+ \(Guru, MC 13\.1\)$", "sun_sign_home"),
@@ -133,10 +146,12 @@ def facts(f: dict[str, str]) -> dict:
 
 
 def _natal(chart: ChartIn | None):
+    """The birth Moon, lagna (None without a birth time) and amanta month name."""
     if chart is None:
-        return None, None
+        return None, None, None
     c, _ = cast(chart)
-    return c.grahas["Moon"], (None if chart.timeUnknown else c.asc.sign)
+    month = Mu.lunar_month(c.jd, c.ayanamsa).name
+    return c.grahas["Moon"], (None if chart.timeUnknown else c.asc.sign), month
 
 
 def _profile(act: str, toward: str | None) -> Mu.Profile:
@@ -155,7 +170,7 @@ def find(req: MuhurtaRequest) -> dict:
         raise invalid(f"the search span is limited to {MAX_DAYS} days", "until")
     start = local_jd(req.from_, 0.0, req.tz, "from")
     end = local_jd(req.until + dt.timedelta(days=1), 0.0, req.tz, "until")
-    natal_moon, natal_lagna = _natal(req.chart)
+    natal_moon, natal_lagna, natal_month = _natal(req.chart)
     choices = Mu.find(
         profile,
         start,
@@ -170,6 +185,8 @@ def find(req: MuhurtaRequest) -> dict:
         first_leg=req.firstLeg,
         door=req.door if req.act == "home" else None,
         old_house=req.oldHouse and req.act == "home",
+        natal_month=natal_month,
+        eldest=req.eldest and req.act == "mundan",
         ayanamsa=req.ayanamsa,
         step_minutes=1 if days <= FINE_DAYS else 5,
     )
@@ -197,7 +214,7 @@ def find(req: MuhurtaRequest) -> dict:
 def check(req: MuhurtaCheck) -> dict:
     profile = _profile(req.act, req.toward)
     jd = parse_instant(req.at, req.tz)
-    natal_moon, natal_lagna = _natal(req.chart)
+    natal_moon, natal_lagna, natal_month = _natal(req.chart)
     v = Mu.check(
         profile,
         jd,
@@ -209,6 +226,8 @@ def check(req: MuhurtaCheck) -> dict:
         first_leg=req.firstLeg,
         door=req.door if req.act == "home" else None,
         old_house=req.oldHouse and req.act == "home",
+        natal_month=natal_month,
+        eldest=req.eldest and req.act == "mundan",
         ayanamsa=req.ayanamsa,
         tz=req.tz,
     )

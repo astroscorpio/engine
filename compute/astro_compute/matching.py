@@ -106,6 +106,18 @@ YONI_PRINTED = [
     [2, 3, 3, 0, 1, 2, 1, 2, 2, 2, 2, 3, 4, 2],
     [1, 0, 1, 2, 1, 1, 0, 0, 3, 2, 1, 2, 2, 4],
 ]
+# The yoni's gender (Jyotih-prakasha in JN p. 142, v. 10): Krttika, Bharani, Purva
+# Phalguni, Purva and Uttara Bhadrapada (our reading of "upantya-dvayam"), Anuradha
+# and Abhijit are female; the rest male. Shown only; the points are unchanged (vv.
+# 11-12 are notes; the lead's decision of 15 Oct 2026).
+YONI_FEMALE = {1, 2, 10, 16, 24, 25}
+YONI_GENDER_SOURCE = "Jyotih-prakasha in Jyotirnibandha p. 142 (vv. 10-12)"
+
+
+def yoni_gender(nakshatra: int) -> str:
+    return "female" if nakshatra in YONI_FEMALE else "male"
+
+
 # Decision (lead, 14 Oct 2026): no source gives a direction for yoni, so each
 # asymmetric pair takes the lower printed value, except cow/buffalo = 3 (the
 # legible buffalo row, and MM's commentary calls them friends).
@@ -374,7 +386,14 @@ def build(req: MatchingRequest) -> dict:
 
     # yoni
     yb, yg = YONI_OF_NAKSHATRA[b.nakshatra], YONI_OF_NAKSHATRA[g.nakshatra]
-    yoni = koota("yoni", _yoni_points(yb, yg), yb, yg)
+    genders = {"bride": yoni_gender(b.nakshatra), "groom": yoni_gender(g.nakshatra)}
+    yoni = koota(
+        "yoni", _yoni_points(yb, yg), yb, yg, genders=genders, genderSource=YONI_GENDER_SOURCE
+    )
+    if yoni["points"] <= 1:  # enmity, vaira or mahavaira (JN vv. 11-12)
+        same = genders["bride"] == genders["groom"]
+        yoni["note"] = "yoni_enmity_same_gender" if same else "yoni_enmity_opposite_gender"
+        notes.append(yoni["note"])
 
     # graha maitri
     maitri_pts = maitri_points(b.lord, g.lord)

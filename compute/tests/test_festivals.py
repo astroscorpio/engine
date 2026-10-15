@@ -147,6 +147,7 @@ def test_dipavali_set_of_five_days():
     )
     b = five["bhaiDooj"]
     assert b["yamaPuja"]["start"][:10] == b["date"] and b["rule"] == "bhai_dooj_later"
+    assert b["cover"] == "both"  # the Dvitiya starts mid-afternoon on the 10th
     assert five["dhanteras"]["yamaDipa"]["start"][:10] == five["dhanteras"]["date"]
 
 
@@ -169,5 +170,8 @@ def test_navaratri_days_ashtami_navami_and_rama_navami():
     assert (r["date"], r["rule"], r["smartaDate"]) == ("2026-03-26", "midday_earlier_only", None)
     (h,) = _rows("holika-dahana")
     v = h["vasantotsava"]
-    assert (v["date"], v["popularName"]) == ("2026-03-04", "Rangwali Holi")
+    assert v["date"] == "2026-03-04" and "popularName" not in v
     assert v["rule"] in FESTIVAL_RULES["vasantotsava"]
+    # The colour day is the morning after the fire, every year.
+    assert (h["date"], h["colours"]["date"]) == ("2026-03-03", "2026-03-04")
+    assert h["colours"]["popularName"] == "Rangwali Holi"

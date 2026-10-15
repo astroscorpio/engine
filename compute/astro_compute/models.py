@@ -226,7 +226,7 @@ class EkadashiQuery(Model):
         return check_zone(value)
 
 
-Act = Literal["general", "education", "travel", "home"]
+Act = Literal["general", "education", "travel", "home", "mundan"]
 Compass = Literal["N", "NE", "E", "SE", "S", "SW", "W", "NW"]
 
 
@@ -242,6 +242,7 @@ class MuhurtaRequest(Model):
     firstLeg: Compass | None = None
     door: Literal["N", "E", "S", "W"] | None = None  # home: the main door faces (MC 13.5)
     oldHouse: bool = False  # home: an old or rebuilt house (MC 13.2)
+    eldest: bool = False  # mundan: an eldest child, so no Jyeshtha (MC 5.33 commentary)
     top: int = Field(default=10, ge=1, le=50)
     chart: ChartIn | None = None
     ayanamsa: Ayanamsa = "lahiri"
@@ -264,6 +265,7 @@ class MuhurtaCheck(Model):
     firstLeg: Compass | None = None
     door: Literal["N", "E", "S", "W"] | None = None  # home: the main door faces (MC 13.5)
     oldHouse: bool = False  # home: an old or rebuilt house (MC 13.2)
+    eldest: bool = False  # mundan: an eldest child, so no Jyeshtha (MC 5.33 commentary)
     chart: ChartIn | None = None
     ayanamsa: Ayanamsa = "lahiri"
 

@@ -287,6 +287,7 @@ def _bhai_dooj(start: float, end: float, q) -> dict:
         "date": days[chosen]["date"],
         "vara": days[chosen]["vara"],
         "rule": rule,
+        "cover": "both" if all(cov) else "earlier" if cov[0] else "later" if cov[1] else "neither",
         "tithi": _tithi(start, end, q),
         "yamaPuja": _span(_clip(start, end, w) or w, q),
     }
@@ -784,10 +785,16 @@ def _holika(start: float, end: float, _next: float, q: EkadashiQuery) -> dict | 
             "date": _date(colours, q),
             "vara": _vara(colours, q),
             "rule": "vasantotsava_sunrise" if at_sunrise else "vasantotsava_no_sunrise",
-            # Only where it is also the day after the dahana, when the colours are
-            # popularly played (the lead's question of 15 Oct 2026 is open).
-            "popularName": "Rangwali Holi" if 0.5 < colours - s[chosen] < 1.5 else None,
             "tithi": _tithi(end, _next, q),
+        },
+        # The morning after the fire: the bath and the salutation of the Holika ash
+        # (DS p. 95, "evam ratrau holikotsavam krtva pratah"; tying the colour day to
+        # it is our reading, the lead's decision of 15 Oct 2026).
+        "colours": {
+            "date": _date(s[chosen + 1], q),
+            "vara": _vara(s[chosen + 1], q),
+            "popularName": "Rangwali Holi",
+            "aliases": ["Dhulandi", "Dhuleti"],
         },
     }
 

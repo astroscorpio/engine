@@ -742,11 +742,19 @@ class Profile:
     season: float  # Pitru Paksha and adhika masa, for a new beginning
     travel: bool = False
     home: bool = False
+    mundan: bool = False
 
 
 def _classes(*names: str) -> frozenset[str]:
     return frozenset(n for n, c in NAKSHATRA_CLASS.items() if c in names)
 
+
+MUNDAN_STARS = frozenset(
+    {
+        "Ashwini", "Mrigashira", "Punarvasu", "Pushya", "Hasta", "Chitra", "Swati",
+        "Jyeshtha", "Shravana", "Dhanishta", "Shatabhisha", "Revati",
+    }
+)  # fmt: skip
 
 PROFILES = {
     p.name: p
@@ -828,6 +836,23 @@ PROFILES = {
             frozenset({"Jupiter", "Venus", "Moon"}),
             2.5,
             home=True,
+        ),
+        # Cudakarana (MC 5.29): the soft, movable and swift nakshatras with Jyeshtha,
+        # without Anuradha; the weekdays of Mercury, the Moon, Venus and Jupiter.
+        # Its own vetoes are in _mundan_vetoes.
+        Profile(
+            "mundan",
+            "a child's first tonsure (mundan, cudakarana)",
+            MUNDAN_STARS,
+            2.0,
+            1.0,
+            frozenset({2, 3, 5, 7, 10, 11, 13}),
+            1.0,
+            frozenset({"Moon", "Mercury", "Jupiter", "Venus"}),
+            1.0,
+            frozenset({"Jupiter", "Venus", "Mercury", "Moon"}),
+            2.5,
+            mundan=True,
         ),
     )
 }
@@ -929,6 +954,8 @@ def evaluate(
     door: str | None = None,
     old_house: bool = False,
     planet_states: dict[str, str] | None = None,
+    natal_month: str | None = None,
+    eldest: bool = False,
 ) -> Verdict:
     """Judge one moment.  ``natal_moon`` (and ``natal_lagna``) may be None when
     no birth chart is known; the birth-relative rules (tara, chandrashtama,
@@ -1014,6 +1041,9 @@ def evaluate(
 
     if profile.home:
         _home_vetoes(v, month, p, moon, asc, house, n, door, old_house, planet_states, d.vara)
+    if profile.mundan:
+        _mundan_vetoes(v, month, p, moon, asc, house, t, d.vara, planet_states)
+        _mundan_child(v, month, moon, asc, natal_moon, natal_lagna, natal_month, eldest)
 
     # Defects.
     if tr in BAD_TARA:
@@ -1036,7 +1066,7 @@ def evaluate(
         eighths.add((natal_lagna + 7) % 12)
     if natal_moon is not None:
         eighths.add((natal_moon.sign + 7) % 12)
-    if lagna in eighths:
+    if lagna in eighths and not profile.mundan:  # a veto for the tonsure (MC 5.29)
         bad(("lagna 8th from birth", 1.5))
     if chog and chog.label not in CHOGHADIYA_GOOD:
         bad((f"{chog.label} choghadiya", 1.0))
@@ -1049,12 +1079,13 @@ def evaluate(
     if yoga in BAD_YOGA_GHATIS and not v.vetoes:
         bad((f"{yoga} yoga, past its opening", 0.5))
     stars = profile.nakshatras | (OLD_HOUSE_STARS if profile.home and old_house else set())
-    if nak not in stars:
+    if nak not in stars and not profile.mundan:  # the tonsure vetoes the rest (MC 5.29)
         cls = NAKSHATRA_CLASS[nak]
         bad((f"{nak} ({cls})", profile.other_nakshatra + (profile.harsh if cls in HARSH else 0)))
-    if t != 30 and n not in profile.tithis and n not in (4, 8, 9, 14):
+    if t != 30 and n not in profile.tithis and n not in (4, 8, 9, 14) and not profile.mundan:
         bad((tithi_label(t), profile.other_tithi))
-    if d.vara not in profile.varas and not (profile.home and d.vara in HOME_BARRED_VARAS):
+    vetoed_vara = (profile.home and d.vara in HOME_BARRED_VARAS) or profile.mundan
+    if d.vara not in profile.varas and not vetoed_vara:
         bad((VARA_NAME[d.vara], profile.other_vara))
     if month.adhika and not profile.home:  # the home act vetoes it (MC 1.47)
         bad((f"adhika {month.name}", profile.season))
@@ -1170,6 +1201,71 @@ def _home_vetoes(v, month, p, moon, asc, house, n, door, old_house, planet_state
 
 
 ORDINAL = {1: "1st", 6: "6th", 12: "12th"}
+BENEFIC_SIGNS = {
+    1,
+    2,
+    3,
+    5,
+    6,
+    8,
+    11,
+}  # Kashyapa in MC 5.29: Mercury's, the Moon's, Venus's, Jupiter's
+MUNDAN_TITHIS = {2, 3, 5, 7, 10, 11, 13}
+
+
+def _mundan_vetoes(v, month, p, moon, asc, house, t, vara, planet_states) -> None:
+    """The first tonsure (MC 5.26-30; DS p. 137): the Sun's northern course and not
+    Caitra (5.29) or an adhika month (1.47); Jupiter and Venus clear (5.26-27) and
+    Jupiter not in Leo or Capricorn (1.48); the twelve stars, tithis 2, 3, 5, 7, 10,
+    11, 13 and the weekdays of Mercury, Jupiter, Venus and (bright fortnight only)
+    the Moon (5.29; Parashara); a benefic's lagna, the 8th empty but for Venus, and
+    no waning Moon, Mars, Saturn or Sun in a kendra (5.29-30)."""
+    if month.adhika:
+        v.vetoes.append(f"adhika {month.name} (MC 1.47)")
+    if month.name == "Chaitra":
+        v.vetoes.append("Chaitra: no tonsure (MC 5.29)")
+    if p["Sun"].sign not in UTTARAYANA:
+        v.vetoes.append("dakshinayana (MC 5.26, 5.29)")
+    for g, state in sorted((planet_states or {}).items()):
+        v.vetoes.append(f"{g} {state} (MC 5.26-27)")
+    if p["Jupiter"].sign in (4, 9):
+        v.vetoes.append(f"Jupiter in {SIGNS[p['Jupiter'].sign]} (MC 1.48)")
+    nak = NAKSHATRAS[moon.nakshatra]
+    if nak not in MUNDAN_STARS:
+        v.vetoes.append(f"{nak}: not a tonsure star (MC 5.29)")
+    if (t - 1) % 15 + 1 not in MUNDAN_TITHIS:
+        v.vetoes.append(f"{tithi_label(t)}: not a tonsure tithi (MC 5.29)")
+    if vara not in ("Moon", "Mercury", "Jupiter", "Venus") or (vara == "Moon" and t > 15):
+        v.vetoes.append(f"{VARA_NAME[vara]}: not a tonsure weekday (MC 5.29; Parashara)")
+    if asc.sign not in BENEFIC_SIGNS:
+        v.vetoes.append(f"{SIGNS[asc.sign]} lagna: not a benefic's (MC 5.29)")
+    held = [g for g in p if house(g) == 8 and g != "Venus"]
+    if held:
+        v.vetoes.append(f"{', '.join(held)} in the 8th (MC 5.29)")
+    bad = ["Sun", "Mars", "Saturn"] + ([] if 9 <= t <= 22 else ["Moon"])
+    hit = [g for g in bad if house(g) in (1, 4, 7, 10)]
+    if hit:
+        v.vetoes.append(f"{', '.join(hit)} in a kendra (MC 5.30)")
+
+
+def _mundan_child(v, month, moon, asc, natal_moon, natal_lagna, natal_month, eldest) -> None:
+    """The child's own rules, when known: not the birth star (DS p. 137; Kashyapa
+    allows it for a Vedic tonsure, MC p. 190), not the birth month (Rajamartanda, MC
+    p. 190), not the 8th sign from the birth lagna or Moon sign (MC 5.29), and no
+    Jyeshtha for an eldest child (Ratnamala, MC 5.33 commentary)."""
+    if natal_moon is not None and natal_moon.nakshatra == moon.nakshatra:
+        v.vetoes.append("the child's birth star (DS p. 137)")
+    if natal_month and natal_month == month.name:
+        v.vetoes.append("the child's birth month (MC p. 190)")
+    eighths = set()
+    if natal_lagna is not None:
+        eighths.add((natal_lagna + 7) % 12)
+    if natal_moon is not None:
+        eighths.add((natal_moon.sign + 7) % 12)
+    if asc.sign in eighths:
+        v.vetoes.append("lagna 8th from the child's birth (MC 5.29)")
+    if eldest and month.name == "Jyeshtha":
+        v.vetoes.append("Jyeshtha, for an eldest child (MC 5.33 commentary)")
 
 
 def check(
@@ -1185,7 +1281,7 @@ def check(
     ayanamsa = kw.get("ayanamsa", "lahiri")
     tz = kw.pop("tz", None)
     d = day(jd, lat, lon, ayanamsa, tz)
-    if profile.home and not kw.get("old_house"):
+    if (profile.home and not kw.get("old_house")) or profile.mundan:
         states = planet_states_around(jd, jd, lat, lon)
         kw["planet_states"] = states.get(round(d.sunrise * 1440), {})
     return evaluate(
@@ -1246,6 +1342,8 @@ def find(
     min_minutes: int = 5,
     door: str | None = None,
     old_house: bool = False,
+    natal_month: str | None = None,
+    eldest: bool = False,
 ) -> list[Choice]:
     """Unvetoed windows in [start, end), best score first.
 
@@ -1257,7 +1355,8 @@ def find(
         raise ValueError("a travel search needs the destination direction (--toward)")
     step = step_minutes / 1440
     d, month = day(start, lat, lon, ayanamsa, tz), lunar_month(start, ayanamsa)
-    states = planet_states_around(start, end, lat, lon) if profile.home and not old_house else {}
+    wanted = (profile.home and not old_house) or profile.mundan
+    states = planet_states_around(start, end, lat, lon) if wanted else {}
     out: list[Choice] = []
     t = start
     while t < end:
@@ -1281,6 +1380,8 @@ def find(
                 door=door,
                 old_house=old_house,
                 planet_states=states.get(round(d.sunrise * 1440), {}),
+                natal_month=natal_month,
+                eldest=eldest,
             )
             if v.ok:
                 key = (tuple(v.defects), tuple(v.supports), tuple(v.facts.items()))

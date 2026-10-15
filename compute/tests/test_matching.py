@@ -171,3 +171,32 @@ def test_vashya_open_when_a_star_pada_straddles_15_degrees():
     vashya = {r["id"]: r for r in out["kootas"]}["vashya"]
     assert vashya["points"] is None and vashya["note"] == "vashya_group_uncertain"
     assert out["max"] == 34
+
+
+def test_yoni_gender_and_enmity_notes():
+    # JN p. 142, v. 10: Bharani is a female elephant, Dhanishtha a male lion; the
+    # lion and the elephant are great enemies (MC 6.25-26), so v. 12 says avoid.
+    status, out = call(
+        "POST",
+        "/v1/matching",
+        body={
+            "bride": {"nakshatra": "bharani", "pada": 1},
+            "groom": {"nakshatra": "dhanishta", "pada": 1},
+        },
+    )
+    assert status == 200, out
+    yoni = next(k for k in out["kootas"] if k["id"] == "yoni")
+    assert yoni["genders"] == {"bride": "female", "groom": "male"} and yoni["points"] == 0
+    assert yoni["note"] == "yoni_enmity_opposite_gender" and yoni["note"] in out["notes"]
+    # Ashwini (horse) and Hasta (buffalo) are both male: middling.
+    status, out = call(
+        "POST",
+        "/v1/matching",
+        body={
+            "bride": {"nakshatra": "ashwini", "pada": 1},
+            "groom": {"nakshatra": "hasta", "pada": 1},
+        },
+    )
+    yoni = next(k for k in out["kootas"] if k["id"] == "yoni")
+    assert yoni["note"] == "yoni_enmity_same_gender"
+    assert sum(M.yoni_gender(i) == "female" for i in range(27)) == 6

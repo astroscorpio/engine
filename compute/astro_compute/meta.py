@@ -151,6 +151,45 @@ VIVAH_NOTES = {
     "moreStars": "Haradatta adds Citra, Shravana, Dhanishtha and Ashvini (Dharmasindhu p. 181). Not applied.",
     "phase2": "The lagna (MC 6.84-85), jamitra, kartari, the navamsha rules, the other doshas of MC 6 and the couple's own charts are not applied yet.",
 }  # fmt: skip
+# mundan.md (the lead's decisions of 15 Oct 2026): rule ids for /muhurat/mundan.
+MUNDAN_RULES = {
+    "month": ("Not Caitra, nor an adhika or kshaya month", "Muhurta Chintamani 5.29, 1.47; Dharmasindhu p. 137"),
+    "dakshinayana": ("The Sun in its southern course, Cancer to Sagittarius: barred", "Muhurta Chintamani 5.26, 5.29"),
+    "jupiter_set": ("Jupiter within 11 time-degrees of the Sun: set", "Surya-siddhanta 9.6-7; Muhurta Chintamani 5.26"),
+    "jupiter_old": ("The 15 days before Jupiter sets", "Muhurta Chintamani 5.27"),
+    "jupiter_infant": ("The 15 days after Jupiter rises", "Muhurta Chintamani 5.27"),
+    "venus_set": ("Venus within 8 time-degrees of the Sun (retrograde) or 10 (direct): set", "Surya-siddhanta 9.6-7; Muhurta Chintamani 5.26"),
+    "venus_old": ("The 15 days before Venus sets in the east, or the 5 before it sets in the west", "Muhurta Chintamani 5.27"),
+    "venus_infant": ("The 3 days after Venus rises in the east, or the 10 after it rises in the west", "Muhurta Chintamani 5.27"),
+    "jupiter_sign": ("Jupiter in Leo or Capricorn: barred for its whole stay", "Muhurta Chintamani 1.48, pp. 40-41 (Varaha); Dharmasindhu p. 5"),
+    "nakshatra": ("The Moon in Ashvini, Mrgashira, Punarvasu, Pushya, Hasta, Citra, Svati, Jyeshtha, Shravana, Dhanishtha, Shatabhisha or Revati", "Muhurta Chintamani 5.29; Vasishtha, p. 190; Dharmasindhu p. 137"),
+    "tithi": ("Tithi 2, 3, 5, 7, 10, 11 or 13", "Muhurta Chintamani 5.29; Vasishtha, p. 190; Dharmasindhu p. 137"),
+    "weekday": ("Wednesday, Thursday or Friday, or Monday in the bright fortnight", "Muhurta Chintamani 5.29; Parashara, p. 190"),
+    "lagna": ("The lagna in a benefic's sign: Taurus, Gemini, Cancer, Virgo, Libra, Sagittarius or Pisces", "Muhurta Chintamani 5.29; Kashyapa, p. 190"),
+    "house_8": ("The 8th house empty, except for Venus", "Muhurta Chintamani 5.29; Parashara, p. 190"),
+    "kendra_malefic": ("No waning Moon, Mars, Saturn or Sun in a kendra (death, death by weapon, lameness, fever); the Moon counts as waning outside tithis 9-22, as the engine reads BJ 2.5", "Muhurta Chintamani 5.30"),
+    "bhadra": ("Bhadra on earth removed from the window", "Muhurta Chintamani 1.43-45"),
+    "bad_yoga": ("The bad yogas' opening ghatis, Parigha's first half, and Vyatipata and Vaidhriti whole, removed", "Muhurta Chintamani 1.34-35"),
+    "gandanta_tithi": ("One ghatika either side of the ends of the 5th, 10th and 15th tithis, removed", "Muhurta Chintamani 6.41, p. 265"),
+    "gandanta_nakshatra": ("Two ghatikas either side of Ashlesha-Magha, Jyeshtha-Mula and Revati-Ashvini, removed", "Muhurta Chintamani 6.41, p. 265"),
+    "sankranti": ("16.5 ghatikas either side of the Sun's sign change, removed (half of MC's 33 each side, our reading)", "Muhurta Chintamani 6.78, p. 293"),
+    "mahapata": ("Mahapata, equal declinations of the Sun and Moon, removed", "Muhurta Chintamani 6.59"),
+    "utpata": ("Utpata yoga, the weekday's star in MC 1.30's utpata column (28 nakshatras), removed", "Muhurta Chintamani 1.30, p. 23"),
+    "marana": ("Mrtyu yoga, the weekday's star in MC 1.30's mrtyu column, removed", "Muhurta Chintamani 1.30, p. 23"),
+    "kana": ("Kana yoga, the weekday's star in MC 1.30's kana column (Monday's is Abhijit), removed", "Muhurta Chintamani 1.30, p. 23"),
+    "dagdha": ("Dagdha yoga, Narada's burnt weekday-star pairs, removed", "Narada in Muhurta Chintamani 1.5 commentary, p. 13"),
+    "visha": ("A siddhi (amrta) weekday-star pair on its tithi, which turns it to visha, removed", "Muhurta Chintamani 1.20-21, pp. 19-20"),
+    "krishna_last_three": ("A dark Trayodashi: DS keeps the dark fortnight except its last three days", "Dharmasindhu p. 137"),
+}  # fmt: skip
+MUNDAN_NOTES = {
+    "age": "From the 3rd year, in an odd year: the 3rd, 5th or 7th, counted from conception or from birth (MC 5.29; Vasishtha, p. 189). Dharmasindhu p. 137 also allows the 1st, 2nd, 3rd or 5th year, or with the upanayana, by family custom; families who tonsure with the upanayana use its muhurta.",
+    "birthStar": "The child's birth star: Kashyapa calls it good for a Vedic tonsure (MC p. 190), Dharmasindhu p. 137 avoids it for any shave. The muhurta finder excludes it when a chart is given.",
+    "child": "With the child's chart, the muhurta finder also bars the birth month (Rajamartanda, MC p. 190), the 8th sign from the birth lagna or Moon sign (MC 5.29) and an unfavourable tara (MC 5.30; exceptions in 5.32). For an eldest child Jyeshtha is barred (Ratnamala, MC 5.33 commentary, p. 193); some add Margashirsha.",
+    "mother": "Not while the mother is past the fifth month of pregnancy, unless the child is over five or the tonsure is done with the upanayana (MC 5.31, p. 191; Narada; Dharmasindhu p. 137). Dharmasindhu also bars a child with fever, the six months after an upanayana or marriage in the family, and the time before a death in the family is ritually closed.",
+    "varna": "Prayoga-parijata (MC p. 190) and Dharmasindhu p. 137 allow Sunday for brahmanas, Tuesday for kshatriyas and Saturday for vaishyas and shudras. This list keeps to the weekdays allowed for all.",
+    "months": "Dharmasindhu p. 137 names Magha, Phalguna, Vaishakha and Jyeshtha as good months; Muhurta Chintamani asks for the Sun's northern course and not Caitra, which this list applies.",
+    "placements": "Malefics are best in the 3rd, 6th or 11th, benefics in a kendra (MC 5.29-30), and Kashyapa keeps the Moon out of the 6th, 8th and 12th (p. 191). Not applied here.",
+}  # fmt: skip
 # vargas.md (the lead's decision of 15 Oct 2026): what BPHS 7.1-6 reads each varga for,
 # and the six modern readings kept, labelled and uncited.
 BPHS_1939 = {
@@ -489,6 +528,7 @@ FESTIVAL_NOTES = {
     "sandhiPuja": "The worship at the junction: the last ghatika of the Ashtami and the first of the Navami, by day or by night (DS p. 69), the 48 minutes centred on the junction. A junction at midday or in the afternoon puts the Ashtami and Navami worships on one day, done together with it.",
     "chaitra-navaratri": "The Vasantika Navaratri begins on the Caitra shukla Pratipada by the Sharadiya rule (NS p. 113, DS p. 31), ten-ghatika window included (our reading of 'as for the Sharadiya'). The Ashtami (Bhavani's birth) is taken joined to the Navami (NS p. 118, DS p. 33), and the Navaratri ends on the Navami by the Mahanavami rule (DS p. 34), which can fall a day before Rama-navami. newYearDate is the Pratipada at sunrise, the earlier when at sunrise on both days or neither (DS p. 31): Gudi Padwa and Ugadi.",
     "ramanavami": "Rama was born on the Caitra shukla Navami at midday, under Punarvasu, with Cancer rising (Agastya-samhita, NS pp. 118-119; DS p. 33). The fast is kept on the Navami covering midday and the arghya given then; pujaWindow is midday, the 3rd fifth of the daytime, while the Navami runs.",
+    "holiColours": "colours is the morning after the fire: Dharmasindhu p. 95 has the bath and the salutation of the Holika's ground or ash in the morning after the night's festival ('evam ratrau holikotsavam krtva pratah'; tying it to this morning is our reading), the rite behind the name Dhulivandana, popularly Dhulandi. Dharmasindhu puts the sprinkling of vermilion and scented powders on the dark Dvitiya and says that people in its day kept the festival up to the Panchami; no text cited here puts the colours on this morning.",
     "vasantotsava": "The spring festival on the dark Pratipada after the Holika Purnima (NS p. 345, DS p. 95): a bath, the salutation of the Holika fire's ground or ash, and mango blossoms eaten with sandal paste. DS puts the sprinkling of coloured powders on the next day, the dark Dvitiya, and says that people now keep it up to the Panchami. Neither text has colour play on the Pratipada. DS avoids the Holika day and the day after it for auspicious acts (p. 95).",
     "vijayadashami": "Ashvina shukla Dashami. pujaWindow is the afternoon (the 4th fifth of the daytime, our reading) while the Dashami runs. Aparajita puja is done in the afternoon facing north-east (Skanda via Hemadri, NS p. 283). The Vijaya moment is just after twilight as the first stars appear (Narada, p. 284); not computed.",
     "holika-dahana": "The Phalguna Purnima, lit at night, never by day (Dharmasindhu p. 94). Bhadra's tail is the last 3 ghatikas of the tithi's 3rd prahara and its face the first 5 of the 4th (DS pp. 94-95, MC 1.44); the tail is auspicious, the face never used. Nirnaya-sindhu is stricter, lighting only after Bhadra ends (p. 343); its day is variantDate where it differs. Not in an adhika month (NS p. 344).",
@@ -666,8 +706,19 @@ MUHURTA_RULE_NAMES = {
     "bhadra_tail": "Bhadra's tail: no penalty (MC 1.44)",
     "bhadra_day_night": "Bhadra in a tithi's second half by day, or first half at night: no penalty (MC 1.44)",
     "adhika_masa_home": "Adhika month (MC 1.47)", "month_home": "Month without house entry (MC 13.1, 13.4)",
-    "dakshinayana": "The Sun's southern course (MC 13.1)",
+    "dakshinayana": "The Sun's southern course (MC 13.1; for a tonsure MC 5.26, 5.29)",
     "weekday_home": "Sunday or Tuesday: no house entry (MC 13.4)",
+    "month_mundan": "Caitra: no tonsure (MC 5.29)",
+    "nakshatra_mundan": "Not one of the twelve tonsure stars (MC 5.29; Vasishtha; DS p. 137)",
+    "tithi_mundan": "Not tithi 2, 3, 5, 7, 10, 11 or 13 (MC 5.29; DS p. 137)",
+    "weekday_mundan": "Not Wednesday, Thursday, Friday, or Monday in the bright fortnight (MC 5.29; Parashara)",
+    "lagna_mundan": "The lagna not in a benefic's sign (MC 5.29; Kashyapa)",
+    "house_8_mundan": "A planet other than Venus in the 8th (MC 5.29; Parashara)",
+    "kendra_malefic_mundan": "The waning Moon, Mars, Saturn or the Sun in a kendra (MC 5.30)",
+    "birth_star": "The child's birth star (DS p. 137; Kashyapa allows it for a Vedic tonsure)",
+    "birth_month": "The child's birth month (Rajamartanda, MC p. 190)",
+    "lagna_8th_from_birth_mundan": "The lagna 8th from the child's birth lagna or Moon sign (MC 5.29)",
+    "eldest_jyeshtha": "Jyeshtha, for an eldest child (Ratnamala, MC 5.33 commentary)",
     "middling_month_home": "Kartika or Margashirsha: middling, for necessity (Narada in MC 13.1)",
     "sun_sign_home": "The Sun in Cancer, Virgo or Aquarius (Guru in MC 13.1)",
     "jupiter_venus_state": "Jupiter or Venus set, old or infant (MC 1.46-48, 5.27)",
@@ -706,7 +757,10 @@ VETOES = {
     "rahu_kalam", "yamaganda", "gulika", "durmuhurta", "bad_yoga_window", "bhadra_earth",
     "amavasya", "rikta_tithi", "ashtami", "marana_yoga", "dagdha_yoga", "moon_8th",
     "chandrashtama", "disha_shool", "visha_yoga", "siddhi_pair_act_ban", "bhadra_face",
-    "utpata_yoga", "kana_yoga", "mahapata", "adhika_masa_home", "month_home", "dakshinayana", "weekday_home",
+    "utpata_yoga", "kana_yoga", "mahapata", "adhika_masa_home", "month_home", "dakshinayana", "weekday_home", "month_mundan",
+    "nakshatra_mundan", "tithi_mundan", "weekday_mundan", "lagna_mundan", "house_8_mundan",
+    "kendra_malefic_mundan", "birth_star", "birth_month", "lagna_8th_from_birth_mundan",
+    "eldest_jyeshtha",
     "sun_sign_home", "jupiter_venus_state", "jupiter_sign", "movable_lagna_home", "movable_navamsa",
     "house_4_8_occupied", "moon_1_6_12", "pot_chakra", "door_tithi", "door_sun",
 }  # fmt: skip
@@ -764,6 +818,8 @@ MATCHING_NOTES = {
     "moon_uncertain_birth_time_unknown": "Birth time unknown and the Moon changed sign or star that day",
     "our_reading_of_bjs": "Vashya groups and points are our reading of Brihat Jyotishsara (1892)",
     "vashya_group_uncertain": "The birth-star pada spans 15 degrees of Sagittarius or Capricorn, so the vashya group is open",
+    "yoni_enmity_opposite_gender": "Yoni enmity between a bride and groom of opposite yoni gender: always to be avoided (Jyotih-prakasha in JN p. 142, v. 12). The points are unchanged",
+    "yoni_enmity_same_gender": "Yoni enmity between the same yoni gender: middling, not very harmful (Jyotih-prakasha in JN p. 142, v. 12). The points are unchanged",
 }  # fmt: skip
 for _rid in ("same_sign_lord", "sign_lords_friendly", "tara_pure_both_ways"):
     MATCHING_NOTES[f"{_rid}_but_nadi_dosha"] = MATCHING_NOTES[_rid] + ", but nadi is not clear"
@@ -823,6 +879,8 @@ def _english() -> dict:
             "gana": M.GANA_OF_NAKSHATRA[i],
             "nadi": M.NADI_OF_NAKSHATRA[i],
             "yoni": M.YONI_OF_NAKSHATRA[i],
+            # Jyotih-prakasha in JN p. 142, v. 10; popular tables differ.
+            "yoniGender": M.yoni_gender(i),
         }
         for i in range(27)
     }
@@ -911,6 +969,8 @@ def _english() -> dict:
             k: {"name": n, "source": src} for k, (n, src) in GRIHA_PRAVESH_RULES.items()
         },
         "grihaPraveshNotes": GRIHA_PRAVESH_NOTES,
+        "mundanRules": {k: {"name": n, "source": src} for k, (n, src) in MUNDAN_RULES.items()},
+        "mundanNotes": MUNDAN_NOTES,
         "horaSystems": HORA_SYSTEMS,
         "festivalRules": {
             group: {k: {"name": n, "source": src} for k, (n, src) in rules.items()}
@@ -986,6 +1046,15 @@ def _english() -> dict:
         },
         "varnas": {k: {"name": v} for k, v in VARNAS.items()},
         "yonis": {y: {"name": y.capitalize()} for y in M.YONIS},
+        "yoniGender": {
+            "source": {
+                "text": "Jyotirnibandha (quoting the Jyotih-prakasha)",
+                "verse": "yoni 10-12",
+                "edition": "Sivaraja, ed. Ranganatha Sastri Vaidya, Anandashrama Sanskrit Series 85, Poona, 1919",
+                "page": "142",
+            },
+            "note": "Popular tables differ.",
+        },
         "ganas": {k: {"name": v} for k, v in GANAS.items()},
         "vashyaGroups": {k: {"name": v} for k, v in VASHYA_GROUP_NAMES.items()},
         "nadis": {k: {"name": v} for k, v in NADIS.items()},
