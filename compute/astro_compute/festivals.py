@@ -1740,7 +1740,7 @@ def _chhath(
     day whose sunrise holds the Kartika shukla Shashthi, else the day whose sunset falls
     in it; two sunsets in it give the later, whose sunrise holds it. Where moving the
     Shashthi's start or end one ghatika either way changes the day, that other day is
-    variantDate, as some almanacs give it (caution ghatika_margin). The morning arghya
+    variantDate (caution ghatika_margin, the lead's wording of 16 Oct 2026). The morning arghya
     at the next sunrise; Kharna and nahay-khay the two days before. The spring Chhath
     takes the Caitra shukla Shashthi by the same rule."""
     base = _base(start, end, 6, q)
