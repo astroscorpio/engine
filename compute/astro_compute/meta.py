@@ -543,6 +543,32 @@ FESTIVAL_RULES = {
     "holashtak": {
         "holashtak_period": ("The eight days from the Phalguna shukla Ashtami to the Purnima, avoided for marriage and auspicious acts only on the Beas, Ravi and Sutlej and at Pushkar", "Muhurta Chintamani 1.40 and commentary (the Shighrabodha), pp. 33-34"),
     },
+    "akshaya-tritiya": {
+        "forenoon": ("The Vaishakha shukla Tritiya covering the forenoon (sunrise to midday) on one day: that day", "Nirnaya-sindhu p. 134; Dharmasindhu p. 36; Vratraja f. 43"),
+        "forenoon_both_later": ("Covering the forenoon on both days: the later (NS, VR); DS takes the later only if the Tritiya lasts more than three muhurtas into it (variantDate)", "Nirnaya-sindhu p. 134; Dharmasindhu p. 36"),
+        "forenoon_neither_later": ("Covering neither forenoon: the later, Caturthi-joined day, which NS prefers (our reading)", "Nirnaya-sindhu p. 134"),
+    },
+    "parashurama-jayanti": {
+        "first_watch_earlier_only": ("The Tritiya covering the night's first watch on the earlier day only: that day", "Dharmasindhu p. 37"),
+        "first_watch_later": ("Otherwise, covered on both days or neither: the later (the first watch is a quarter of the night, our reading)", "Dharmasindhu p. 37; Vratraja ff. 42-43"),
+    },
+    "guru-purnima": {
+        "three_muhurtas_later": ("The Ashadha Purnima lasts three muhurtas or more after the later sunrise: that day", "Nirnaya-sindhu p. 160; Dharmasindhu p. 43"),
+        "caturdashi_joined_earlier": ("Otherwise the earlier, Caturdashi-joined day", "Dharmasindhu pp. 20, 43"),
+    },
+    "durga-puja": {
+        "sunrise_ashtami": ("Mahashtami: the Ashtami current at sunrise for a muhurta, joined to the Navami", "Tithi-tattva pp. 77-79"),
+        "complete_first_day": ("The Ashtami holding two sunrises: the complete first day", "Tithi-tattva p. 78"),
+        "kshaya_day_it_falls_on": ("A tithi holding no sunrise: the day it falls on (our reading of TT's two-day worship, p. 79)", "Tithi-tattva p. 79"),
+        "sunrise_saptami": ("The leaf entry: the Saptami current at sunrise, in the forenoon, with or without Mula", "Tithi-tattva p. 66"),
+        "kshaya_shashthi_joined": ("A lost Saptami: the Shashthi-joined day it falls on", "Tithi-tattva p. 79"),
+        "sunrise_navami": ("Mahanavami: the day after the sandhi, on the Navami current at sunrise", "Tithi-tattva p. 78"),
+        "sunrise_dashami": ("The immersion: the Dashami current at sunrise, in the forenoon, never at night", "Tithi-tattva pp. 76-77"),
+        "short_dashami_day_before": ("A Dashami lasting under a muhurta after sunrise: the Aparajita puja and the immersion on the day before", "Tithi-tattva p. 79"),
+        "evening_before_leaf_entry": ("Bodhana and amantrana together, the Shashthi holding the evening before the leaf entry", "Tithi-tattva p. 65"),
+        "shashthi_evening": ("Bodhana in the Shashthi's evening twilight at a bilva tree, the amantrana the evening before the leaf entry", "Tithi-tattva pp. 63-65"),
+        "neither_evening_forenoon": ("The Shashthi in neither evening: bodhana in the later day's forenoon Shashthi", "Tithi-tattva p. 65"),
+    },
     "durgashtami": {
         "sunrise_navami_joined": ("The Ashtami current at sunrise, even for a ghatika, joined to the Navami; never one touched by the Saptami", "Dharmasindhu p. 69; Nirnaya-sindhu pp. 262-263"),
         "under_one_ghatika_earlier": ("The Ashtami lasts under a ghatika after that sunrise: the earlier day", "Dharmasindhu p. 69; Nirnaya-sindhu p. 264"),
@@ -605,6 +631,10 @@ FESTIVAL_NOTES = {
     "dattatreya-jayanti": "Dattatreya's birth on the Margashirsha Purnima (the Skanda, Sahyadri-khanda, NS p. 315; DS p. 84), taken covering pradosha. pujaWindow is that pradosha while the Purnima runs.",
     "ganesha-jayanti": "In the texts this is the Varada, Tila or Vinayaka Caturthi of Magha shukla; Ganesh Jayanti, Ganesha's birth, is the popular name and is not stated in them. The Vinayaka-vrata follows the Bhadrapada midday rule (DS p. 89); the night-meal vow to Dhundhiraja with sesame laddus (the Tila or Varada Caturthi) takes the Caturthi covering pradosha (DS p. 89; NS p. 329; Vratraja f. 82). pujaWindow is the chosen day's midday.",
     "holashtak": "Muhurta Chintamani 1.40 avoids the eight days before Holika, the Phalguna shukla Ashtami to the Purnima (the Shighrabodha in the commentary), for marriage and other auspicious acts only on the banks of the Beas, Ravi and Sutlej and at Pushkar; the same work says that elsewhere the days are auspicious. The muhurta finder does not apply it.",
+    "akshaya-tritiya": "The Vaishakha shukla Tritiya, one of the four yugadis, the days a yuga began; the texts differ on which yuga (DS p. 36; NS p. 135). Nothing offered or given on it perishes (the Bhavishya, Vratraja f. 44; DS p. 36): a Ganga bath, a barley homa, Krishna worshipped with sandal, japa, homa, ancestral tarpana and a yugadi shraddha in the forenoon, a water pot given to the gods and ancestors, and the season's gifts: barley, wheat, chickpeas, sattu, umbrellas, sandals, cows, land, gold and clothes (VR f. 44). Buying gold, or buying anything, is not in the texts read; gold appears only as a gift. Especially holy with Rohini or on a Wednesday (DS), or with Krttika (VR).",
+    "parashurama-jayanti": "On the same Tritiya, Parashurama's birth in the first watch of the night (the Bhavishya, VR ff. 42-43): he is worshipped at pradosha and given arghya (DS p. 37). firstWatch is the night's first quarter; arghyaWindow is pradosha.",
+    "guru-purnima": "In the texts this is the Vyasa-puja of ascetics on the Ashadha Purnima: saṃnyasins shave and worship Krishna, Vyasa and his pupils, Shankara and his, and the line of teachers, as they resolve to stay in one place for the four rainy months (DS pp. 43-44; NS p. 160). The name Guru Purnima, and a householder's worship of his own guru, are not in the pages read. pujaWindow is the morning. Also on this Purnima: the Kokila-vrata at dusk and Shiva's sleeping festival at pradosha (NS p. 160).",
+    "durga-puja": "The Bengal Durga-puja by Raghunandana's Tithi-tattva (pp. 63-82). The span runs from the dark Navami of Ashvina to the bright Dashami; the Sun in Kanya adds merit and is not a condition (p. 63). Every act, from the leaf entry to the immersion, is on the tithi current at sunrise, even for a ghatika, which TT reads as a muhurta (pp. 77-79); with a tithi lost or gained the worship takes two or four days. Bodhana, the goddess's awakening, may also be on the dark Navami forenoon, ideally with Ardra (pp. 63-65). The evening twilight is three ghatikas after sunset, our reading. The leaf entry and the immersion are in a movable lagna or navamsa (p. 79), never at night; movableWindows lists those stretches of the forenoon. The sandhi is the last danda of the Ashtami and the first of the Navami, its bali given on the Navami (p. 76); the fast is on the puja day, not the sandhi day (p. 78). Mahanavami is on the sunrise Navami; nsDsDate gives Nirnaya-sindhu's and Dharmasindhu's Mahanavami where it differs. Shravana is wanted for the immersion but does not move it (pp. 76-77).",
     "navaratriDays": "Navaratra names a worship set in nine tithis, the Pratipada to the Navami (DS p. 65). Each day's worship goes with the tithi at its sunrise (our reading of DS p. 66); a tithi touching two sunrises is worshipped on both days and one touching none on the day it falls in, so the Navaratri runs eight, nine or ten days. Some keep only eight worships when a day is lost (DS p. 66). The first day is the kalasha-sthapana day.",
     "durgashtami": "Mahashtami: the Ashtami at sunrise joined to the Navami, never one touched by the Saptami however slightly, even with Mula (NS p. 263, DS p. 69). Especially praised on a Tuesday (DS). Bhadra does not bar the worship (Devi-purana, NS p. 264). Those with sons do not fast on it (DS p. 69; NS p. 265).",
     "mahanavami": "The Navami joined to the Ashtami is taken for the worship and the fast when it covers three muhurtas before that day's sunset (NS pp. 272-273, DS p. 69), so Durgashtami and Mahanavami often fall on one day. The animal bali is on the Dashami-joined day (DS p. 69).",
@@ -908,8 +938,8 @@ MATCHING_NOTES = {
     "moon_uncertain_birth_time_unknown": "Birth time unknown and the Moon changed sign or star that day",
     "our_reading_of_bjs": "Vashya groups and points are our reading of Brihat Jyotishsara (1892)",
     "vashya_group_uncertain": "The birth-star pada spans 15 degrees of Sagittarius or Capricorn, so the vashya group is open",
-    "yoni_enmity_opposite_gender": "Yoni enmity between a bride and groom of opposite yoni gender: always to be avoided (Jyotih-prakasha in JN p. 142, v. 12). The points are unchanged",
-    "yoni_enmity_same_gender": "Yoni enmity between the same yoni gender: middling, not very harmful (Jyotih-prakasha in JN p. 142, v. 12). The points are unchanged",
+    "yoni_enmity_opposite_gender": "Yoni enmity between a bride and groom of opposite yoni gender: always to be avoided (Jyotiḥprakāśa in Jyotirnibandha p. 142, v. 12). The points are unchanged",
+    "yoni_enmity_same_gender": "Yoni enmity between the same yoni gender: middling, not very harmful (Jyotiḥprakāśa in Jyotirnibandha p. 142, v. 12). The points are unchanged",
 }  # fmt: skip
 for _rid in ("same_sign_lord", "sign_lords_friendly", "tara_pure_both_ways"):
     MATCHING_NOTES[f"{_rid}_but_nadi_dosha"] = MATCHING_NOTES[_rid] + ", but nadi is not clear"

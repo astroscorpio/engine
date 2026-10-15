@@ -266,9 +266,12 @@ def _collect(q: EkadashiQuery, targets, build, dates_of) -> list[dict]:
     out = []
     try:
         for i, (jd, num) in enumerate(edges):
-            if num in targets and i + 2 < len(edges):
+            if num in targets and 1 <= i and i + 2 < len(edges):
                 row = build(jd, edges[i + 1][0], edges[i + 2][0], q)
                 if any(d and d[:4] == str(q.year) for d in dates_of(row)):
+                    # The neighbouring tithis, for day strips that start or end in them.
+                    row["tithiBefore"] = _neighbour(edges[i - 1], jd, q)
+                    row["tithiAfter"] = _neighbour(edges[i + 1], edges[i + 2][0], q)
                     out.append(row)
     except RuntimeError as exc:
         raise unsupported_location(
@@ -296,6 +299,11 @@ WEEKDAY_NAMES = {"monday": "somavati", "tuesday": "bhauma", "saturday": "shani"}
 
 def _vara(sunrise_jd: float, q) -> str:
     return VARA_ID[P.VARA_LORDS[P.vara_index(sunrise_jd, q.lon, q.tz)]]
+
+
+def _neighbour(edge: tuple[float, int], end: float, q: EkadashiQuery) -> dict:
+    start, num = edge
+    return {"id": tithi_id(num), "start": iso(start, q.tz), "end": iso(end, q.tz)}
 
 
 def _lunar(jd: float, num: int, q: EkadashiQuery) -> dict:

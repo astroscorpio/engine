@@ -234,3 +234,54 @@ def test_decision_21_kinds_2026():
     (h,) = _rows("holashtak")
     assert h["date"] < h["endDate"] and h["period"]["start"] < h["period"]["end"]
     assert h["rule"] == "holashtak_period" and "pushkar" in h["regions"]
+
+
+def test_occurrences_carry_their_neighbouring_tithis():
+    for kind in ("dipavali", "holashtak"):
+        for o in _rows(kind):
+            before, after = o["tithiBefore"], o["tithiAfter"]
+            assert before["end"] <= after["start"] and before["start"] < before["end"]
+            assert after["start"] < after["end"]
+    (d,) = _rows("dipavali")
+    assert (d["tithiBefore"]["id"], d["tithiAfter"]["id"]) == ("chaturdashi", "pratipada")
+    assert (
+        d["tithiBefore"]["end"] == d["tithi"]["start"]
+        and d["tithiAfter"]["start"] == d["tithi"]["end"]
+    )
+
+
+def test_akshaya_tritiya_parashurama_and_guru_purnima_2026():
+    (a,) = _rows("akshaya-tritiya")
+    assert (
+        a["rule"] in FESTIVAL_RULES["akshaya-tritiya"] and a["lunarMonth"]["amanta"] == "vaishakha"
+    )
+    assert a["pujaWindow"]["start"][:10] == a["date"]
+    (p,) = _rows("parashurama-jayanti")
+    assert p["rule"] in FESTIVAL_RULES["parashurama-jayanti"]
+    assert (
+        p["firstWatch"]["start"] < p["firstWatch"]["end"]
+        and p["arghyaWindow"]["start"][:10] == p["date"]
+    )
+    (g,) = _rows("guru-purnima")
+    assert g["rule"] in FESTIVAL_RULES["guru-purnima"] and g["lunarMonth"]["amanta"] == "ashadha"
+    assert (g["popularName"], g["displayName"]) == ("Guru Purnima", "Vyāsa-pūjā")
+
+
+def test_bengal_durga_puja_follows_the_sunrise_tithi():
+    status, out = call(
+        "GET",
+        "/v1/festivals/durga-puja",
+        {"year": "2026", "lat": "22.5726", "lon": "88.3639", "tz": "Asia/Kolkata"},
+    )
+    assert status == 200, out
+    (d,) = out["occurrences"]
+    days = [d[k]["date"] for k in ("patrikaPravesha", "mahashtami", "mahanavami", "visarjana")]
+    assert days == sorted(days) and len(set(days)) == 4
+    assert d["bodhana"]["date"] <= d["amantrana"]["date"] < d["patrikaPravesha"]["date"]
+    assert d["sandhiPuja"]["start"] < d["sandhiPuja"]["end"]
+    fore = d["visarjana"]["forenoon"]
+    for w in d["visarjana"]["movableWindows"]:
+        assert fore["start"] <= w["start"] < w["end"] <= fore["end"]
+    # TT keeps Mahanavami on the sunrise Navami; NS and DS take the Ashtami day here.
+    assert d["mahanavami"]["nsDsDate"] == d["mahashtami"]["date"]
+    assert out["source"]["page"] == "63-82"

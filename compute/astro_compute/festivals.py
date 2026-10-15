@@ -23,7 +23,7 @@ ends, so month tests below use the amanta month.
 from __future__ import annotations
 
 from jyotisha import muhurta as Mu
-from jyotisha.ephemeris import moon_rise_set
+from jyotisha.ephemeris import ascendant, moon_rise_set
 
 from .fmt import provenance
 from .ids import tithi_id
@@ -1072,6 +1072,228 @@ def _holashtak(start: float, end: float, _next: float, q: EkadashiQuery) -> dict
     }
 
 
+# --- Akshaya Tritiya, Parashurama Jayanti, Guru Purnima (festivals.md s24-25) -------
+
+
+def _forenoon(sr: float, q) -> tuple[float, float]:
+    """Sunrise to midday: DS p. 36's own gloss of the forenoon."""
+    return sr, (sr + _sunset(sr, q)) / 2
+
+
+def _akshaya(start: float, end: float, _next: float, q: EkadashiQuery) -> dict | None:
+    """NS p. 134 (VR f. 43): the Vaishakha shukla Tritiya covering the forenoon; on
+    both days, the later. variantDate is DS p. 36's rule for both days: the later
+    only if the Tritiya lasts more than three muhurtas into it, else the earlier."""
+    base = _base(start, end, 3, q)
+    if not _in_month(base, "vaishakha"):
+        return None
+    s, days = _days(start, end, q, ())
+    fore = [_forenoon(s[i], q) for i in (0, 1)]
+    cov = [_share(start, end, w) > 0 for w in fore]
+    if cov[0] != cov[1]:
+        chosen, rule = (0 if cov[0] else 1), "forenoon"
+    elif cov[0]:
+        chosen, rule = 1, "forenoon_both_later"
+    else:
+        chosen, rule = 1, "forenoon_neither_later"
+    ds = chosen
+    if all(cov):
+        ds = 1 if end - s[1] > 3 * (_sunset(s[1], q) - s[1]) / 15 else 0
+    return {
+        **base,
+        "days": _strip(days),
+        "date": days[chosen]["date"],
+        "vara": days[chosen]["vara"],
+        "rule": rule,
+        "variantDate": days[ds]["date"] if ds != chosen else None,
+        "pujaWindow": _span(_clip(start, end, fore[chosen]) or fore[chosen], q),
+    }
+
+
+def _parashurama(start: float, end: float, _next: float, q: EkadashiQuery) -> dict | None:
+    """DS p. 37 (VR ff. 42-43): the Tritiya covering the night's first watch (a quarter
+    of the night, our reading); the earlier day only if its first watch alone is
+    covered; both, wholly or in part, the later. Arghya at pradosha."""
+    base = _base(start, end, 3, q)
+    if not _in_month(base, "vaishakha"):
+        return None
+    _, days = _days(start, end, q, ("pradosha",))
+    watch = []
+    for d in days:
+        a, b = d["_w"]["night"]
+        watch.append((a, a + (b - a) / 4))
+    cov = [_share(start, end, w) > 0 for w in watch]
+    if cov[0] and not cov[1]:
+        chosen, rule = 0, "first_watch_earlier_only"
+    else:
+        chosen, rule = 1, "first_watch_later"
+    return {
+        **base,
+        "days": _strip(days),
+        "date": days[chosen]["date"],
+        "vara": days[chosen]["vara"],
+        "rule": rule,
+        "firstWatch": _span(watch[chosen], q),
+        "arghyaWindow": {k: days[chosen]["pradosha"][k] for k in ("start", "end")},
+    }
+
+
+def _guru_purnima(start: float, end: float, _next: float, q: EkadashiQuery) -> dict | None:
+    """NS p. 160, DS p. 43: the Vyasa-puja of ascetics on the Ashadha Purnima, on the
+    later day if the Purnima lasts three muhurtas or more after its sunrise, otherwise
+    the earlier, Caturdashi-joined day (DS p. 20). The worship is in the morning (the
+    1st fifth of the daytime, our reading of NS p. 28)."""
+    base = _base(start, end, 15, q)
+    if not _in_month(base, "ashadha"):
+        return None
+    s, days = _days(start, end, q, ())
+    muhurta = (_sunset(s[1], q) - s[1]) / 15
+    if start <= s[1] < end and end - s[1] >= 3 * muhurta:
+        chosen, rule = 1, "three_muhurtas_later"
+    else:
+        chosen, rule = 0, "caturdashi_joined_earlier"
+    sr = s[chosen]
+    morning = (sr, sr + (_sunset(sr, q) - sr) / 5)
+    return {
+        **base,
+        "days": _strip(days),
+        "date": days[chosen]["date"],
+        "vara": days[chosen]["vara"],
+        "rule": rule,
+        "popularName": "Guru Purnima",
+        "displayName": "Vyāsa-pūjā",
+        "pujaWindow": _span(_clip(start, end, morning) or morning, q),
+    }
+
+
+# --- Bengal Durga-puja by the Tithi-tattva (festivals.md s22) ------------------------
+
+MOVABLE = {0, 3, 6, 9}  # Aries, Cancer, Libra, Capricorn
+
+
+def _udaya(n: int, spans: dict, s: list[float], q) -> list[int]:
+    """TT pp. 77-79: the sunrises a tithi holds for at least a day-muhurta after them
+    ("ghatika" read as a muhurta, TT's own gloss)."""
+    a, b = spans[n]
+    return [k for k, sr in enumerate(s) if a <= sr and b - sr >= (_sunset(sr, q) - sr) / 15]
+
+
+def _falls_in(t: float, s: list[float]) -> int:
+    return max(k for k, sr in enumerate(s) if sr <= t)
+
+
+def _movable(a: float, b: float, q) -> list[dict]:
+    """Stretches of [a, b] with a movable lagna or a movable navamsa (TT p. 79)."""
+    ay = q.ayanamsa
+    out: list[tuple[float, float]] = []
+    for x, y, idx in _vspans(
+        lambda t: int(ascendant(t, q.lat, q.lon, ay)[0].longitude // (30 / 9)), a, b
+    ):
+        if idx // 9 in MOVABLE or idx % 12 in MOVABLE:
+            if out and abs(out[-1][1] - x) < 1e-9:
+                out[-1] = (out[-1][0], y)
+            else:
+                out.append((x, y))
+    return [_span(w, q) for w in out]
+
+
+def _vspans(fn, t0: float, t1: float) -> list[tuple[float, float, int]]:
+    cuts = [t0, *(t for t, _ in Mu._scan(fn, t0, t1, 1 / 288)), t1]
+    return [(a, b, fn((a + b) / 2)) for a, b in zip(cuts, cuts[1:], strict=False) if b > a]
+
+
+def _durga_puja(start: float, end: float, _next: float, q: EkadashiQuery) -> dict | None:
+    """The Tithi-tattva's Durga-puja (pp. 63-82), keyed on the Ashvina shukla Shashthi.
+    Every act on the tithi current at sunrise for a muhurta (pp. 77-79): the leaf entry
+    on the Saptami's forenoon, Mahashtami (the complete first day when the Ashtami holds
+    two sunrises), the sandhi of 48 minutes, Mahanavami on the sunrise Navami and the
+    immersion on the sunrise Dashami's forenoon, the last two in a movable lagna or
+    navamsa (p. 79). Bodhana in the Shashthi's evening twilight (pp. 63-65)."""
+    base = _base(start, end, 6, q)
+    if not _in_month(base, "ashwin"):
+        return None
+    spans = {6: (start, end)}
+    t = end
+    for n in (7, 8, 9, 10):
+        nxt = _edge(t, q, True)
+        spans[n] = (t, nxt)
+        t = nxt
+    s = _sunrises(start, q.lat, q.lon, 9)  # s[0] <= start
+    day = lambda k: {"date": _date(s[k], q), "vara": _vara(s[k], q)}  # noqa: E731
+
+    def forenoon(k: int, n: int) -> tuple[float, float] | None:
+        return _clip(*spans[n], (s[k], (s[k] + _sunset(s[k], q)) / 2))
+
+    # The leaf entry: the sunrise Saptami, in the forenoon; a lost Saptami goes to the
+    # Shashthi-joined day it falls on (p. 79).
+    held = _udaya(7, spans, s, q)
+    leaf, leaf_rule = (
+        (held[0], "sunrise_saptami")
+        if held
+        else (_falls_in(spans[7][0], s), "kshaya_shashthi_joined")
+    )
+    leaf_w = forenoon(leaf, 7)
+    # Mahashtami: the sunrise Ashtami; the complete first day when it holds two (p. 78).
+    held = _udaya(8, spans, s, q)
+    if len(held) >= 2:
+        ashtami, a_rule = held[0], "complete_first_day"
+    elif held:
+        ashtami, a_rule = held[0], "sunrise_ashtami"
+    else:
+        ashtami, a_rule = _falls_in(spans[8][0], s), "kshaya_day_it_falls_on"
+    junction = spans[8][1]
+    held = _udaya(9, spans, s, q)
+    navami, n_rule = (
+        (held[0], "sunrise_navami")
+        if held
+        else (_falls_in(spans[9][0], s), "kshaya_day_it_falls_on")
+    )
+    # The Dashami lasting under a muhurta after sunrise sends the immersion to the day
+    # before (p. 79).
+    held = _udaya(10, spans, s, q)
+    if held:
+        dashami, d_rule = held[0], "sunrise_dashami"
+    else:
+        dashami, d_rule = _falls_in(spans[10][0], s), "short_dashami_day_before"
+    imm_w = forenoon(dashami, 10) or forenoon(dashami, 9)
+    shravana = bool(imm_w) and SHRAVANA in {Mu.nakshatra_at(x, q.ayanamsa) for x in imm_w}
+
+    # Bodhana (p. 65): the Shashthi in the evening twilight (three ghatis after sunset,
+    # our reading); the evening before the leaf entry holds both rites if it has it.
+    def twilight(k: int) -> tuple[float, float]:
+        ss = _sunset(s[k], q)
+        return ss, ss + 3 * DANDA
+
+    eve = leaf - 1
+    covered = [k for k in range(0, leaf) if _share(*spans[6], twilight(k)) > 0]
+    if eve >= 0 and eve in covered:
+        bodhana = {**day(eve), "rule": "evening_before_leaf_entry", **_span(twilight(eve), q)}
+    elif covered:
+        k = covered[0]
+        bodhana = {**day(k), "rule": "shashthi_evening", **_span(twilight(k), q)}
+    else:  # the Shashthi touches neither evening: the later day's forenoon Shashthi
+        w = forenoon(1, 6)
+        bodhana = {**day(1 if w else 0), "rule": "neither_evening_forenoon", **(_span(w, q) or {})}
+    amantrana = {**day(max(eve, 0)), **_span(twilight(max(eve, 0)), q)}
+    _, ns_navami = _ashtami_navami({8: spans[8], 9: spans[9]}, q)
+    ns_date = ns_navami["date"] if ns_navami["date"] != _date(s[navami], q) else None
+    return {
+        **base,
+        "date": _date(s[ashtami], q),
+        "vara": _vara(s[ashtami], q),
+        "rule": a_rule,
+        "bodhana": bodhana,
+        "amantrana": amantrana,
+        "patrikaPravesha": {**day(leaf), "rule": leaf_rule, "forenoon": _span(leaf_w, q),
+                            "movableWindows": _movable(*leaf_w, q) if leaf_w else []},
+        "mahashtami": {**day(ashtami), "rule": a_rule},
+        "sandhiPuja": _span((junction - DANDA, junction + DANDA), q),
+        "mahanavami": {**day(navami), "rule": n_rule, "nsDsDate": ns_date},
+        "visarjana": {**day(dashami), "rule": d_rule, "forenoon": _span(imm_w, q),
+                      "movableWindows": _movable(*imm_w, q) if imm_w else [], "shravana": shravana},
+    }  # fmt: skip
+
+
 def _year(q: EkadashiQuery, num: int, build) -> list[dict]:
     rows = _collect(
         q, {num}, lambda a, b, c, qq: build(a, b, c, qq) or {"date": None}, lambda r: (r["date"],)
@@ -1112,9 +1334,15 @@ FESTIVALS = {
     "dattatreya-jayanti": (15, _dattatreya, "p. 315", "p. 84"),
     "ganesha-jayanti": (4, _ganesha_jayanti, "p. 329", "p. 89"),
     "holashtak": (8, _holashtak, None, None),
+    "akshaya-tritiya": (3, _akshaya, "pp. 134-135", "pp. 36-37"),
+    "parashurama-jayanti": (3, _parashurama, "p. 134", "p. 37"),
+    "guru-purnima": (15, _guru_purnima, "p. 160", "pp. 20, 43-44"),
+    "durga-puja": (6, _durga_puja, "pp. 262-265, 272-273", "p. 69"),
 }
 RITE_SOURCES = {
     "karva-chauth": VRATARAJA,
+    "akshaya-tritiya": {**VRATARAJA, "page": "ff. 43-44"},
+    "parashurama-jayanti": {**VRATARAJA, "page": "ff. 42-43"},
     "vasanta-panchami": {**VRATARAJA, "page": "f. 103"},
     "ratha-saptami": {**VRATARAJA, "page": "f. 115"},
 }
@@ -1131,7 +1359,12 @@ MC_140 = {
 def festival(kind: str, q: EkadashiQuery) -> dict:
     num, build, pages, ds_pages = FESTIVALS[kind]
     rows = _year(q, num, build)
-    source = MC_140 if kind == "holashtak" else {**SOURCE, "verse": kind, "page": pages}
+    if kind == "holashtak":
+        source = MC_140
+    elif kind == "durga-puja":
+        source = {**TITHI_TATTVA, "text": "Tithi-tattva (Raghunandana)", "page": "63-82"}
+    else:
+        source = {**SOURCE, "verse": kind, "page": pages}
     return {
         "year": q.year,
         "festival": kind,
