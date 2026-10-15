@@ -26,6 +26,7 @@ from jyotisha import muhurta as Mu
 from jyotisha.ephemeris import moon_rise_set
 
 from .fmt import provenance
+from .ids import tithi_id
 from .models import EkadashiQuery
 from .observances import SOURCE, _collect, _lunar, _overlap, _rise_set, _sunrises, _sunset, _vara
 from .timeutil import aware, iso
@@ -219,7 +220,9 @@ def _naraka(start: float, end: float, q) -> dict:
     elif at[1]:
         chosen, rule = 1, "naraka_moonrise"
         bath = (m[1], min(s[2], end))
-    elif m[0] is not None and m[0] < start < s[1]:
+    elif m[0] is not None and m[0] < start <= s[1] - DANDA:
+        # Begun under a ghatika before sunrise counts as at sunrise (DS's case-2
+        # example starts one pala before; research's reading of 15 Oct 2026).
         chosen, rule = 0, "naraka_began_before_sunrise"
         bath = (start, s[1])
     else:
@@ -490,15 +493,18 @@ def _janmashtami(start: float, end: float, _next: float, q: EkadashiQuery) -> di
 # --- Sharad Navaratri and Vijayadashami (NS pp. 240-241, 283-284; DS pp. 65, 71) ---------
 
 
-def _navaratri(start: float, end: float, _next: float, q: EkadashiQuery) -> dict | None:
+def _navaratri(
+    start: float, end: float, _next: float, q: EkadashiQuery, month: str = "ashwin"
+) -> dict | None:
     """DS p. 65 (NS pp. 240-241): the Pratipada current at sunrise, best lasting
     three muhurtas after it, then two, by some texts one; never the day joined with
     Amavasya, unless the Pratipada lasts under a muhurta after sunrise or touches
     none. Filling a whole day and more, it is kept on the first. Begun within ten
     ghatikas of sunrise, failing that at the Abhijit muhurta; never in the
-    afternoon or at night."""
+    afternoon or at night. The Caitra Navaratri follows the same rule (NS p. 113,
+    DS p. 31)."""
     base = _base(start, end, 1, q)
-    if not _in_month(base, "ashwin"):
+    if not _in_month(base, month):
         return None
     s, days = _days(start, end, q, (), 3)
     held = [i for i in (1, 2) if start <= s[i] < end]
@@ -522,7 +528,9 @@ def _navaratri(start: float, end: float, _next: float, q: EkadashiQuery) -> dict
             cautions.append("chitra")
         if VAIDHRITI in {Mu.yoga_at(t, ay) for t in window}:
             cautions.append("vaidhriti")
-    return {
+    spans = _tithi_spans(start, q)
+    ashtami, navami = _ashtami_navami(spans, q)
+    out = {
         **base,
         "days": _strip(days[: 3 if held == [1, 2] and chosen == 2 else 2]),
         "date": days[chosen]["date"],
@@ -531,6 +539,125 @@ def _navaratri(start: float, end: float, _next: float, q: EkadashiQuery) -> dict
         "muhurtasAfterSunrise": round((end - sr) / muhurta[chosen], 2) if chosen else None,
         "sthapanaWindow": _span(window, q),
         "cautions": cautions,
+        "navaratriDays": _navaratri_days(sr, spans, q),
+        "ashtami": ashtami,
+        "navami": navami,
+    }
+    if month == "ashwin":
+        junction = spans[8][1]  # the Ashtami's end, the Navami's start
+        out["sandhiPuja"] = _span((junction - DANDA, junction + DANDA), q)
+    else:
+        out["newYearDate"] = _date(s[1] if end > s[1] else s[0], q)
+    return out
+
+
+def _tithi_spans(start: float, q) -> dict[int, tuple[float, float]]:
+    """The bright fortnight's tithis 1-10 from a Pratipada beginning at start."""
+    edges = [
+        (start, 1),
+        *Mu._scan(lambda t: Mu.tithi_at(t, q.ayanamsa), start + 1e-5, start + 11.5, 0.25),
+    ]
+    return {n: (a, b) for (a, n), (b, _) in zip(edges, edges[1:], strict=False) if 1 <= n <= 10}
+
+
+def _navaratri_days(first_rise: float, spans: dict, q) -> list[dict]:
+    """DS p. 66: each day's worship goes with the tithi at its sunrise (our reading);
+    a tithi touching two sunrises is worshipped on both days, and one touching none
+    on the day it falls in, beside that day's own tithi. The first day is the
+    kalasha-sthapana day, which carries the Pratipada however it falls."""
+    out, sr = [], first_rise
+    for _ in range(12):
+        nr = _rise_set(sr + 0.1, q.lat, q.lon, True)
+        nums = [
+            n
+            for n, (a, b) in spans.items()
+            if n <= 9 and (a <= sr < b or (sr < a and b <= nr) or (not out and n == 1 and a < nr))
+        ]
+        if not nums:
+            break
+        out.append(
+            {"date": _date(sr, q), "vara": _vara(sr, q), "tithis": [tithi_id(n) for n in nums]}
+        )
+        sr = nr
+    return out
+
+
+def _ashtami_navami(spans: dict, q) -> tuple[dict, dict]:
+    """Durgashtami (NS pp. 262-264, DS p. 69): the Ashtami current at sunrise, even
+    for a ghatika, joined to the Navami; never Saptami-touched. The earlier day when
+    the Ashtami lasts under a ghatika after that sunrise, when the Navami touches no
+    sunrise, or when the Ashtami fills the whole first day and only about a muhurta
+    of the next. Mahanavami (NS pp. 272-273, DS p. 69): the day the Navami begins if
+    it covers three muhurtas before that day's sunset, otherwise the next day."""
+    a0, a1 = spans[8]
+    n1 = spans[9][1]
+    s = _sunrises(a0, q.lat, q.lon, 4)  # s[0] <= a0 < s[1]
+    held = [i for i in (1, 2) if a0 <= s[i] < a1]
+    if not held:
+        k, rule = 0, "ashtami_no_sunrise_earlier"
+    else:
+        k = held[-1]
+        muhurta = (_sunset(s[k], q) - s[k]) / 15
+        if a1 - s[k] < DANDA:
+            k, rule = k - 1, "under_one_ghatika_earlier"
+        elif n1 <= s[k + 1]:
+            k, rule = k - 1, "navami_no_sunrise_earlier"
+        elif len(held) == 2 and a1 - s[k] <= muhurta:
+            k, rule = k - 1, "full_first_day"
+        else:
+            rule = "sunrise_navami_joined"
+    ashtami = {
+        "date": _date(s[k], q),
+        "vara": _vara(s[k], q),
+        "rule": rule,
+        "tithi": _tithi(a0, a1, q),
+    }
+    x = max(i for i in range(4) if s[i] <= a1)  # the day the Navami begins
+    sunset = _sunset(s[x], q)
+    if sunset - a1 >= 3 * (sunset - s[x]) / 15:
+        y, rule = x, "navami_three_muhurtas_evening"
+    else:
+        y, rule = x + 1, "navami_later"
+    navami = {
+        "date": _date(s[y], q),
+        "vara": _vara(s[y], q),
+        "rule": rule,
+        "tithi": _tithi(a1, n1, q),
+    }
+    return ashtami, navami
+
+
+def _ramanavami(start: float, end: float, _next: float, q: EkadashiQuery) -> dict | None:
+    """NS pp. 118-120, DS p. 33: the Navami covering midday on the earlier day only:
+    that day. Otherwise the later day, unless its Navami lasts under three muhurtas
+    after sunrise or touches no sunrise: then the earlier. When the later day holds
+    but the Dashami touches no sunrise, Smartas keep the earlier day and Vaishnavas
+    the later. The arghya is given at midday."""
+    base = _base(start, end, 9, q)
+    if not _in_month(base, "chaitra"):
+        return None
+    s, days = _days(start, end, q, ("madhyahna",), 3)
+    cov = [d["madhyahna"]["covered"] > 0 for d in days[:2]]
+    smarta = vaishnava = None
+    if cov[0] and not cov[1]:
+        chosen, rule = 0, "midday_earlier_only"
+    elif not (start <= s[1] < end) or end - s[1] < 3 * (days[1]["_w"]["night"][0] - s[1]) / 15:
+        chosen, rule = 0, "short_later_earlier"
+    elif _next <= next(x for x in s if x > end):  # the Dashami touches no sunrise
+        chosen, rule = 0, "smarta_vaishnava_split"
+        smarta, vaishnava = days[0]["date"], days[1]["date"]
+    else:
+        chosen, rule = 1, "later_day"
+    w = days[chosen]["_w"]["madhyahna"]
+    return {
+        **base,
+        "days": _strip(days[:2]),
+        "date": days[chosen]["date"],
+        "vara": days[chosen]["vara"],
+        "rule": rule,
+        "smartaDate": smarta,
+        "vaishnavaDate": vaishnava,
+        "pujaWindow": _span(_clip(start, end, w) or w, q),
     }
 
 
@@ -636,6 +763,12 @@ def _holika(start: float, end: float, _next: float, q: EkadashiQuery) -> dict | 
         else:
             rule, fire = "neither_after_pradosha", _clear_of(after, face)
     ns = _holika_ns(start, end, s, w, free)
+    # Vasantotsava (NS p. 345, DS p. 95): the dark Pratipada at sunrise after the
+    # Purnima, the earlier when at sunrise on both days; touching none, the day it
+    # falls on (our reading, as DS p. 31 rules for the new year).
+    p = _sunrises(end, q.lat, q.lon, 2)  # p[0] <= end < p[1]
+    at_sunrise = _next > p[1]
+    colours = p[1] if at_sunrise else p[0]
     return {
         **base,
         "days": _strip(days),
@@ -647,6 +780,15 @@ def _holika(start: float, end: float, _next: float, q: EkadashiQuery) -> dict | 
         "bhadra": _span(bhadra, q),
         "bhadraTail": _span(tail, q),
         "bhadraFace": _span(face, q),
+        "vasantotsava": {
+            "date": _date(colours, q),
+            "vara": _vara(colours, q),
+            "rule": "vasantotsava_sunrise" if at_sunrise else "vasantotsava_no_sunrise",
+            # Only where it is also the day after the dahana, when the colours are
+            # popularly played (the lead's question of 15 Oct 2026 is open).
+            "popularName": "Rangwali Holi" if 0.5 < colours - s[chosen] < 1.5 else None,
+            "tithi": _tithi(end, _next, q),
+        },
     }
 
 
@@ -670,9 +812,16 @@ FESTIVALS = {
     "ganesha-chaturthi": (4, _ganesha, "pp. 47, 198", None),
     "raksha-bandhan": (15, _raksha, "pp. 179-180", "p. 49"),
     "janmashtami": (23, _janmashtami, "pp. 183-192", "pp. 49-51"),
-    "sharad-navaratri": (1, _navaratri, "pp. 240-241", "pp. 65-66"),
+    "sharad-navaratri": (1, _navaratri, "pp. 240-241, 262-265, 272-273", "pp. 65-66, 68-69"),
+    "chaitra-navaratri": (
+        1,
+        lambda a, b, c, q: _navaratri(a, b, c, q, "chaitra"),
+        "pp. 113, 118, 240-241, 262-265, 272-273",
+        "pp. 31, 33-34, 65-66, 69",
+    ),
+    "ramanavami": (9, _ramanavami, "pp. 118-120", "p. 33"),
     "vijayadashami": (10, _vijayadashami, "pp. 283-284", "p. 71"),
-    "holika-dahana": (15, _holika, "pp. 342-344", "pp. 94-95"),
+    "holika-dahana": (15, _holika, "pp. 342-345", "pp. 94-95"),
 }
 
 

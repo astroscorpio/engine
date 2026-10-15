@@ -148,3 +148,26 @@ def test_dipavali_set_of_five_days():
     b = five["bhaiDooj"]
     assert b["yamaPuja"]["start"][:10] == b["date"] and b["rule"] == "bhai_dooj_later"
     assert five["dhanteras"]["yamaDipa"]["start"][:10] == five["dhanteras"]["date"]
+
+
+def test_navaratri_days_ashtami_navami_and_rama_navami():
+    # Drik Panchang's New Delhi dates for 2026 (festivals.md v5 s13-15).
+    (n,) = _rows("sharad-navaratri")
+    days = n["navaratriDays"]
+    assert len(days) == 10 and days[6]["tithis"] == days[7]["tithis"] == ["saptami"]
+    assert n["ashtami"]["date"] == n["navami"]["date"] == "2026-10-19"
+    assert n["ashtami"]["rule"] in FESTIVAL_RULES["durgashtami"]
+    assert n["navami"]["rule"] in FESTIVAL_RULES["mahanavami"]
+    # Sandhi-puja straddles the Ashtami's end by a ghatika each way.
+    assert n["sandhiPuja"]["start"] < n["ashtami"]["tithi"]["end"] < n["sandhiPuja"]["end"]
+    (c,) = _rows("chaitra-navaratri")
+    assert (c["date"], c["rule"], c["newYearDate"]) == (
+        "2026-03-19", "no_sunrise_amavasya_joined", "2026-03-19",
+    )  # fmt: skip
+    assert c["navaratriDays"][0]["tithis"] == ["pratipada"] and "sandhiPuja" not in c
+    (r,) = _rows("ramanavami")
+    assert (r["date"], r["rule"], r["smartaDate"]) == ("2026-03-26", "midday_earlier_only", None)
+    (h,) = _rows("holika-dahana")
+    v = h["vasantotsava"]
+    assert (v["date"], v["popularName"]) == ("2026-03-04", "Rangwali Holi")
+    assert v["rule"] in FESTIVAL_RULES["vasantotsava"]

@@ -431,6 +431,27 @@ FESTIVAL_RULES = {
         "under_one_muhurta_amavasya_joined": ("The Pratipada lasts under a muhurta after sunrise: the day joined with Amavasya", "Dharmasindhu p. 65"),
         "no_sunrise_amavasya_joined": ("The Pratipada touches no sunrise: its only day, joined with Amavasya", "Dharmasindhu p. 65"),
     },
+    "durgashtami": {
+        "sunrise_navami_joined": ("The Ashtami current at sunrise, even for a ghatika, joined to the Navami; never one touched by the Saptami", "Dharmasindhu p. 69; Nirnaya-sindhu pp. 262-263"),
+        "under_one_ghatika_earlier": ("The Ashtami lasts under a ghatika after that sunrise: the earlier day", "Dharmasindhu p. 69; Nirnaya-sindhu p. 264"),
+        "navami_no_sunrise_earlier": ("The Navami touches no sunrise: the earlier day", "Dharmasindhu p. 69; Nirnaya-sindhu p. 264 (Smrti-samgraha)"),
+        "full_first_day": ("The Ashtami fills the whole first day and only about a muhurta of the next: the complete first day", "Dharmasindhu p. 69"),
+        "ashtami_no_sunrise_earlier": ("The Ashtami touches no sunrise: the day it falls on", "Dharmasindhu p. 69"),
+    },
+    "mahanavami": {
+        "navami_three_muhurtas_evening": ("The Navami, joined to the Ashtami, covers three muhurtas of that day's evening before sunset: that day", "Nirnaya-sindhu pp. 272-273; Dharmasindhu p. 69"),
+        "navami_later": ("Under three muhurtas before sunset: the later day", "Nirnaya-sindhu p. 273; Dharmasindhu p. 69"),
+    },
+    "ramanavami": {
+        "midday_earlier_only": ("The Navami covers midday on the earlier day only: that day", "Nirnaya-sindhu p. 119; Dharmasindhu p. 33"),
+        "later_day": ("Midday on both days, or on neither: the later day, even if the earlier has Punarvasu", "Nirnaya-sindhu p. 119; Dharmasindhu p. 33"),
+        "short_later_earlier": ("The later day's Navami lasts under three muhurtas after sunrise, or touches no sunrise: everyone keeps the Ashtami-joined day", "Dharmasindhu p. 33"),
+        "smarta_vaishnava_split": ("The later day holds, but the Dashami touches no sunrise, so the parana day is the Smartas' Ekadashi: Smartas keep the earlier day (smartaDate), Vaishnavas the later (vaishnavaDate)", "Nirnaya-sindhu pp. 119-120; Dharmasindhu p. 33"),
+    },
+    "vasantotsava": {
+        "vasantotsava_sunrise": ("The spring festival: the dark Pratipada current at sunrise after the Holika Purnima; at sunrise on both days, the earlier", "Nirnaya-sindhu p. 345; Dharmasindhu p. 95"),
+        "vasantotsava_no_sunrise": ("The Pratipada touches no sunrise: the day it falls on (our reading, as Dharmasindhu p. 31 rules for the new year under the same verse)", "Nirnaya-sindhu p. 345; Dharmasindhu pp. 31, 95"),
+    },
     "vijayadashami": {
         "aparahna": ("The Dashami in the afternoon of one day only: that day", "Nirnaya-sindhu p. 284"),
         "aparahna_both_earlier": ("In the afternoon of both days, covering or touching it: the earlier", "Nirnaya-sindhu p. 284"),
@@ -462,6 +483,13 @@ FESTIVAL_NOTES = {
     "raksha-bandhan": "The Shravana Purnima. Dharmasindhu p. 49 sets the day by how long the Purnima lasts after the later sunrise; tieWindow is that day's afternoon (the 4th fifth of the daytime, our reading) or pradosha, free of Bhadra. Nirnaya-sindhu p. 180 keeps the earlier day's afternoon, after Bhadra even at night, and never the Purnima joined with Pratipada; its day is variantDate where it differs. bhadra is the Vishti karana, the Purnima's first half. It is kept on eclipse and sankranti days too.",
     "janmashtami": "The dark Ashtami ending amanta Shravana (purnimanta Bhadrapada). Midnight decides (NS p. 189). Jayanti is the Ashtami joined with Rohini; NS holds both vratas due, though people keep only Janmashtami (p. 187). In a split year the date is the Rohini day (Madhava, Dharmasindhu pp. 50-51) and variantDate is Nirnaya-sindhu's first-day fast (it keeps both, p. 192). udayaDate is the sunrise view, which Vaishnava calendars follow; NS sets it aside as baseless (p. 191).",
     "sharad-navaratri": "Kalasha-sthapana on Ashvina shukla Pratipada. sthapanaWindow is the first ten ghatikas (four hours) after sunrise while the Pratipada runs, failing that the Abhijit muhurta; never in the afternoon or at night (Dharmasindhu pp. 65-66). muhurtasAfterSunrise is how long the Pratipada lasts after that sunrise. cautions lists the Pratipada's first sixteen nadis, Chitra and Vaidhriti where they touch the window: avoided where the time allows, never at the cost of the forenoon (DS p. 65).",
+    "navaratriDays": "Navaratra names a worship set in nine tithis, the Pratipada to the Navami (DS p. 65). Each day's worship goes with the tithi at its sunrise (our reading of DS p. 66); a tithi touching two sunrises is worshipped on both days and one touching none on the day it falls in, so the Navaratri runs eight, nine or ten days. Some keep only eight worships when a day is lost (DS p. 66). The first day is the kalasha-sthapana day.",
+    "durgashtami": "Mahashtami: the Ashtami at sunrise joined to the Navami, never one touched by the Saptami however slightly, even with Mula (NS p. 263, DS p. 69). Especially praised on a Tuesday (DS). Bhadra does not bar the worship (Devi-purana, NS p. 264). Those with sons do not fast on it (DS p. 69; NS p. 265).",
+    "mahanavami": "The Navami joined to the Ashtami is taken for the worship and the fast when it covers three muhurtas before that day's sunset (NS pp. 272-273, DS p. 69), so Durgashtami and Mahanavami often fall on one day. The animal bali is on the Dashami-joined day (DS p. 69).",
+    "sandhiPuja": "The worship at the junction: the last ghatika of the Ashtami and the first of the Navami, by day or by night (DS p. 69), the 48 minutes centred on the junction. A junction at midday or in the afternoon puts the Ashtami and Navami worships on one day, done together with it.",
+    "chaitra-navaratri": "The Vasantika Navaratri begins on the Caitra shukla Pratipada by the Sharadiya rule (NS p. 113, DS p. 31), ten-ghatika window included (our reading of 'as for the Sharadiya'). The Ashtami (Bhavani's birth) is taken joined to the Navami (NS p. 118, DS p. 33), and the Navaratri ends on the Navami by the Mahanavami rule (DS p. 34), which can fall a day before Rama-navami. newYearDate is the Pratipada at sunrise, the earlier when at sunrise on both days or neither (DS p. 31): Gudi Padwa and Ugadi.",
+    "ramanavami": "Rama was born on the Caitra shukla Navami at midday, under Punarvasu, with Cancer rising (Agastya-samhita, NS pp. 118-119; DS p. 33). The fast is kept on the Navami covering midday and the arghya given then; pujaWindow is midday, the 3rd fifth of the daytime, while the Navami runs.",
+    "vasantotsava": "The spring festival on the dark Pratipada after the Holika Purnima (NS p. 345, DS p. 95): a bath, the salutation of the Holika fire's ground or ash, and mango blossoms eaten with sandal paste. DS puts the sprinkling of coloured powders on the next day, the dark Dvitiya, and says that people now keep it up to the Panchami. Neither text has colour play on the Pratipada. DS avoids the Holika day and the day after it for auspicious acts (p. 95).",
     "vijayadashami": "Ashvina shukla Dashami. pujaWindow is the afternoon (the 4th fifth of the daytime, our reading) while the Dashami runs. Aparajita puja is done in the afternoon facing north-east (Skanda via Hemadri, NS p. 283). The Vijaya moment is just after twilight as the first stars appear (Narada, p. 284); not computed.",
     "holika-dahana": "The Phalguna Purnima, lit at night, never by day (Dharmasindhu p. 94). Bhadra's tail is the last 3 ghatikas of the tithi's 3rd prahara and its face the first 5 of the 4th (DS pp. 94-95, MC 1.44); the tail is auspicious, the face never used. Nirnaya-sindhu is stricter, lighting only after Bhadra ends (p. 343); its day is variantDate where it differs. Not in an adhika month (NS p. 344).",
 }  # fmt: skip
