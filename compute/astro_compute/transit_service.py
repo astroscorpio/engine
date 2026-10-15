@@ -42,8 +42,9 @@ VEDHA = {
     "Saturn": {3: 12, 6: 9, 11: 5},
 }
 NO_VEDHA_BETWEEN = [{"Sun", "Saturn"}, {"Moon", "Mercury"}]
-# The nodes have no vedha table; 3, 6 and 11 from the Moon is the common rule.
-NODE_GOOD = {3, 6, 11}
+# PD 26.2: Rahu and Ketu are like the Sun, good in 3, 6, 10 and 11, with no vedha
+# (gochara.md s4; MC 4.1's Saturn-like rule is a note).
+NODE_GOOD = {3, 6, 10, 11}
 STATION_GRAHAS = ("Mercury", "Venus", "Mars", "Jupiter", "Saturn")
 # Longest direct run between stations, padded: how far to look for the
 # station that began the current motion and the one that will end it.

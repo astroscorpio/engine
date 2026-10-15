@@ -155,3 +155,40 @@ def test_sade_sati_runs_by_sign_from_the_natal_moon():
         assert out["end"] > AT[:10] and (out["start"] is None or out["start"] < AT)
     out = T._sade_sati((saturn + 4) % 12, when, "lahiri", "UTC")
     assert not out["active"] and out["phase"] is None and out["next"]["start"] > AT[:10]
+
+
+def test_muhurta_scorer_rules_of_15_oct():
+    import datetime as dt
+
+    def day(date):
+        status, out = call("GET", "/v1/panchang", {"date": date, **DELHI})
+        assert status == 200, out
+        return out
+
+    def check(moment, minutes):
+        at = (dt.datetime.fromisoformat(moment) + dt.timedelta(minutes=minutes)).isoformat()
+        status, out = call("GET", "/v1/muhurta/check", {"act": "general", "at": at, **DELHI})
+        assert status == 200, out
+        return {r["id"] for r in out["vetoes"]}, {r["id"] for r in out["supports"]}
+
+    # 2 Mar 2026: the Purnima's Bhadra, on earth (Moon in Leo), runs through the night.
+    holi = day("2026-03-02")["windows"]
+    vetoes, _ = check(holi["bhadraFace"][0]["start"], 30)
+    assert "bhadra_face" in vetoes  # MC 1.44: never in the face
+    vetoes, supports = check(holi["bhadraTail"][0]["start"], 10)
+    assert "bhadra_tail" in supports and not {"bhadra_face", "bhadra_earth"} & vetoes
+    # A first-half Bhadra at night carries no penalty (MC 1.44).
+    vetoes, supports = check(holi["bhadra"][0]["start"], 120)
+    assert "bhadra_day_night" in supports and "bhadra_earth" not in vetoes
+    # Tuesday 20 Oct: Dhanishta is utpata, a veto like marana.
+    tuesday = {r["id"]: r for r in day("2026-10-20")["specialYogas"]}
+    vetoes, _ = check(tuesday["utpata"]["start"], 30)
+    assert "utpata_yoga" in vetoes
+    # Monday 19 Oct: Shravana after Abhijit is siddhi, a support.
+    monday = {r["id"]: r for r in day("2026-10-19")["specialYogas"]}
+    _, supports = check(monday["siddhi"]["start"], 30)
+    assert "siddhi_yoga" in supports
+    # 21 Oct: the mahapata moment is vetoed.
+    pata = next(r for r in day("2026-10-21")["specialYogas"] if r["id"] == "mahapata")
+    vetoes, _ = check(pata["moment"], 0)
+    assert "mahapata" in vetoes

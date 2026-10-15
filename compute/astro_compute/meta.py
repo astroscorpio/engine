@@ -89,8 +89,17 @@ WINDOW_SOURCES = {
 }
 WINDOW_NOTES = {
     "pradosha": "Three muhurtas after sunset, a muhurta being a fifteenth of the night (MC 6.50-51; our reading). The first 72 minutes are sandhya, the evening twilight (Nirnaya-sindhu p. 29, Skanda). The Gauda view of two ghatikas (48 minutes) is rejected for vows by Nirnaya-sindhu p. 29.",
-    "brahma": "The 14th night muhurta is the computed convention; a printed source for that placement is pending. The name is from Manusmriti 4.92.",
+    "brahma": "Current practice: the 14th of the night's 15 muhurtas, ending one muhurta before sunrise. Manusmriti 4.92 names the brahma muhurta; Kulluka (1909, p. 149) reads it as the last yama of the night, and Govindaraja, as Kulluka reports him, as its last muhurta.",
 }
+# attributes.md: each sign's element as its verse names it (Tajika-nilakanthi 1.2-13).
+TAJIKA_NILAKANTHI = {
+    "text": "Tajika-nilakanthi",
+    "edition": "Nilakantha Daivajna, with Pt. Sitarama's Hindi commentary rev. Ganeshadatta Pathaka, Bhargava Pustakalaya, Benares, 1937-38",
+    "page": "2-6",
+}
+VIRGO_ELEMENT_NOTE = (
+    "BPHS 5 calls Virgo prabhanjini, 'wind', which its 1939 commentary reads as air."
+)
 # MC 1.45 (p. 38): "bhadra tatraiva tatphalam", its effect falls where it resides.
 BHADRA_RESIDENCES = {
     "earth": ("On earth (martya)", "With the Moon in Cancer, Leo, Aquarius or Pisces, Bhadra is on earth, and its effect falls here."),
@@ -479,6 +488,11 @@ MUHURTA_RULE_NAMES = {
     "durmuhurta": "Durmuhurta", "bad_yoga_window": "Inauspicious yoga (opening ghatis)",
     "bad_yoga_after_opening": "Inauspicious yoga, past its opening",
     "bhadra_earth": "Bhadra on earth (MC 1.45)",
+    "bhadra_face": "Bhadra's face (MC 1.44)",
+    "bhadra_tail": "Bhadra's tail: no penalty (MC 1.44)",
+    "bhadra_day_night": "Bhadra in a tithi's second half by day, or first half at night: no penalty (MC 1.44)",
+    "utpata_yoga": "Utpata yoga (MC 1.30)", "kana_yoga": "Kana yoga (MC 1.30)",
+    "mahapata": "Mahapata, equal declinations (MC 1.34)", "siddhi_yoga": "Siddhi yoga (MC 1.30)",
     "visha_yoga": "Visha yoga: a siddhi pair on its excluded tithi (MC 1.20-21)",
     "siddhi_pair_act_ban": "Siddhi pair avoided for this act (MC 1.22)",
     "amavasya": "Amavasya", "rikta_tithi": "Rikta tithi (4th, 9th, 14th)", "ashtami": "Ashtami",
@@ -504,12 +518,13 @@ MUHURTA_RULE_NAMES = {
 VETOES = {
     "rahu_kalam", "yamaganda", "gulika", "durmuhurta", "bad_yoga_window", "bhadra_earth",
     "amavasya", "rikta_tithi", "ashtami", "marana_yoga", "dagdha_yoga", "moon_8th",
-    "chandrashtama", "disha_shool", "visha_yoga", "siddhi_pair_act_ban",
+    "chandrashtama", "disha_shool", "visha_yoga", "siddhi_pair_act_ban", "bhadra_face",
+    "utpata_yoga", "kana_yoga", "mahapata",
 }  # fmt: skip
 SUPPORTS = {
     "amrita_siddhi", "sarvartha_siddhi", "lagna_lord_strong", "benefic_kendra", "abhijit",
     "moon_ahead", "yogini_behind", "char_choghadiya", "movable_lagna", "fixed_lagna",
-    "favoured_hora",
+    "favoured_hora", "siddhi_yoga", "bhadra_tail", "bhadra_day_night",
 }  # fmt: skip
 
 
@@ -600,6 +615,8 @@ def _english() -> dict:
             "num": i + 1,
             "lord": GRAHA_ID[SIGN_LORDS[i]],
             "element": ("fire", "earth", "air", "water")[i % 4],
+            "elementSource": {**TAJIKA_NILAKANTHI, "verse": f"1.{i + 2}"},
+            "elementNote": VIRGO_ELEMENT_NOTE if i == 5 else None,
             "modality": ("movable", "fixed", "dual")[i % 3],
         }
         for i in range(12)

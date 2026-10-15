@@ -49,9 +49,13 @@ from .rare import (
     AMRITA_SIDDHI,
     AMRITA_VISHA_TITHI,
     DAGDHA,
+    KANA,
     MARANA,
     PANCHAKA,
     SARVARTHA_SIDDHI,
+    SIDDHI,
+    UTPATA,
+    nakshatra_28,
 )
 
 TARA_NAMES = [
@@ -183,6 +187,8 @@ class Day:
     choghadiyas: list[Window] = field(default_factory=list)
     lagnas: list[Window] = field(default_factory=list)
     changes: list[tuple[float, str]] = field(default_factory=list)
+    bhadra_parts: list[Window] = field(default_factory=list)  # face and tail (MC 1.44)
+    mahapatas: list[Window] = field(default_factory=list)  # equal declinations (MC 1.34)
 
     @property
     def day_muhurta(self) -> float:
@@ -483,6 +489,11 @@ def day(jd: float, lat: float, lon: float, ayanamsa: str = "lahiri", tz=None) ->
                 end, what = min(b, a + n * 24 / 1440), f"first {n} ghatis"
             if end > t0:
                 out.avoid.append(Window(a, end, f"{name} yoga ({what})"))
+    for num, (a, b) in _tithi_spans(t0, t1, ayanamsa):
+        parts = bhadra_face_tail(num, a, b)
+        if parts:
+            out.bhadra_parts += [Window(*parts[0], "face"), Window(*parts[1], "tail")]
+    out.mahapatas = [Window(a, b, kind) for kind, _, a, b in mahapatas(t0, t1)]
     for t, v in _scan(lambda t: tithi_at(t, ayanamsa), t0, t1, step):
         out.changes.append((t, f"tithi -> {tithi_label(v)}"))
     for t, v in _scan(lambda t: nakshatra_at(t, ayanamsa), t0, t1, step):
@@ -495,6 +506,17 @@ def day(jd: float, lat: float, lon: float, ayanamsa: str = "lahiri", tz=None) ->
         out.changes.append((t, f"Moon -> {SIGNS[v]}"))
     out.changes.sort()
     return out
+
+
+def _tithi_spans(t0: float, t1: float, ayanamsa: str = "lahiri"):
+    """(number, (start, end)) for every tithi touching [t0, t1], with true bounds."""
+    fn = lambda t: tithi_at(t, ayanamsa)  # noqa: E731
+    start = t0
+    while fn(start - 1 / 24) == fn(t0):
+        start -= 1 / 24
+    start = _bisect(fn, start - 1 / 24, start)
+    edges = [start] + [t for t, _ in _scan(fn, t0, t1 + 1.2, 1 / 24)]
+    return [(fn(a + 1e-6), (a, b)) for a, b in zip(edges, edges[1:], strict=False) if a <= t1]
 
 
 def _yoga_spans(t0: float, t1: float, ayanamsa: str = "lahiri"):
@@ -855,14 +877,37 @@ def evaluate(
     # ghatis of the bad yogas.
     v.vetoes += [a.label for a in d.avoid if a.contains(jd)]
     if karana == "Vishti" and bhadra_residence(moon.sign) == "earth":
-        # MC 1.45: Bhadra's effect falls where it resides; in heaven or below, no penalty.
-        v.vetoes.append("Vishti (Bhadra on earth)")
+        # MC 1.45: Bhadra's effect falls where it resides; in heaven or below, no
+        # penalty. MC 1.44: its face is never used and its tail is auspicious; a
+        # Bhadra in a tithi's second half is auspicious by day, in its first half
+        # at night (research's reading; the lead's ruling of 15 Oct 2026).
+        part = d.at(d.bhadra_parts, jd)
+        first_half = elongation % 12 < 6
+        by_day = d.sunrise <= jd < d.sunset
+        if part and part.label == "face":
+            v.vetoes.append("Bhadra's face (MC 1.44)")
+        elif part and part.label == "tail":
+            good(("Bhadra's tail: no penalty (MC 1.44)", 0.0))
+        elif first_half != by_day:
+            good((f"Bhadra {'by day' if by_day else 'at night'}: no penalty (MC 1.44)", 0.0))
+        else:
+            v.vetoes.append("Vishti (Bhadra on earth)")
     if t == 30:
         v.vetoes.append("Amavasya")
     elif n in (4, 8, 9, 14):
         v.vetoes.append(tithi_label(t))
-    if MARANA.get(w) == nak:
+    # MC 1.30 counts 28 nakshatras (Monday's kana is Abhijit). Utpata and kana
+    # carry marana's veto (the lead's ruling); siddhi is a support below.
+    nak28 = nakshatra_28(moon.longitude)
+    if UTPATA.get(w) == nak28:
+        v.vetoes.append("Utpata yoga")
+    if MARANA.get(w) == nak28:
         v.vetoes.append("Marana yoga")
+    if KANA.get(w) == nak28:
+        v.vetoes.append("Kana yoga")
+    mahapata = d.at(d.mahapatas, jd)
+    if mahapata:
+        v.vetoes.append(f"Mahapata ({mahapata.label})")
     if DAGDHA.get(w) == nak:
         v.vetoes.append("Dagdha yoga")
     if house("Moon") == 8:
@@ -928,6 +973,8 @@ def evaluate(
             good(("Amrita Siddhi", 1.5))
     if nak in SARVARTHA_SIDDHI.get(w, set()):
         good(("Sarvartha Siddhi", 1.0))
+    if SIDDHI.get(w) == nak28:
+        good(("Siddhi yoga", 1.0))
     lord = SIGN_LORDS[lagna]
     if house(lord) in (1, 4, 5, 7, 9, 10) and (
         p[lord].sign in OWN_SIGNS[lord] or p[lord].sign == EXALTATION[lord][0]
