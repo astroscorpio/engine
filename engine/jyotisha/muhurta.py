@@ -1013,7 +1013,7 @@ def evaluate(
         v.vetoes.append(f"disha shool {DISHA_SHOOL[d.vara]}")
 
     if profile.home:
-        _home_vetoes(v, month, p, moon, asc, house, n, door, old_house, planet_states)
+        _home_vetoes(v, month, p, moon, asc, house, n, door, old_house, planet_states, d.vara)
 
     # Defects.
     if tr in BAD_TARA:
@@ -1054,7 +1054,7 @@ def evaluate(
         bad((f"{nak} ({cls})", profile.other_nakshatra + (profile.harsh if cls in HARSH else 0)))
     if t != 30 and n not in profile.tithis and n not in (4, 8, 9, 14):
         bad((tithi_label(t), profile.other_tithi))
-    if d.vara not in profile.varas:
+    if d.vara not in profile.varas and not (profile.home and d.vara in HOME_BARRED_VARAS):
         bad((VARA_NAME[d.vara], profile.other_vara))
     if month.adhika and not profile.home:  # the home act vetoes it (MC 1.47)
         bad((f"adhika {month.name}", profile.season))
@@ -1115,19 +1115,22 @@ HOME_MIDDLING = {"Kartika", "Margashirsha"}  # Narada: for necessity
 UTTARAYANA = {9, 10, 11, 0, 1, 2}  # the Sun in Capricorn to Gemini
 MOVABLE = {0, 3, 6, 9}
 OLD_HOUSE_STARS = {"Shatabhisha", "Pushya", "Swati", "Dhanishta"}  # MC 13.2
+HOME_BARRED_VARAS = {"Sun", "Mars"}  # MC 13.4: "vy-arkari", without Sunday and Tuesday
 DOOR_TITHIS = {"E": {5, 10, 15}, "S": {1, 6, 11}, "W": {2, 7, 12}, "N": {3, 8, 13}}  # MC 13.5
 DOOR_SUN = {  # the Sun "on the left": the five houses from the 8th, 5th, 2nd or 11th
     "E": {8, 9, 10, 11, 12}, "S": {5, 6, 7, 8, 9}, "W": {2, 3, 4, 5, 6}, "N": {11, 12, 1, 2, 3},
 }  # fmt: skip
 
 
-def _home_vetoes(v, month, p, moon, asc, house, n, door, old_house, planet_states) -> None:
+def _home_vetoes(v, month, p, moon, asc, house, n, door, old_house, planet_states, vara) -> None:
     """House entry (MC 13): the month (13.1, 13.4; Guru on the Sun's sign), Jupiter
-    and Venus (1.46-48, 5.27; not for an old house, 13.2), no movable lagna or
-    navamsa and the 4th and 8th empty (13.4), the Moon not in the 1st, 6th or 12th
-    (the 8th is vetoed for every act), the pot chakra (13.6), and with a door
-    direction its tithi class and the Sun on the left (13.4-5)."""
+    and Venus (1.46-48, 5.27; not for an old house, 13.2), no Sunday or Tuesday, no
+    movable lagna or navamsa and the 4th and 8th empty (13.4), the Moon not in the
+    1st, 6th or 12th (the 8th is vetoed for every act), the pot chakra (13.6), and
+    with a door direction its tithi class and the Sun on the left (13.4-5)."""
     sun = p["Sun"].sign
+    if vara in HOME_BARRED_VARAS:
+        v.vetoes.append(f"{VARA_NAME[vara]} (MC 13.4)")
     if month.adhika:
         v.vetoes.append(f"adhika {month.name} (MC 1.47)")
     if month.name in ("Chaitra", "Ashadha"):

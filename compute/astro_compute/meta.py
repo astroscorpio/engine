@@ -586,6 +586,7 @@ MUHURTA_RULE_NAMES = {
     "bhadra_day_night": "Bhadra in a tithi's second half by day, or first half at night: no penalty (MC 1.44)",
     "adhika_masa_home": "Adhika month (MC 1.47)", "month_home": "Month without house entry (MC 13.1, 13.4)",
     "dakshinayana": "The Sun's southern course (MC 13.1)",
+    "weekday_home": "Sunday or Tuesday: no house entry (MC 13.4)",
     "middling_month_home": "Kartika or Margashirsha: middling, for necessity (Narada in MC 13.1)",
     "sun_sign_home": "The Sun in Cancer, Virgo or Aquarius (Guru in MC 13.1)",
     "jupiter_venus_state": "Jupiter or Venus set, old or infant (MC 1.46-48, 5.27)",
@@ -624,7 +625,7 @@ VETOES = {
     "rahu_kalam", "yamaganda", "gulika", "durmuhurta", "bad_yoga_window", "bhadra_earth",
     "amavasya", "rikta_tithi", "ashtami", "marana_yoga", "dagdha_yoga", "moon_8th",
     "chandrashtama", "disha_shool", "visha_yoga", "siddhi_pair_act_ban", "bhadra_face",
-    "utpata_yoga", "kana_yoga", "mahapata", "adhika_masa_home", "month_home", "dakshinayana",
+    "utpata_yoga", "kana_yoga", "mahapata", "adhika_masa_home", "month_home", "dakshinayana", "weekday_home",
     "sun_sign_home", "jupiter_venus_state", "jupiter_sign", "movable_lagna_home", "movable_navamsa",
     "house_4_8_occupied", "moon_1_6_12", "pot_chakra", "door_tithi", "door_sun",
 }  # fmt: skip

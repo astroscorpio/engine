@@ -214,6 +214,13 @@ def test_home_profile_follows_mc_13():
     at, _ = moment("2026-08-25", 300)
     assert "month_home" in vetoes(at)
     assert "month_home" not in vetoes(at, oldHouse="true")
+    # MC 13.4: never on a Sunday or Tuesday, for a new house or an old one.
+    day = dt.date(2027, 5, 10)
+    sunday = day + dt.timedelta((6 - day.weekday()) % 7)
+    at, _ = moment(sunday.isoformat(), 600)
+    assert "weekday_home" in vetoes(at) and "weekday_home" in vetoes(at, oldHouse="true")
+    at, _ = moment((sunday + dt.timedelta(1)).isoformat(), 600)
+    assert "weekday_home" not in vetoes(at)
     # The door decides the tithi class (MC 13.5): East Purna, South Nanda, West
     # Bhadra, North Jaya.
     at, num = moment("2027-02-10", 10)

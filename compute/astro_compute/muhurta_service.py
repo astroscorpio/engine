@@ -26,6 +26,7 @@ RULES: list[tuple[re.Pattern, str]] = [
         (r"^adhika \w+ \(MC 1\.47\)$", "adhika_masa_home"),
         (r"^\w+: no house entry \(MC 13\.[14]\)$", "month_home"),
         (r"^dakshinayana \(MC 13\.1\)$", "dakshinayana"),
+        (r"^(Sunday|Tuesday) \(MC 13\.4\)$", "weekday_home"),
         (r"^middling month for house entry \(Narada\)$", "middling_month_home"),
         (r"^Sun in \w+ \(Guru, MC 13\.1\)$", "sun_sign_home"),
         (r"^(Jupiter|Venus) (set|old|infant) \(MC 1\.46-48, 5\.27\)$", "jupiter_venus_state"),
