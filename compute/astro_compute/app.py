@@ -35,6 +35,7 @@ from . import (
 )
 from .errors import ApiError
 from .models import (
+    BundleRequest,
     ChartRequest,
     DashaRequest,
     EkadashiQuery,
@@ -137,6 +138,31 @@ ROUTES: dict[tuple[str, str], Callable[[dict, bytes | str | None], dict]] = {
         _parse(MuhurtaCheck, _json_body(b))
     ),
 }
+
+
+def _bundle(body: bytes | str | None) -> dict:
+    """Contract 7n: run one GET year-list route for each place, in order. A place's
+    error is its own result; the bundle itself fails only on a bad request."""
+    req = _parse(BundleRequest, _json_body(body))
+    route = ROUTES.get(("GET", req.path))
+    if route is None:
+        raise ApiError("not_found", f"no route {req.path}", 404)
+    query = {k: v for k, v in req.query.items() if k not in ("lat", "lon", "tz")}
+    results = []
+    for p in req.places:
+        q = {**query, "lat": str(p.lat), "lon": str(p.lon), "tz": p.tz}
+        try:
+            results.append({"place": p.id, "status": 200, "data": route(q, None)})
+        except ApiError as exc:
+            results.append({"place": p.id, "status": exc.status, "error": exc.body()["error"]})
+        except Exception:
+            log.exception("bundle %s failed for %s", req.path, p.id)
+            error = {"code": "internal", "message": "computation failed"}
+            results.append({"place": p.id, "status": 500, "error": error})
+    return {"results": results}
+
+
+ROUTES[("POST", "/v1/bundle")] = lambda q, b: _bundle(b)
 
 
 def _authorised(headers: dict[str, str]) -> bool:

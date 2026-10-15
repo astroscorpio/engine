@@ -31,6 +31,21 @@ class Model(BaseModel):
     model_config = ConfigDict(extra="ignore", str_strip_whitespace=True)
 
 
+class BundlePlace(Model):
+    id: str = Field(pattern=r"^gn:\d{1,10}$")
+    lat: float = Field(ge=-90, le=90)
+    lon: float = Field(ge=-180, le=180)
+    tz: str
+
+
+class BundleRequest(Model):
+    """POST /v1/bundle: one year-list route for several places (contract 7n)."""
+
+    path: str = Field(pattern=r"^/v1/(observances|festivals|muhurat)/[a-z-]+$")
+    query: dict[str, str] = Field(default_factory=dict)
+    places: list[BundlePlace] = Field(min_length=1, max_length=40)
+
+
 class PlaceIn(Model):
     """Coordinates are required here: the API gateway resolves {id} places
     before anything reaches compute."""

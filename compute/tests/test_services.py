@@ -262,3 +262,21 @@ def test_season_rules_follow_the_texts():
     assert ids(pitru["notes"]) == {"pitru_paksha_practice"}
     assert not any("pitru" in r["id"] for r in pitru["defects"])
     assert not check("education", "2026-10-05T10:00:00+05:30")["notes"]
+
+
+def test_bundle_runs_one_route_for_several_places():
+    body = {
+        "path": "/v1/festivals/dipavali",
+        "query": {"year": "2026"},
+        "places": [
+            {"id": "gn:1261481", "lat": 28.6139, "lon": 77.209, "tz": "Asia/Kolkata"},
+            {"id": "gn:1275339", "lat": 19.0728, "lon": 72.8826, "tz": "Asia/Kolkata"},
+        ],
+    }
+    status, out = call("POST", "/v1/bundle", body=body)
+    assert status == 200, out
+    assert [r["place"] for r in out["results"]] == ["gn:1261481", "gn:1275339"]
+    assert all(r["status"] == 200 and r["data"]["occurrences"] for r in out["results"])
+    bad = {**body, "path": "/v1/festivals/nope"}
+    assert call("POST", "/v1/bundle", body=bad)[0] == 404
+    assert call("POST", "/v1/bundle", body={**body, "path": "/v1/chart"})[0] == 400
