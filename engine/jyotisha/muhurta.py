@@ -670,6 +670,7 @@ class Profile:
     travel: bool = False
     home: bool = False
     mundan: bool = False
+    rite: str = ""  # "annaprashan" or "akshararambh": that samskara's own vetoes
     barred_nakshatras: frozenset[str] = frozenset()  # vetoed, not merely unfavoured
     barred_varas: frozenset[str] = frozenset()
     rikta_only: bool = False  # bar the rikta tithis and Amavasya but not Ashtami
@@ -699,6 +700,26 @@ MUNDAN_STARS = frozenset(
         "Jyeshtha", "Shravana", "Dhanishta", "Shatabhisha", "Revati",
     }
 )  # fmt: skip
+# samskaras.md (the lead's decisions of 15 Oct 2026). Annaprashana: DS p. 135's sixteen
+# stars, the bright tithis 2, 3, 5, 7, 10, 13, and seven yogas barred for their whole spans.
+ANNA_STARS = frozenset(
+    {
+        "Ashwini", "Rohini", "Mrigashira", "Punarvasu", "Pushya", "U.Phalguni", "Hasta",
+        "Chitra", "Swati", "Anuradha", "U.Ashadha", "Shravana", "Dhanishta", "Shatabhisha",
+        "U.Bhadrapada", "Revati",
+    }
+)  # fmt: skip
+ANNA_TITHIS = frozenset({2, 3, 5, 7, 10, 13})
+ANNA_YOGAS = frozenset({"Vaidhriti", "Vyatipata", "Ganda", "Atiganda", "Vajra", "Shula", "Parigha"})
+# Akshararambha, what MC 5.37 and DS p. 138 both allow: MC's ten stars, six tithis.
+AKSHARA_STARS = frozenset(
+    {
+        "Hasta", "Ashwini", "Pushya", "Shravana", "Swati", "Revati", "Punarvasu", "Ardra",
+        "Chitra", "Anuradha",
+    }
+)  # fmt: skip
+AKSHARA_TITHIS = frozenset({2, 3, 5, 10, 11, 12})
+BENEFIC_VARAS = frozenset({"Moon", "Mercury", "Jupiter", "Venus"})
 
 PROFILES = {
     p.name: p
@@ -851,6 +872,34 @@ PROFILES = {
             2.5,
             mundan=True,
         ),
+        Profile(
+            "annaprashan",
+            "a child's first rice (annaprashana)",
+            ANNA_STARS,
+            2.0,
+            1.0,
+            ANNA_TITHIS,
+            1.0,
+            BENEFIC_VARAS,
+            1.0,
+            frozenset({"Jupiter", "Venus", "Mercury", "Moon"}),
+            2.5,
+            rite="annaprashan",
+        ),
+        Profile(
+            "akshararambh",
+            "a child's first letters (akshararambha, Vidyarambham)",
+            AKSHARA_STARS,
+            2.0,
+            1.0,
+            AKSHARA_TITHIS,
+            1.0,
+            BENEFIC_VARAS,
+            1.0,
+            frozenset({"Jupiter", "Mercury", "Venus"}),
+            2.5,
+            rite="akshararambh",
+        ),
     )
 }
 
@@ -954,6 +1003,7 @@ def evaluate(
     planet_states: dict[str, str] | None = None,
     natal_month: str | None = None,
     eldest: bool = False,
+    child: dict | None = None,
 ) -> Verdict:
     """Judge one moment.  ``natal_moon`` (and ``natal_lagna``) may be None when
     no birth chart is known; the birth-relative rules (tara, the Moon's house from
@@ -1046,6 +1096,12 @@ def evaluate(
     if profile.mundan:
         _mundan_vetoes(v, month, p, moon, asc, house, t, d.vara, planet_states)
         _mundan_child(v, month, moon, asc, natal_moon, natal_lagna, natal_month, eldest)
+    if profile.rite == "annaprashan":
+        _annaprashan_vetoes(v, d, month, p, moon, asc, house, t, jd, karana, yoga, planet_states)
+    elif profile.rite == "akshararambh":
+        _akshararambh_vetoes(v, month, p, moon, asc, house, t, d.vara)
+    if profile.rite and child:
+        _samskara_child(v, profile.rite, jd, asc, child)
 
     # Defects.
     if tr in BAD_TARA:
@@ -1068,7 +1124,8 @@ def evaluate(
         eighths.add((natal_lagna + 7) % 12)
     if natal_moon is not None:
         eighths.add((natal_moon.sign + 7) % 12)
-    if lagna in eighths and not profile.mundan:  # a veto for the tonsure (MC 5.29)
+    # a veto for the tonsure (MC 5.29) and, with a chart, the first rice (MC 5.17)
+    if lagna in eighths and not profile.mundan and not (profile.rite == "annaprashan" and child):
         bad(("lagna 8th from birth", 1.5))
     if chog and chog.label not in CHOGHADIYA_GOOD:
         bad((f"{chog.label} choghadiya", 1.0))
@@ -1094,16 +1151,22 @@ def evaluate(
     stars = profile.nakshatras | (OLD_HOUSE_STARS if profile.home and old_house else set())
     if profile.barred_nakshatras and nak not in stars | profile.barred_nakshatras:
         bad((f"{nak}: not a buying star (MC 2.16)", profile.other_nakshatra))  # middling
-    elif nak not in stars and not profile.mundan and not profile.barred_nakshatras:
+    elif nak not in stars and not (profile.mundan or profile.rite or profile.barred_nakshatras):
         cls = NAKSHATRA_CLASS[nak]
         bad((f"{nak} ({cls})", profile.other_nakshatra + (profile.harsh if cls in HARSH else 0)))
     if profile.best_tithi == t:
         good((f"{tithi_label(t)}: best for travel (MC 11.9 commentary)", 1.0))
-    elif t != 30 and n not in profile.tithis and n not in (4, 8, 9, 14) and not profile.mundan:
+    elif (
+        t != 30
+        and n not in profile.tithis
+        and n not in (4, 8, 9, 14)
+        and not (profile.mundan or profile.rite)
+    ):
         bad((tithi_label(t), profile.other_tithi))
     vetoed_vara = (
         (profile.home and d.vara in HOME_BARRED_VARAS)
         or profile.mundan
+        or bool(profile.rite)
         or d.vara in profile.barred_varas
     )
     if d.vara not in profile.varas and not vetoed_vara:
@@ -1316,6 +1379,98 @@ def _mundan_child(v, month, moon, asc, natal_moon, natal_lagna, natal_month, eld
         v.vetoes.append("Jyeshtha, for an eldest child (MC 5.33 commentary)")
 
 
+def _annaprashan_vetoes(v, d, month, p, moon, asc, house, t, jd, karana, yoga, states) -> None:
+    """The first rice (MC 5.17-18; DS pp. 4-5, 135): no adhika month; Jupiter and Venus
+    clear; the bright fortnight's tithis 2, 3, 5, 7, 10 or 13; Monday, Wednesday, Thursday
+    or Friday; DS's sixteen stars; the forenoon (Narada); no Vishti, whatever its residence
+    (our reading), and none of seven yogas for their whole spans; the lagna not Aries,
+    Scorpio or Pisces, the 10th empty, no malefic in the 1st, 4th or 7th, the Moon not in
+    the 6th or 8th."""
+    if month.adhika:
+        v.vetoes.append(f"adhika {month.name} (DS pp. 4, 135)")
+    for g, state in sorted((states or {}).items()):
+        v.vetoes.append(f"{g} {state} (DS p. 5)")
+    if t > 15 or (t - 1) % 15 + 1 not in ANNA_TITHIS:
+        v.vetoes.append(f"{tithi_label(t)}: not a first-rice tithi (DS p. 135)")
+    if d.vara not in BENEFIC_VARAS:
+        v.vetoes.append(f"{VARA_NAME[d.vara]}: not a first-rice weekday (MC 5.17)")
+    nak = NAKSHATRAS[moon.nakshatra]
+    if nak not in ANNA_STARS:
+        v.vetoes.append(f"{nak}: not a first-rice star (DS p. 135)")
+    if not d.sunrise <= jd < (d.sunrise + d.sunset) / 2:
+        v.vetoes.append("not the forenoon (Narada, MC 5.17 commentary)")
+    if karana == "Vishti":
+        v.vetoes.append("Vishti, whatever its residence (DS p. 135)")
+    if yoga in ANNA_YOGAS:
+        v.vetoes.append(f"{yoga} yoga, its whole span (DS p. 135)")
+    if asc.sign in (0, 7, 11):
+        v.vetoes.append(f"{SIGNS[asc.sign]} lagna (MC 5.17)")
+    held = [g for g in p if house(g) == 10]
+    if held:
+        v.vetoes.append(f"{', '.join(held)} in the 10th (MC 5.18)")
+    bad = [g for g in MALEFICS if house(g) in (1, 4, 7)]
+    if bad:
+        v.vetoes.append(f"{', '.join(bad)} in the 1st, 4th or 7th (MC 5.18)")
+    if house("Moon") in (6, 8):
+        v.vetoes.append(f"Moon in the {_ordinal(house('Moon'))} (MC 5.18)")
+    pairs = (("Venus", 7), ("Mars", 8), ("Mercury", 9))
+    guru = [f"{g} in the {_ordinal(h)}" for g, h in pairs if house(g) == h]
+    if guru:
+        v.vetoes.append(f"{', '.join(guru)} (Guru, MC 5.18 commentary)")
+
+
+def _akshararambh_vetoes(v, month, p, moon, asc, house, t, vara) -> None:
+    """The first letters, what MC 5.37 and DS p. 138 both allow: the Sun's northern course
+    but not in Aquarius, and not from the Devashayani Ekadashi to the Karka sankranti
+    (Markandeya); tithi 2, 3, 5, 10, 11 or 12 outside the dark fortnight's last three
+    days; Monday, Wednesday, Thursday or Friday; MC's ten stars; Taurus, Gemini, Virgo,
+    Sagittarius or Pisces rising with the 8th empty."""
+    sun = p["Sun"].sign
+    if sun not in UTTARAYANA:
+        v.vetoes.append("dakshinayana (MC 5.37)")
+    elif sun == 10:
+        v.vetoes.append("Sun in Aquarius (DS p. 138)")
+    elif sun == 2 and month.name == "Ashadha" and not month.adhika and t >= 11:
+        v.vetoes.append("Vishnu asleep, before the Karka sankranti (MC 5.37 commentary)")
+    if (t - 1) % 15 + 1 not in AKSHARA_TITHIS or t in (28, 29, 30):
+        v.vetoes.append(f"{tithi_label(t)}: not a first-letters tithi (MC 5.37; DS p. 138)")
+    if vara not in BENEFIC_VARAS:
+        v.vetoes.append(f"{VARA_NAME[vara]}: not a first-letters weekday (MC 5.37)")
+    nak = NAKSHATRAS[moon.nakshatra]
+    if nak not in AKSHARA_STARS:
+        v.vetoes.append(f"{nak}: not a first-letters star (MC 5.37)")
+    if asc.sign not in (1, 2, 5, 8, 11):
+        v.vetoes.append(f"{SIGNS[asc.sign]} lagna: not for the first letters (MC 5.37)")
+    held = [g for g in p if house(g) == 8]
+    if held:
+        v.vetoes.append(f"{', '.join(held)} in the 8th (MC 5.37 commentary)")
+
+
+def _samskara_child(v, rite: str, jd: float, asc, child: dict) -> None:
+    """The child's own rules, with its chart (samskaras.md decisions 2 and 4). The first
+    letters: the 5th year (MC 5.37; DS p. 138). The first rice: not the 8th sign, as
+    lagna or navamsa, from the birth Moon sign or lagna (MC 5.17; Kashyapa), and, given
+    the sex, a boy's 6th, 8th, 10th or 12th month or the end of the first year, a girl's
+    5th, 7th, 9th or 11th (MC 5.17; DS p. 135). A month of life is 30.44 days."""
+    age = jd - child["birth_jd"]
+    if rite == "akshararambh":
+        if not 4 <= age / 365.2425 < 5:
+            v.vetoes.append("not the child's 5th year (MC 5.37; DS p. 138)")
+        return
+    eighths = {(int(child["moon_lon"] // 30) + 7) % 12}
+    if child.get("asc_lon") is not None:
+        eighths.add((int(child["asc_lon"] // 30) + 7) % 12)
+    if asc.sign in eighths:
+        v.vetoes.append("lagna 8th from the child's birth (MC 5.17)")
+    elif int(asc.longitude // (30 / 9)) % 12 in eighths:
+        v.vetoes.append("navamsa 8th from the child's birth (MC 5.17; Kashyapa)")
+    sex = child.get("sex")
+    if sex:
+        month = int(age // 30.436875) + 1
+        if month not in ((6, 8, 10, 12, 13) if sex == "boy" else (5, 7, 9, 11)):
+            v.vetoes.append(f"month {month} of life: not for a {sex} (MC 5.17; DS p. 135)")
+
+
 def check(
     profile: Profile,
     jd: float,
@@ -1329,7 +1484,11 @@ def check(
     ayanamsa = kw.get("ayanamsa", "lahiri")
     tz = kw.pop("tz", None)
     d = day(jd, lat, lon, ayanamsa, tz)
-    if (profile.home and not kw.get("old_house")) or profile.mundan:
+    if (
+        (profile.home and not kw.get("old_house"))
+        or profile.mundan
+        or profile.rite == "annaprashan"
+    ):
         states = planet_states_around(jd, jd, lat, lon)
         kw["planet_states"] = states.get(round(d.sunrise * 1440), {})
     return evaluate(
@@ -1393,6 +1552,7 @@ def find(
     old_house: bool = False,
     natal_month: str | None = None,
     eldest: bool = False,
+    child: dict | None = None,
 ) -> list[Choice]:
     """Unvetoed windows in [start, end), best score first.
 
@@ -1404,7 +1564,7 @@ def find(
         raise ValueError("a travel search needs the destination direction (--toward)")
     step = step_minutes / 1440
     d, month = day(start, lat, lon, ayanamsa, tz), lunar_month(start, ayanamsa)
-    wanted = (profile.home and not old_house) or profile.mundan
+    wanted = (profile.home and not old_house) or profile.mundan or profile.rite == "annaprashan"
     states = planet_states_around(start, end, lat, lon) if wanted else {}
     out: list[Choice] = []
     t = start
@@ -1431,6 +1591,7 @@ def find(
                 planet_states=states.get(round(d.sunrise * 1440), {}),
                 natal_month=natal_month,
                 eldest=eldest,
+                child=child,
             )
             if v.ok:
                 key = (tuple(v.defects), tuple(v.supports), tuple(v.facts.items()), tuple(v.notes))

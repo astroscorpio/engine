@@ -25,7 +25,35 @@ RULES: list[tuple[re.Pattern, str]] = [
         # House entry (MC 13), first: their labels end in a citation.
         (r"^adhika \w+ \(MC 1\.47\)$", "adhika_masa_home"),
         (r"^\w+: no house entry \(MC 13\.[14]\)$", "month_home"),
-        (r"^dakshinayana \(MC (13\.1|5\.26, 5\.29)\)$", "dakshinayana"),
+        (r"^dakshinayana \(MC (13\.1|5\.26, 5\.29|5\.37)\)$", "dakshinayana"),
+        # The first rice (MC 5.17-18; DS pp. 4-5, 135) and the first letters (MC 5.37).
+        (r"^adhika \w+ \(DS pp\. 4, 135\)$", "adhika_month_annaprashan"),
+        (r"^(Jupiter|Venus) (set|old|infant) \(DS p\. 5\)$", "jupiter_venus_state"),
+        (r"^[SK]\d+ \w+: not a first-rice tithi \(DS p\. 135\)$", "tithi_annaprashan"),
+        (r"^\w+day: not a first-rice weekday \(MC 5\.17\)$", "weekday_annaprashan"),
+        (r"^[\w.]+: not a first-rice star \(DS p\. 135\)$", "nakshatra_annaprashan"),
+        (r"^not the forenoon \(Narada, MC 5\.17 commentary\)$", "forenoon_annaprashan"),
+        (r"^Vishti, whatever its residence \(DS p\. 135\)$", "vishti_annaprashan"),
+        (r"^\w+ yoga, its whole span \(DS p\. 135\)$", "yoga_annaprashan"),
+        (r"^\w+ lagna \(MC 5\.17\)$", "lagna_annaprashan"),
+        (r"^.+ in the 10th \(MC 5\.18\)$", "house_10_annaprashan"),
+        (r"^.+ in the 1st, 4th or 7th \(MC 5\.18\)$", "malefic_annaprashan"),
+        (r"^Moon in the \d+\w\w \(MC 5\.18\)$", "moon_6_8_annaprashan"),
+        (r"^.+ \(Guru, MC 5\.18 commentary\)$", "guru_7_8_9_annaprashan"),
+        (r"^lagna 8th from the child's birth \(MC 5\.17\)$", "lagna_8th_annaprashan"),
+        (r"^navamsa 8th from the child's birth \(MC 5\.17; Kashyapa\)$", "navamsa_8th_annaprashan"),
+        (r"^month \d+ of life: not for a (boy|girl) \(MC 5\.17; DS p\. 135\)$", "month_of_life"),
+        (r"^Sun in Aquarius \(DS p\. 138\)$", "sun_aquarius_akshararambh"),
+        (r"^Vishnu asleep, before the Karka sankranti \(MC 5\.37 commentary\)$", "hari_sleeps"),
+        (
+            r"^[SK]\d+ \w+: not a first-letters tithi \(MC 5\.37; DS p\. 138\)$",
+            "tithi_akshararambh",
+        ),
+        (r"^\w+day: not a first-letters weekday \(MC 5\.37\)$", "weekday_akshararambh"),
+        (r"^[\w.]+: not a first-letters star \(MC 5\.37\)$", "nakshatra_akshararambh"),
+        (r"^\w+ lagna: not for the first letters \(MC 5\.37\)$", "lagna_akshararambh"),
+        (r"^.+ in the 8th \(MC 5\.37 commentary\)$", "house_8_akshararambh"),
+        (r"^not the child's 5th year \(MC 5\.37; DS p\. 138\)$", "fifth_year"),
         # The first tonsure (MC 5.26-30).
         (r"^Chaitra: no tonsure \(MC 5\.29\)$", "month_mundan"),
         (r"^(Jupiter|Venus) (set|old|infant) \(MC 5\.26-27\)$", "jupiter_venus_state"),
@@ -172,6 +200,19 @@ def _natal(chart: ChartIn | None):
     return c.grahas["Moon"], (None if chart.timeUnknown else c.asc.sign), month
 
 
+def _child(req) -> dict | None:
+    """The child's birth facts for the samskara acts' own rules, when a chart is given."""
+    if req.chart is None or req.act not in ("annaprashan", "akshararambh"):
+        return None
+    c, _ = cast(req.chart)
+    return {
+        "birth_jd": c.jd,
+        "moon_lon": c.grahas["Moon"].longitude,
+        "asc_lon": None if req.chart.timeUnknown else c.asc.longitude,
+        "sex": req.child,
+    }
+
+
 def _profile(act: str, toward: str | None) -> Mu.Profile:
     profile = Mu.PROFILES[act]
     if profile.travel and not toward:
@@ -205,6 +246,7 @@ def find(req: MuhurtaRequest) -> dict:
         old_house=req.oldHouse and req.act == "home",
         natal_month=natal_month,
         eldest=req.eldest and req.act == "mundan",
+        child=_child(req),
         ayanamsa=req.ayanamsa,
         step_minutes=1 if days <= FINE_DAYS else 5,
     )
@@ -247,6 +289,7 @@ def check(req: MuhurtaCheck) -> dict:
         old_house=req.oldHouse and req.act == "home",
         natal_month=natal_month,
         eldest=req.eldest and req.act == "mundan",
+        child=_child(req),
         ayanamsa=req.ayanamsa,
         tz=req.tz,
     )

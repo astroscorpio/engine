@@ -111,18 +111,43 @@ def _planet_relax(y: _Year, i: int, q) -> tuple[str | None, dict]:
     return None, relax
 
 
-def _house_windows(a: float, b: float, q, ok) -> list[tuple[float, float, int]]:
-    """Stretches of [a, b] whose lagna and the houses at its middle pass ok(lagna, house)."""
+def _house_windows(a: float, b: float, q, test, fails: dict) -> list[tuple[float, float, int]]:
+    """Stretches of [a, b] whose lagna and the houses at its middle pass: test(lagna,
+    house) gives None, or the rule that fails, whose minutes are added to fails."""
     ay = q.ayanamsa
     out = []
     for x, y_, lagna in _spans(
         lambda t: int(ascendant(t, q.lat, q.lon, ay)[0].longitude // 30), a, b, 1 / 96
     ):
         p = positions((x + y_) / 2, ay)
-        house = {g: (p[g].sign - lagna) % 12 + 1 for g in p}
-        if ok(lagna, house):
+        rule = test(lagna, {g: (p[g].sign - lagna) % 12 + 1 for g in p})
+        if rule is None:
             out.append((x, y_, lagna))
+        else:
+            fails[rule] = fails.get(rule, 0.0) + (y_ - x) * 1440
     return out
+
+
+def _anna_test(lagna: int, house: dict) -> str | None:
+    """MC 5.17-18 with Guru in the commentary (p. 180): the first rule a lagna fails."""
+    if lagna in ANNA_BAD_LAGNAS:
+        return "lagna"
+    if 10 in house.values():
+        return "house_10"
+    if any(house[g] in (1, 4, 7) for g in MALEFICS):
+        return "malefic_1_4_7"
+    if house["Moon"] in (6, 8):
+        return "moon_6_8"
+    if house["Venus"] == 7 or house["Mars"] == 8 or house["Mercury"] == 9:
+        return "guru_7_8_9"
+    return None
+
+
+def _akshara_test(lagna: int, house: dict) -> str | None:
+    """MC 5.37 with Nrsimha and Shridhara in the commentary."""
+    if lagna not in AKSHARA_LAGNAS:
+        return "lagna"
+    return "house_8" if 8 in house.values() else None
 
 
 def _whole_spans(y: _Year, ay: str) -> list[tuple[float, float]]:
@@ -137,8 +162,17 @@ def _whole_spans(y: _Year, ay: str) -> list[tuple[float, float]]:
     return bars
 
 
-def _day(y: _Year, date, vara: str, rows: list[tuple], zone, extra: dict | None = None) -> dict:
-    windows = _windows(rows, zone)
+def _split_windows(rows: list[tuple], zone, sunset: float | None) -> list[dict]:
+    """Window rows as windows; with a sunset, those after it carry night: true."""
+    if sunset is None:
+        return _windows(rows, zone)
+    day = [r for r in rows if r[0] < sunset - 1e-9]
+    night = [r for r in rows if r[0] >= sunset - 1e-9]
+    return _windows(day, zone) + [{**w, "night": True} for w in _windows(night, zone)]
+
+
+def _day(y: _Year, date, vara: str, rows, zone, extra=None, sunset=None) -> dict:
+    windows = _split_windows(rows, zone, sunset)
     nums = {w["_n"] for w in windows}
     masa = Mu.MASA.index(windows[0]["_m"])
     adhika = y.tithi((rows[0][0] + rows[0][1]) / 2)[1][1]
@@ -155,7 +189,19 @@ def _day(y: _Year, date, vara: str, rows: list[tuple], zone, extra: dict | None 
     }
 
 
-def _settle(y: _Year, date, vara, rows, day_relax, zone, out_days, excluded, explain, extra=None):
+def _settle(
+    y: _Year,
+    date,
+    vara,
+    rows,
+    day_relax,
+    zone,
+    out_days,
+    excluded,
+    explain,
+    extra=None,
+    sunset=None,
+) -> str:
     """The shared tail of both lists: day yogas, then listed, excluded or dropped."""
     rows, inside, yoga = _day_yogas(rows, vara, y.ay)
     if rows or not inside:
@@ -166,8 +212,9 @@ def _settle(y: _Year, date, vara, rows, day_relax, zone, out_days, excluded, exp
     if strict:
         if explain is not None:
             explain[date.isoformat()] = "listed"
-        out_days.append(_day(y, date, vara, strict, zone, extra))
-    elif rows:
+        out_days.append(_day(y, date, vara, strict, zone, extra, sunset))
+        return "listed"
+    if rows:
         rules = dict(day_relax)
         _merge(rules, yoga)
         for r in rows:
@@ -179,14 +226,16 @@ def _settle(y: _Year, date, vara, rows, day_relax, zone, out_days, excluded, exp
             {
                 "date": date.isoformat(),
                 "vara": vara,
-                "windows": _public(_windows(rows, zone)),
+                "windows": _public(_split_windows(rows, zone, sunset)),
                 "rules": sorted(rules),
                 "reasons": reasons,
                 "details": details,
             }
         )
-    elif explain is not None:
+        return "excluded"
+    if explain is not None:
         explain[date.isoformat()] = "window"
+    return "window"
 
 
 def _state_blocks(y: _Year, q) -> list[dict]:
@@ -215,6 +264,10 @@ def _state_blocks(y: _Year, q) -> list[dict]:
     ]
 
 
+def _minutes(spans: list[tuple[float, float]]) -> float:
+    return sum(b - a for a, b in spans) * 1440
+
+
 def _in_year(rows: list[dict], q) -> list[dict]:
     y0, y1 = f"{q.year}-01-01", f"{q.year + 1}-01-01"
     return sorted((r for r in rows if r["end"] >= y0 and r["start"] < y1), key=lambda r: r["start"])
@@ -225,7 +278,7 @@ def annaprashan(q: EkadashiQuery, explain: dict | None = None) -> dict:
     y = _Year(q)
     ay, zone = y.ay, y.zone
     whole = _whole_spans(y, ay)
-    out_days, excluded = [], []
+    out_days, excluded, near = [], [], []
     for i, (sr, ss, nr) in enumerate(y.days):
         date = aware(sr, zone).date()
         if date.year != q.year:
@@ -264,26 +317,25 @@ def annaprashan(q: EkadashiQuery, explain: dict | None = None) -> dict:
                 order = ("weekday", "month", "tithi", "nakshatra")
                 explain[date.isoformat()] = next((r for r in order if r in reasons), "none")
             continue
-        bars = [(x, y_) for x, y_, _ in y.bars] + _lagna_gandanta(sr, nr, q) + whole
+        spans = [(a, b) for a, b, *_ in pieces]
+        barred = _subtract(spans, [(x, y_) for x, y_, _ in y.bars] + _lagna_gandanta(sr, nr, q))
+        free = _subtract(barred, whole)
+        fails = {
+            "barred_stretches": _minutes(spans) - _minutes(barred),
+            "vishti_yogas": _minutes(barred) - _minutes(free),
+        }
         rows = []
-        for a, b in _subtract([(a, b) for a, b, *_ in pieces], bars):
+        for a, b in free:
             num, nak, name, relax = next(
                 (n, k, m, r) for x, y_, n, k, m, r in pieces if x <= a < y_
             )
-
-            def ok(lagna, house) -> bool:
-                return (
-                    lagna not in ANNA_BAD_LAGNAS
-                    and 10 not in house.values()
-                    and all(house[g] not in (1, 4, 7) for g in MALEFICS)
-                    and house["Moon"] not in (6, 8)
-                )
-
             rows += [
                 (x, y_, num, nak, name, relax, lagna)
-                for x, y_, lagna in _house_windows(a, b, q, ok)
+                for x, y_, lagna in _house_windows(a, b, q, _anna_test, fails)
             ]
-        _settle(y, date, vara, rows, day_relax, zone, out_days, excluded, explain)
+        if _settle(y, date, vara, rows, day_relax, zone, out_days, excluded, explain) == "window":
+            ranked = sorted((k for k, m in fails.items() if m > 0.5), key=lambda k: -fails[k])
+            near.append({"date": date.isoformat(), "vara": vara, "rules": ranked})
     blocks = _state_blocks(y, q)
     for a, b, _ in y.tithis:
         name, adhika, kshaya, _start = y.tithi_month[a]
@@ -302,6 +354,8 @@ def annaprashan(q: EkadashiQuery, explain: dict | None = None) -> dict:
         "year": q.year,
         "days": out_days,
         "excluded": excluded,
+        # An empty year names the days that failed only at the window (research's A5).
+        "nearest": [] if out_days else near,
         "blocks": _in_year(blocks, q),
         "source": ANNA_SOURCE,
         "alsoSource": {**DS, "page": "4-5, 135"},
@@ -325,7 +379,7 @@ def akshararambh(q: EkadashiQuery, explain: dict | None = None) -> dict:
     sleeps = _devashayani(y)
     out_days, excluded = [], []
     vasanta = {o["date"] for o in festival("vasanta-panchami", q)["occurrences"]}
-    for sr, _ss, nr in y.days:
+    for sr, ss, nr in y.days:
         date = aware(sr, zone).date()
         if date.year != q.year:
             continue
@@ -339,7 +393,7 @@ def akshararambh(q: EkadashiQuery, explain: dict | None = None) -> dict:
             continue
         reasons: list[str] = []
         pieces = []
-        cuts = y.cuts(sr, nr)
+        cuts = sorted(set(y.cuts(sr, nr)) | {ss})  # night windows are flagged (A4)
         for a, b in zip(cuts, cuts[1:], strict=False):
             mid = (a + b) / 2
             num, (name, _adhika, _kshaya, _) = y.tithi(mid)
@@ -392,16 +446,12 @@ def akshararambh(q: EkadashiQuery, explain: dict | None = None) -> dict:
             num, nak, name, relax = next(
                 (n, k, m, r) for x, y_, n, k, m, r in pieces if x <= a < y_
             )
-
-            def ok(lagna, house) -> bool:
-                return lagna in AKSHARA_LAGNAS and 8 not in house.values()
-
             rows += [
                 (x, y_, num, nak, name, relax, lagna)
-                for x, y_, lagna in _house_windows(a, b, q, ok)
+                for x, y_, lagna in _house_windows(a, b, q, _akshara_test, {})
             ]
         extra = {"vasantaPanchami": True} if date.isoformat() in vasanta else None
-        _settle(y, date, vara, rows, day_relax, zone, out_days, excluded, explain, extra)
+        _settle(y, date, vara, rows, day_relax, zone, out_days, excluded, explain, extra, ss)
     vijaya = festival("vijayadashami", q)["occurrences"]
     blocks = []
     for a, b, sign in y.sun_sign:
