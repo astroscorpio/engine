@@ -370,9 +370,10 @@ def test_kalashtami_vigil_and_the_new_year_reasoning():
     assert v["rule"] in FESTIVAL_RULES["kalashtami"] and v["window"]["start"] < v["window"]["end"]
     status, out = call("GET", "/v1/festivals/kalashtami", {**DELHI, "year": "2027"})
     (k27,) = out["occurrences"]
-    # 2027: the Ashtami holds only the first night, so the vigil is the eve of the fast.
+    # 2027 is DS p. 84's case (pradosha only, then midday only): the fast moves to the
+    # pradosha day, which also holds the only night; NS's midday day is the variant.
     assert (k27["vigil"]["date"], k27["vigil"]["rule"]) == ("2027-11-20", "vigil_one_night")
-    assert k27["date"] == "2027-11-21"
+    assert (k27["date"], k27["variantDate"]) == ("2027-11-20", "2027-11-21")
     (c,) = _rows("chaitra-navaratri")
     ny = c["newYear"]
     assert ny["date"] == c["newYearDate"] and ny["rule"] in FESTIVAL_RULES["chaitra-navaratri"]
@@ -484,3 +485,27 @@ def test_onam_carries_its_atham():
             assert a["hasta"]["end"] <= o["shravana"]["start"]
             gap = (dt.date.fromisoformat(o["date"]) - dt.date.fromisoformat(a["date"])).days
             assert 8 <= gap <= 11  # star-days: not always ten civil days
+
+
+def test_kalashtami_takes_ds_pradosha_day():
+    """DS p. 84: earlier day pradosha only, later day midday only -> the pradosha day."""
+    seen = 0
+    for year in range(2024, 2031):
+        status, out = call("GET", "/v1/festivals/kalashtami", {**DELHI, "year": str(year)})
+        assert status == 200, out
+        for o in out["occurrences"]:
+            d0, d1 = o["days"]
+            ds_case = (
+                d0["pradosha"]["covered"] > 0
+                and d0["madhyahna"]["covered"] == 0
+                and d1["madhyahna"]["covered"] > 0
+                and d1["pradosha"]["covered"] == 0
+            )
+            assert (o["rule"] == "pradosha_only_earlier_ds") == ds_case
+            if ds_case:
+                seen += 1
+                assert o["date"] == d0["date"] and o["variantDate"] == d1["date"]
+                w = o["pujaWindow"]
+                assert d0["pradosha"]["start"] <= w["start"] < w["end"] <= d0["pradosha"]["end"]
+                assert w["start"] >= o["tithi"]["start"]
+    assert seen

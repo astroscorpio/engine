@@ -1010,31 +1010,37 @@ def _bhishma(start: float, end: float, _next: float, q: EkadashiQuery) -> dict |
 
 
 def _kalashtami(start: float, end: float, _next: float, q: EkadashiQuery) -> dict | None:
-    """NS p. 313: the fast on the Ashtami covering midday (the 3rd fifth); covering it on
-    both days, wholly or in part, the earlier. Covering neither, the day whose sunrise
-    it holds (our reading). variantDate is the Kaustubha's pradosha rule (both days:
-    the later), which DS p. 84 reports."""
+    """DS p. 84 (decision D4, 16 Oct 2026): NS p. 313's fast on the Ashtami covering
+    midday (the 3rd fifth); covering it on both days, wholly or in part, the earlier.
+    Covering neither, the day whose sunrise it holds (our reading). DS's own view: the
+    earlier day holding it only at pradosha and the later only at midday, the pradosha
+    day, with NS's day as variantDate. Otherwise variantDate is the Kaustubha's pradosha
+    rule (both days: the later), which DS reports."""
     base = _base(start, end, 23, q)
     if not _in_month(base, "kartika"):
         return None
     s, days = _days(start, end, q, ("madhyahna", "pradosha"))
     mid = [d["madhyahna"]["covered"] > 0 for d in days]
-    if mid[0] != mid[1]:
-        chosen, rule = (0 if mid[0] else 1), "midday"
-    elif mid[0]:
-        chosen, rule = 0, "midday_both_earlier"
-    else:
-        chosen, rule = 1, "midday_neither_sunrise_day"
     pr = [d["pradosha"]["covered"] > 0 for d in days]
-    kaustubha = (0 if pr[0] else 1) if pr[0] != pr[1] else 1
-    w = days[chosen]["_w"]["madhyahna"]
+    window = "madhyahna"
+    if pr[0] and not mid[0] and mid[1] and not pr[1]:
+        chosen, rule, window, variant = 0, "pradosha_only_earlier_ds", "pradosha", 1
+    else:
+        if mid[0] != mid[1]:
+            chosen, rule = (0 if mid[0] else 1), "midday"
+        elif mid[0]:
+            chosen, rule = 0, "midday_both_earlier"
+        else:
+            chosen, rule = 1, "midday_neither_sunrise_day"
+        variant = (0 if pr[0] else 1) if pr[0] != pr[1] else 1
+    w = days[chosen]["_w"][window]
     return {
         **base,
         "days": _strip(days),
         "date": days[chosen]["date"],
         "vara": days[chosen]["vara"],
         "rule": rule,
-        "variantDate": days[kaustubha]["date"] if kaustubha != chosen else None,
+        "variantDate": days[variant]["date"] if variant != chosen else None,
         "popularName": "Kaal Bhairav Jayanti",
         "pujaWindow": _span(_clip(start, end, w) or w, q),
         "vigil": _vigil(start, end, days, q),
@@ -1782,14 +1788,14 @@ def _radhashtami(start: float, end: float, _next: float, q: EkadashiQuery) -> di
     }
 
 
-def _star_day(a: float, b: float, rises: list[float], last: bool = False) -> tuple[float, str]:
+def _star_day(a: float, b: float, rises: list[float]) -> tuple[float, str]:
     """The day a nakshatra span [a, b) is kept, by s27.4's test: the sunrise in it with 6
-    nadikas of it left (the first such, or with `last` the last, when two qualify); else,
-    if it holds a sunrise with less, the day before; holding none, the day it falls in
-    (our reading)."""
+    nadikas of it left, the later when two qualify (research, 16 Oct 2026); else, if it
+    holds a sunrise with less, the day before; holding none, the day it falls in (our
+    reading)."""
     held = [sr for sr in rises if a <= sr < b]
     if ok := [sr for sr in held if b - sr >= ONAM_NADIKAS]:
-        return ok[-1] if last else ok[0], "sunrise_six_nadikas"
+        return ok[-1], "sunrise_six_nadikas"
     if held:
         return rises[rises.index(held[0]) - 1], "short_day_before"
     return max(x for x in rises if x <= a), "no_sunrise_day_it_falls_in"
@@ -1816,7 +1822,7 @@ def _onam(q: EkadashiQuery) -> tuple[list[dict], dict]:
         sr, rule = _star_day(a, b, rises)
         if first <= sr <= last:
             ha, hb = _spans(nak, HASTA, a - 12, a, 0.1)[-1]  # the Hasta before (7.8-10.2 days)
-            hr, h_rule = _star_day(ha, hb, rises, last=True)  # "the last day before"
+            hr, h_rule = _star_day(ha, hb, rises)
             h_rule = "atham_" + h_rule
             rows.append(
                 {
