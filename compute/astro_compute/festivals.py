@@ -23,6 +23,7 @@ ends, so month tests below use the amanta month.
 from __future__ import annotations
 
 from jyotisha import muhurta as Mu
+from jyotisha.ephemeris import moon_rise_set
 
 from .fmt import provenance
 from .models import EkadashiQuery
@@ -142,6 +143,8 @@ def _dipavali(start: float, end: float, _next: float, q: EkadashiQuery) -> dict 
         chosen, rule = 0, "pradosha"
     else:
         chosen, rule = 1, "neither_later"
+    chaturdashi = _edge(start, q, False)  # its start; it ends where the Amavasya begins
+    trayodashi = (_edge(chaturdashi, q, False), chaturdashi)
     return {
         **base,
         "days": _strip(days),
@@ -150,6 +153,139 @@ def _dipavali(start: float, end: float, _next: float, q: EkadashiQuery) -> dict 
         "rule": rule,
         "lakshmiPuja": _span(_clip(start, end, days[chosen]["_w"]["pradosha"]), q),
         "nishithaCovered": days[chosen]["nishitha"]["covered"] > 0,
+        "set": {
+            "dhanteras": _dhanteras(*trayodashi, q),
+            "narakaChaturdashi": _naraka(chaturdashi, start, q),
+            "lakshmiPuja": {"date": days[chosen]["date"], "vara": days[chosen]["vara"]},
+            "govardhan": _govardhan(end, _next, q),
+            "bhaiDooj": _bhai_dooj(_next, _edge(_next, q, True), q),
+        },
+    }
+
+
+# --- The other four days (festivals.md v4 s9-12, the lead's decisions of 15 Oct 2026) ---
+
+
+ARUNODAYA = 4 * DANDA  # NS p. 297: "catur-ghatikatmako 'runodayah"
+
+
+def _edge(t: float, q, forward: bool) -> float:
+    """The next tithi change after t, or the last one before it."""
+    fn = lambda x: Mu.tithi_at(x, q.ayanamsa)  # noqa: E731
+    if forward:
+        return Mu._scan(fn, t + 1e-5, t + 1.3, 1 / 24)[0][0]
+    return Mu._scan(fn, t - 1.3, t - 1e-5, 1 / 24)[-1][0]
+
+
+def _tithi(start: float, end: float, q) -> dict:
+    return {"start": iso(start, q.tz), "end": iso(end, q.tz)}
+
+
+def _dhanteras(start: float, end: float, q) -> dict:
+    """s9: the Yama-dipa at nightfall (pradosha) on the dark Trayodashi current then
+    (NS p. 294, DS p. 76); on both days or neither, the later (DS p. 20)."""
+    _, days = _days(start, end, q, ("pradosha",))
+    cov = [d["pradosha"]["covered"] > 0 for d in days]
+    if cov[0] != cov[1]:
+        chosen, rule = (0 if cov[0] else 1), "dhanteras_pradosha"
+    else:
+        chosen, rule = 1, "dhanteras_both_later" if cov[0] else "dhanteras_neither_later"
+    w = days[chosen]["_w"]["pradosha"]
+    return {
+        "date": days[chosen]["date"],
+        "vara": days[chosen]["vara"],
+        "rule": rule,
+        "tithi": _tithi(start, end, q),
+        "yamaDipa": _span(_clip(start, end, w) or w, q),
+    }
+
+
+def _moonrise(sunrise_jd: float, q) -> float | None:
+    """The moonrise in the twelve hours before a sunrise."""
+    return moon_rise_set(sunrise_jd - 0.5, sunrise_jd, q.lat, q.lon)[0]
+
+
+def _naraka(start: float, end: float, q) -> dict:
+    """s10, DS pp. 76-77 (NS pp. 295-296): the oil bath on the Caturdashi current at
+    the pre-dawn moonrise; at both moonrises the earlier; at neither, the first dawn
+    if the Caturdashi begins between its moonrise and sunrise, else the second day
+    at moonrise. The bath runs from moonrise (or the tithi's start) to sunrise."""
+    s = _sunrises(start, q.lat, q.lon, 3)  # s[0] <= start < s[1]
+    m = [_moonrise(s[1], q), _moonrise(s[2], q)]
+    at = [x is not None and start <= x < end for x in m]
+    if at[0]:
+        chosen, rule = 0, "naraka_moonrise_both_earlier" if at[1] else "naraka_moonrise"
+        bath = (max(m[0], start), min(s[1], end))
+    elif at[1]:
+        chosen, rule = 1, "naraka_moonrise"
+        bath = (m[1], min(s[2], end))
+    elif m[0] is not None and m[0] < start < s[1]:
+        chosen, rule = 0, "naraka_began_before_sunrise"
+        bath = (start, s[1])
+    else:
+        chosen, rule = 1, "naraka_later_moonrise"
+        bath = (m[1] if m[1] is not None else s[2] - ARUNODAYA, s[2])
+    rise = s[1 + chosen]
+    day = {"date": _date(rise, q), "vara": _vara(rise, q)}
+    return {
+        **day,
+        "rule": rule,
+        "tithi": _tithi(start, end, q),
+        "moonrise": iso(m[chosen], q.tz) if m[chosen] is not None else None,
+        "abhyangaSnana": _span(bath, q),
+        "arunodaya": _span((rise - ARUNODAYA, rise), q),
+        "lamps": _span(_windows(rise, q)["pradosha"], q),
+    }
+
+
+def _govardhan(start: float, end: float, q) -> dict:
+    """s11, DS p. 78: the Pratipada at sunrise lasting nine day-muhurtas or more
+    after it (ten in the text; nine to ten our reading): every rite on that day.
+    Otherwise Bali's worship, the cow play, the Govardhana-puja and the margapali
+    on the Amavasya-joined day before, and the bath, new clothes and nirajana on the
+    sunrise day. NS pp. 301-302 (variantDate): the later day only if the Pratipada
+    reaches that day's sayahna, the 5th fifth of the daytime."""
+    s = _sunrises(start, q.lat, q.lon, 3)  # s[0] <= start < s[1]
+    if end > s[1]:  # the Pratipada is current at the later sunrise
+        muhurta = (_sunset(s[1], q) - s[1]) / 15
+        later = end - s[1] >= 9 * muhurta
+        ns_later = end > s[1] + 12 * muhurta
+        rule = "govardhan_nine_muhurtas" if later else "govardhan_earlier"
+        bath = s[1]
+    else:  # it touches no sunrise
+        later = ns_later = False
+        rule, bath = "govardhan_no_sunrise_earlier", s[0]
+    rise = s[1] if later else s[0]
+    morning = (rise, rise + (_sunset(rise, q) - rise) / 5)
+    return {
+        "date": _date(rise, q),
+        "vara": _vara(rise, q),
+        "rule": rule,
+        "variantDate": _date(s[1] if ns_later else s[0], q) if ns_later != later else None,
+        "tithi": _tithi(start, end, q),
+        "govardhanPuja": _span(_clip(start, end, morning), q),
+        "baliPuja": _span(_night(rise, q), q),
+        "bathDate": _date(bath, q) if bath != rise else None,
+    }
+
+
+def _bhai_dooj(start: float, end: float, q) -> dict:
+    """s12, DS p. 79: the earlier day only when the Dvitiya covers the afternoon
+    (the 4th fifth of the daytime) on that day alone; otherwise the later day. Yama
+    is worshipped in that afternoon."""
+    _, days = _days(start, end, q, ("aparahna",))
+    cov = [d["aparahna"]["covered"] > 0 for d in days]
+    if cov[0] and not cov[1]:
+        chosen, rule = 0, "bhai_dooj_earlier_alone"
+    else:
+        chosen, rule = 1, "bhai_dooj_later"
+    w = days[chosen]["_w"]["aparahna"]
+    return {
+        "date": days[chosen]["date"],
+        "vara": days[chosen]["vara"],
+        "rule": rule,
+        "tithi": _tithi(start, end, q),
+        "yamaPuja": _span(_clip(start, end, w) or w, q),
     }
 
 

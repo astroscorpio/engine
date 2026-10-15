@@ -118,3 +118,33 @@ def test_janmashtami_tables():
     # Ashtami at the first midnight, Rohini at the second: Madhava's later day.
     assert F._jayanti([False, False], [1, 0], [False, True], True) == (1, "split_later", 0)
     assert F._jayanti([False, False], [1, 0], [False, False], False) is None
+
+
+def test_dipavali_set_of_five_days():
+    # Drik Panchang's New Delhi dates for 2026 (festivals.md v4 s9-12).
+    (d,) = _rows("dipavali")
+    five = d["set"]
+    assert [five[k]["date"] for k in five] == [
+        "2026-11-06", "2026-11-08", "2026-11-08", "2026-11-10", "2026-11-11",
+    ]  # fmt: skip
+    for k, v in five.items():
+        if k != "lakshmiPuja":
+            assert v["rule"] in FESTIVAL_RULES["dipavali"], (k, v["rule"])
+    n = five["narakaChaturdashi"]
+    # The bath runs from the moonrise inside the Caturdashi to sunrise.
+    assert n["moonrise"] == n["abhyangaSnana"]["start"] < n["abhyangaSnana"]["end"]
+    assert n["tithi"]["start"] < n["moonrise"] < n["tithi"]["end"]
+    assert n["arunodaya"]["end"] == n["abhyangaSnana"]["end"]
+    g = five["govardhan"]
+    # The Pratipada lasts past nine muhurtas but not into the sayahna: NS takes the day before.
+    assert (g["rule"], g["variantDate"], g["bathDate"]) == (
+        "govardhan_nine_muhurtas",
+        "2026-11-09",
+        None,
+    )
+    assert (
+        g["govardhanPuja"]["start"][:10] == g["date"] and g["baliPuja"]["start"][:10] == g["date"]
+    )
+    b = five["bhaiDooj"]
+    assert b["yamaPuja"]["start"][:10] == b["date"] and b["rule"] == "bhai_dooj_later"
+    assert five["dhanteras"]["yamaDipa"]["start"][:10] == five["dhanteras"]["date"]
