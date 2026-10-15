@@ -16,7 +16,17 @@ from jyotisha.ephemeris import (
     sunrise,
     sunset,
 )
-from jyotisha.rare import AMRITA_SIDDHI, AMRITA_VISHA_TITHI, DAGDHA, MARANA, SARVARTHA_SIDDHI
+from jyotisha.rare import (
+    AMRITA_SIDDHI,
+    AMRITA_VISHA_TITHI,
+    DAGDHA,
+    KANA,
+    MARANA,
+    RAVI_YOGA_COUNTS,
+    SARVARTHA_SIDDHI,
+    SIDDHI,
+    UTPATA,
+)
 
 from .errors import unsupported_location
 from .fmt import provenance
@@ -197,11 +207,25 @@ def build(q: PanchangQuery) -> dict:
                         special.append((part[0], {"id": yid, **win(*part)}))
         for yid, hit in (
             ("sarvartha_siddhi", name in SARVARTHA_SIDDHI.get(weekday, set())),
+            ("utpata", UTPATA.get(weekday) == name),
             ("marana", MARANA.get(weekday) == name),
+            ("kana", KANA.get(weekday) == name),
+            ("siddhi", SIDDHI.get(weekday) == name),
             ("dagdha", DAGDHA.get(weekday) == name),
         ):
             if hit:
                 special.append((clipped[0], {"id": yid, **win(*clipped)}))
+    # MC 1.27: Ravi yoga, the Moon's nakshatra counted from the Sun's (inclusively).
+    sun_naks = spans(lambda t: luminaries(t, ay)[0].nakshatra, sr, nr)
+    for m, ma, mb in naks:
+        for sn, sa, sb in sun_naks:
+            part = _clip(max(ma, sa), min(mb, sb), sr, nr)
+            if part and (m - sn) % 27 + 1 in RAVI_YOGA_COUNTS:
+                last = next((r for _, r in reversed(special) if r["id"] == "ravi"), None)
+                if last and last["end"] == at(part[0]):
+                    last["end"] = at(part[1])
+                else:
+                    special.append((part[0], {"id": "ravi", **win(*part)}))
     for num, a, b in tithis:
         clipped = _clip(a, b, sr, nr)
         if clipped and Mu.siddha_yoga(num, d.vara):

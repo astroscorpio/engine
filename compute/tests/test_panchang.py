@@ -129,3 +129,18 @@ def test_equal_horas_run_an_hour_each_from_sunrise(panchang):
     assert [h["lord"] for h in horas] == [h["lord"] for h in panchang["hora"]]
     status, out = call("GET", "/v1/panchang", {"date": "2026-10-14", **DELHI, "hora": "odd"})
     assert status == 400 and out["error"]["field"] == "hora"
+
+
+def test_ravi_yoga_and_the_mc_1_30_columns():
+    def ids(date):
+        status, out = call("GET", "/v1/panchang", {"date": date, **DELHI})
+        return {r["id"]: (r["start"][11:16], r["end"][11:16]) for r in out["specialYogas"]}
+
+    # Monday 19 Oct 2026: Mrtyu in U.Ashadha, then Shravana is Monday's siddhi; with the
+    # Sun in Citra, Shravana is the 9th nakshatra from it, a Ravi yoga (MC 1.27).
+    monday = ids("2026-10-19")
+    assert monday["marana"] == ("06:25", "15:38")
+    assert monday["siddhi"] == monday["ravi"] == ("15:38", "06:25")
+    # Tuesday 20 Oct: Dhanishta (the 10th from Citra) is Tuesday's utpata.
+    tuesday = ids("2026-10-20")
+    assert tuesday["utpata"] == ("18:02", "06:26") and tuesday["ravi"] == ("06:25", "06:26")

@@ -482,6 +482,31 @@ MARANA = {
     5: "Ashlesha",
     6: "Hasta",
 }
+# The other columns of MC 1.30 (p. 23). From Sunday, four nakshatras each from
+# Vishakha, P.Ashadha, Dhanishta, Revati, Rohini, Pushya and U.Phalguni are utpata,
+# mrtyu (MARANA), kana and siddhi. Monday's kana is Abhijit, the 28th nakshatra,
+# which these 27-nakshatra tables leave out.
+UTPATA = {
+    0: "Vishakha",
+    1: "P.Ashadha",
+    2: "Dhanishta",
+    3: "Revati",
+    4: "Rohini",
+    5: "Pushya",
+    6: "U.Phalguni",
+}
+KANA = {0: "Jyeshtha", 2: "P.Bhadrapada", 3: "Bharani", 4: "Ardra", 5: "Magha", 6: "Chitra"}
+SIDDHI = {
+    0: "Mula",
+    1: "Shravana",
+    2: "U.Bhadrapada",
+    3: "Krittika",
+    4: "Punarvasu",
+    5: "P.Phalguni",
+    6: "Swati",
+}
+# MC 1.27 (p. 22): the Moon's nakshatra the 4th, 9th, 6th, 10th, 13th or 20th from the Sun's.
+RAVI_YOGA_COUNTS = frozenset({4, 6, 9, 10, 13, 20})
 # Narada in MC 1.5's commentary (p. 13).
 DAGDHA = {
     0: "Bharani",

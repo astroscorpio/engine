@@ -372,6 +372,10 @@ SPECIAL_YOGAS = {
     "sarvartha_siddhi": ("Sarvartha Siddhi", "Muhurta Chintamani 1.28-29, p. 22, main reading (a footnoted variant reads Anuradha for Purva Phalguni on Friday)"),
     "siddha": ("Siddha", "Muhurta Chintamani 1.4, Kasyapa in the commentary, p. 12"),
     "marana": ("Marana (Mrtyu)", "Muhurta Chintamani 1.30, p. 23"),
+    "utpata": ("Utpata", "Muhurta Chintamani 1.30, p. 23: the first of each weekday's run of four nakshatras; 'its effect is like its name'"),
+    "kana": ("Kana", "Muhurta Chintamani 1.30, p. 23: the third of the run. Monday's is Abhijit, the 28th nakshatra, which is not computed"),
+    "siddhi": ("Siddhi (weekday and nakshatra)", "Muhurta Chintamani 1.30, p. 23: the fourth of the run; 'its effect is like its name'"),
+    "ravi": ("Ravi yoga", "Muhurta Chintamani 1.27, p. 22: the Moon's nakshatra the 4th, 6th, 9th, 10th, 13th or 20th from the Sun's, counted inclusively (our reading); it 'destroys a host of defects'"),
     "dagdha": ("Dagdha", "Muhurta Chintamani 1.5, Narada in the commentary, p. 13"),
 }  # fmt: skip
 AYANAMSAS = {
