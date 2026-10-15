@@ -359,9 +359,10 @@ def _pradosha_window(sunrise_jd: float, q: EkadashiQuery) -> tuple[float, float]
 
 
 def _pradosha(start: float, end: float, _next_end: float, q: EkadashiQuery) -> dict:
-    """NS p. 72 footnote: the Trayodashi present in pradosha (pradosha-vyapini).
-    Both days or neither: the later day, with Mayukha's earlier day (after
-    Sumantu) as a variant."""
+    """NS p. 72 footnote: the Trayodashi covering pradosha. Covering both days or
+    reaching neither, or touching both equally: the later day, with Mayukha's
+    earlier day (after Sumantu) as a variant. Partly on both, unequally: the day
+    with more of it (the other opinion NS records there)."""
     zone = q.tz
     s = _sunrises(start, q.lat, q.lon, 3)  # the day it begins and the next
     day = [aware(t, zone).date().isoformat() for t in s]
@@ -369,23 +370,27 @@ def _pradosha(start: float, end: float, _next_end: float, q: EkadashiQuery) -> d
     rows, covers = [], []
     for i in (0, 1):
         p0, p1 = _pradosha_window(s[i], q)
-        covered = _overlap(start, end, p0, p1) / (p1 - p0)
-        covers.append(covered > 0)  # vyapini: present in pradosha (our reading)
+        covers.append(_overlap(start, end, p0, p1) / (p1 - p0))
         rows.append(
             {
                 "date": day[i],
                 "vara": VARA_ID[P.VARA_LORDS[P.vara_index(s[i], q.lon, q.tz)]],
                 "pradosha": {"start": iso(p0, zone), "end": iso(p1, zone)},
-                "covered": round(covered, 3),
+                "covered": round(covers[-1], 3),
             }
         )
-    if covers == [True, False]:
-        chosen, rule, variant = 0, "covers_pradosha", None
-    elif covers == [False, True]:
-        chosen, rule, variant = 1, "covers_pradosha", None
+    full = [c >= 1 - 1e-9 for c in covers]
+    variant = None
+    if full[0] != full[1]:
+        chosen, rule = full.index(True), "covers_pradosha"
+    elif all(full):
+        chosen, rule, variant = 1, "both_covered_later", 0
+    elif covers == [0, 0]:
+        chosen, rule, variant = 1, "neither_covered_later", 0
+    elif abs(covers[0] - covers[1]) < 1e-9:
+        chosen, rule, variant = 1, "equal_touch_later", 0
     else:
-        chosen, variant = 1, 0
-        rule = "both_covered_later" if all(covers) else "neither_covered_later"
+        chosen, rule = (0 if covers[0] > covers[1] else 1), "more_pradosha"
     return {
         "paksha": "shukla" if num <= 15 else "krishna",
         "lunarMonth": _lunar(s[0] if num <= 15 else s[1], num, q),

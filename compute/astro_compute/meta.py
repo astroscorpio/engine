@@ -142,9 +142,11 @@ OBSERVANCE_RULES = {
         "kutapa_none_later": ("Neither afternoon nor kutapa touched: the later day (our fallback; not seen in practice)", None),
     },
     "pradosha": {
-        "covers_pradosha": ("The day whose pradosha (three muhurtas after sunset) the Trayodashi reaches", "Nirnaya-sindhu p. 72, footnote (Brahmottara-khanda)"),
-        "both_covered_later": ("The Trayodashi reaches pradosha on both days: the later day; Mayukha (after Sumantu) takes the earlier", "Nirnaya-sindhu p. 72, footnote"),
-        "neither_covered_later": ("The Trayodashi reaches pradosha on neither day: the later day; Mayukha (after Sumantu) takes the earlier", "Nirnaya-sindhu p. 72, footnote"),
+        "covers_pradosha": ("The day whose whole pradosha (three muhurtas after sunset) the Trayodashi covers", "Nirnaya-sindhu p. 72, footnote (Brahmottara-khanda)"),
+        "both_covered_later": ("It covers pradosha on both days: the later day; Mayukha (after Sumantu) takes the earlier", "Nirnaya-sindhu p. 72, footnote"),
+        "neither_covered_later": ("It reaches neither day's pradosha: the later day; Mayukha (after Sumantu) takes the earlier", "Nirnaya-sindhu p. 72, footnote"),
+        "equal_touch_later": ("It touches both pradoshas equally: the later day; Mayukha takes the earlier", "Nirnaya-sindhu p. 72, footnote"),
+        "more_pradosha": ("Partly on both days, unequally: the day with more of it (the other opinion recorded there)", "Nirnaya-sindhu p. 72, footnote"),
     },
 }  # fmt: skip
 SHRADDHA_NOTE = (

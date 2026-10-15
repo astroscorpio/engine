@@ -52,21 +52,28 @@ def test_pradosha_vrata_on_the_trayodashi_covering_pradosha():
         chosen = next(d for d in r["days"] if d["date"] == r["date"])
         assert chosen["vara"] == r["vara"]
         if r["rule"] == "covers_pradosha":
-            assert chosen["covered"] > 0 and r["variantDate"] is None
-            assert sum(d["covered"] > 0 for d in r["days"]) == 1
+            assert chosen["covered"] == 1 and r["variantDate"] is None
+        elif r["rule"] == "more_pradosha":
+            assert chosen["covered"] == max(d["covered"] for d in r["days"])
         else:
             assert r["variantDate"] == r["days"][0]["date"] and r["date"] == r["days"][1]["date"]
 
 
-def test_pradosha_2026_at_delhi_takes_the_evening_the_trayodashi_reaches():
-    # 12 Jun 2026: Trayodashi 19:37 to 16:08 next day reaches the 12th's pradosha only.
+def test_pradosha_2026_at_delhi_matches_the_cited_rules():
     status, out = call("GET", "/v1/observances/pradosha", DELHI)
     rows = {r["tithi"]["start"][:10]: r for r in out["occurrences"]}
+    # 12 Jun: Trayodashi 19:37 to 16:08 next day; 84% of the 12th's pradosha, none of the 13th's.
     assert (rows["2026-06-12"]["date"], rows["2026-06-12"]["rule"]) == (
         "2026-06-12",
+        "more_pradosha",
+    )
+    # 28 Apr: the whole of the 28th's pradosha, 45% of the 29th's.
+    assert (rows["2026-04-28"]["date"], rows["2026-04-28"]["rule"]) == (
+        "2026-04-28",
         "covers_pradosha",
     )
-    assert (
-        rows["2026-02-28"]["rule"] == "both_covered_later"
-        and rows["2026-02-28"]["date"] == "2026-03-01"
+    # 28 Feb: 3% of that evening, 34% of 1 Mar's.
+    assert (rows["2026-02-28"]["date"], rows["2026-02-28"]["rule"]) == (
+        "2026-03-01",
+        "more_pradosha",
     )
