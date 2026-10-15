@@ -184,3 +184,21 @@ def test_karva_chauth_follows_the_sankashti_rule():
     assert k["sunset"] < k["moonrise"] and k["moonrise"][:10] == k["date"]
     assert k["tithi"]["start"] < k["moonrise"] < k["tithi"]["end"]
     assert k["rule"] in FESTIVAL_RULES["karva-chauth"] and "angaraki" not in k
+
+
+def test_tulsi_vivah_and_tripurotsava():
+    # 2026 at New Delhi (festivals.md s17).
+    (t,) = _rows("tulsi-vivah")
+    assert (t["fastDate"], t["date"], t["rule"]) == (
+        "2026-11-20",
+        "2026-11-21",
+        "parana_day_early_night",
+    )
+    assert t["window"]["start"][:10] == t["date"] and t["variantDate"] == "2026-11-22"
+    (p,) = _rows("tripurotsava")
+    assert (p["date"], p["rule"], p["popularName"]) == (
+        "2026-11-24",
+        "tripura_pradosha",
+        "Dev Deepawali",
+    )
+    assert p["window"]["start"][:10] == p["date"] and p["window"]["end"] <= p["tithi"]["end"]

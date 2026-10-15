@@ -226,7 +226,7 @@ class EkadashiQuery(Model):
         return check_zone(value)
 
 
-Act = Literal["general", "education", "travel", "home", "mundan"]
+Act = Literal["general", "education", "travel", "home", "mundan", "vehicle", "property"]
 Compass = Literal["N", "NE", "E", "SE", "S", "SW", "W", "NW"]
 
 

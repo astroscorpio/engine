@@ -475,6 +475,14 @@ FESTIVAL_RULES = {
         "both_earlier": ("Current at both moonrises: the earlier day, joined with the Trtiya; the worship is set at moonrise", "Nirnaya-sindhu p. 293; Dharmasindhu p. 9"),
         "neither_later": ("Current at neither moonrise: the later day, as for Sankashti", "Dharmasindhu pp. 9, 76"),
     },
+    "tulsi-vivah": {
+        "parana_day_early_night": ("Joined to the Prabodhotsava on the parana day of the Prabodhini Ekadashi, in the early night (pradosha, our reading); the day after the Smarta fast", "Dharmasindhu pp. 81-82"),
+    },
+    "tripurotsava": {
+        "tripura_pradosha": ("The Kartika Purnima current at dusk (pradosha) on one day: that day", "Nirnaya-sindhu p. 312; Dharmasindhu p. 84"),
+        "tripura_both_later": ("Current at dusk on both days: the later, as the Kartika Purnima is taken on the later day", "Nirnaya-sindhu p. 311"),
+        "tripura_neither_later": ("Current at dusk on neither day: the later", "Nirnaya-sindhu p. 311"),
+    },
     "durgashtami": {
         "sunrise_navami_joined": ("The Ashtami current at sunrise, even for a ghatika, joined to the Navami; never one touched by the Saptami", "Dharmasindhu p. 69; Nirnaya-sindhu pp. 262-263"),
         "under_one_ghatika_earlier": ("The Ashtami lasts under a ghatika after that sunrise: the earlier day", "Dharmasindhu p. 69; Nirnaya-sindhu p. 264"),
@@ -528,6 +536,8 @@ FESTIVAL_NOTES = {
     "janmashtami": "The dark Ashtami ending amanta Shravana (purnimanta Bhadrapada). Midnight decides (NS p. 189). Jayanti is the Ashtami joined with Rohini; NS holds both vratas due, though people keep only Janmashtami (p. 187). In a split year the date is the Rohini day (Madhava, Dharmasindhu pp. 50-51) and variantDate is Nirnaya-sindhu's first-day fast (it keeps both, p. 192). udayaDate is the sunrise view, which Vaishnava calendars follow; NS sets it aside as baseless (p. 191).",
     "sharad-navaratri": "Kalasha-sthapana on Ashvina shukla Pratipada. sthapanaWindow is the first ten ghatikas (four hours) after sunrise while the Pratipada runs, failing that the Abhijit muhurta; never in the afternoon or at night (Dharmasindhu pp. 65-66). muhurtasAfterSunrise is how long the Pratipada lasts after that sunrise. cautions lists the Pratipada's first sixteen nadis, Chitra and Vaidhriti where they touch the window: avoided where the time allows, never at the cost of the forenoon (DS p. 65).",
     "karva-chauth": "Karaka-caturthi, kept by women for their marital good fortune, sons and lasting prosperity (Vratraja f. 80). In the evening, at nightfall (f. 82), Gauri, Shiva, Ganapati and Shanmukha are worshipped under a drawn banyan, ten pots (karaka) with food are given to brahmanas and pots are exchanged with married women; the arghya is given to the Moon after moonrise (f. 80). The fast lasts until that arghya: our reading of the katha (ff. 81-82), in which eating at a false moonrise is the fault. sunset is that day's sunset and moonrise its moonrise (upper limb, as for Sankashti). The pre-dawn meal (sargi), the sieve and a fixed puja muhurat are not in the texts read.",
+    "tulsi-vivah": "Dharmasindhu pp. 81-82 allows the Tulasi marriage on any of the three days from the Navami, any day from the Ekadashi to the Purnima, or under a marriage nakshatra in the Kartika bright fortnight, but records that it is done everywhere with the Prabodhotsava, the waking of Vishnu, in the early night of the parana day; window is that early night (pradosha, our reading). Nirnaya-sindhu p. 306 (the Padma via Hemadri) has a golden Hari worshipped with Tulasi for three days from the Navami, then the marriage rite. variantDate is the Vaishnava parana day where it differs. The rite: Vishnu as Damodara and Tulasi are bathed with turmeric, the god woken with bells, a curtain held between them during the mangalashtaka verses, and Tulasi given to Damodara as a bride (DS p. 82).",
+    "tripurotsava": "Popularly Dev Deepawali, a name in none of the texts read. On the Kartika Purnima at dusk the Tripurotsava is held and lamps are given in temples, so that the creatures that see them are not born again (Bhargavarcana-dipika in NS p. 312; DS p. 84). window is that day's pradosha while the Purnima runs. The Purnima is especially holy with Krttika (maha-kartiki with Rohini), and the bull-release and great gifts belong to it (DS p. 84).",
     "navaratriDays": "Navaratra names a worship set in nine tithis, the Pratipada to the Navami (DS p. 65). Each day's worship goes with the tithi at its sunrise (our reading of DS p. 66); a tithi touching two sunrises is worshipped on both days and one touching none on the day it falls in, so the Navaratri runs eight, nine or ten days. Some keep only eight worships when a day is lost (DS p. 66). The first day is the kalasha-sthapana day.",
     "durgashtami": "Mahashtami: the Ashtami at sunrise joined to the Navami, never one touched by the Saptami however slightly, even with Mula (NS p. 263, DS p. 69). Especially praised on a Tuesday (DS). Bhadra does not bar the worship (Devi-purana, NS p. 264). Those with sons do not fast on it (DS p. 69; NS p. 265).",
     "mahanavami": "The Navami joined to the Ashtami is taken for the worship and the fast when it covers three muhurtas before that day's sunset (NS pp. 272-273, DS p. 69), so Durgashtami and Mahanavami often fall on one day. The animal bali is on the Dashami-joined day (DS p. 69).",
@@ -726,6 +736,8 @@ MUHURTA_RULE_NAMES = {
     "birth_month": "The child's birth month (Rajamartanda, MC p. 190)",
     "lagna_8th_from_birth_mundan": "The lagna 8th from the child's birth lagna or Moon sign (MC 5.29)",
     "eldest_jyeshtha": "Jyeshtha, for an eldest child (Ratnamala, MC 5.33 commentary)",
+    "selling_star": "A selling star, barred for buying: the three Purvas, Vishakha, Krttika, Ashlesha, Bharani (MC 2.16-17)",
+    "riding_weekday": "Not a riding weekday: Thursday, Monday, Sunday, Friday or Wednesday (the Vyavaharoccaya in MC 2.18 commentary)",
     "middling_month_home": "Kartika or Margashirsha: middling, for necessity (Narada in MC 13.1)",
     "sun_sign_home": "The Sun in Cancer, Virgo or Aquarius (Guru in MC 13.1)",
     "jupiter_venus_state": "Jupiter or Venus set, old or infant (MC 1.46-48, 5.27)",
@@ -767,7 +779,7 @@ VETOES = {
     "utpata_yoga", "kana_yoga", "mahapata", "adhika_masa_home", "month_home", "dakshinayana", "weekday_home", "month_mundan",
     "nakshatra_mundan", "tithi_mundan", "weekday_mundan", "lagna_mundan", "house_8_mundan",
     "kendra_malefic_mundan", "navamsa_mundan", "birth_star", "birth_month", "lagna_8th_from_birth_mundan",
-    "eldest_jyeshtha",
+    "eldest_jyeshtha", "selling_star", "riding_weekday",
     "sun_sign_home", "jupiter_venus_state", "jupiter_sign", "movable_lagna_home", "movable_navamsa",
     "house_4_8_occupied", "moon_1_6_12", "pot_chakra", "door_tithi", "door_sun",
 }  # fmt: skip

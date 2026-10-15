@@ -743,11 +743,25 @@ class Profile:
     travel: bool = False
     home: bool = False
     mundan: bool = False
+    barred_nakshatras: frozenset[str] = frozenset()  # vetoed, not merely unfavoured
+    barred_varas: frozenset[str] = frozenset()
+    rikta_only: bool = False  # bar the rikta tithis and Amavasya but not Ashtami
 
 
 def _classes(*names: str) -> frozenset[str]:
     return frozenset(n for n, c in NAKSHATRA_CLASS.items() if c in names)
 
+
+# MC 2.16: the buying stars, and the selling stars of 2.17 barred for buying.
+BUYING_STARS = frozenset({"Revati", "Shatabhisha", "Ashwini", "Swati", "Shravana", "Chitra"})
+SELLING_STARS = frozenset(
+    {"P.Phalguni", "P.Ashadha", "P.Bhadrapada", "Vishakha", "Krittika", "Ashlesha", "Bharani"}
+)
+# The Vyavaharoccaya in MC's commentary on 2.18: mounting an elephant, horse or
+# chariot, under eleven stars and on the days of Jupiter, the Moon, the Sun, Venus and
+# Mercury.
+RIDING_STARS = BUYING_STARS | {"Mrigashira", "Punarvasu", "Hasta", "Pushya", "Dhanishta"}
+RIDING_VARAS = frozenset({"Jupiter", "Moon", "Sun", "Venus", "Mercury"})
 
 MUNDAN_STARS = frozenset(
     {
@@ -840,6 +854,42 @@ PROFILES = {
         # Cudakarana (MC 5.29): the soft, movable and swift nakshatras with Jyeshtha,
         # without Anuradha; the weekdays of Mercury, the Moon, Venus and Jupiter.
         # Its own vetoes are in _mundan_vetoes.
+        # Buying a vehicle: a buying star (MC 2.16), a riding weekday (the
+        # Vyavaharoccaya, MC 2.18 commentary), no rikta tithi (MC 2.18's horse rule,
+        # our reading for vehicles).
+        Profile(
+            "vehicle",
+            "buying a vehicle (the riding stars suit taking delivery)",
+            BUYING_STARS,
+            1.0,
+            1.0,
+            frozenset(range(1, 16)),
+            0.0,
+            RIDING_VARAS,
+            0.0,
+            frozenset({"Jupiter", "Venus", "Mercury"}),
+            1.0,
+            barred_nakshatras=SELLING_STARS,
+            barred_varas=frozenset(VARA_NAME) - RIDING_VARAS,
+            rikta_only=True,
+        ),
+        # Buying property or land: no specific rule survives, so the general buying
+        # rule (MC 2.16).
+        Profile(
+            "property",
+            "buying property or land (the general buying rule)",
+            BUYING_STARS,
+            1.0,
+            1.0,
+            frozenset(range(1, 16)),
+            0.0,
+            frozenset(VARA_NAME),
+            0.0,
+            frozenset({"Jupiter", "Venus", "Mercury"}),
+            1.0,
+            barred_nakshatras=SELLING_STARS,
+            rikta_only=True,
+        ),
         Profile(
             "mundan",
             "a child's first tonsure (mundan, cudakarana)",
@@ -1016,8 +1066,12 @@ def evaluate(
             v.vetoes.append("Vishti (Bhadra on earth)")
     if t == 30:
         v.vetoes.append("Amavasya")
-    elif n in ((4, 9, 14) if profile.home else (4, 8, 9, 14)):
+    elif n in ((4, 9, 14) if profile.home or profile.rikta_only else (4, 8, 9, 14)):
         v.vetoes.append(tithi_label(t))
+    if nak in profile.barred_nakshatras:
+        v.vetoes.append(f"{nak}: a selling star, barred for buying (MC 2.16-17)")
+    if d.vara in profile.barred_varas:
+        v.vetoes.append(f"{VARA_NAME[d.vara]}: not a riding weekday (MC 2.18 commentary)")
     # MC 1.30 counts 28 nakshatras (Monday's kana is Abhijit). Utpata and kana
     # carry marana's veto (the lead's ruling); siddhi is a support below.
     nak28 = nakshatra_28(moon.longitude)
@@ -1079,12 +1133,16 @@ def evaluate(
     if yoga in BAD_YOGA_GHATIS and not v.vetoes:
         bad((f"{yoga} yoga, past its opening", 0.5))
     stars = profile.nakshatras | (OLD_HOUSE_STARS if profile.home and old_house else set())
-    if nak not in stars and not profile.mundan:  # the tonsure vetoes the rest (MC 5.29)
+    if nak not in stars and not profile.mundan and nak not in profile.barred_nakshatras:
         cls = NAKSHATRA_CLASS[nak]
         bad((f"{nak} ({cls})", profile.other_nakshatra + (profile.harsh if cls in HARSH else 0)))
     if t != 30 and n not in profile.tithis and n not in (4, 8, 9, 14) and not profile.mundan:
         bad((tithi_label(t), profile.other_tithi))
-    vetoed_vara = (profile.home and d.vara in HOME_BARRED_VARAS) or profile.mundan
+    vetoed_vara = (
+        (profile.home and d.vara in HOME_BARRED_VARAS)
+        or profile.mundan
+        or d.vara in profile.barred_varas
+    )
     if d.vara not in profile.varas and not vetoed_vara:
         bad((VARA_NAME[d.vara], profile.other_vara))
     if month.adhika and not profile.home:  # the home act vetoes it (MC 1.47)

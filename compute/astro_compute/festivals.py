@@ -32,6 +32,7 @@ from .observances import (
     SOURCE,
     _collect,
     _lunar,
+    _one,
     _overlap,
     _rise_set,
     _sankashti,
@@ -835,6 +836,58 @@ def _karva(start: float, end: float, _next: float, q: EkadashiQuery) -> dict | N
     return out
 
 
+# --- Tulsi-vivaha and Tripurotsava (festivals.md s17; the lead's decision of 15 Oct 2026)
+
+
+def _tulsi(start: float, end: float, _next: float, q: EkadashiQuery) -> dict | None:
+    """DS pp. 81-82: joined everywhere to the Prabodhotsava, on the parana day of the
+    Prabodhini (Kartika shukla) Ekadashi, in the early night (pradosha, our reading).
+    The day after the Smarta fast; the Vaishnava parana day is variantDate."""
+    row = _one(start, end, _next, q)
+    month = row["lunarMonth"]
+    if month["amanta"] != "kartika" or month["adhika"] or row["paksha"] != "shukla":
+        return None
+    s = _sunrises(start, q.lat, q.lon, 6)
+    dates = [_date(t, q) for t in s]
+    smarta = dates.index(row["smarta"]["date"]) + 1
+    vaishnava = dates.index(row["vaishnava"]["date"]) + 1
+    return {
+        "lunarMonth": month,
+        "tithi": row["tithi"],
+        "fastDate": row["smarta"]["date"],
+        "date": dates[smarta],
+        "vara": _vara(s[smarta], q),
+        "rule": "parana_day_early_night",
+        "variantDate": dates[vaishnava] if vaishnava != smarta else None,
+        "window": _span(_windows(s[smarta], q)["pradosha"], q),
+    }
+
+
+def _tripura(start: float, end: float, _next: float, q: EkadashiQuery) -> dict | None:
+    """NS p. 312 (Bhargavarcana-dipika), DS p. 84: the Tripurotsava and its lamps at
+    dusk on the Kartika Purnima. The Purnima current at pradosha on one day: that day;
+    on both or neither: the later (NS p. 311, "kartiki paurnamasi para grahya")."""
+    base = _base(start, end, 15, q)
+    if not _in_month(base, "kartika"):
+        return None
+    _, days = _days(start, end, q, ("pradosha",))
+    cov = [d["pradosha"]["covered"] > 0 for d in days]
+    if cov[0] != cov[1]:
+        chosen, rule = (0 if cov[0] else 1), "tripura_pradosha"
+    else:
+        chosen, rule = 1, "tripura_both_later" if cov[0] else "tripura_neither_later"
+    w = days[chosen]["_w"]["pradosha"]
+    return {
+        **base,
+        "days": _strip(days),
+        "date": days[chosen]["date"],
+        "vara": days[chosen]["vara"],
+        "rule": rule,
+        "popularName": "Dev Deepawali",
+        "window": _span(_clip(start, end, w) or w, q),
+    }
+
+
 def _year(q: EkadashiQuery, num: int, build) -> list[dict]:
     rows = _collect(
         q, {num}, lambda a, b, c, qq: build(a, b, c, qq) or {"date": None}, lambda r: (r["date"],)
@@ -866,6 +919,8 @@ FESTIVALS = {
     "vijayadashami": (10, _vijayadashami, "pp. 283-284", "p. 71"),
     "holika-dahana": (15, _holika, "pp. 342-345", "pp. 94-95"),
     "karva-chauth": (19, _karva, "p. 293", "pp. 9, 76"),
+    "tulsi-vivah": (11, _tulsi, "p. 306", "pp. 81-82"),
+    "tripurotsava": (15, _tripura, "pp. 311-312", "p. 84"),
 }
 RITE_SOURCES = {"karva-chauth": VRATARAJA}
 

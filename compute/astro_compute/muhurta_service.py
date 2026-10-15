@@ -40,6 +40,9 @@ RULES: list[tuple[re.Pattern, str]] = [
         (r"^the child's birth month \(MC p\. 190\)$", "birth_month"),
         (r"^lagna 8th from the child's birth \(MC 5\.29\)$", "lagna_8th_from_birth_mundan"),
         (r"^Jyeshtha, for an eldest child \(MC 5\.33 commentary\)$", "eldest_jyeshtha"),
+        # Buying (MC 2.16-18).
+        (r"^[\w.]+: a selling star, barred for buying \(MC 2\.16-17\)$", "selling_star"),
+        (r"^\w+day: not a riding weekday \(MC 2\.18 commentary\)$", "riding_weekday"),
         (r"^(Sunday|Tuesday) \(MC 13\.4\)$", "weekday_home"),
         (r"^middling month for house entry \(Narada\)$", "middling_month_home"),
         (r"^Sun in \w+ \(Guru, MC 13\.1\)$", "sun_sign_home"),

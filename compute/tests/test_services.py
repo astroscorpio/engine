@@ -231,3 +231,17 @@ def test_home_profile_follows_mc_13():
     right = next((d for d, c in classes.items() if n in c), None)
     if right:
         assert "door_tithi" not in vetoes(at, door=right)
+
+
+def test_vehicle_act_bars_selling_stars_and_non_riding_weekdays():
+    import datetime as dt
+
+    def vetoes(at, act="vehicle"):
+        status, out = call("GET", "/v1/muhurta/check", {"act": act, "at": at, **DELHI})
+        assert status == 200, out
+        return {r["id"] for r in out["vetoes"]}
+
+    day = dt.date(2027, 5, 10)
+    tuesday = day + dt.timedelta((1 - day.weekday()) % 7)
+    at = f"{tuesday.isoformat()}T12:00:00+05:30"
+    assert "riding_weekday" in vetoes(at) and "riding_weekday" not in vetoes(at, "property")
