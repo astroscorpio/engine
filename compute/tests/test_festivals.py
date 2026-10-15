@@ -472,3 +472,15 @@ def test_drik_diff_decisions_d1_to_d3():
     both = [o for y in range(2026, 2031) for o in rows("akshaya-tritiya", y)
             if o["rule"] == "forenoon_both_earlier"]  # fmt: skip
     assert both and all(o["variantDate"] == next_day(o["date"]) for o in both)
+
+
+def test_onam_carries_its_atham():
+    for year in ("2026", "2027"):
+        status, out = call("GET", "/v1/festivals/onam", {**DELHI, "year": year})
+        assert status == 200, out
+        for o in out["occurrences"]:
+            a = o["atham"]
+            assert a["rule"] in FESTIVAL_RULES["onam"] and a["rule"].startswith("atham_")
+            assert a["hasta"]["end"] <= o["shravana"]["start"]
+            gap = (dt.date.fromisoformat(o["date"]) - dt.date.fromisoformat(a["date"])).days
+            assert 8 <= gap <= 11  # star-days: not always ten civil days

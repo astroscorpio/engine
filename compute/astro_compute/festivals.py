@@ -1782,13 +1782,28 @@ def _radhashtami(start: float, end: float, _next: float, q: EkadashiQuery) -> di
     }
 
 
+def _star_day(a: float, b: float, rises: list[float], last: bool = False) -> tuple[float, str]:
+    """The day a nakshatra span [a, b) is kept, by s27.4's test: the sunrise in it with 6
+    nadikas of it left (the first such, or with `last` the last, when two qualify); else,
+    if it holds a sunrise with less, the day before; holding none, the day it falls in
+    (our reading)."""
+    held = [sr for sr in rises if a <= sr < b]
+    if ok := [sr for sr in held if b - sr >= ONAM_NADIKAS]:
+        return ok[-1] if last else ok[0], "sunrise_six_nadikas"
+    if held:
+        return rises[rises.index(held[0]) - 1], "short_day_before"
+    return max(x for x in rises if x <= a), "no_sunrise_day_it_falls_in"
+
+
 def _onam(q: EkadashiQuery) -> tuple[list[dict], dict]:
     """s27.4: Chingam's days are those with the sidereal Sun in Simha at sunrise. Onam
     (Tiruvonam) is the Chingam day whose sunrise falls in Shravana with 6 nadikas of it
     left; with less, the day before; with no sunrise in it, the day it falls in (our
-    reading). Two Tiruvonams in one Chingam are both shown, neither picked."""
+    reading). Two Tiruvonams in one Chingam are both shown, neither picked. Atham, the
+    festival's opening, is the Hasta before each Tiruvonam by the same test, in Chingam or
+    late Karkataka (our reading; popular practice: research's ruling of 16 Oct 2026)."""
     ay = q.ayanamsa
-    t0 = local_jd(dt.date(q.year, 7, 25), 0.0, q.tz, "year")
+    t0 = local_jd(dt.date(q.year, 7, 15), 0.0, q.tz, "year")
     t1 = local_jd(dt.date(q.year, 10, 1), 0.0, q.tz, "year")
     rises = _sunrises(t0, q.lat, q.lon, int(t1 - t0) + 2)
     chingam = [sr for sr in rises if luminaries(sr, ay)[0].sign == LEO]
@@ -1798,20 +1813,23 @@ def _onam(q: EkadashiQuery) -> tuple[list[dict], dict]:
     nak = lambda t: Mu.nakshatra_at(t, ay)  # noqa: E731
     rows = []
     for a, b in _spans(nak, SHRAVANA, first - 1.2, last + 1.2, 0.1):
-        held = [sr for sr in rises if a <= sr < b]
-        if any(b - sr >= ONAM_NADIKAS for sr in held):
-            sr, rule = next(sr for sr in held if b - sr >= ONAM_NADIKAS), "sunrise_six_nadikas"
-        elif held:
-            sr, rule = rises[rises.index(held[0]) - 1], "short_day_before"
-        else:
-            sr, rule = max(x for x in rises if x <= a), "no_sunrise_day_it_falls_in"
+        sr, rule = _star_day(a, b, rises)
         if first <= sr <= last:
+            ha, hb = _spans(nak, HASTA, a - 12, a, 0.1)[-1]  # the Hasta before (7.8-10.2 days)
+            hr, h_rule = _star_day(ha, hb, rises, last=True)  # "the last day before"
+            h_rule = "atham_" + h_rule
             rows.append(
                 {
                     "date": _date(sr, q),
                     "vara": _vara(sr, q),
                     "rule": rule,
                     "shravana": _span((a, b), q),
+                    "atham": {
+                        "date": _date(hr, q),
+                        "vara": _vara(hr, q),
+                        "rule": h_rule,
+                        "hasta": _span((ha, hb), q),
+                    },
                 }
             )
     if len(rows) > 1:
