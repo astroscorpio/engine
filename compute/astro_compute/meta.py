@@ -878,6 +878,21 @@ FESTIVAL_RULES = {
         "midday_neither_sunrise_day": ("When the Ashtami covers neither midday, the day whose sunrise it holds is kept (our reading)", None),
         "pradosha_only_earlier_ds": ("When the earlier day has the Ashtami only at pradosha and the later only at midday, the pradosha day is kept, as Dharmasindhu judges from the conduct of many learned people", "Dharmasindhu p. 10"),
     },
+    "rang-panchami": {
+        "sunrise": ("Rang Panchami is kept on the day whose sunrise the dark Panchami after Holi holds (popular practice; no text read gives the day)", None),
+        "two_sunrises_first": ("When the Panchami holds two sunrises, the first of those days is kept (popular practice)", None),
+        "no_sunrise_day_it_falls_on": ("When the Panchami holds no sunrise, the day in which it begins is kept (popular practice)", None),
+    },
+    "cheti-chand": {
+        "sunset": ("Cheti Chand is kept on the day whose sunset the Caitra shukla Dvitiya holds, computed at Ahmedabad for every city (popular practice; no text read gives the day)", None),
+        "two_sunsets_first": ("When the Dvitiya holds two sunsets, the first of those days is kept (popular practice)", None),
+        "no_sunset_sunrise_day": ("When the Dvitiya holds no sunset, the day whose sunrise it holds is kept (popular practice)", None),
+    },
+    "sheetala-ashtami": {
+        "sunrise": ("Sheetala Ashtami (Basoda) is kept on the day whose sunrise the dark Ashtami after Holi holds (popular practice; no text read gives the day)", None),
+        "two_sunrises_first": ("When the Ashtami holds two sunrises, the first of those days is kept (popular practice)", None),
+        "no_sunrise_day_it_falls_on": ("When the Ashtami holds no sunrise, the day in which it begins is kept (popular practice)", None),
+    },
     "durga-puja": {
         "sunrise_ashtami": ("Mahashtami: the Ashtami current at sunrise for a muhurta, joined to the Navami", "Tithi-tattva pp. 77-79"),
         "complete_first_day": ("The Ashtami holding two sunrises: the complete first day", "Tithi-tattva p. 78"),
@@ -977,12 +992,15 @@ FESTIVAL_NOTES = {
     "pongal": "Thai Pongal is the first day of the Tamil solar month Thai, the Sun in sidereal Makara, by the Tamil Rule of Sewell and Dikshit's The Indian Calendar (1896, Art. 28, p. 12): an ingress between sunrise and sunset starts the month that day, a later one at the next sunrise. That is also the southern usage for the Makara day (Nirnaya-sindhu p. 326; Dharmasindhu p. 85). One date for every city, computed at Chennai. Warren (Kala Sankalita, 1825, p. 402) describes the boiled rice offered to the Sun and scattered over the fields, and the cattle worshipped and decked on Mattu Pongal, the day after; Dharmasindhu p. 86 gives the Makara rites: the bath, sesame, and the Sun bathed with milk. When the Sun enters Makara by day but less than three hours before sunset, Pongal is also commonly kept the next day (variantDate; popular practice, our reading), as it was on 15 Jan 2026. Bhogi, the day before, and Kanum Pongal, two days after, are popular practice, as are the four days as a set, the pot boiling over, sugarcane, kolam, Bhogi's bonfire, Kanu, Jallikattu and Thiruvalluvar Day. No time is given for setting the pot.",
     "lohri": "Popular practice; no text read names Lohri. It is kept on the evening before the day, counted from sunrise to sunrise at Amritsar, in which the Sun enters sidereal Makara; that day is Maghi, the first of Magh. One date for every city, with no time. Linking Maghi to Baudhayana's two holy days after a night ingress, kept in the north (Nirnaya-sindhu p. 327), is our reading. The bonfire, the Dulla Bhatti songs, rewri and gajak are popular practice.",
     "vishu": "Popular practice. Vishu is the day whose sunrise is the first after the Sun enters sidereal Mesha, computed at Kochi, with one date for every city: the Kani is set out the night before so that it is the first sight of that morning (Logan, Malabar, 1887, pp. 160-161; Nagam Aiya, The Travancore State Manual, 1906, pp. 366-367). That day is our reading of the kept days and of the two manuals. The Malabar month's own rule (Sewell and Dikshit, 1896, Art. 28, rule b) can give a day earlier after a morning ingress, so Vishu is not called the first of Medam as a rule. No time is given for the Kani.",
-    "tamil-new-year": "Tamil New Year (Puthandu) is Chittirai 1, the first day of the solar month with the Sun in sidereal Mesha, by the Tamil Rule of Sewell and Dikshit's The Indian Calendar (1896, Art. 28, p. 12), computed at Chennai with one date for every city. Warren (Kala Sankalita, 1825, p. 402) describes the day as kept by bathing in sacred rivers, giving alms and offering to the ancestors; Dharmasindhu p. 31 gives the Mesha bath and gifts. The mango pachadi, the kolam and the temple visits are popular practice.",
-    "baisakhi": "Popular practice; no text read names Baisakhi. It is kept on the day, counted from sunrise to sunrise at Amritsar, in which the Sun enters sidereal Mesha, the way Lohri's Maghi is found; one date for every city, with no time. Dharmasindhu p. 31 gives the Mesha bath and gifts. The harvest fair, the Khalsa's founding in 1699, the nagar kirtan and the bhangra are popular practice or history, outside the texts read.",
+    "tamil-new-year": "Tamil New Year (Puthandu) is Chittirai 1, the first day of the solar month with the Sun in sidereal Mesha, by the Tamil Rule of Sewell and Dikshit's The Indian Calendar (1896, Art. 28, p. 12), computed at Chennai with one date for every city. Warren (Kala Sankalita, 1825, p. 402) describes the day as kept by bathing in sacred rivers, giving alms and offering to the ancestors; Dharmasindhu p. 2 gives the bath and gifts at the ingress, and p. 31 the Mesha punyakala, ten nadis either side. The mango pachadi, the kolam and the temple visits are popular practice.",
+    "baisakhi": "Popular practice; no text read names Baisakhi. It is kept on the day, counted from sunrise to sunrise at Amritsar, in which the Sun enters sidereal Mesha, the way Lohri's Maghi is found; one date for every city, with no time. Dharmasindhu p. 2 gives the bath and gifts at the ingress, and p. 31 the Mesha punyakala, ten nadis either side. The harvest fair, the Khalsa's founding in 1699, the nagar kirtan and the bhangra are popular practice or history, outside the texts read.",
     "gangaur": "Gangaur is the popular name of the Gauri-tritiya: Gauri worshipped with Shiva on the Caitra shukla Tritiya, then rocked on a swing (Nirnaya-sindhu p. 114, from the Devi-purana; Dharmasindhu pp. 31-32; Vratraja f. 38, a women's rite for good fortune with a night vigil). The day follows Dharmasindhu p. 9's Gauri-vrata rule: the day whose sunrise the Tritiya holds, even by a trace; two such, the later; none, the Dvitiya-joined day on which it begins. Nirnaya-sindhu, after Madhava, asks for at least a muhurta of Tritiya on the later day. The eighteen days of worship from the day after Holi, the clay images, the processions and the immersion are popular practice.",
     "vinayaka-chaturthi": "Popular practice as a monthly vow: the texts read give the Vinayaka-vrata on the Caitra (Dharmasindhu p. 32), Bhadrapada and Magha (Dharmasindhu p. 89) shukla Caturthis, but no text read prescribes it every month. Each shukla Caturthi is listed by the rule the site keeps for Ganesha Chaturthi (Nirnaya-sindhu p. 47, Brhaspati): the later day when the Caturthi reaches its midday, otherwise the earlier, Trtiya-joined day. Dharmasindhu p. 9 reads the rule more strictly: the later day only when the Caturthi pervades the later day's whole midday alone, and the earlier day in every other case; where that gives the earlier day, dsEarlier names it.",
     "skanda-sashti": "The Bhavishya, through Hemadri in the Vratraja (f. 108), makes every Shashthi Skanda's, in both fortnights, kept with fruit or a night meal and no oil; this list gives each shukla Shashthi. The day is the Shashthi joined to the Panchami (Vratraja f. 108; Nirnaya-sindhu p. 48; Dharmasindhu pp. 9-10): the day on which it begins between sunrise and sunset, or, begun at night, the first day whose sunrise it holds. Reading the joining as by day is ours. The Karttika one is the Vratraja's own heading.",
     "kalashtami-monthly": "Some keep a fast for Kalabhairava on every dark Ashtami (Dharmasindhu p. 10). Dharmasindhu decides each one as it does the Bhairava-jayanti: the Ashtami covering midday; covering both middays, the earlier day; when the earlier day has it only at pradosha and the later only at midday, the pradosha day. variantDate gives the other view Dharmasindhu reports, where it differs. The amanta Karttika one is Kaal Bhairav Jayanti, with its own night vigil.",
+    "rang-panchami": "Popular practice; no text read names Rang Panchami or gives its day. Dharmasindhu p. 95 says that ordinary people now keep the colour festival up to the dark Panchami, though its own day for the colours is the dark Dvitiya. Swamikannu Pillai's Indian Ephemeris (1922, pp. 65-66) and the Poona Gazetteer (1885, p. 293) describe the Panchami as the day colours are thrown and the Holi ends. The day is ours: the first day whose sunrise holds the dark Panchami after Holi, else the day in which it begins. The Gair and the processions are popular practice.",
+    "cheti-chand": "Popular practice; no text read names Cheti Chand or Udero Lal. One date for every city, computed at Ahmedabad: the first day whose sunset falls in the Caitra shukla Dvitiya, else the first day whose sunrise holds it; the first day of Chet, when the young moon is first seen (our reading). Dharmasindhu p. 31 gives a worship of the young moon at nightfall on this Dvitiya, a different vow. The Sind gazetteers describe the Sindhi new year kept at the riverside and at Uderolal's fair (Aitken 1907, p. 206; Imperial Gazetteer 1908, p. 411), and Kincaid (1925, p. 12) the tradition that Udero Lal was born on it. When the Dvitiya begins inside the earlier evening's pradosha, that day is also given, as some keep it; in an adhika-Caitra year the day in the first Caitra is also given. The Behrana Sahib and the processions are popular practice.",
+    "sheetala-ashtami": "Popular practice; no text read gives the Caitra Sheetala Ashtami or Saptami. The day is ours: the first day whose sunrise holds the dark Ashtami after Holi (the amanta Phalguna krishna, the purnimanta Caitra krishna), else the day in which it begins; the worship is at dawn with food cooked the day before. Two variants are given: the Saptami by the same rule, kept in some regions and families, and in Rajasthan a move off a Sunday, Tuesday or Saturday to the nearest earlier other day. Jaipur's 1903 census lists Sitla Ashtami among its March festivals (p. 356). The texts' only Shitala vow is the Shravana (purnimanta Bhadrapada) dark Saptami (Vratraja f. 110; Nirnaya-sindhu p. 183), not this day. The stale food, the Saptami and the weekday shift are popular practice, and no health result is claimed.",
     "navaratriDays": "Navaratra names a worship set in nine tithis, the Pratipada to the Navami (DS p. 65). Each day's worship goes with the tithi at its sunrise (our reading of DS p. 66); a tithi touching two sunrises is worshipped on both days and one touching none on the day it falls in, so the Navaratri runs eight, nine or ten days. Some keep only eight worships when a day is lost (DS p. 66). The first day is the kalasha-sthapana day.",
     "durgashtami": "Mahashtami: the Ashtami at sunrise joined to the Navami, never one touched by the Saptami however slightly, even with Mula (NS p. 263, DS p. 69). Especially praised on a Tuesday (DS). Bhadra does not bar the worship (Devi-purana, NS p. 264). Those with sons do not fast on it (DS p. 69; NS p. 265).",
     "mahanavami": "The Navami joined to the Ashtami is taken for the worship and the fast when it covers three muhurtas before that day's sunset (NS pp. 272-273, DS p. 69), so Durgashtami and Mahanavami often fall on one day. The animal bali is on the Dashami-joined day (DS p. 69).",
@@ -1017,6 +1035,11 @@ FESTIVAL_CAUTIONS = {
     "no_krittika_sunset": "Krittika falls at neither sunset; Karthigai Deepam is also kept on this day; popular practice",
     "krittika_margin": "The day Karthigai Deepam may fall on if Krittika begins or ends one ghatika (24 minutes) earlier or later; our reading",
     "practice_margin_next_day": "Pongal is also commonly kept on this day; popular practice",
+    "tithi_ghatika_margin": "The day the rule gives if the tithi's start or end moves by one ghatika (24 minutes)",
+    "pradosha_start": "Cheti Chand is also kept on this day; popular practice",
+    "adhika_month": "The day in the first (adhika) Caitra of this year; popular practice",
+    "saptami": "Kept on the Saptami in some regions and families; popular practice",
+    "rajasthan_weekday": "In Rajasthan the worship moves off a Sunday, Tuesday or Saturday; popular practice",
 }
 SANKASHTI_NOTE = (
     "Krishna paksha, by common practice; the texts read do not state the fortnight. Moonrise "
@@ -1442,8 +1465,13 @@ FESTIVAL_NAMES = {
     "vinayaka-chaturthi": "Vinayaka Chaturthi",
     "skanda-sashti": "Skanda Sashti",
     "kalashtami-monthly": "Masik Kalashtami",
+    "rang-panchami": "Rang Panchami",
+    "cheti-chand": "Cheti Chand",
+    "sheetala-ashtami": "Sheetala Ashtami",
     "pongal": "Pongal",
 }
+# Popular names served beside the name, as the English pages carry both (the lead, 16 Oct 2026).
+FESTIVAL_POPULAR = {"sheetala-ashtami": "Basoda"}
 CHHATHS = ["chhath", "chaiti-chhath"]
 # Named days inside a kind's answer: id -> (name, the kinds that carry it).
 FESTIVAL_DAY_NAMES = {
@@ -1801,7 +1829,13 @@ def _english() -> dict:
         },
         "ayanamsas": {k: {"name": v} for k, v in AYANAMSAS.items()},
         "tithiNames": _tithi_names(),
-        "festivals": {k: {"name": v} for k, v in FESTIVAL_NAMES.items()},
+        "festivals": {
+            k: {
+                "name": v,
+                **({"popularName": FESTIVAL_POPULAR[k]} if k in FESTIVAL_POPULAR else {}),
+            }
+            for k, v in FESTIVAL_NAMES.items()
+        },
         "festivalDays": {k: {"name": n, "kinds": ks} for k, (n, ks) in FESTIVAL_DAY_NAMES.items()},
         "observances": {k: {"name": v} for k, v in OBSERVANCE_NAMES.items()},
         "sankrantis": {k: {"name": v} for k, v in SANKRANTI_NAMES.items()},

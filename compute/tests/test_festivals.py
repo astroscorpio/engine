@@ -785,3 +785,64 @@ def test_ganesha_chaturthi_carries_ds_p9_as_a_note():
         assert status == 200, out
         (g,) = out["occurrences"]
         assert g["dsEarlier"] == want and (want is None or want < g["date"])
+
+
+def test_three_spring_days():
+    """Decisions 36-38 (s33): research's test dates for each rule, variant and caution."""
+
+    def row(kind, year):
+        status, o = call("GET", f"/v1/festivals/{kind}", {**DELHI, "year": str(year)})
+        assert status == 200, o
+        (r,) = o["occurrences"]
+        return r
+
+    def variants(r):
+        assert r["variantDate"] == (r["variants"][0]["date"] if r["variants"] else None)
+        return {v["reason"]: v["date"] for v in r["variants"]}
+
+    rang = {
+        2027: ("03-27", "sunrise"),
+        2028: ("03-15", "sunrise"),
+        2029: ("03-04", "no_sunrise_day_it_falls_on"),
+        2030: ("03-24", "sunrise"),
+        2020: ("03-13", "no_sunrise_day_it_falls_on"),
+        2015: ("03-11", "sunrise"),
+    }
+    for year, (day, rule) in rang.items():
+        r = row("rang-panchami", year)
+        assert (r["date"], r["rule"]) == (f"{year}-{day}", rule), year
+        assert year < 2027 or variants(r) == {}
+    cheti = {
+        2027: ("04-08", {}),
+        2028: ("03-27", {}),
+        2029: ("04-15", {"adhika_month": "2029-03-16"}),
+        2030: ("04-04", {}),
+        2033: ("04-01", {"pradosha_start": "2033-03-31"}),
+        2023: ("03-23", {"pradosha_start": "2023-03-22"}),
+        2024: ("04-10", {"pradosha_start": "2024-04-09"}),
+    }
+    for year, (day, want) in cheti.items():
+        r = row("cheti-chand", year)
+        assert (r["date"], variants(r)) == (f"{year}-{day}", want), (year, r["variants"])
+    assert row("cheti-chand", 2020)["rule"] == "two_sunsets_first"
+    r18 = row("cheti-chand", 2018)
+    assert r18["date"] == "2018-03-18" and "tithi_ghatika_margin" in variants(r18)
+    sheetala = {
+        2027: ("03-30", "03-29", "03-29"),
+        2028: ("03-18", "03-17", "03-17"),
+        2029: ("03-07", "03-06", None),
+        2030: ("03-26", "03-25", "03-25"),
+        2031: ("03-16", "03-15", "03-14"),
+        2021: ("04-04", "04-03", "04-02"),
+        2024: ("04-02", "04-01", "04-01"),
+        2025: ("03-22", "03-21", "03-21"),
+    }
+    for year, (ashtami, saptami, rajasthan) in sheetala.items():
+        r = row("sheetala-ashtami", year)
+        v = variants(r)
+        got = (r["date"], v.get("saptami"), v.get("rajasthan_weekday"))
+        assert got == (
+            f"{year}-{ashtami}",
+            f"{year}-{saptami}",
+            f"{year}-{rajasthan}" if rajasthan else None,
+        ), year

@@ -2216,6 +2216,128 @@ def _kalashtami_monthly(start: float, end: float, _next: float, q: EkadashiQuery
     }
 
 
+# --- Three spring days (festivals.md s33, decisions 36-38, 16 Oct 2026) -----------------
+# Popular practice: no text read gives these days; each rule is ours, tested on kept days.
+
+AHMEDABAD = {"name": "Ahmedabad", "lat": 23.0225, "lon": 72.5714, "tz": "Asia/Kolkata"}
+WEEKDAYS = ("monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday")
+RAJASTHAN_AVOIDED = {"sunday", "tuesday", "saturday"}
+
+
+def _sunrise_day(a: float, b: float, q) -> tuple[float, str]:
+    """The first day whose sunrise the span [a, b) holds; holding none, the day it begins."""
+    s = _sunrises(a, q.lat, q.lon, 3)  # s[0] <= a < s[1]
+    held = [sr for sr in s[1:] if sr < b]
+    if not held:
+        return s[0], "no_sunrise_day_it_falls_on"
+    return held[0], "two_sunrises_first" if len(held) > 1 else "sunrise"
+
+
+def _sunset_day(a: float, b: float, q) -> tuple[float, str]:
+    """The first day whose sunset the span [a, b) holds; holding none, the first day whose
+    sunrise it holds."""
+    held = [sr for sr in _sunrises(a - 1, q.lat, q.lon, 4) if a <= _sunset(sr, q) < b]
+    if held:
+        return held[0], "two_sunsets_first" if len(held) > 1 else "sunset"
+    return _sunrise_day(a, b, q)[0], "no_sunset_sunrise_day"
+
+
+def _margin(a: float, b: float, q, day_of) -> list[str]:
+    """The other dates the rule gives when either end of [a, b) moves by one ghatika
+    (24 minutes), as for Chhath (decision 28)."""
+    own = _date(day_of(a, b, q)[0], q)
+    moved = ((a - DANDA, b), (a + DANDA, b), (a, b - DANDA), (a, b + DANDA))
+    return sorted({_date(day_of(x, y, q)[0], q) for x, y in moved} - {own})
+
+
+def _entry(date: str, reason: str) -> dict:
+    return {"date": date, "vara": WEEKDAYS[dt.date.fromisoformat(date).weekday()], "reason": reason}
+
+
+def _with_variants(row: dict, variants: list[dict]) -> dict:
+    """variants, with variantDate (the first) and cautions (their reasons) as elsewhere."""
+    return {
+        **row,
+        "variants": variants,
+        "variantDate": variants[0]["date"] if variants else None,
+        "cautions": [v["reason"] for v in variants],
+    }
+
+
+def _rang_panchami(start: float, end: float, _next: float, q: EkadashiQuery) -> dict | None:
+    """s33.1 (decision 36): the dark Panchami after Holi (amanta Phalguna krishna) on the
+    first day whose sunrise holds it; holding none, the day it begins."""
+    base = _base(start, end, 20, q)
+    if not _in_month(base, "phalguna"):
+        return None
+    day, rule = _sunrise_day(start, end, q)
+    margin = [_entry(d, "tithi_ghatika_margin") for d in _margin(start, end, q, _sunrise_day)]
+    return _with_variants(
+        {**base, "date": _date(day, q), "vara": _vara(day, q), "rule": rule}, margin
+    )
+
+
+def _sheetala(start: float, end: float, _next: float, q: EkadashiQuery) -> dict | None:
+    """s33.3 (decision 38): the dark Ashtami after Holi on the first day whose sunrise holds
+    it; holding none, the day it begins. Variants: the Saptami by the same rule, and
+    Rajasthan's move off a Sunday, Tuesday or Saturday to the nearest earlier other day."""
+    base = _base(start, end, 23, q)
+    if not _in_month(base, "phalguna"):
+        return None
+    day, rule = _sunrise_day(start, end, q)
+    edges = Mu._scan(lambda t: Mu.tithi_at(t, q.ayanamsa), start - 1.6, start - 1e-6, 0.25)
+    saptami = max(t for t, n in edges if n == 22)
+    variants = [_entry(_date(_sunrise_day(saptami, start, q)[0], q), "saptami")]
+    d = dt.date.fromisoformat(_date(day, q))
+    if WEEKDAYS[d.weekday()] in RAJASTHAN_AVOIDED:
+        d -= dt.timedelta(1)
+        while WEEKDAYS[d.weekday()] in RAJASTHAN_AVOIDED:
+            d -= dt.timedelta(1)
+        variants.append(_entry(d.isoformat(), "rajasthan_weekday"))
+    variants += [_entry(x, "tithi_ghatika_margin") for x in _margin(start, end, q, _sunrise_day)]
+    return _with_variants(
+        {**base, "date": _date(day, q), "vara": _vara(day, q), "rule": rule}, variants
+    )
+
+
+def _cheti_chand(q: EkadashiQuery) -> tuple[list[dict], dict]:
+    """s33.2 (decision 37): the nija Caitra shukla Dvitiya on the first day whose sunset it
+    holds; holding none, the first day whose sunrise it holds; at Ahmedabad for every city.
+    Variants: the earlier day when it begins inside that evening's pradosha, and in an
+    adhika-Caitra year the adhika month's day by the same rule."""
+    a = _at(AHMEDABAD, q)
+
+    def build(start: float, end: float, _next: float, qq) -> dict | None:
+        base = _base(start, end, 2, qq)
+        if base["lunarMonth"]["amanta"] != "chaitra":
+            return None
+        day, rule = _sunset_day(start, end, qq)
+        (s0,) = _sunrises(start, qq.lat, qq.lon, 1)  # the day the Dvitiya begins in
+        variants = []
+        late = _sunset(s0, qq) <= start < _windows(s0, qq)["pradosha"][1]
+        if late and _date(s0, qq) != _date(day, qq):
+            variants.append(_entry(_date(s0, qq), "pradosha_start"))
+        variants += [
+            _entry(x, "tithi_ghatika_margin") for x in _margin(start, end, qq, _sunset_day)
+        ]
+        return {
+            **base,
+            "date": _date(day, qq),
+            "vara": _vara(day, qq),
+            "rule": rule,
+            "_variants": variants,
+        }
+
+    rows = _year(a, 2, build)
+    adhika = [_entry(r["date"], "adhika_month") for r in rows if r["lunarMonth"]["adhika"]]
+    out = []
+    for r in rows:
+        variants = r.pop("_variants")
+        if not r["lunarMonth"]["adhika"]:
+            out.append(_with_variants(r, variants + adhika))
+    return out, {"computedAt": AHMEDABAD}
+
+
 def _year(q: EkadashiQuery, num: int | set[int], build) -> list[dict]:
     rows = _collect(
         q,
@@ -2309,6 +2431,10 @@ FESTIVALS = {
     "vinayaka-chaturthi": (4, _vinayaka, None, None),
     "skanda-sashti": (6, _skanda, "p. 48", "pp. 9-10"),
     "kalashtami-monthly": (23, _kalashtami_monthly, None, "p. 10"),
+    # Decisions 36-38: popular practice; cheti-chand at Ahmedabad for every city.
+    "rang-panchami": (20, _rang_panchami, None, None),
+    "cheti-chand": (None, None, None, None),
+    "sheetala-ashtami": (23, _sheetala, None, None),
 }
 POPULAR = {
     "chhath",
@@ -2322,9 +2448,20 @@ POPULAR = {
     "vishu",
     "baisakhi",
     "vinayaka-chaturthi",
+    "rang-panchami",
+    "cheti-chand",
+    "sheetala-ashtami",
 }
 # Computed at one regional place for every city (decisions 31-33): once per year and ayanamsa.
-ONE_PLACE = {"karthigai-deepam", "pongal", "lohri", "vishu", "tamil-new-year", "baisakhi"}
+ONE_PLACE = {
+    "karthigai-deepam",
+    "pongal",
+    "lohri",
+    "vishu",
+    "tamil-new-year",
+    "baisakhi",
+    "cheti-chand",
+}
 YEARLY = {
     "onam": _onam,
     "vishwakarma-puja": _vishwakarma,
@@ -2334,6 +2471,7 @@ YEARLY = {
     "vishu": _vishu,
     "tamil-new-year": _tamil_new_year,
     "baisakhi": _baisakhi,
+    "cheti-chand": _cheti_chand,
 }
 KALA_SANKALITA = {
     "text": "Kala Sankalita",
@@ -2352,7 +2490,10 @@ SEWELL_DIKSHIT = {
     "verse": "Art. 28, the Tamil Rule",
     "page": "12",
 }
-DS_MESHA = {**DS, "verse": "the Mesha sankranti bath and gifts", "page": "31"}
+DS_MESHA = [  # research, 16 Oct 2026: the bath and gifts are p. 2; p. 31 is the punyakala
+    {**DS, "verse": "the bath and gifts at an ingress", "page": "2"},
+    {**DS, "verse": "the Mesha punyakala, ten nadis either side of the ingress", "page": "31"},
+]
 KRTYARATNAKARA = {
     "text": "Krtyaratnakara",
     "author": "Candeshvara Thakkura",
@@ -2412,7 +2553,7 @@ CONTEXT = {
         },
         {**SEWELL_DIKSHIT, "verse": "Art. 28, rule (b), the Malabar month's own rule"},
     ],
-    "tamil-new-year": [DS_MESHA],
+    "tamil-new-year": DS_MESHA,
     "vinayaka-chaturthi": [
         {
             **SOURCE,
@@ -2423,7 +2564,74 @@ CONTEXT = {
         {**DS, "verse": "the Caitra shukla Caturthi, Ganesha at midday", "page": "32"},
         {**DS, "verse": "the Magha shukla Caturthi, decided as the Bhadrapada one", "page": "89"},
     ],
-    "baisakhi": [DS_MESHA],
+    "baisakhi": DS_MESHA,
+    "rang-panchami": [
+        {
+            **DS,
+            "verse": "ordinary people keep the colour festival up to the dark Panchami",
+            "page": "95",
+        },
+        {
+            "text": "An Indian Ephemeris, A.D. 700 to A.D. 1799",
+            "author": "L. D. Swamikannu Pillai",
+            "edition": "Government Press, Madras, 1922, vol. 1, part 1",
+            "verse": "Rangapanchami, when colours are thrown about",
+            "page": "65-66",
+        },
+        {
+            "text": "Gazetteer of the Bombay Presidency, vol. XVIII, part 1, Poona",
+            "author": "ed. James M. Campbell",
+            "edition": "Government Central Press, Bombay, 1885",
+            "verse": "Rang-panchmi, where the Holi ends among the Kunbis",
+            "page": "293",
+        },
+    ],
+    "cheti-chand": [
+        {
+            **DS,
+            "verse": "the young moon worshipped at nightfall on the Caitra shukla Dvitiya",
+            "page": "31",
+        },
+        {
+            "text": "Gazetteer of the Province of Sind",
+            "author": "E. H. Aitken",
+            "edition": "Mercantile Steam Press, Karachi, 1907",
+            "verse": "Cheti Chand, the first day of the first month of the Hindu year",
+            "page": "206",
+        },
+        {
+            "text": "The Imperial Gazetteer of India, new edition, vol. XXII",
+            "edition": "Clarendon Press, Oxford, 1908",
+            "verse": "Chetichand, the Hindu New Year, observed on the river-side (Sind)",
+            "page": "411",
+        },
+        {
+            "text": "Folk Tales of Sind and Guzarat",
+            "author": "C. A. Kincaid",
+            "edition": "Daily Gazette Press, Karachi, 1925",
+            "verse": "Udero Lal born on Cheti Chand",
+            "page": "12",
+        },
+    ],
+    "sheetala-ashtami": [
+        {
+            "text": "Census Report, Jaipur State",
+            "author": "Munshi Govinda Sarana",
+            "edition": "Newul Kishore Press, Lucknow, 1903",
+            "verse": "Sitla Ashtami among Jaipur's March festivals",
+            "page": "356",
+        },
+        {
+            **VRATARAJA,
+            "verse": "the Shravana Shitala-saptami and the goddess's image, not this day",
+            "page": "f. 110",
+        },
+        {
+            **SOURCE,
+            "verse": "the Bhadrapada (purnimanta) Shitala-vrata, not this day",
+            "page": "183",
+        },
+    ],
 }
 RITE_SOURCES = {
     "karva-chauth": VRATARAJA,
