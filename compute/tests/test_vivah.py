@@ -94,7 +94,7 @@ def test_excluded_days_carry_their_relaxed_rules():
     out = year("2026")
     relaxable = {
         "vedha_slow", "jupiter_sign", "tuesday", "rikta", "solar_month", "infancy_old",
-        "venus_set", "eclipse", "utpata", "marana", "kana", "dagdha", "visha",
+        "venus_set", "eclipse", "utpata", "marana", "kana", "dagdha", "visha", "no_lagna",
     }  # fmt: skip
     listed = {d["date"] for d in out["days"]}
     assert out["excluded"]
@@ -142,3 +142,74 @@ def test_blocks_carry_the_season_and_excluded_days_their_facts():
             assert d["weekday"] and d["star"]
         if d["rule"] == "infancy_old":
             assert d["planet"] in ("jupiter", "venus") and d["state"] in ("infant", "old")
+
+
+def test_listed_lagnas_pass_the_bars():
+    """Phase 2 (V1-V10): every lagna shown clears MC 6.84's houses and the navamsa rule,
+    checked here from the ephemeris at the lagna's middle."""
+    from jyotisha.ephemeris import ascendant, positions
+
+    from astro_compute.meta import VIVAH_LAGNA_RULES
+
+    level = {k: v[2] for k, v in VIVAH_LAGNA_RULES.items()}
+    malefic = {"Sun", "Mars", "Saturn", "Rahu", "Ketu", "Moon"}
+    shown = 0
+    for d in year("2028")["days"]:
+        rows = [lg for w in d["windows"] for lg in w["lagnas"]]
+        assert ("no_clean_lagna" in d["cautions"]) == (not any(lg["clean"] for lg in rows))
+        status = "clean" if any(lg["clean"] for lg in rows) else "faulted" if rows else "godhuli"
+        assert d["lagnaStatus"] == status and (rows or d["godhuli"])
+        for w in d["windows"]:
+            assert all(level[k] == "bar" for k in w["lagnaBars"])
+            for lg in w["lagnas"]:
+                shown += 1
+                assert w["start"] <= lg["start"] < lg["end"] <= w["end"]
+                assert all(level[f] != "bar" for f in lg["faults"])
+                assert lg["clean"] == (lg["faults"] == [])
+                pts = lg["points"]
+                grade = "best" if pts >= 15 else "middling" if pts >= 10 else "poor"
+                assert pts >= 5 and lg["grade"] == grade
+                t = (jd(lg["start"]) + jd(lg["end"])) / 2
+                p = positions(t)
+                asc = ascendant(t, 28.6139, 77.2090)[0].longitude
+                lagna = int(asc // 30)
+                house = {g: (x.sign - lagna) % 12 + 1 for g, x in p.items()}
+                assert not any(h == 7 for h in house.values())  # jamitra from the lagna
+                assert not any(house[g] == 1 for g in malefic)
+                assert house["Mars"] not in (8, 10) and house["Saturn"] != 12
+                assert house["Venus"] not in (3, 8)
+                nav = int(asc // (30 / 9)) % 12
+                assert nav in (2, 5, 6, 8) or set(lg["faults"]) & {
+                    "navamsa_ds_only",
+                    "navamsa_pisces",
+                }
+    assert shown
+
+
+def test_kartari_needs_a_direct_malefic_behind_and_a_retrograde_one_ahead():
+    from jyotisha.ephemeris import Position
+
+    from astro_compute import vivah_lagna as V
+
+    def chart(**at):
+        base = {g: (195.0, 1.0) for g in V.GRAHAS}  # all in Libra, direct
+        base.update(at)
+        return {g: Position(g, lon, speed) for g, (lon, speed) in base.items()}
+
+    # Taurus rising: the 12th is Aries, the 2nd Gemini.
+    assert V._kartari(chart(Sun=(15.0, 1.0), Saturn=(75.0, -0.05)), 1, True) == (True, False)
+    assert V._kartari(chart(Sun=(15.0, 1.0), Rahu=(75.0, 0.02)), 1, True)[0]  # nodes retrograde
+    assert V._kartari(chart(Sun=(15.0, 1.0), Mars=(75.0, 0.6)), 1, True) == (False, True)
+    # The dark fortnight's Moon is a malefic (V1, our reading); the bright one is not.
+    moon_behind = chart(Moon=(20.0, 13.0), Saturn=(75.0, -0.05))
+    assert V._kartari(moon_behind, 1, False)[0] and not V._kartari(moon_behind, 1, True)[0]
+
+
+def test_a_day_with_no_lagna_and_no_godhuli_is_excluded():
+    out = year("2028")
+    gone = [e for e in out["excluded"] if e["rules"] == ["no_lagna"]]
+    assert gone and not {e["date"] for e in gone} & {d["date"] for d in out["days"]}
+    for e in gone:
+        (detail,) = e["details"]
+        assert detail["rule"] == "no_lagna" and detail["barred"] and e["windows"]
+        assert all("lagnas" not in w for w in e["windows"])

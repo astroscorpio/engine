@@ -9,7 +9,7 @@ judged at its middle:
   faults (purity, 6.73-76; the Moon's kartari; blind, deaf and lame lagnas, 6.79-81;
     the Dipika's malefic in the Moon's 7th; plain hemming; kuvarga, DS p. 182),
   supports (6.85's places, scored by 6.90's vimsopaka).
-6.86 cancels the faults it names; 6.87 lifts only the blind and deaf lagnas.
+6.86 cancels the faults it names; 6.87 lifts only the blind, deaf and lame lagnas.
 """
 
 from __future__ import annotations
@@ -24,7 +24,7 @@ from jyotisha.chart import (
     OWN_SIGNS,
     SIGN_LORDS,
 )
-from jyotisha.ephemeris import ascendant, positions
+from jyotisha.ephemeris import ascendant, luminaries, positions
 from jyotisha.vargas import varga
 
 from .ids import GRAHA_ID, SIGN_IDS
@@ -68,22 +68,6 @@ GOOD_NAVAMSA = {2, 5, 6}  # Gemini, Virgo, Libra; Sagittarius's first half below
 DS_NAVAMSA = {1, 3}  # Taurus, Cancer: DS p. 182 only
 PISCES = 11
 MOVABLE = {0, 3, 6, 9}
-LEVEL = {
-    "purity_lagna": "heavy",
-    "purity_seventh": "heavy",
-    "kartari_moon": "fault",
-    "kuvarga": "fault",
-    "navamsa_pisces": "last_resort",
-    "vimsopaka_poor": "last_resort",
-    "navamsa_ds_only": "ds_only",
-    "blind_lagna": "light",
-    "deaf_lagna": "light",
-    "lame_lagna": "light",
-    "moon_seventh_malefic": "light",
-    "hemming_lagna": "light",
-    "hemming_moon": "light",
-    "kuvarga_three": "light",
-}
 
 
 def _malefic(g: str, bright: bool) -> bool:
@@ -262,11 +246,11 @@ def judge(t: float, q, bright: bool, day: bool) -> dict:
     moon_seen = any(
         _sees(p, g, p["Moon"].sign, occupy=False) for g in ("Mercury", "Jupiter", "Venus")
     )
-    if kartari_m and not moon_seen:
-        faults.append("kartari_moon")
-    elif hemmed_m or kartari_m:
-        if not kartari_m:
-            faults.append("hemming_moon")
+    if kartari_m:
+        if not moon_seen:
+            faults.append("kartari_moon")
+    elif hemmed_m:
+        faults.append("hemming_moon")
 
     # MC 6.82-83: the lagna's navamsa.
     if nav in GOOD_NAVAMSA or (nav == 8 and half):
@@ -292,7 +276,7 @@ def judge(t: float, q, bright: bool, day: bool) -> dict:
         faults.append("vimsopaka_poor")
         grade = "poor"
     else:
-        grade = "middling" if points <= 15 else "best"
+        grade = "middling" if points < 15 else "best"  # each gap fills from above (V2)
 
     # MC 6.73-76: the purity of the lagna (the groom's side) and the 7th (the bride's).
     if not _pure(p, lagna, nav, bright):
@@ -301,8 +285,8 @@ def judge(t: float, q, bright: bool, day: bool) -> dict:
         faults.append("purity_seventh")
 
     # MC 6.79-81: blind, deaf and lame at their own time, lifted by the sign's lord or
-    # Jupiter seeing it; 6.87 lifts the blind and deaf with Mercury, Jupiter or Venus
-    # in a kendra other than the 7th or in a trine.
+    # Jupiter seeing it; 6.87 lifts all three with Mercury, Jupiter or Venus in a
+    # kendra other than the 7th or in a trine.
     table = BY_DAY if day else BY_NIGHT
     lift87 = any(house[g] in (1, 4, 10, 5, 9) for g in ("Mercury", "Jupiter", "Venus"))
     for rule, signs in table.items():
@@ -310,7 +294,7 @@ def judge(t: float, q, bright: bool, day: bool) -> dict:
             continue
         if _sees(p, lord, lagna, occupy=False) or _sees(p, "Jupiter", lagna, occupy=False):
             continue
-        if lift87 and rule != "lame_lagna":
+        if lift87:  # "mukhah" takes in the lame lagna too (research, our reading)
             continue
         faults.append(rule)
 
@@ -318,14 +302,13 @@ def judge(t: float, q, bright: bool, day: bool) -> dict:
     good = _kuvarga(asc, bright)
     if good < 3:
         faults.append("kuvarga")
-    elif good == 3:
-        faults.append("kuvarga_three")
 
     return {
         "sign": SIGN_IDS[lagna],
         "navamsa": SIGN_IDS[nav],
         "points": points,
         "grade": grade,
+        "kuvarga": "good" if good > 3 else "middling" if good == 3 else "bad",
         "bars": bars,
         "faults": faults,
         "supports": [GRAHA_ID[g] for g in supports],
@@ -343,7 +326,7 @@ def window(a: float, b: float, q, bright: bool, sunrise: float, sunset: float) -
 
     def key(t: float) -> tuple[int, int]:
         asc = ascendant(t, q.lat, q.lon, q.ayanamsa)[0].longitude
-        moon = positions(t, q.ayanamsa)["Moon"].longitude
+        moon = luminaries(t, q.ayanamsa)[1].longitude
         return int(asc // NAV), int(moon // NAV)
 
     cuts = [a, *(t for t, _ in Mu._scan(key, a, b, STEP)), b]
@@ -368,12 +351,5 @@ def window(a: float, b: float, q, bright: bool, sunrise: float, sunset: float) -
 
 
 def _same(a: dict, b: dict) -> bool:
-    keys = ("sign", "navamsa", "points", "grade", "faults", "supports")
+    keys = ("sign", "navamsa", "points", "grade", "kuvarga", "faults", "supports")
     return a["end"] == b["start"] and all(a[k] == b[k] for k in keys)
-
-
-def light_only(faults: list[str]) -> bool:
-    return all(LEVEL[f] == "light" for f in faults)
-
-
-GRAHA_IDS = {g: GRAHA_ID[g] for g in GRAHAS}

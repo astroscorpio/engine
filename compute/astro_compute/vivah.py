@@ -40,6 +40,7 @@ from jyotisha.rare import (
     nakshatra_28,
 )
 
+from . import vivah_lagna
 from .errors import unsupported_location
 from .fmt import provenance
 from .ids import GRAHA_ID, MASA_IDS, NAKSHATRA_ID, NAKSHATRA_IDS, SIGN_IDS, tithi_id
@@ -470,9 +471,17 @@ def vivah(q: EkadashiQuery, explain: dict | None = None) -> dict:
             rows = inside
         strict = [r for r in rows if not r[6]] if not (day_relax or yoga) else []
         if strict:
+            day = _listed(date, vara, sr, ss, strict, q)
+            # The lead's decision (16 Oct 2026): a day left with no lagna and no godhuli
+            # offers no time, so it moves to excluded[] as no_lagna.
+            if day["lagnaStatus"] == "none":
+                excluded.append(_no_lagna(day))
+            else:
+                out_days.append(day)
             if explain is not None:
-                explain[date.isoformat()] = "listed"
-            out_days.append(_listed(date, vara, ss, strict, q))
+                explain[date.isoformat()] = (
+                    "excluded:no_lagna" if day["lagnaStatus"] == "none" else "listed"
+                )
             continue
         if rows:
             rules = dict(day_relax) | yoga
@@ -518,18 +527,31 @@ def _windows(rows: list[tuple], q) -> list[dict]:
             "tithi": tithi_id(num),
             "paksha": "shukla" if num <= 15 else "krishna",
             "_n": num,
+            "_a": a,
+            "_b": b,
         }
         if out and out[-1]["end"] == row["start"] and out[-1]["_n"] == num:
-            out[-1]["end"] = row["end"]
+            out[-1]["end"], out[-1]["_b"] = row["end"], b
         else:
             out.append(row)
     return out
 
 
-def _listed(date: dt.date, vara: str, ss: float, rows: list[tuple], q) -> dict:
+def _listed(date: dt.date, vara: str, sr: float, ss: float, rows: list[tuple], q) -> dict:
     windows = _windows(rows, q)
+    # Phase 2 (V1-V10): the lagnas in each window; the dark fortnight's Moon is malefic.
+    for w in windows:
+        w.update(vivah_lagna.window(w["_a"], w["_b"], q, w["_n"] <= 15, sr, ss))
     nums = {w["_n"] for w in windows}
+    godhuli = _godhuli(ss, vara, q)
+    lagnas = [lg for w in windows for lg in w["lagnas"]]
+    if any(lg["clean"] for lg in lagnas):
+        status = "clean"
+    else:
+        status = "faulted" if lagnas else "godhuli" if godhuli else "none"
     cautions = []
+    if status != "clean":
+        cautions.append("no_clean_lagna")  # V9: godhuli remains the texts' alternative
     if nums & WEAK_TITHI:
         cautions.append("weak_tithi")
     if vara in ("sunday", "saturday"):
@@ -550,7 +572,35 @@ def _listed(date: dt.date, vara: str, ss: float, rows: list[tuple], q) -> dict:
         },
         "windows": [{k: v for k, v in w.items() if not k.startswith("_")} for w in windows],
         "cautions": cautions,
-        "godhuli": _godhuli(ss, vara, q),
+        "lagnaStatus": status,
+        "godhuli": godhuli,
+    }
+
+
+def _no_lagna(day: dict) -> dict:
+    """A listed day with neither a lagna nor godhuli, as an excluded day: its barred
+    minutes by rule, summed over the windows."""
+    barred: dict[str, int] = {}
+    for w in day["windows"]:
+        for rule, m in w["lagnaBars"].items():
+            barred[rule] = barred.get(rule, 0) + m
+    rules = {
+        "no_lagna": (
+            "No lagna in the windows clears Muhurta Chintamani's lagna rules (ch. 6), and "
+            "godhuli is excluded (6.99)",
+            {"barred": dict(sorted(barred.items()))},
+        )
+    }
+    reasons, details = _details(rules)
+    return {
+        "date": day["date"],
+        "vara": day["vara"],
+        "windows": [
+            {k: v for k, v in w.items() if k not in ("lagnas", "lagnaBars")} for w in day["windows"]
+        ],
+        "rules": ["no_lagna"],
+        "reasons": reasons,
+        "details": details,
     }
 
 

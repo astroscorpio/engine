@@ -144,6 +144,8 @@ VIVAH_RULES = {
     "middling_weekday": ("Sunday or Saturday: middling", "Vasishtha in Muhurta Chintamani 6.53; Dharmasindhu p. 181"),
     "middling_weekday_dvadashi_trayodashi": ("Sunday or Saturday on a Dvadashi or Trayodashi: of great fault (Vasishtha, MC 6.53 commentary); only Tuesday is barred outright", "Vasishtha in Muhurta Chintamani 6.53 commentary, p. 275"),
     "krishna_paksha": ("The dark fortnight: middling", "Dharmasindhu p. 181"),
+    "no_clean_lagna": ("No lagna in the day's windows is free of every fault; godhuli, the cow-dust hour, is the texts' alternative", "Muhurta Chintamani 6.97, p. 305"),
+    "no_lagna": ("Excluded: no lagna in the windows clears the lagna rules (6.84's houses, the jamitra, kartari, the navamsa, 6.90's points), and godhuli is excluded by 6.99", "Muhurta Chintamani 6.42-90, 6.97-99, pp. 268-307"),
 }  # fmt: skip
 VIVAH_NOTES = {
     "infancy": "Infancy and old age follow MC 5.27 by the side of the sky. MC 5.28 gives 10, 7 or 3 days as alternatives, and Dharmasindhu p. 5 takes 7 days either side as the middle view.",
@@ -152,8 +154,54 @@ VIVAH_NOTES = {
     "solarMonths": "The solar-month school also allows Kartika with the Sun in Scorpio, Pausha with the Sun in Capricorn and Caitra with the Sun in Aries; MC's commentator sets it aside except for a marriage that cannot wait, and Dharmasindhu allows it by local custom. Not applied.",
     "moreStars": "Haradatta adds Citra, Shravana, Dhanishtha and Ashvini (Dharmasindhu p. 181). Not applied.",
     "kharmas": "Kharmas, the popular name (not in the texts read), is the Sun in Dhanus or Mina, between the Dhanus and Makara sankrantis and between the Mina and Mesha sankrantis. Garga's bar (MC 6.13 commentary, p. 235) also includes the Sun in Leo.",
-    "phase2": "The lagna (MC 6.84-85), jamitra, kartari, the navamsha rules, the other doshas of MC 6 and the couple's own charts are not applied yet.",
+    "phase2": "The lagna rules of MC ch. 6 apply inside each window (lagnas): 6.84's houses, the jamitra, kartari, the navamsa, 6.90's points, purity, blind, deaf and lame lagnas and kuvarga, with 6.86-87's cancellations. The couple's own charts (MC 6.12, 6.14, 6.44) are not applied.",
+    "lagnaReadings": "Our readings in the lagna rules: the waning Moon is the dark fortnight's Moon; Rahu and Ketu count in the jamitra; any fraction of MC 6.73's graded aspects counts as seeing; purity is judged by the lord's sign, not a navamsa chart; three benefic vargas are middling; 6.87 lifts the lame lagna as well as the blind and deaf; each vimsopaka edge belongs to the grade above.",
+    "trivikrama": "Trivikrama treats the Moon and Jupiter in the 7th as neutral, and MC's commentary allows it as an option (6.84, p. 296). Not applied.",
+    "strength66": "MC 6.66 clears the jamitra, kartari and the other lagna faults when the lagna has the strength of the Sun and the Moon. Noted, not applied.",
+    "jupiter88": "MC 6.88-89 say every fault vanishes with Jupiter in a kendra or trine; the commentary limits it (the 7th, kulika and durmuhurta stay, and Narada leaves a kartari lagna). Not applied.",
+    "regional79": "Kashyapa confines the blind, deaf and lame lagnas to Gauda and Malava (MC 6.81 commentary, p. 294). Applied everywhere here.",
 }  # fmt: skip
+# vivah.md "Phase 2" (V1-V10, the lead's decisions of 16 Oct 2026): the lagna's bars,
+# faults and their weight, for windows[].lagnas and windows[].lagnaBars.
+VIVAH_LAGNA_RULES = {
+    "h1": ("The Moon or a malefic in the lagna", "Muhurta Chintamani 6.84, p. 296 (1925 printing)", "bar"),
+    "h3_venus": ("Venus in the 3rd", "Muhurta Chintamani 6.84, p. 296 (1925 printing)", "bar"),
+    "h6": ("The lagna lord, Venus or the Moon in the 6th; Venus in an enemy's sign or debilitated, or the Moon debilitated or in a debilitated navamsa, is excused (6.86)", "Muhurta Chintamani 6.84, 6.86, pp. 296, 298", "bar"),
+    "h7": ("Any planet in the 7th, Rahu and Ketu included (our reading): the jamitra from the lagna", "Muhurta Chintamani 6.65, 6.84, pp. 285, 296", "bar"),
+    "h8": ("The Moon, the lagna lord, a benefic or Mars in the 8th; Mars combust, in an enemy's sign or debilitated, or the Moon debilitated or in a debilitated navamsa, is excused (6.86)", "Muhurta Chintamani 6.84, 6.86, pp. 296, 298", "bar"),
+    "h10_mars": ("Mars in the 10th", "Muhurta Chintamani 6.84, p. 296 (1925 printing)", "bar"),
+    "h12_saturn": ("Saturn in the 12th", "Muhurta Chintamani 6.84, p. 296 (1925 printing)", "bar"),
+    "jamitra_moon": ("The Moon in the 55th navamsa from the Sun, Mars, Saturn, Rahu or Ketu (the navamsa opposite theirs), unless the Moon is exalted, in its own, a benefic's or a friend's sign, or aspected by a benefic", "Muhurta Chintamani 6.65 and commentary, pp. 285-286 (1925 printing)", "bar"),
+    "kartari": ("Kartari: a malefic moving direct in the 12th and a retrograde one in the 2nd (Rahu and Ketu always retrograde; the Moon a malefic in the dark fortnight, our reading), unless both are in an enemy's sign, debilitated or combust (6.86)", "Muhurta Chintamani 6.42, 6.86, pp. 268-270, 298-299", "bar"),
+    "navamsa": ("The lagna's navamsa is not Gemini, Virgo, Libra or the first half of Sagittarius (Pisces and Dharmasindhu's Taurus and Cancer apart)", "Muhurta Chintamani 6.82-83, pp. 294-295", "bar"),
+    "last_navamsa": ("The last navamsa of the sign, unless vargottama", "Muhurta Chintamani 6.83, p. 295", "bar"),
+    "movable_navamsa": ("With the Moon in Libra or Capricorn, a movable navamsa in a movable lagna", "Muhurta Chintamani 6.83, p. 295", "bar"),
+    "vimsopaka": ("Under 5 of 6.90's 20 points: rejected", "Muhurta Chintamani 6.90, pp. 301-302", "bar"),
+    "purity_lagna": ("The groom's side is not pure: neither the navamsa's lord, the lagna lord nor a benefic friend of the navamsa's lord joins or aspects the lagna or its navamsa (any aspect fraction, by the lord's sign: our reading)", "Muhurta Chintamani 6.73-76, pp. 290-292", "heavy"),
+    "purity_seventh": ("The bride's side is not pure: the same test for the 7th and the 7th from the lagna's navamsa", "Muhurta Chintamani 6.73-76, pp. 290-292", "heavy"),
+    "kartari_moon": ("Kartari round the Moon, no benefic aspecting the Moon", "Kashyapa in Muhurta Chintamani 6.42 commentary, p. 268", "fault"),
+    "kuvarga": ("Fewer than three of the lagna's six vargas (sign, hora, drekkana, navamsa, dvadashamsha, trimshamsha) ruled by benefics", "Vasishtha in Muhurta Chintamani 6.40 commentary, p. 265; Dharmasindhu p. 182", "fault"),
+    "navamsa_pisces": ("A Pisces navamsa: only when no other lagna clears", "Muhurta Chintamani 6.82 commentary, p. 294", "last_resort"),
+    "vimsopaka_poor": ("5 to under 10 of 6.90's points: poor, only when no other lagna exists", "Muhurta Chintamani 6.90, p. 302", "last_resort"),
+    "navamsa_ds_only": ("A Taurus or Cancer navamsa: good by Dharmasindhu only", "Dharmasindhu p. 182", "ds_only"),
+    "blind_lagna": ("A blind lagna at its time (by day Leo, Aries, Taurus; by night Virgo, Gemini, Cancer), not aspected by its lord or Jupiter, nor lifted by Mercury, Jupiter or Venus in a kendra other than the 7th or a trine (6.87)", "Muhurta Chintamani 6.79, 6.81, 6.87, pp. 293-294, 299", "light"),
+    "deaf_lagna": ("A deaf lagna at its time (by day Libra, Scorpio; by night Capricorn, Sagittarius), not aspected by its lord or Jupiter, nor lifted under 6.87", "Muhurta Chintamani 6.79, 6.81, 6.87, pp. 293-294, 299", "light"),
+    "lame_lagna": ("A lame lagna at its time (by day Aquarius; by night Pisces), not aspected by its lord or Jupiter, nor lifted under 6.87 (our reading)", "Muhurta Chintamani 6.79, 6.81, 6.87, pp. 293-294, 299", "light"),
+    "moon_seventh_malefic": ("The Sun, Mars, Saturn, Rahu or Ketu elsewhere in the 7th sign from the Moon, the Moon not exalted, in its own, a benefic's or a friend's sign, nor aspected by a benefic", "the Dipika in Muhurta Chintamani 6.84 commentary, pp. 296-297", "light"),
+    "hemming_lagna": ("Malefics on both sides of the lagna without MC's kartari: the lesser hemming fault", "Muhurta Chintamani 6.42 commentary, p. 268; Dharmasindhu p. 182", "light"),
+    "hemming_moon": ("Malefics on both sides of the Moon without MC's kartari: the lesser hemming fault", "Muhurta Chintamani 6.42 commentary, p. 268; Dharmasindhu p. 182", "light"),
+}  # fmt: skip
+VIVAH_LAGNA_GRADES = {
+    "best": "15 or more of 6.90's 20 points (an edge goes to the grade above: our reading)",
+    "middling": "10 to under 15 points",
+    "poor": "5 to under 10 points: only when no other lagna exists",
+    "rejected": "Under 5 points",
+}
+VIVAH_KUVARGA = {
+    "good": "More than three of the six vargas ruled by benefics",
+    "middling": "Exactly three (our reading)",
+    "bad": "Fewer than three: kuvarga, one of Dharmasindhu's twenty-one great doshas",
+}
 # mundan.md (the lead's decisions of 15 Oct 2026): rule ids for /muhurat/mundan.
 MUNDAN_RULES = {
     "month": ("Not Caitra, nor an adhika or kshaya month", "Muhurta Chintamani 5.29, 1.47; Dharmasindhu p. 137"),
@@ -1370,6 +1418,12 @@ def _english() -> dict:
         "gocharaNotes": GOCHARA_NOTES,
         "vivahRules": {k: {"name": n, "source": src} for k, (n, src) in VIVAH_RULES.items()},
         "vivahNotes": VIVAH_NOTES,
+        "vivahLagnaRules": {
+            k: {"name": n, "source": src, "level": lvl}
+            for k, (n, src, lvl) in VIVAH_LAGNA_RULES.items()
+        },
+        "vivahLagnaGrades": VIVAH_LAGNA_GRADES,
+        "vivahKuvarga": VIVAH_KUVARGA,
         "grihaPraveshRules": {
             k: {"name": n, "source": src} for k, (n, src) in GRIHA_PRAVESH_RULES.items()
         },
