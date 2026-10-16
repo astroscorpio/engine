@@ -27,7 +27,7 @@ from .fmt import provenance
 from .ids import MASA_IDS, NAKSHATRA_IDS, SIGN_IDS, tithi_id
 from .matching import moon_of
 from .models import VIVAH_SPAN_DAYS, ChartIn, EkadashiQuery, VivahPersonalRequest
-from .timeutil import iso
+from .timeutil import iso, local_jd
 from .transit_service import _gochara_from
 from .vivah import vivah
 from .vivah_lagna import NAV, _sees
@@ -77,6 +77,8 @@ def _partner(raw, side: str, eldest: bool) -> Partner:
         if moon.time_known:
             p.lagna = c.asc.sign
             p.muhurta = _muhurta_of(c.jd, c.lat, c.lon)
+        elif _tithi_changed(raw, c.ayanamsa):
+            p.tithi = None  # a birth time is needed to know which tithi it was
     if p.lagna is None:
         p.skipped.append("eighth_lagna_from_lagna")
     if eldest:
@@ -86,6 +88,14 @@ def _partner(raw, side: str, eldest: bool) -> Partner:
         if p.muhurta is None:
             p.skipped.append("birth_muhurta")
     return p
+
+
+def _tithi_changed(raw: ChartIn, ayanamsa: str) -> bool:
+    """With the birth time unknown: did the tithi change during the birth day?"""
+    zone = raw.place.tz
+    a = local_jd(raw.date, 0.0, zone)
+    b = local_jd(raw.date, 23.9997, zone)
+    return Mu.tithi_at(a, ayanamsa) != Mu.tithi_at(b, ayanamsa)
 
 
 def _muhurta_of(jd: float, lat: float, lon: float) -> tuple[bool, int]:
@@ -111,7 +121,7 @@ def _mark(rule: str, sides: list[str]) -> dict:
     return {"rule": rule, "side": "both" if len(sides) == 2 else sides[0]}
 
 
-def _moment(t: float, couple: list[Partner], bright: bool) -> tuple[list, list, list, list]:
+def _moment(t: float, couple: list[Partner]) -> tuple[list, list, list, list]:
     """P2-P5 at one moment: (bars, faults, supports, lifted) as marks."""
     p = positions(t)
     moon = p["Moon"]
@@ -119,7 +129,7 @@ def _moment(t: float, couple: list[Partner], bright: bool) -> tuple[list, list, 
     tithi = Mu.tithi_at(t)
     bars, faults, supports, lifted = [], [], [], []
     lord = SIGN_LORDS[moon.sign]
-    benefic_sign = lord in BENEFICS or (moon.sign == 3 and bright)
+    benefic_sign = lord in BENEFICS or (moon.sign == 3 and tithi <= 15)  # the bright Moon's own
     weak_moon, bad_tara, fav = [], [], []
     for x in couple:
         goch = _gochara_from(x.moon_sign, p)
@@ -254,7 +264,6 @@ def _judge_day(day: dict, couple: list[Partner], q) -> tuple[dict | None, list[s
     cuts = _muhurta_bars(day, couple, q)
     windows = []
     for w in day["windows"]:
-        bright = w["paksha"] == "shukla"
         bars_min = dict(w["lagnaBars"])
         lagnas = []
         for lg in w["lagnas"]:
@@ -265,7 +274,7 @@ def _judge_day(day: dict, couple: list[Partner], q) -> tuple[dict | None, list[s
                 bars_min["birth_muhurta"] = bars_min.get("birth_muhurta", 0) + gone
             for x, y in pieces:
                 mid = (x + y) / 2
-                bars, faults, supports, lifted = _moment(mid, couple, bright)
+                bars, faults, supports, lifted = _moment(mid, couple)
                 lb, lf, ls, ll = _lagna_marks(SIGN_IDS.index(lg["sign"]), mid, couple)
                 bars += lb
                 if bars:
@@ -281,9 +290,8 @@ def _judge_day(day: dict, couple: list[Partner], q) -> tuple[dict | None, list[s
     godhuli, godhuli_bars = day["godhuli"], None
     if godhuli:
         a, b = _jd(godhuli["start"]), _jd(godhuli["end"])
-        bright = day["windows"][0]["paksha"] == "shukla"
         pieces = _cut(a, b, cuts)
-        bars, faults, supports, lifted = _moment((a + b) / 2, couple, bright)
+        bars, faults, supports, lifted = _moment((a + b) / 2, couple)
         godhuli_bars = [m["rule"] for m in bars] + ([] if pieces else ["birth_muhurta"])
         if godhuli_bars:
             godhuli = None

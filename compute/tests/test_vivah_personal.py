@@ -94,3 +94,19 @@ def test_given_year_lists_give_the_same_answer():
     status2, fed = search(span, yearLists=[listed])
     assert status == status2 == 200
     assert fed["days"] == plain["days"] and fed["removed"] == plain["removed"]
+
+
+def test_an_unknown_birth_time_skips_what_it_cannot_settle():
+    status, base = search(SPAN)
+    first = dt.date.fromisoformat(base["days"][0]["date"])
+    groom = {
+        "date": first.replace(year=first.year - 30).isoformat(),
+        "timeUnknown": True,
+        "place": {"name": "x", **PLACE},
+    }
+    body = {**SPAN, **PLACE, "bride": STARS["bride"], "groom": groom, "groomEldest": True}
+    status, out = call("POST", "/v1/muhurat/vivah/personal", body=body)
+    assert status == 200, out
+    g = out["partners"]["groom"]
+    assert g["lagna"] is None and "birth_muhurta" in g["skipped"]
+    assert (g["birthTithi"] is None) == ("birth_tithi" in g["skipped"])
