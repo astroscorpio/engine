@@ -3,7 +3,7 @@ import datetime as dt
 from conftest import call
 
 from astro_compute import festivals as F
-from astro_compute.meta import FESTIVAL_RULES
+from astro_compute.meta import FESTIVAL_CAUTIONS, FESTIVAL_RULES
 
 DELHI = {"year": "2026", "lat": "28.6139", "lon": "77.2090", "tz": "Asia/Kolkata"}
 
@@ -271,6 +271,44 @@ def test_akshaya_tritiya_parashurama_and_guru_purnima_2026():
     chosen = next(d for d in g["days"] if d["date"] == g["date"])
     if g["rule"] == "three_muhurtas_later":
         assert chosen["morning"]["covered"] == 1
+
+
+def test_guru_purnima_split_years_add_the_sunrise_day():
+    """Decision 29, on synthetic Purnima ends placed around the 2026 sunrise."""
+    import swisseph as swe
+
+    from astro_compute.models import EkadashiQuery
+
+    def jd(iso):
+        t = dt.datetime.fromisoformat(iso).astimezone(dt.UTC)
+        return swe.julday(t.year, t.month, t.day, t.hour + t.minute / 60 + t.second / 3600)
+
+    (g,) = _rows("guru-purnima")
+    q = EkadashiQuery(year=2026, lat=28.6139, lon=77.2090, tz="Asia/Kolkata")
+    start = jd(g["tithi"]["start"])
+    r0, r1, _ = F._sunrises(start, q.lat, q.lon, 3)
+    d0, d1 = F._date(r0, q), F._date(r1, q)
+
+    def run(end):
+        o = F._guru_purnima(start, end, end + 1, q)
+        return o["date"], o["rule"], o["variantDate"], o["variantBasis"], o["cautions"]
+
+    # Holding the later sunrise for three muhurtas or more: that day, no variant.
+    assert run(r1 + 0.2) == (d1, "three_muhurtas_later", None, None, [])
+    # For less: the texts' earlier day, with the sunrise day as popular practice.
+    popular = (d0, "caturdashi_joined_earlier", d1, "popular_practice", ["popular_sunrise_day"])
+    assert run(r1 + 0.05) == popular and "popular_sunrise_day" in FESTIVAL_CAUTIONS
+    # Holding no sunrise: the earlier day, with nothing to vary.
+    assert run(r1 - 0.01) == (d0, "caturdashi_joined_earlier", None, None, [])
+
+    def year(y):
+        status, out = call("GET", "/v1/festivals/guru-purnima", {**DELHI, "year": str(y)})
+        assert status == 200, out
+        return out["occurrences"][0]
+
+    assert all(year(y)["variantDate"] is None for y in range(2026, 2030))
+    o = year(2030)
+    assert (o["variantDate"], o["cautions"]) == (o["days"][1]["date"], ["popular_sunrise_day"])
 
 
 def test_bengal_durga_puja_follows_the_sunrise_tithi():

@@ -1227,16 +1227,20 @@ def _guru_purnima(start: float, end: float, _next: float, q: EkadashiQuery) -> d
     """NS p. 160, DS p. 43: the Vyasa-puja of ascetics on the Ashadha Purnima, on the
     later day if the Purnima lasts three muhurtas or more after its sunrise, otherwise
     the earlier, Caturdashi-joined day (DS p. 20). The worship is in the morning (the
-    1st fifth of the daytime, our reading of NS p. 28)."""
+    1st fifth of the daytime, our reading of NS p. 28). Decision 29 (16 Oct 2026): when
+    the Purnima holds the later sunrise for less than three muhurtas, that sunrise day is
+    variantDate, as popular practice (caution popular_sunrise_day)."""
     base = _base(start, end, 15, q)
     if not _in_month(base, "ashadha"):
         return None
     s, days = _days(start, end, q, ())
     muhurta = (_sunset(s[1], q) - s[1]) / 15
-    if start <= s[1] < end and end - s[1] >= 3 * muhurta:
+    held = start <= s[1] < end
+    if held and end - s[1] >= 3 * muhurta:
         chosen, rule = 1, "three_muhurtas_later"
     else:
         chosen, rule = 0, "caturdashi_joined_earlier"
+    popular = held and chosen == 0
     sr = s[chosen]
     morning = (sr, sr + (_sunset(sr, q) - sr) / 5)
     strip = _strip(days)
@@ -1249,6 +1253,9 @@ def _guru_purnima(start: float, end: float, _next: float, q: EkadashiQuery) -> d
         "date": days[chosen]["date"],
         "vara": days[chosen]["vara"],
         "rule": rule,
+        "variantDate": days[1]["date"] if popular else None,
+        "variantBasis": "popular_practice" if popular else None,
+        "cautions": ["popular_sunrise_day"] if popular else [],
         "popularName": "Guru Purnima",
         "displayName": "Vyāsa-pūjā",
         "pujaWindow": _span(_clip(start, end, morning) or morning, q),
