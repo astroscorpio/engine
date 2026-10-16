@@ -100,3 +100,35 @@ def test_travel_labels_map_to_mc_11_rule_ids():
         == "travel_best_tithi"
     )
     assert rule_id("Chandrashtama", "defect") == "chandrashtama"
+
+
+def test_hindi_lane_names_cover_every_kind(meta):
+    """The lead, 16 Oct 2026: /hi/ pages take every name from meta, never retyping one."""
+    from astro_compute.festivals import FESTIVALS
+
+    assert set(meta["festivals"]) == set(FESTIVALS)
+    kinds = set(FESTIVALS) | set(meta["observances"])
+    assert all(set(d["kinds"]) <= kinds for d in meta["festivalDays"].values())
+    assert len(meta["tithiNames"]) == 30 and set(meta["sankrantis"]) == set(meta["signs"])
+    assert meta["tithiNames"]["krishna_chaturdashi"] == {
+        "name": "Krishna Chaturdashi",
+        "tithi": "chaturdashi",
+        "paksha": "krishna",
+        "num": 29,
+    }
+    assert all(m["adhikaName"] == f"Adhika {m['name']}" for m in meta["masas"].values())
+
+
+def test_pending_hindi_labels_name_real_ids(meta):
+    """Labels awaiting the lead's review must merge cleanly once their prefix is dropped."""
+    import json
+    import pathlib
+
+    path = pathlib.Path(__file__).parents[2] / "api/src/meta/hi.labels.json"
+    for key, names in json.loads(path.read_text(encoding="utf-8")).items():
+        if not key.startswith("_pending_"):
+            continue
+        section = meta[key.removeprefix("_pending_")]
+        for k, v in names.items():
+            assert k in section, (key, k)
+            assert set(v if isinstance(v, dict) else {"name": v}) <= set(section[k]), (key, k)

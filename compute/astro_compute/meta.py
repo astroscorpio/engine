@@ -837,16 +837,16 @@ FESTIVAL_RULES = {
         "kanya_sankranti_punyakala": ("Vishwakarma Puja: the day of the Kanya sankranti's punyakala, as /observances/sankranti computes it (popular practice; no text read gives the day)", None),
     },
     "karthigai-deepam": {
-        "krittika_at_sunset": ("Karthigai Deepam: the day in the solar month Karttikai (the Sun in sidereal Vrischika, the month begun by the Tamil Rule) whose sunset falls in Krittika, at Tiruvannamalai for every city (popular practice, documented by Warren in 1825)", "Kala Sankalita p. 401"),
-        "two_sunsets_sunrise_day": ("Krittika at both sunsets: the day that also has it at sunrise; the other day is the variant (our reading; popular practice)", None),
-        "no_sunset_evening_it_begins": ("Krittika at neither sunset: the evening on which it begins; the next day is the variant (popular practice)", None),
+        "krittika_at_sunset": ("Karthigai Deepam is kept on the day in the solar month Karttikai whose sunset falls in Krittika, computed at Tiruvannamalai for every city (our rule, from the kept days; popular practice)", None),
+        "two_sunsets_sunrise_day": ("When Krittika holds both sunsets, the day that also has it at sunrise is taken, and the other day is the variant (our reading; popular practice)", None),
+        "no_sunset_evening_it_begins": ("When Krittika holds neither sunset, the evening on which it begins is taken, and the next day is the variant (popular practice)", None),
     },
     "pongal": {
         "tamil_rule_day_ingress": ("Pongal, Thai 1: the Sun enters sidereal Makara between sunrise and sunset, so the solar month Thai begins that day (the Tamil Rule); computed at Chennai for every city", "The Indian Calendar (Sewell and Dikshit, 1896), Art. 28, p. 12"),
         "tamil_rule_night_ingress": ("Pongal, Thai 1: the Sun enters sidereal Makara after sunset or before dawn, so Thai begins at the next sunrise (the Tamil Rule); computed at Chennai for every city", "The Indian Calendar (Sewell and Dikshit, 1896), Art. 28, p. 12"),
     },
     "lohri": {
-        "eve_of_ingress_day": ("Lohri: the evening before the day, counted from sunrise to sunrise at Amritsar, in which the Sun enters sidereal Makara (that day is Maghi); for every city, with no time (popular practice; no text read gives the day)", None),
+        "eve_of_ingress_day": ("Lohri is kept on the evening before the day, counted from sunrise to sunrise at Amritsar, in which the Sun enters sidereal Makara; that day is Maghi. One date for every city, with no time (popular practice; no text read gives the day)", None),
     },
     "durga-puja": {
         "sunrise_ashtami": ("Mahashtami: the Ashtami current at sunrise for a muhurta, joined to the Navami", "Tithi-tattva pp. 77-79"),
@@ -943,7 +943,7 @@ FESTIVAL_NOTES = {
     "radhashtami": "Popular practice; no text read gives the day. Our rule: the Bhadrapada shukla Ashtami covering midday (the 3rd fifth of daylight); if it covers both middays or neither, the later day, whose sunrise holds the Ashtami. pujaWindow is that midday, by practice. Dharmasindhu gives this Ashtami to the Durvashtami and a Jyeshtha-devi puja (p. 56).",
     "onam": "Popular practice; no text read gives the day. A civil day is in Chingam when the Sun is in sidereal Simha at its sunrise. Onam (Tiruvonam, the Shravana nakshatra) is the Chingam day whose sunrise falls in Shravana with at least 6 nadikas (2 h 24 min) of it left, else the day before; the six-nadika test is our statement of common Kerala usage. When Chingam holds two Tiruvonams both are shown (twoTiruvonam) and the rule does not choose between them. Each Onam carries atham, the festival's opening on Atham (Hasta): the last day before that Tiruvonam whose sunrise falls in Hasta with 6 nadikas of it left, else the day before; it can fall in late Karkataka, before Chingam (our reading; popular practice). Atham and Tiruvonam are star-days, so the festival runs nine to eleven civil days, not always ten; give both dates. The textual days sharing the Vamana story, the Shravana-dvadashi and Vamana-jayanti, are lunar days and do not give Onam's date.",
     "vishwakarma-puja": "Popular practice; no text read gives the worship. The day is the Kanya sankranti's punyakala as /observances/sankranti computes it; only that basis is textual (Dharmasindhu p. 2; Nirnaya-sindhu p. 5). In the Bengal calendar it is the last day of Bhadra.",
-    "karthigai-deepam": "Popular practice, documented by Warren (Kala Sankalita, 1825, p. 401): Cartica Deepum, 'the day on which the Moon is in the Nacshatra Critica during the month Cartica'. One date for every city, computed at Tiruvannamalai: the day in the solar month Karttikai (the Sun in sidereal Vrischika, the month begun by the Tamil Rule of Sewell and Dikshit's The Indian Calendar, 1896) whose sunset falls in Krittika. Krittika at neither sunset: the evening on which it begins, with the next day also kept. Krittika at both sunsets: the day that also has it at sunrise (our reading). Where moving either end of Krittika by one ghatika (24 minutes) would change the day, the other day is given too (our reading). Two Krittika days in one Karttikai are both shown (twoKrittika) and the rule does not choose between them. The texts' lamps of the Karttika Purnima, the Tripurotsava (Nirnaya-sindhu p. 312; Dharmasindhu p. 84), fall on the same day only in some years (tripurotsava). No time is given for lighting the lamps.",
+    "karthigai-deepam": "Popular practice, documented by Warren (Kala Sankalita, 1825, p. 401): Cartica Deepum, 'the day on which the Moon is in the Nacshatra Critica during the month Cartica'. One date for every city, computed at Tiruvannamalai: the day in the solar month Karttikai (the Sun in sidereal Vrischika, the month begun by the Tamil Rule of Sewell and Dikshit's The Indian Calendar, 1896) whose sunset falls in Krittika; that sunset test is our rule, drawn from the kept days. When Krittika holds neither sunset, the evening on which it begins is taken, and the next day is also kept. When it holds both, the day that also has it at sunrise is taken (our reading). Where moving either end of Krittika by one ghatika (24 minutes) would change the day, the other day is given too (our reading). Two Krittika days in one Karttikai are both shown (twoKrittika) and the rule does not choose between them. The texts' lamps of the Karttika Purnima, the Tripurotsava (Nirnaya-sindhu p. 312; Dharmasindhu p. 84), fall on the same day only in some years (tripurotsava). No time is given for lighting the lamps.",
     "pongal": "Thai Pongal is the first day of the Tamil solar month Thai, the Sun in sidereal Makara, by the Tamil Rule of Sewell and Dikshit's The Indian Calendar (1896, Art. 28, p. 12): an ingress between sunrise and sunset starts the month that day, a later one at the next sunrise. That is also the southern usage for the Makara day (Nirnaya-sindhu p. 326; Dharmasindhu p. 85). One date for every city, computed at Chennai. Warren (Kala Sankalita, 1825, p. 402) describes the boiled rice offered to the Sun and scattered over the fields, and the cattle worshipped and decked on Mattu Pongal, the day after; Dharmasindhu p. 86 gives the Makara rites: the bath, sesame, and the Sun bathed with milk. When the Sun enters Makara by day but less than three hours before sunset, Pongal is also commonly kept the next day (variantDate; popular practice, our reading), as it was on 15 Jan 2026. Bhogi, the day before, and Kanum Pongal, two days after, are popular practice, as are the four days as a set, the pot boiling over, sugarcane, kolam, Bhogi's bonfire, Kanu, Jallikattu and Thiruvalluvar Day. No time is given for setting the pot.",
     "lohri": "Popular practice; no text read names Lohri. It is kept on the evening before the day, counted from sunrise to sunrise at Amritsar, in which the Sun enters sidereal Makara; that day is Maghi, the first of Magh. One date for every city, with no time. Linking Maghi to Baudhayana's two holy days after a night ingress, kept in the north (Nirnaya-sindhu p. 327), is our reading. The bonfire, the Dulla Bhatti songs, rewri and gajak are popular practice.",
     "navaratriDays": "Navaratra names a worship set in nine tithis, the Pratipada to the Navami (DS p. 65). Each day's worship goes with the tithi at its sunrise (our reading of DS p. 66); a tithi touching two sunrises is worshipped on both days and one touching none on the day it falls in, so the Navaratri runs eight, nine or ten days. Some keep only eight worships when a day is lost (DS p. 66). The first day is the kalasha-sthapana day.",
@@ -1032,6 +1032,8 @@ AMAVASYA_NAMES = {
     "bhauma": ("Bhauma Amavasya (Tuesday)", "On a Tuesday Amavasya, bathing in the Ganga gives the fruit of a thousand cows", "Nirnaya-sindhu p. 73 (Satatapa)"),
     "shani": ("Shani Amavasya (Saturday)", "Popular observance; no classical source found", None),
 }  # fmt: skip
+# Shown labelled popular, as the English page does (the lead, 16 Oct 2026).
+AMAVASYA_POPULAR = {"mahalaya": "Sarva Pitru Amavasya"}
 SHRADDHA_NOTE = (
     "Hemadri makes the kutapa primary for households without sacred fires; Harita's rule by "
     "Vedic branch decides equal coverage (Nirnaya-sindhu pp. 82, 86-87). Kshaya and vrddhi "
@@ -1349,6 +1351,147 @@ for _rid in ("same_sign_lord", "sign_lords_friendly", "tara_pure_both_ways"):
     MATCHING_NOTES[f"{_rid}_but_nadi_dosha"] = MATCHING_NOTES[_rid] + ", but nadi is not clear"
 
 
+# --- Names for the Hindi lane (the lead, 16 Oct 2026) ---------------------------------------
+# /hi/ pages take every name from meta and never retype one: these are the English names, and
+# api/src/meta/hi.labels.json holds the reviewed Hindi. Festival names follow the site's pages.
+FESTIVAL_NAMES = {
+    "dipavali": "Diwali",
+    "mahashivaratri": "Maha Shivratri",
+    "masik-shivaratri": "Masik Shivratri",
+    "ganesha-chaturthi": "Ganesh Chaturthi",
+    "raksha-bandhan": "Raksha Bandhan",
+    "janmashtami": "Janmashtami",
+    "sharad-navaratri": "Sharad Navratri",
+    "chaitra-navaratri": "Chaitra Navratri",
+    "ramanavami": "Ram Navami",
+    "vijayadashami": "Dussehra",
+    "holika-dahana": "Holika Dahan",
+    "karva-chauth": "Karwa Chauth",
+    "tulsi-vivah": "Tulsi Vivah",
+    "tripurotsava": "Dev Diwali",
+    "vasanta-panchami": "Basant Panchami",
+    "ratha-saptami": "Ratha Saptami",
+    "bhishma-ashtami": "Bhishma Ashtami",
+    "kalashtami": "Kaal Bhairav Jayanti",
+    "dattatreya-jayanti": "Dattatreya Jayanti",
+    "ganesha-jayanti": "Ganesh Jayanti",
+    "holashtak": "Holashtak",
+    "akshaya-tritiya": "Akshaya Tritiya",
+    "parashurama-jayanti": "Parshuram Jayanti",
+    "guru-purnima": "Guru Purnima",
+    "durga-puja": "Durga Puja",
+    "vat-savitri": "Vat Savitri",
+    "ganga-dussehra": "Ganga Dussehra",
+    "rath-yatra": "Rath Yatra",
+    "sawan-somvar": "Sawan Somwar",
+    "hariyali-teej": "Hariyali Teej",
+    "kajari-teej": "Kajari Teej",
+    "hartalika-teej": "Hartalika Teej",
+    "nag-panchami": "Nag Panchami",
+    "rishi-panchami": "Rishi Panchami",
+    "anant-chaturdashi": "Anant Chaturdashi",
+    "chhath": "Chhath Puja",
+    "chaiti-chhath": "Chaiti Chhath",
+    "hanuman-jayanti": "Hanuman Jayanti",
+    "radhashtami": "Radha Ashtami",
+    "onam": "Onam",
+    "vishwakarma-puja": "Vishwakarma Puja",
+    "karthigai-deepam": "Karthigai Deepam",
+    "lohri": "Lohri",
+    "pongal": "Pongal",
+}
+CHHATHS = ["chhath", "chaiti-chhath"]
+# Named days inside a kind's answer: id -> (name, the kinds that carry it).
+FESTIVAL_DAY_NAMES = {
+    "dhanteras": ("Dhanteras", ["dipavali"]),
+    "narakaChaturdashi": ("Naraka Chaturdashi", ["dipavali"]),
+    "lakshmiPuja": ("Lakshmi Puja", ["dipavali"]),
+    "govardhan": ("Govardhan Puja", ["dipavali"]),
+    "bhaiDooj": ("Bhai Dooj", ["dipavali"]),
+    "colours": ("Rangwali Holi", ["holika-dahana"]),
+    "vasantotsava": ("Vasantotsava", ["holika-dahana"]),
+    "durgashtami": ("Durga Ashtami", ["sharad-navaratri"]),
+    "mahashtami": ("Maha Ashtami", ["durga-puja"]),
+    "mahanavami": ("Maha Navami", ["sharad-navaratri", "durga-puja"]),
+    "newYear": ("Hindu New Year (Gudi Padwa, Ugadi)", ["chaitra-navaratri"]),
+    "bodhana": ("Bodhan", ["durga-puja"]),
+    "amantrana": ("Amantran", ["durga-puja"]),
+    "patrikaPravesha": ("Navapatrika Pravesh", ["durga-puja"]),
+    "sandhiPuja": ("Sandhi Puja", ["durga-puja", "sharad-navaratri"]),
+    "visarjana": ("Durga Visarjan", ["durga-puja"]),
+    "nahayKhay": ("Nahay Khay", CHHATHS),
+    "kharna": ("Kharna", CHHATHS),
+    "sandhyaArghya": ("Sandhya Arghya", CHHATHS),
+    "ushaArghya": ("Usha Arghya", CHHATHS),
+    "atham": ("Atham", ["onam"]),
+    "bhogi": ("Bhogi", ["pongal"]),
+    "mattuPongal": ("Mattu Pongal", ["pongal"]),
+    "kanumPongal": ("Kanum Pongal", ["pongal"]),
+    "maghi": ("Maghi", ["lohri"]),
+    "vatPurnima": ("Vat Purnima", ["vat-savitri"]),
+    "vatSavitriVrat": ("Vat Savitri Vrat", ["vat-savitri"]),
+    "sakatChauth": ("Sakat Chauth", ["sankashti"]),
+    "vaikunthaEkadashi": ("Vaikuntha Ekadashi", ["ekadashi"]),
+    "gitaJayanti": ("Gita Jayanti", ["ekadashi"]),
+}
+OBSERVANCE_NAMES = {
+    "ekadashi": "Ekadashi",
+    "purnima": "Purnima",
+    "amavasya": "Amavasya",
+    "pradosha": "Pradosh Vrat",
+    "sankashti": "Sankashti Chaturthi",
+    "pitru-paksha": "Pitru Paksha",
+    "sankranti": "Sankranti",
+}
+SANKRANTI_NAMES = dict(
+    zip(
+        SIGN_IDS,
+        (
+            f"{s} Sankranti"
+            for s in (
+                "Mesh", "Vrishabh", "Mithun", "Kark", "Simha", "Kanya",
+                "Tula", "Vrishchik", "Dhanu", "Makar", "Kumbh", "Meen",
+            )
+        ),
+        strict=True,
+    )
+)  # fmt: skip
+HORA_LORDS = ("sun", "moon", "mars", "mercury", "jupiter", "venus", "saturn")
+PANCHANG_LABELS = {
+    "sunrise": "Sunrise",
+    "sunset": "Sunset",
+    "moonrise": "Moonrise",
+    "moonset": "Moonset",
+    "tithi": "Tithi",
+    "paksha": "Paksha",
+    "nakshatra": "Nakshatra",
+    "yoga": "Yoga",
+    "karana": "Karana",
+    "vara": "Weekday",
+    "masa": "Month",
+    "amanta": "Amanta month",
+    "purnimanta": "Purnimanta month",
+    "adhika": "Adhika",
+    "choghadiya": "Choghadiya",
+    "hora": "Hora",
+    "day": "Day",
+    "night": "Night",
+}
+
+
+def _tithi_names() -> dict:
+    """The 30 tithis with their paksha: shukla_pratipada ... purnima, krishna_pratipada ...
+    amavasya."""
+    out = {}
+    for n in range(1, 31):
+        tid = _tithi_of(n)
+        paksha = "shukla" if n <= 15 else "krishna"
+        key = tid if tid in ("purnima", "amavasya") else f"{paksha}_{tid}"
+        name = TITHI_DISPLAY[tid] if key == tid else f"{paksha.title()} {TITHI_DISPLAY[tid]}"
+        out[key] = {"name": name, "tithi": tid, "paksha": paksha, "num": n}
+    return out
+
+
 def engine_info() -> dict:
     return {
         "name": "jyotisha",
@@ -1439,7 +1582,10 @@ def _english() -> dict:
             }
             for lord in VARA_ID
         },
-        "masas": {MASA_ID[m]: {"name": m, "num": i + 1} for i, m in enumerate(Mu.MASA)},
+        "masas": {
+            MASA_ID[m]: {"name": m, "num": i + 1, "adhikaName": f"Adhika {m}"}
+            for i, m in enumerate(Mu.MASA)
+        },
         "choghadiya": {
             name.lower(): {
                 "name": name,
@@ -1542,7 +1688,7 @@ def _english() -> dict:
         },
         "gangaYogas": {k: {"name": v} for k, v in GANGA_YOGAS.items()},
         "amavasyaNames": {
-            k: {"name": n, "note": note, "source": src}
+            k: {"name": n, "note": note, "source": src, "popularName": AMAVASYA_POPULAR.get(k)}
             for k, (n, note, src) in AMAVASYA_NAMES.items()
         },
         # keyed by the rows' nameId: "<purnimanta month>_<paksha>", or "adhika_<paksha>"
@@ -1610,6 +1756,13 @@ def _english() -> dict:
             for rid in sorted({rid for _, rid in RULES} | {"favoured_hora", "malefic_hora"})
         },
         "ayanamsas": {k: {"name": v} for k, v in AYANAMSAS.items()},
+        "tithiNames": _tithi_names(),
+        "festivals": {k: {"name": v} for k, v in FESTIVAL_NAMES.items()},
+        "festivalDays": {k: {"name": n, "kinds": ks} for k, (n, ks) in FESTIVAL_DAY_NAMES.items()},
+        "observances": {k: {"name": v} for k, v in OBSERVANCE_NAMES.items()},
+        "sankrantis": {k: {"name": v} for k, v in SANKRANTI_NAMES.items()},
+        "horas": {g: {"name": f"{g.title()} hora"} for g in HORA_LORDS},
+        "panchangLabels": {k: {"name": v} for k, v in PANCHANG_LABELS.items()},
         "kootas": {
             k: {"name": KOOTA_NAMES[k], "max": M.MAX[k], "source": M.SOURCES[k]} for k in M.MAX
         },
