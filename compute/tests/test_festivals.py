@@ -683,3 +683,105 @@ def test_one_place_kinds_compute_once_per_year():
     )
     london = F.festival("lohri", EkadashiQuery(year=2031, lat=51.5, lon=-0.13, tz="Europe/London"))
     assert delhi == london and F._one_place.cache_info().hits == 1
+
+
+def test_mesha_new_year_and_gangaur():
+    """Decisions 33-34 (s30-31): research's expected days and every kept year it found."""
+
+    def days(kind, years):
+        out = {}
+        for y in years:
+            status, o = call("GET", f"/v1/festivals/{kind}", {**DELHI, "year": str(y)})
+            assert status == 200, o
+            (row,) = o["occurrences"]
+            out[y] = (row["date"][5:], row["rule"])
+        return out
+
+    vishu = days("vishu", (2018, 2020, 2021, 2022, 2023, 2025, 2026, 2027, 2028, 2029, 2030))
+    assert {y: d for y, (d, _) in vishu.items()} == {
+        2018: "04-15",
+        2020: "04-14",
+        2021: "04-14",
+        2022: "04-15",
+        2023: "04-15",
+        2025: "04-14",
+        2026: "04-15",
+        2027: "04-15",
+        2028: "04-14",
+        2029: "04-14",
+        2030: "04-15",
+    }
+    tamil = days("tamil-new-year", range(2019, 2031))
+    assert all(d == "04-14" for d, _ in tamil.values())
+    assert (tamil[2027][1], tamil[2028][1]) == (
+        "tamil_rule_day_ingress",
+        "tamil_rule_night_ingress",
+    )
+    baisakhi = days("baisakhi", (2021, 2023, 2024, 2025, 2027, 2028, 2029, 2030))
+    assert {y: d for y, (d, _) in baisakhi.items()} == {
+        2021: "04-13",
+        2023: "04-14",
+        2024: "04-13",
+        2025: "04-13",
+        2027: "04-14",
+        2028: "04-13",
+        2029: "04-13",
+        2030: "04-14",
+    }
+    gangaur = days("gangaur", range(2024, 2031))
+    assert {y: d for y, (d, _) in gangaur.items()} == {
+        2024: "04-11",
+        2025: "03-31",
+        2026: "03-21",
+        2027: "04-09",
+        2028: "03-29",
+        2029: "04-17",
+        2030: "04-06",
+    }
+    assert gangaur[2025][1] == "kshaya_dvitiya_joined"
+
+
+def test_monthly_vratas_agree_with_their_annual_days():
+    """Decision 35 (s32): Vinayaka's Bhadrapada row is Ganesha Chaturthi's day, the monthly
+    Kalashtami's Karttika row the annual one's, and Skanda Shashthi meets Tiruchendur's kept
+    Karttika days."""
+
+    def rows(kind, year, place=DELHI):
+        status, o = call("GET", f"/v1/festivals/{kind}", {**place, "year": str(year)})
+        assert status == 200, o
+        return o["occurrences"]
+
+    def month(kind, year, masa, place=DELHI):
+        found = [
+            r
+            for r in rows(kind, year, place)
+            if r["lunarMonth"]["amanta"] == masa and not r["lunarMonth"]["adhika"]
+        ]
+        assert len(found) == 1, (kind, year, masa)
+        return found[0]
+
+    for year in (2025, 2027, 2033):
+        (g,) = rows("ganesha-chaturthi", year)
+        assert month("vinayaka-chaturthi", year, "bhadrapada")["date"] == g["date"]
+    v = month("vinayaka-chaturthi", 2027, "bhadrapada")
+    assert (v["date"], v["dsEarlier"], v["rule"]) == ("2027-09-04", "2027-09-03", "next_day_midday")
+    assert 12 <= len(rows("vinayaka-chaturthi", 2027)) <= 13
+    tiruchendur = {"lat": "8.4946", "lon": "78.1219", "tz": "Asia/Kolkata"}
+    k23 = month("skanda-sashti", 2023, "kartika", tiruchendur)
+    assert (k23["date"], k23["rule"]) == ("2023-11-18", "panchami_joined_by_day")
+    k24 = month("skanda-sashti", 2024, "kartika", tiruchendur)
+    assert (k24["date"], k24["rule"]) == ("2024-11-07", "first_sunrise_in_shashthi")
+    assert month("skanda-sashti", 2025, "kartika", tiruchendur)["date"] == "2025-10-27"
+    for year in (2026, 2027, 2028):
+        (a,) = rows("kalashtami", year)
+        m = month("kalashtami-monthly", year, "kartika")
+        assert (m["date"], m["rule"], m["variantDate"]) == (a["date"], a["rule"], a["variantDate"])
+
+
+def test_ganesha_chaturthi_carries_ds_p9_as_a_note():
+    """Research, 16 Oct 2026: section 4 stays on NS p. 47; DS p. 9's earlier day is a note."""
+    for year, want in ((2026, None), (2027, "2027-09-03")):
+        status, out = call("GET", "/v1/festivals/ganesha-chaturthi", {**DELHI, "year": str(year)})
+        assert status == 200, out
+        (g,) = out["occurrences"]
+        assert g["dsEarlier"] == want and (want is None or want < g["date"])

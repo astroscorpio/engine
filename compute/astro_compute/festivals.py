@@ -356,17 +356,22 @@ def _shivaratri(
 # --- Ganesha Chaturthi (NS pp. 47, 198) -------------------------------------------
 
 
+def _caturthi_choice(days: list[dict]) -> tuple[int, str, int]:
+    """NS p. 47 (Brhaspati, "madhyahna-vyapini cet syat paratah, pare 'hani"): the next day
+    if the Caturthi reaches its midday, else the earlier, Trtiya-joined day; with DS p. 9's
+    stricter day, the later only when it fills the later day's whole midday alone (research,
+    16 Oct 2026): (chosen, rule, DS's day)."""
+    c0, c1 = (d["madhyahna"]["covered"] for d in days)
+    chosen, rule = (1, "next_day_midday") if c1 > 0 else (0, "trtiya_joined_earlier")
+    return chosen, rule, 1 if c1 >= 1 and c0 < 1 else 0
+
+
 def _ganesha(start: float, end: float, _next: float, q: EkadashiQuery) -> dict | None:
     base = _base(start, end, 4, q)
     if not _in_month(base, "bhadrapada"):
         return None
     _, days = _days(start, end, q, ("madhyahna",))
-    # "madhyahna-vyapini cet syat paratah, pare 'hani": the next day if the
-    # Chaturthi reaches its midday; otherwise the earlier day, joined with Trtiya.
-    if days[1]["madhyahna"]["covered"] > 0:
-        chosen, rule = 1, "next_day_midday"
-    else:
-        chosen, rule = 0, "trtiya_joined_earlier"
+    chosen, rule, ds = _caturthi_choice(days)
     w = days[chosen]["_w"]["madhyahna"]
     return {
         **base,
@@ -374,6 +379,7 @@ def _ganesha(start: float, end: float, _next: float, q: EkadashiQuery) -> dict |
         "date": days[chosen]["date"],
         "vara": days[chosen]["vara"],
         "rule": rule,
+        "dsEarlier": days[ds]["date"] if ds < chosen else None,
         "pujaWindow": _span(_clip(start, end, w) or w, q),
         "moonAvoid": {"start": iso(start, q.tz), "end": iso(end, q.tz)},
     }
@@ -1021,20 +1027,8 @@ def _kalashtami(start: float, end: float, _next: float, q: EkadashiQuery) -> dic
     base = _base(start, end, 23, q)
     if not _in_month(base, "kartika"):
         return None
-    s, days = _days(start, end, q, ("madhyahna", "pradosha"))
-    mid = [d["madhyahna"]["covered"] > 0 for d in days]
-    pr = [d["pradosha"]["covered"] > 0 for d in days]
-    window = "madhyahna"
-    if pr[0] and not mid[0] and mid[1] and not pr[1]:
-        chosen, rule, window, variant = 0, "pradosha_only_earlier_ds", "pradosha", 1
-    else:
-        if mid[0] != mid[1]:
-            chosen, rule = (0 if mid[0] else 1), "midday"
-        elif mid[0]:
-            chosen, rule = 0, "midday_both_earlier"
-        else:
-            chosen, rule = 1, "midday_neither_sunrise_day"
-        variant = (0 if pr[0] else 1) if pr[0] != pr[1] else 1
+    _, days = _days(start, end, q, ("madhyahna", "pradosha"))
+    chosen, rule, window, variant = _kala_choice(days)
     w = days[chosen]["_w"][window]
     return {
         **base,
@@ -1047,6 +1041,21 @@ def _kalashtami(start: float, end: float, _next: float, q: EkadashiQuery) -> dic
         "pujaWindow": _span(_clip(start, end, w) or w, q),
         "vigil": _vigil(start, end, days, q),
     }
+
+
+def _kala_choice(days: list[dict]) -> tuple[int, str, str, int]:
+    """D4's day on the two candidate days (DS pp. 10, 84): (chosen, rule, window, variant)."""
+    mid = [d["madhyahna"]["covered"] > 0 for d in days]
+    pr = [d["pradosha"]["covered"] > 0 for d in days]
+    if pr[0] and not mid[0] and mid[1] and not pr[1]:
+        return 0, "pradosha_only_earlier_ds", "pradosha", 1
+    if mid[0] != mid[1]:
+        chosen, rule = (0 if mid[0] else 1), "midday"
+    elif mid[0]:
+        chosen, rule = 0, "midday_both_earlier"
+    else:
+        chosen, rule = 1, "midday_neither_sunrise_day"
+    return chosen, rule, "madhyahna", (0 if pr[0] else 1) if pr[0] != pr[1] else 1
 
 
 def _vigil(start: float, end: float, days: list[dict], q) -> dict:
@@ -2006,6 +2015,14 @@ def _makara(q) -> float:
     return _ingress(CAPRICORN, t0, t0 + 31, q)
 
 
+def _tamil_day(t: float, q) -> tuple[float, bool, float]:
+    """The Tamil Rule's first day for an ingress at t: (its sunrise, whether the ingress fell
+    by day, the sunset of the day holding it)."""
+    s0, s1 = _sunrises(t, q.lat, q.lon, 2)
+    ss = _sunset(s0, q)
+    return (s0, True, ss) if t < ss else (s1, False, ss)
+
+
 def _pongal(q: EkadashiQuery) -> tuple[list[dict], dict]:
     """s28.1-28.2 (decision 31): Thai 1 by the Tamil Rule on our Makara ingress, at Chennai
     for every city. A day ingress less than three hours before sunset adds the next day
@@ -2013,10 +2030,7 @@ def _pongal(q: EkadashiQuery) -> tuple[list[dict], dict]:
     and Kanum Pongal are the day before, after and two after, each with its variant."""
     c = _at(CHENNAI, q)
     t = _makara(c)
-    s0, s1 = _sunrises(t, c.lat, c.lon, 2)
-    ss = _sunset(s0, c)
-    by_day = t < ss
-    first = s0 if by_day else s1
+    first, by_day, ss = _tamil_day(t, c)
     margin = by_day and ss - t < PONGAL_MARGIN
 
     def day(n: int, basis: str, source: dict | None = None) -> dict:
@@ -2059,6 +2073,147 @@ def _lohri(q: EkadashiQuery) -> tuple[list[dict], dict]:
         "ingress": {"at": iso(t, a.tz)},
     }
     return [row], {"computedAt": AMRITSAR}
+
+
+# --- The Mesha new year and Gangaur (festivals.md s30-31, decisions 33-34, 16 Oct 2026) ---
+
+KOCHI = {"name": "Kochi", "lat": 9.9312, "lon": 76.2673, "tz": "Asia/Kolkata"}
+ARIES = 0
+
+
+def _mesha(q) -> float:
+    t0 = local_jd(dt.date(q.year, 3, 25), 0.0, q.tz, "year")
+    return _ingress(ARIES, t0, t0 + 35, q)
+
+
+def _vishu(q: EkadashiQuery) -> tuple[list[dict], dict]:
+    """s30.1 (decision 33): the day whose sunrise is the first after our Mesha ingress, at
+    Kochi for every city: our reading of the kept days and of the Kani, the new year's first
+    sight (Logan 1887; Nagam Aiya 1906). Popular practice."""
+    k = _at(KOCHI, q)
+    t = _mesha(k)
+    _, s1 = _sunrises(t, k.lat, k.lon, 2)
+    row = {
+        "date": _date(s1, k),
+        "vara": _vara(s1, k),
+        "rule": "first_sunrise_after_ingress",
+        "ingress": {"at": iso(t, k.tz)},
+    }
+    return [row], {"computedAt": KOCHI}
+
+
+def _tamil_new_year(q: EkadashiQuery) -> tuple[list[dict], dict]:
+    """s30.2 (decision 33): Chittirai 1 by the Tamil Rule on our Mesha ingress, at Chennai for
+    every city, as Pongal's Thai 1. Research re-checks 2027 against that year's holiday list;
+    a labelled next-day variant is added only if it finds the 15th."""
+    c = _at(CHENNAI, q)
+    t = _mesha(c)
+    first, by_day, ss = _tamil_day(t, c)
+    row = {
+        "date": _date(first, c),
+        "vara": _vara(first, c),
+        "rule": "tamil_rule_day_ingress" if by_day else "tamil_rule_night_ingress",
+        "variantDate": None,
+        "variantBasis": None,
+        "cautions": [],
+        "ingress": {"at": iso(t, c.tz), "sunset": iso(ss, c.tz)},
+    }
+    return [row], {"computedAt": CHENNAI}
+
+
+def _baisakhi(q: EkadashiQuery) -> tuple[list[dict], dict]:
+    """s30.3 (decision 33): the day, sunrise to sunrise at Amritsar, that holds our Mesha
+    ingress, as Lohri's Maghi; for every city, with no time. Popular practice."""
+    a = _at(AMRITSAR, q)
+    t = _mesha(a)
+    (s0,) = _sunrises(t, a.lat, a.lon, 1)
+    row = {
+        "date": _date(s0, a),
+        "vara": _vara(s0, a),
+        "rule": "day_holding_ingress",
+        "ingress": {"at": iso(t, a.tz)},
+    }
+    return [row], {"computedAt": AMRITSAR}
+
+
+def _gangaur(start: float, end: float, _next: float, q: EkadashiQuery) -> dict | None:
+    """s31 (decision 34): the Caitra shukla Tritiya by DS p. 9's Gauri-vrata rule: the day
+    whose sunrise is the last the Tritiya holds, even by a trace (two: the later, Caturthi-
+    joined); holding none, the Dvitiya-joined day it begins. NS's muhurta is a note."""
+    base = _base(start, end, 3, q)
+    if not _in_month(base, "chaitra"):
+        return None
+    s = _sunrises(start, q.lat, q.lon, 4)  # s[0] <= start < s[1]
+    held = [sr for sr in s[1:] if sr < end]
+    if held:
+        day, rule = held[-1], "two_sunrises_later" if len(held) > 1 else "sunrise_tritiya"
+    else:
+        day, rule = s[0], "kshaya_dvitiya_joined"
+    return {
+        **base,
+        "date": _date(day, q),
+        "vara": _vara(day, q),
+        "rule": rule,
+        "popularName": "Gangaur",
+        "displayName": "Gaurī-tṛtīyā",
+    }
+
+
+# --- Monthly vratas (festivals.md s32, decision 35, 16 Oct 2026) --------------------------
+
+
+def _vinayaka(start: float, end: float, _next: float, q: EkadashiQuery) -> dict:
+    """s32.1 (the lead's ruling): each shukla Caturthi by the live Ganesha Caturthi rule (NS
+    p. 47), so the Bhadrapada row matches ganesha-chaturthi. dsEarlier is DS p. 9's stricter
+    day where it is earlier: the later only when the Caturthi pervades the later day's whole
+    midday alone. A note; it never moves the date."""
+    base = _base(start, end, 4, q)
+    _, days = _days(start, end, q, ("madhyahna",))
+    chosen, rule, ds = _caturthi_choice(days)
+    w = days[chosen]["_w"]["madhyahna"]
+    return {
+        **base,
+        "days": _strip(days),
+        "date": days[chosen]["date"],
+        "vara": days[chosen]["vara"],
+        "rule": rule,
+        "dsEarlier": days[ds]["date"] if ds < chosen else None,
+        "popularName": "Vinayaka Chaturthi",
+        "pujaWindow": _span(_clip(start, end, w) or w, q),
+    }
+
+
+def _skanda(start: float, end: float, _next: float, q: EkadashiQuery) -> dict:
+    """s32.2: each shukla Shashthi joined to the Panchami (VR f. 108; NS p. 48; DS pp. 9-10):
+    the day on which it begins between sunrise and sunset; begun at night, the first day
+    whose sunrise it holds. The joining by day is our reading."""
+    base = _base(start, end, 6, q)
+    s = _sunrises(start, q.lat, q.lon, 2)  # s[0] <= start < s[1]
+    if start < _sunset(s[0], q):
+        day, rule = s[0], "panchami_joined_by_day"
+    elif s[1] < end:
+        day, rule = s[1], "first_sunrise_in_shashthi"
+    else:  # wholly inside one night, only far north
+        day, rule = s[0], "night_only_day_it_begins"
+    return {**base, "date": _date(day, q), "vara": _vara(day, q), "rule": rule}
+
+
+def _kalashtami_monthly(start: float, end: float, _next: float, q: EkadashiQuery) -> dict:
+    """s32.3: each krishna Ashtami by the annual day's D4 rule (DS p. 10: some fast on every
+    dark Ashtami for Kalabhairava, decided as the Bhairava-jayanti), without its vigil."""
+    base = _base(start, end, 23, q)
+    _, days = _days(start, end, q, ("madhyahna", "pradosha"))
+    chosen, rule, window, variant = _kala_choice(days)
+    w = days[chosen]["_w"][window]
+    return {
+        **base,
+        "days": _strip(days),
+        "date": days[chosen]["date"],
+        "vara": days[chosen]["vara"],
+        "rule": rule,
+        "variantDate": days[variant]["date"] if variant != chosen else None,
+        "pujaWindow": _span(_clip(start, end, w) or w, q),
+    }
 
 
 def _year(q: EkadashiQuery, num: int | set[int], build) -> list[dict]:
@@ -2144,6 +2299,16 @@ FESTIVALS = {
     "lohri": (None, None, None, None),
     # Decision 31: Thai 1 by the Tamil Rule (SD p. 12), sourced; the set below.
     "pongal": (None, None, None, None),
+    # Decision 33: the Mesha new year at one regional place each; Tamil New Year is sourced.
+    "vishu": (None, None, None, None),
+    "tamil-new-year": (None, None, None, None),
+    "baisakhi": (None, None, None, None),
+    # Decision 34: per city, as every tithi festival.
+    "gangaur": (3, _gangaur, "p. 114", "pp. 9, 31-32"),
+    # Decision 35: the monthly vratas, per city; Vinayaka Chaturthi monthly is popular practice.
+    "vinayaka-chaturthi": (4, _vinayaka, None, None),
+    "skanda-sashti": (6, _skanda, "p. 48", "pp. 9-10"),
+    "kalashtami-monthly": (23, _kalashtami_monthly, None, "p. 10"),
 }
 POPULAR = {
     "chhath",
@@ -2154,15 +2319,21 @@ POPULAR = {
     "vishwakarma-puja",
     "karthigai-deepam",
     "lohri",
+    "vishu",
+    "baisakhi",
+    "vinayaka-chaturthi",
 }
-# Computed at one regional place for every city (decisions 31-32): once per year and ayanamsa.
-ONE_PLACE = {"karthigai-deepam", "pongal", "lohri"}
+# Computed at one regional place for every city (decisions 31-33): once per year and ayanamsa.
+ONE_PLACE = {"karthigai-deepam", "pongal", "lohri", "vishu", "tamil-new-year", "baisakhi"}
 YEARLY = {
     "onam": _onam,
     "vishwakarma-puja": _vishwakarma,
     "karthigai-deepam": _karthigai,
     "pongal": _pongal,
     "lohri": _lohri,
+    "vishu": _vishu,
+    "tamil-new-year": _tamil_new_year,
+    "baisakhi": _baisakhi,
 }
 KALA_SANKALITA = {
     "text": "Kala Sankalita",
@@ -2181,6 +2352,7 @@ SEWELL_DIKSHIT = {
     "verse": "Art. 28, the Tamil Rule",
     "page": "12",
 }
+DS_MESHA = {**DS, "verse": "the Mesha sankranti bath and gifts", "page": "31"}
 KRTYARATNAKARA = {
     "text": "Krtyaratnakara",
     "author": "Candeshvara Thakkura",
@@ -2223,6 +2395,35 @@ CONTEXT = {
             "page": "327",
         }
     ],
+    "vishu": [
+        {
+            "text": "Malabar (the Malabar Manual)",
+            "author": "William Logan",
+            "edition": "Government Press, Madras, 1887, vol. 1",
+            "verse": "Vishu, the astronomical new year day",
+            "page": "160-161",
+        },
+        {
+            "text": "The Travancore State Manual",
+            "author": "V. Nagam Aiya",
+            "edition": "Travancore Government Press, Trivandrum, 1906, vol. 2",
+            "verse": "Vishu and the Kani",
+            "page": "366-367",
+        },
+        {**SEWELL_DIKSHIT, "verse": "Art. 28, rule (b), the Malabar month's own rule"},
+    ],
+    "tamil-new-year": [DS_MESHA],
+    "vinayaka-chaturthi": [
+        {
+            **SOURCE,
+            "verse": "Brhaspati: the Caturthi at midday, the next day if it reaches it",
+            "page": "47",
+        },
+        {**DS, "verse": "the Vinayaka-vrata Caturthi at midday", "page": "9"},
+        {**DS, "verse": "the Caitra shukla Caturthi, Ganesha at midday", "page": "32"},
+        {**DS, "verse": "the Magha shukla Caturthi, decided as the Bhadrapada one", "page": "89"},
+    ],
+    "baisakhi": [DS_MESHA],
 }
 RITE_SOURCES = {
     "karva-chauth": VRATARAJA,
@@ -2232,6 +2433,8 @@ RITE_SOURCES = {
     "ratha-saptami": {**VRATARAJA, "page": "f. 115"},
     "sawan-somvar": {**VRATARAJA, "page": "ff. 347-354"},
     "hartalika-teej": {**VRATARAJA, "page": "ff. 48-52"},
+    "gangaur": {**VRATARAJA, "page": "f. 38"},
+    "skanda-sashti": {**VRATARAJA, "page": "f. 108"},
 }
 # NS p. 149 quotes the Skanda from the Tithi-tattva (part 1, p. 19).
 TT_RATHA = {**TITHI_TATTVA, "text": "Tithi-tattva (Raghunandana), quoting the Skanda", "page": "19"}
@@ -2270,6 +2473,14 @@ def festival(kind: str, q: EkadashiQuery) -> dict:
         source = SEWELL_DIKSHIT
         also = {**SOURCE, "verse": "the southern usage of a night Makara ingress", "page": "326"}
         extra["context"] = CONTEXT["pongal"]
+    elif kind == "tamil-new-year":
+        source = SEWELL_DIKSHIT
+        also = {
+            **KALA_SANKALITA,
+            "verse": "Varsharumbum, the solar year's beginning",
+            "page": "402",
+        }
+        extra["context"] = CONTEXT["tamil-new-year"]
     elif kind == "holashtak":
         source = MC_140
     elif kind == "durga-puja":
