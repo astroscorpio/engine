@@ -223,6 +223,9 @@ class VivahPersonalRequest(Model):
     groom: VivahPartner
     brideEldest: bool = False  # MC 6.14, DS p. 181: a first-born (eldest) bride
     groomEldest: bool = False
+    # The public year lists, when the Worker has them cached (never from a client: the
+    # Worker builds the body itself).
+    yearLists: list[dict] | None = None
 
     model_config = ConfigDict(extra="ignore", populate_by_name=True)
 

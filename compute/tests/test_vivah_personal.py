@@ -83,3 +83,14 @@ def test_a_first_born_partner_loses_the_birth_month():
     for d in out["days"]:
         for w in d["windows"]:
             assert w["tithi"] != g["birthTithi"] or not w["lagnas"]
+
+
+def test_given_year_lists_give_the_same_answer():
+    # The Worker passes the cached public lists; the answer must not depend on it.
+    status, listed = call("GET", "/v1/muhurat/vivah", {"year": str(YEAR), **PLACE})
+    assert status == 200
+    span = {"from": dt.date(YEAR, 2, 1).isoformat(), "until": dt.date(YEAR, 3, 31).isoformat()}
+    status, plain = search(span)
+    status2, fed = search(span, yearLists=[listed])
+    assert status == status2 == 200
+    assert fed["days"] == plain["days"] and fed["removed"] == plain["removed"]

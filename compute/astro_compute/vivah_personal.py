@@ -337,10 +337,13 @@ def _span_days(req: VivahPersonalRequest) -> list[dict]:
             "span_too_long", f"the search span is limited to {VIVAH_SPAN_DAYS} days", 422, "until"
         )
     lo, hi = req.from_.isoformat(), req.until.isoformat()
+    given = {y.get("year"): y for y in req.yearLists or [] if isinstance(y.get("days"), list)}
     out = []
     for year in range(req.from_.year, req.until.year + 1):
-        q = EkadashiQuery(year=year, lat=req.lat, lon=req.lon, tz=req.tz)
-        out += [d for d in vivah(q)["days"] if lo <= d["date"] <= hi]
+        listed = given.get(year)
+        if listed is None:
+            listed = vivah(EkadashiQuery(year=year, lat=req.lat, lon=req.lon, tz=req.tz))
+        out += [d for d in listed["days"] if lo <= d["date"] <= hi]
     return out
 
 
