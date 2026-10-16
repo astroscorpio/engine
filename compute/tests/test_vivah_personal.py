@@ -5,7 +5,7 @@ from conftest import call
 from jyotisha.ephemeris import positions
 
 from astro_compute.ids import NAKSHATRA_IDS
-from astro_compute.meta import VIVAH_LAGNA_RULES, VIVAH_PERSONAL_RULES
+from astro_compute.meta import VIVAH_LAGNA_RULES, VIVAH_LIFTS, VIVAH_PERSONAL_RULES
 
 PLACE = {"lat": 28.6139, "lon": 77.2090, "tz": "Asia/Kolkata"}
 YEAR = 2027
@@ -36,6 +36,10 @@ def test_the_couple_marks_follow_the_rules():
         for lg in rows:
             marks = lg["personal"]["faults"] + lg["personal"]["supports"]
             assert all(VIVAH_PERSONAL_RULES[m["rule"]][2] != "bar" for m in marks)
+            for m in lg["personal"]["lifted"]:
+                assert m["rule"] in ("tara_bad", "eighth_lagna") and m["by"] in VIVAH_LIFTS
+                if m["rule"] == "eighth_lagna":  # Virgo's 8th is Aries; Taurus's is Sagittarius
+                    assert lg["sign"] in ("aries", "sagittarius")
             assert lg["clean"] == (not lg["faults"] and not lg["personal"]["faults"])
             moon = positions((jd(lg["start"]) + jd(lg["end"])) / 2)["Moon"]
             star = int(moon.longitude // (360 / 27)) % 27
@@ -45,6 +49,9 @@ def test_the_couple_marks_follow_the_rules():
                     assert tara in (3, 5, 7)
         for w in d["windows"]:
             assert all(k in VIVAH_LAGNA_RULES or k in VIVAH_PERSONAL_RULES for k in w["lagnaBars"])
+    for r in out["removed"]:
+        if r["rules"] == ["no_lagna"]:
+            assert "barred" in r and "godhuliBars" in r
 
 
 def test_the_span_is_capped():

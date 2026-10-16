@@ -225,6 +225,21 @@ VIVAH_PERSONAL_RULES = {
     "janma_lagna_rising": ("A partner's birth lagna rising, or an upacaya sign (3, 6, 10, 11) from their birth lagna or Moon sign", MC_P271, "support", None),
     "no_lagna": ("No lagna and no godhuli left for the couple", "Muhurta Chintamani 6.97-99", "bar", None),
 }  # fmt: skip
+# What lifted a rule that would otherwise apply, for `lifted` in 7i lagnas and 7q marks.
+GURU_P272 = "Guru in Muhurta Chintamani 6.45 commentary, p. 272"
+VIVAH_LIFTS = {
+    "mc_6_86": ("Cancelled by MC 6.86: an enemy's sign, debilitation or combustion (for kartari, both malefics; for the Moon, debilitated or in a debilitated navamsa)", "Muhurta Chintamani 6.86, p. 298"),
+    "moon_sign": ("The Moon exalted, or in its own, a benefic's or a friend's sign", "Rajamartanda and Vyavaharasamuccaya in Muhurta Chintamani 6.65 commentary, p. 286"),
+    "moon_aspected": ("The Moon aspected by a benefic", "Rajamartanda and Vyavaharasamuccaya in Muhurta Chintamani 6.65 commentary, p. 286"),
+    "benefic_aspect": ("A benefic aspecting the Moon", "Kashyapa in Muhurta Chintamani 6.42 commentary, p. 268"),
+    "lord_or_jupiter_aspect": ("The sign's lord or Jupiter aspecting the lagna", "Muhurta Chintamani 6.81, p. 294"),
+    "mc_6_87": ("Mercury, Jupiter or Venus in a kendra other than the 7th, or in a trine", "Muhurta Chintamani 6.87, p. 299"),
+    "mc_5_32": ("The Moon in a benefic's sign and good by gochara for that partner", "Muhurta Chintamani 5.32, p. 192"),
+    "guru_kendra_aspect": ("Guru's remedy: the lagna lord in a kendra, aspected by a benefic", GURU_P272),
+    "guru_navamsa": ("Guru's remedy: the lagna lord in its own or a benefic's navamsa", GURU_P272),
+    "guru_exalted": ("Guru's remedy: the lagna lord exalted", GURU_P272),
+    "guru_own_friend": ("Guru's remedy: the lagna lord in its own or a friend's sign (BPHS friendship: our reading)", GURU_P272),
+}  # fmt: skip
 VIVAH_JUPITER_BRIDE = {
     "best": "Jupiter in the 2nd, 5th, 7th, 9th or 11th from the bride's Moon sign",
     "worship": "In the 1st, 3rd, 6th or 10th: with worship",
@@ -1472,6 +1487,7 @@ def _english() -> dict:
             for k, (n, src, lvl, rem) in VIVAH_PERSONAL_RULES.items()
         },
         "vivahJupiterBride": VIVAH_JUPITER_BRIDE,
+        "vivahLifts": {k: {"name": n, "source": src} for k, (n, src) in VIVAH_LIFTS.items()},
         "vivahPersonalNotes": VIVAH_PERSONAL_NOTES,
         "grihaPraveshRules": {
             k: {"name": n, "source": src} for k, (n, src) in GRIHA_PRAVESH_RULES.items()

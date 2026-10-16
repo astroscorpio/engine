@@ -149,7 +149,7 @@ def test_listed_lagnas_pass_the_bars():
     checked here from the ephemeris at the lagna's middle."""
     from jyotisha.ephemeris import ascendant, positions
 
-    from astro_compute.meta import VIVAH_LAGNA_RULES
+    from astro_compute.meta import VIVAH_LAGNA_RULES, VIVAH_LIFTS
 
     level = {k: v[2] for k, v in VIVAH_LAGNA_RULES.items()}
     malefic = {"Sun", "Mars", "Saturn", "Rahu", "Ketu", "Moon"}
@@ -166,6 +166,9 @@ def test_listed_lagnas_pass_the_bars():
                 assert w["start"] <= lg["start"] < lg["end"] <= w["end"]
                 assert all(level[f] != "bar" for f in lg["faults"])
                 assert lg["clean"] == (lg["faults"] == [])
+                for lift in lg["lifted"]:  # a lifted rule is shown, never also applied
+                    assert lift["rule"] in level and lift["by"] in VIVAH_LIFTS
+                    assert lift["rule"] not in lg["faults"]
                 pts = lg["points"]
                 grade = "best" if pts >= 15 else "middling" if pts >= 10 else "poor"
                 assert pts >= 5 and lg["grade"] == grade
@@ -197,9 +200,9 @@ def test_kartari_needs_a_direct_malefic_behind_and_a_retrograde_one_ahead():
         return {g: Position(g, lon, speed) for g, (lon, speed) in base.items()}
 
     # Taurus rising: the 12th is Aries, the 2nd Gemini.
-    assert V._kartari(chart(Sun=(15.0, 1.0), Saturn=(75.0, -0.05)), 1, True) == (True, False)
+    assert V._kartari(chart(Sun=(15.0, 1.0), Saturn=(75.0, -0.05)), 1, True)[:2] == (True, False)
     assert V._kartari(chart(Sun=(15.0, 1.0), Rahu=(75.0, 0.02)), 1, True)[0]  # nodes retrograde
-    assert V._kartari(chart(Sun=(15.0, 1.0), Mars=(75.0, 0.6)), 1, True) == (False, True)
+    assert V._kartari(chart(Sun=(15.0, 1.0), Mars=(75.0, 0.6)), 1, True)[:2] == (False, True)
     # The dark fortnight's Moon is a malefic (V1, our reading); the bright one is not.
     moon_behind = chart(Moon=(20.0, 13.0), Saturn=(75.0, -0.05))
     assert V._kartari(moon_behind, 1, False)[0] and not V._kartari(moon_behind, 1, True)[0]

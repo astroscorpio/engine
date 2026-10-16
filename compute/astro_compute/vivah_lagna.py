@@ -119,29 +119,32 @@ def _weak(p: dict, g: str) -> bool:
     return _enemy_sign(p, g) or _debilitated(p, g) or _combust(p, g)
 
 
-def _kartari(p: dict, base: int, bright: bool) -> tuple[bool, bool]:
+def _kartari(p: dict, base: int, bright: bool) -> tuple[bool, bool, bool]:
     """MC 6.42 from `base`: a direct malefic in the 12th and a retrograde one in the
-    2nd, not cancelled by 6.86 (both weak, our reading); and plain hemming, malefics in
-    both the 2nd and the 12th."""
+    2nd, not cancelled by 6.86 (both weak); plain hemming, malefics in both the 2nd and
+    the 12th; and whether 6.86 cancelled a kartari that was there."""
     house = {g: (p[g].sign - base) % 12 + 1 for g in GRAHAS}
     bad = [g for g in GRAHAS if _malefic(g, bright)]
     twelfth = [g for g in bad if house[g] == 12]
     second = [g for g in bad if house[g] == 2]
     pairs = [(d, r) for d in twelfth for r in second if _direct(p, d) and not _direct(p, r)]
     kartari = any(not (_weak(p, d) and _weak(p, r)) for d, r in pairs)
-    return kartari, bool(twelfth and second and not pairs)
+    return kartari, bool(twelfth and second and not pairs), bool(pairs) and not kartari
 
 
-def _moon_lifted(p: dict) -> bool:
+def _moon_lifted(p: dict) -> str | None:
     """MC p. 286 (Rajamartanda, Vyavaharasamuccaya): the Moon exalted, in its own sign,
-    in a benefic's or a friend's sign, or aspected by a benefic."""
+    in a benefic's or a friend's sign ("moon_sign"), or aspected by a benefic
+    ("moon_aspected")."""
     sign = p["Moon"].sign
     lord = SIGN_LORDS[sign]
     if sign in (1, 3) or lord in ("Mercury", "Jupiter", "Venus"):
-        return True
+        return "moon_sign"
     if lord in NATURAL_FRIENDS["Moon"][0]:
-        return True
-    return any(_sees(p, g, sign, occupy=False) for g in ("Mercury", "Jupiter", "Venus"))
+        return "moon_sign"
+    if any(_sees(p, g, sign, occupy=False) for g in ("Mercury", "Jupiter", "Venus")):
+        return "moon_aspected"
+    return None
 
 
 def _pure(p: dict, sign: int, nav: int, bright: bool) -> bool:
@@ -175,6 +178,10 @@ def judge(t: float, q, bright: bool, day: bool) -> dict:
     lord = SIGN_LORDS[lagna]
     bars: list[str] = []
     faults: list[str] = []
+    lifted: list[dict] = []  # rules that would apply, and what lifted them
+
+    def lift(rule: str, by: str) -> None:
+        lifted.append({"rule": rule, "by": by})
 
     # MC 6.84: the placements that break the lagna, with 6.86's cancellations.
     def at(h: int) -> list[str]:
@@ -184,10 +191,10 @@ def judge(t: float, q, bright: bool, day: bool) -> dict:
         bars.append("h1")
     if "Venus" in at(3):
         bars.append("h3_venus")
-    six = [g for g in at(6) if g in (lord, "Venus", "Moon")]
+    six_all = [g for g in at(6) if g in (lord, "Venus", "Moon")]
     six = [
         g
-        for g in six
+        for g in six_all
         if g == lord
         or not (
             (g == "Venus" and (_enemy_sign(p, g) or _debilitated(p, g)))
@@ -196,12 +203,14 @@ def judge(t: float, q, bright: bool, day: bool) -> dict:
     ]
     if six:
         bars.append("h6")
+    elif six_all:
+        lift("h6", "mc_6_86")
     if at(7):
         bars.append("h7")  # also the jamitra from the lagna (MC 6.65), nodes included
-    eight = [g for g in at(8) if g in (lord, "Moon", "Mars") or _benefic(g, bright)]
+    eight_all = [g for g in at(8) if g in (lord, "Moon", "Mars") or _benefic(g, bright)]
     eight = [
         g
-        for g in eight
+        for g in eight_all
         if g == lord
         or not (
             (g == "Mars" and (_combust(p, g) or _enemy_sign(p, g) or _debilitated(p, g)))
@@ -210,6 +219,8 @@ def judge(t: float, q, bright: bool, day: bool) -> dict:
     ]
     if eight:
         bars.append("h8")
+    elif eight_all:
+        lift("h8", "mc_6_86")
     if "Mars" in at(10):
         bars.append("h10_mars")
     if "Saturn" in at(12):
@@ -218,37 +229,46 @@ def judge(t: float, q, bright: bool, day: bool) -> dict:
     # MC 6.65: the Moon in the 55th navamsa from a malefic, and the Dipika's lighter
     # fault of a malefic elsewhere in its 7th; both lapse with a well-placed Moon.
     moon_nav = int(p["Moon"].longitude // NAV)
-    lifted = _moon_lifted(p)
-    if not lifted:
-        opposite = [
-            g
-            for g in ("Sun", "Mars", "Saturn", "Rahu", "Ketu")
-            if (moon_nav - int(p[g].longitude // NAV)) % 108 == 54
-        ]
-        seventh = [
-            g
-            for g in ("Sun", "Mars", "Saturn", "Rahu", "Ketu")
-            if (p[g].sign - p["Moon"].sign) % 12 == 6 and g not in opposite
-        ]
-        if opposite:
-            bars.append("jamitra_moon")
-        if seventh:
-            faults.append("moon_seventh_malefic")
+    placed = _moon_lifted(p)
+    opposite = [
+        g
+        for g in ("Sun", "Mars", "Saturn", "Rahu", "Ketu")
+        if (moon_nav - int(p[g].longitude // NAV)) % 108 == 54
+    ]
+    seventh = [
+        g
+        for g in ("Sun", "Mars", "Saturn", "Rahu", "Ketu")
+        if (p[g].sign - p["Moon"].sign) % 12 == 6 and g not in opposite
+    ]
+    for rule, hit, put in (
+        ("jamitra_moon", opposite, bars),
+        ("moon_seventh_malefic", seventh, faults),
+    ):
+        if hit and placed:
+            lift(rule, placed)
+        elif hit:
+            put.append(rule)
 
     # MC 6.42: kartari from the lagna is a bar, from the Moon a fault unless a benefic
     # sees the Moon; plain hemming is the lesser fault.
-    kartari, hemmed = _kartari(p, lagna, bright)
+    kartari, hemmed, cancelled = _kartari(p, lagna, bright)
     if kartari:
         bars.append("kartari")
+    elif cancelled:
+        lift("kartari", "mc_6_86")
     elif hemmed:
         faults.append("hemming_lagna")
-    kartari_m, hemmed_m = _kartari(p, p["Moon"].sign, bright)
+    kartari_m, hemmed_m, cancelled_m = _kartari(p, p["Moon"].sign, bright)
     moon_seen = any(
         _sees(p, g, p["Moon"].sign, occupy=False) for g in ("Mercury", "Jupiter", "Venus")
     )
     if kartari_m:
-        if not moon_seen:
+        if moon_seen:
+            lift("kartari_moon", "benefic_aspect")
+        else:
             faults.append("kartari_moon")
+    elif cancelled_m:
+        lift("kartari_moon", "mc_6_86")
     elif hemmed_m:
         faults.append("hemming_moon")
 
@@ -293,10 +313,11 @@ def judge(t: float, q, bright: bool, day: bool) -> dict:
         if lagna not in signs:
             continue
         if _sees(p, lord, lagna, occupy=False) or _sees(p, "Jupiter", lagna, occupy=False):
-            continue
-        if lift87:  # "mukhah" takes in the lame lagna too (research, our reading)
-            continue
-        faults.append(rule)
+            lift(rule, "lord_or_jupiter_aspect")
+        elif lift87:  # "mukhah" takes in the lame lagna too (research, our reading)
+            lift(rule, "mc_6_87")
+        else:
+            faults.append(rule)
 
     # DS p. 182, no. 12: kuvarga.
     good = _kuvarga(asc, bright)
@@ -311,6 +332,7 @@ def judge(t: float, q, bright: bool, day: bool) -> dict:
         "kuvarga": "good" if good > 3 else "middling" if good == 3 else "bad",
         "bars": bars,
         "faults": faults,
+        "lifted": lifted,
         "supports": [GRAHA_ID[g] for g in supports],
     }
 
@@ -351,5 +373,5 @@ def window(a: float, b: float, q, bright: bool, sunrise: float, sunset: float) -
 
 
 def _same(a: dict, b: dict) -> bool:
-    keys = ("sign", "navamsa", "points", "grade", "kuvarga", "faults", "supports")
+    keys = ("sign", "navamsa", "points", "grade", "kuvarga", "faults", "lifted", "supports")
     return a["end"] == b["start"] and all(a[k] == b[k] for k in keys)
