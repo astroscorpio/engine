@@ -202,6 +202,44 @@ VIVAH_KUVARGA = {
     "middling": "Exactly three (our reading)",
     "bad": "Fewer than three: kuvarga, one of Dharmasindhu's twenty-one great doshas",
 }
+# vivah.md "Phase 3" (P1-P8, the lead's decisions of 16 Oct 2026): the couple's own
+# rules for /muhurat/vivah/personal (contract 7q). A remedy is the text's own statement.
+MC_P271 = "Kashyapa and Narada in Muhurta Chintamani 6.44 commentary, p. 271"
+VIVAH_PERSONAL_RULES = {
+    "sun_groom": ("The Sun good by gochara from the groom's Moon sign (with vedha)", "Muhurta Chintamani 6.12 and commentary, p. 234; Phaladipika 26", "support", None),
+    "sun_groom_weak": ("The Sun not good by gochara from the groom's Moon sign; the texts read give no remedy (a fault, not a bar: our reading)", "Muhurta Chintamani 6.12 and commentary, pp. 232-234", "fault", None),
+    "moon_good": ("The Moon good by gochara from the partner's Moon sign (with vedha)", "Muhurta Chintamani 6.12; Dharmasindhu p. 181", "support", None),
+    "moon_weak": ("The Moon not good by gochara for one partner", "Dharmasindhu p. 181", "fault", ("Dharmasindhu p. 181: if one of the two lacks the Moon's strength, a gift of silver or the like is made", "Dharmasindhu p. 181")),
+    "moon_weak_both": ("The Moon not good by gochara for both partners (a bar, since the text's remedy is for one: our reading)", "Dharmasindhu p. 181", "bar", None),
+    "tara_bad": ("The Moon's star is the 3rd, 5th or 7th tara (vipat, pratyari, vadha) from one partner's birth star, not lifted by the Moon in a benefic's sign and good by gochara (MC 5.32)", "Muhurta Chintamani 4.18 commentary, p. 157; 5.32, p. 192", "fault", ("Muhurta Chintamani 4.18: rock salt is the gift for a bad tara", "Muhurta Chintamani 4.18, p. 157")),
+    "tara_bad_both": ("A bad tara for both partners (a bar: our reading)", "Muhurta Chintamani 4.18 commentary, p. 157", "bar", None),
+    "birth_month": ("The first-born partner's birth month (amanta)", "Muhurta Chintamani 6.14, p. 236; ch. 1 commentary, pp. 28-29", "bar", None),
+    "birth_star": ("The Moon in the first-born partner's birth star", "Muhurta Chintamani 6.14, p. 236", "bar", None),
+    "birth_tithi": ("The first-born partner's birth tithi", "Muhurta Chintamani 6.14, p. 236", "bar", None),
+    "birth_muhurta": ("The muhurta of the day or night with the number of the first-born partner's birth muhurta (Vasishtha; the numbering is our reading)", "Muhurta Chintamani 6.14 commentary, p. 236", "bar", None),
+    "birth_day_favourable": ("The birth month, star or tithi of a partner who is not the first-born: favourable", "Muhurta Chintamani 6.14, p. 236 (Cyavana, Vatesvara)", "support", None),
+    "three_jyeshtha": ("Both partners first-born, in amanta Jyeshtha: the three jyeshthas", "Muhurta Chintamani 6.15, p. 236; Dharmasindhu p. 181", "bar", None),
+    "eldest_jyeshtha": ("One first-born partner, in Jyeshtha: middling, only when there is no other way", "Muhurta Chintamani 6.15 commentary, p. 236; Dharmasindhu p. 181", "light", None),
+    "eighth_lagna": ("The 8th sign from a partner's birth lagna or Moon sign rising, unless it is one of MC 6.45's exempt signs, or Guru's remedy holds: the lagna lord in a kendra aspected by a benefic, in its own or a benefic's navamsa, exalted, or in its own or a friend's sign (friendship by BPHS: our reading)", "Muhurta Chintamani 6.44-45, pp. 271-272", "bar", None),
+    "janma_rashi_rising": ("A partner's birth Moon sign rising", MC_P271, "fault", None),
+    "janma_lagna_rising": ("A partner's birth lagna rising, or an upacaya sign (3, 6, 10, 11) from their birth lagna or Moon sign", MC_P271, "support", None),
+    "no_lagna": ("No lagna and no godhuli left for the couple", "Muhurta Chintamani 6.97-99", "bar", None),
+}  # fmt: skip
+VIVAH_JUPITER_BRIDE = {
+    "best": "Jupiter in the 2nd, 5th, 7th, 9th or 11th from the bride's Moon sign",
+    "worship": "In the 1st, 3rd, 6th or 10th: with worship",
+    "condemned": "In the 4th, 8th or 12th",
+}
+VIVAH_PERSONAL_NOTES = {
+    "jupiterBride": "MC p. 233 grades Jupiter from the bride's Moon sign; Vyasa (p. 234) says a bride past ten needs only the tara, the Moon and the lagna, so it is shown for information.",
+    "bothEldest": "Both partners first-born: Dharmasindhu (p. 181) calls months other than Jyeshtha middling; MC's commentary rejects even that and records Garga's view that an eldest son and an eldest daughter should not marry each other (p. 237). It changes no date.",
+    "vrddhaGarga": "Vrddha-Garga counts the birth month as thirty days from the birthday (MC p. 29). Not applied.",
+    "jaganmohana": "In necessity the Jaganmohana narrows the first-born bar: Vasishtha keeps only the birth day, Atri three days, Bhaguri the birth fortnight (MC pp. 28, 236). Not applied.",
+    "naradaNavamsa": "Narada would also avoid the navamsas of the 8th sign (MC p. 272). Not applied.",
+    "ashtakavarga": "Narada lets ashtakavarga strength stand in when the gochara fails (MC p. 234); it is not computed here.",
+    "godhuli": "Godhuli stands in for the lagna only on an otherwise valid day, so the couple's Moon, tara and first-born tests apply to it (MC 6.97 commentary, p. 306).",
+    "starOnly": "A partner given by birth star has no birth lagna, month or tithi, so the rules needing them are skipped (partners.skipped).",
+}  # fmt: skip
 # mundan.md (the lead's decisions of 15 Oct 2026): rule ids for /muhurat/mundan.
 MUNDAN_RULES = {
     "month": ("Not Caitra, nor an adhika or kshaya month", "Muhurta Chintamani 5.29, 1.47; Dharmasindhu p. 137"),
@@ -1424,6 +1462,17 @@ def _english() -> dict:
         },
         "vivahLagnaGrades": VIVAH_LAGNA_GRADES,
         "vivahKuvarga": VIVAH_KUVARGA,
+        "vivahPersonalRules": {
+            k: {
+                "name": n,
+                "source": src,
+                "level": lvl,
+                "remedy": {"text": rem[0], "source": rem[1]} if rem else None,
+            }
+            for k, (n, src, lvl, rem) in VIVAH_PERSONAL_RULES.items()
+        },
+        "vivahJupiterBride": VIVAH_JUPITER_BRIDE,
+        "vivahPersonalNotes": VIVAH_PERSONAL_NOTES,
         "grihaPraveshRules": {
             k: {"name": n, "source": src} for k, (n, src) in GRIHA_PRAVESH_RULES.items()
         },

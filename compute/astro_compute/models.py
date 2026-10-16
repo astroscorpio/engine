@@ -199,6 +199,39 @@ class MatchingRequest(Model):
     groom: Partner
 
 
+def _vivah_partner_kind(value: object) -> str:
+    if isinstance(value, NakshatraIn) or (isinstance(value, dict) and "date" not in value):
+        return "star"
+    return "chart"
+
+
+# Contract 7q: a partner by birth chart, or by birth star when the time is unknown.
+VivahPartner = Annotated[
+    Annotated[ChartIn, Tag("chart")] | Annotated[NakshatraIn, Tag("star")],
+    Discriminator(_vivah_partner_kind),
+]
+VIVAH_SPAN_DAYS = 366
+
+
+class VivahPersonalRequest(Model):
+    from_: dt.date = Field(alias="from")
+    until: dt.date
+    lat: float = Field(ge=-90, le=90)
+    lon: float = Field(ge=-180, le=180)
+    tz: str
+    bride: VivahPartner
+    groom: VivahPartner
+    brideEldest: bool = False  # MC 6.14, DS p. 181: a first-born (eldest) bride
+    groomEldest: bool = False
+
+    model_config = ConfigDict(extra="ignore", populate_by_name=True)
+
+    @field_validator("tz")
+    @classmethod
+    def _zone(cls, value: str) -> str:
+        return check_zone(value)
+
+
 class PanchangQuery(Model):
     date: dt.date
     lat: float = Field(ge=-90, le=90)

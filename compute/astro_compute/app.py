@@ -33,6 +33,7 @@ from . import (
     sankranti,
     transit_service,
     vivah,
+    vivah_personal,
 )
 from .errors import ApiError
 from .models import (
@@ -48,6 +49,7 @@ from .models import (
     MuhurtaRequest,
     PanchangQuery,
     TransitRequest,
+    VivahPersonalRequest,
 )
 
 log = logging.getLogger("astro_compute")
@@ -119,6 +121,9 @@ ROUTES: dict[tuple[str, str], Callable[[dict, bytes | str | None], dict]] = {
     ("GET", "/v1/transits"): lambda q, b: transit_service.build(_parse(TransitRequest, q)),
     ("GET", "/v1/gochara"): lambda q, b: transit_service.moon_sign(_parse(GocharaQuery, q)),
     ("GET", "/v1/muhurat/vivah"): lambda q, b: vivah.vivah(_parse(EkadashiQuery, q)),
+    ("POST", "/v1/muhurat/vivah/personal"): lambda q, b: vivah_personal.personal(
+        _parse(VivahPersonalRequest, _json_body(b))
+    ),
     ("GET", "/v1/muhurat/griha-pravesh"): lambda q, b: griha_pravesh.griha_pravesh(
         _parse(EkadashiQuery, q)
     ),
