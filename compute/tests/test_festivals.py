@@ -360,6 +360,51 @@ def test_karthigai_deepam_margins_on_synthetic_spans():
     assert run(s0 - 0.3, s1 - m) == (r0, "krittika_at_sunset", None, {r1})
 
 
+def test_pongal_and_lohri_regional_days():
+    """Decision 31 (s28): Pongal at Chennai and Lohri at Amritsar, one date for every city."""
+
+    def out(kind, year, place=DELHI):
+        status, o = call("GET", f"/v1/festivals/{kind}", {**place, "year": str(year)})
+        assert status == 200, o
+        return o
+
+    def pongal(year):
+        (p,) = out("pongal", year)["occurrences"]
+        days = (p["set"]["bhogi"]["date"], p["set"]["kanumPongal"]["date"])
+        return (p["date"], p["rule"], p["variantDate"], p["cautions"], *days)
+
+    # A day ingress 3 h 30 min before sunset keeps its day (2022); 2 h 53 min adds the next.
+    assert pongal(2022)[:4] == ("2022-01-14", "tamil_rule_day_ingress", None, [])
+    margin = ("2026-01-14", "tamil_rule_day_ingress", "2026-01-15", ["practice_margin_next_day"])
+    assert pongal(2026)[:4] == margin
+    night = ("2027-01-15", "tamil_rule_night_ingress", None, [], "2027-01-14", "2027-01-17")
+    assert pongal(2027) == night
+    assert pongal(2028)[:2] == ("2028-01-15", "tamil_rule_night_ingress")  # before dawn
+    assert pongal(2029)[:3] == ("2029-01-14", "tamil_rule_day_ingress", None)
+    o = out("pongal", 2030)
+    (p,) = o["occurrences"]
+    assert (p["date"], p["variantDate"], p["variantBasis"]) == (
+        "2030-01-14",
+        "2030-01-15",
+        "popular_practice",
+    )
+    src = (o["basis"], o["source"]["page"], o["alsoSource"]["page"], o["computedAt"]["name"])
+    assert src == ("text", "12", "326", "Chennai")
+    m = p["set"]["mattuPongal"]
+    assert (m["date"], m["basis"], m["source"]["page"], m["variantDate"]) == (
+        "2030-01-15",
+        "text",
+        "402",
+        "2030-01-16",
+    )
+    london = {"lat": "51.5074", "lon": "-0.1278", "tz": "Europe/London"}
+    assert out("pongal", 2030, london)["occurrences"] == [p]
+    # Lohri: the eve of the day holding the ingress, 13 Jan in every year 2023-2034.
+    for year in range(2023, 2035):
+        (lohri,) = out("lohri", year)["occurrences"]
+        assert (lohri["date"], lohri["maghi"]["date"]) == (f"{year}-01-13", f"{year}-01-14")
+
+
 def test_bengal_durga_puja_follows_the_sunrise_tithi():
     status, out = call(
         "GET",

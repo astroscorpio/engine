@@ -1991,6 +1991,74 @@ def _karthigai(q: EkadashiQuery) -> tuple[list[dict], dict]:
     }
 
 
+# --- Pongal and Lohri (festivals.md s28, decision 31, 16 Oct 2026) -----------------------
+
+CHENNAI = {"name": "Chennai", "lat": 13.0827, "lon": 80.2707, "tz": "Asia/Kolkata"}
+AMRITSAR = {"name": "Amritsar", "lat": 31.6340, "lon": 74.8723, "tz": "Asia/Kolkata"}
+CAPRICORN = 9
+PONGAL_MARGIN = 3 / 24  # a day ingress this close to sunset: the next day too (our reading)
+
+
+def _makara(q) -> float:
+    t0 = local_jd(dt.date(q.year, 1, 1), 0.0, q.tz, "year")
+    return _ingress(CAPRICORN, t0, t0 + 31, q)
+
+
+def _pongal(q: EkadashiQuery) -> tuple[list[dict], dict]:
+    """s28.1-28.2 (decision 31): Thai 1 by the Tamil Rule on our Makara ingress, at Chennai
+    for every city. A day ingress less than three hours before sunset adds the next day
+    as variantDate, popular practice (our reading of 2022 and 2026). Bhogi, Mattu Pongal
+    and Kanum Pongal are the day before, after and two after, each with its variant."""
+    c = _at(CHENNAI, q)
+    t = _makara(c)
+    s0, s1 = _sunrises(t, c.lat, c.lon, 2)
+    ss = _sunset(s0, c)
+    by_day = t < ss
+    first = s0 if by_day else s1
+    margin = by_day and ss - t < PONGAL_MARGIN
+
+    def day(n: int, basis: str, source: dict | None = None) -> dict:
+        return {
+            "date": _date(first + n, c),
+            "vara": _vara(first + n, c),
+            "basis": basis,
+            "source": source,
+            "variantDate": _date(first + n + 1, c) if margin else None,
+        }
+
+    row = {
+        "date": _date(first, c),
+        "vara": _vara(first, c),
+        "rule": "tamil_rule_day_ingress" if by_day else "tamil_rule_night_ingress",
+        "variantDate": _date(first + 1, c) if margin else None,
+        "variantBasis": "popular_practice" if margin else None,
+        "cautions": ["practice_margin_next_day"] if margin else [],
+        "ingress": {"at": iso(t, c.tz), "sunset": iso(ss, c.tz)},
+        "set": {
+            "bhogi": day(-1, "popular_practice"),
+            "mattuPongal": day(1, "text", KS_PONGAL),
+            "kanumPongal": day(2, "popular_practice"),
+        },
+    }
+    return [row], {"computedAt": CHENNAI}
+
+
+def _lohri(q: EkadashiQuery) -> tuple[list[dict], dict]:
+    """s28.3 (decision 31): the evening before the day, sunrise to sunrise at Amritsar,
+    that holds the Makara ingress (Maghi), for every city; no time. Popular practice."""
+    a = _at(AMRITSAR, q)
+    t = _makara(a)
+    (s0,) = _sunrises(t, a.lat, a.lon, 1)
+    row = {
+        "date": _date(s0 - 1, a),
+        "vara": _vara(s0 - 1, a),
+        "rule": "eve_of_ingress_day",
+        "maghi": {"date": _date(s0, a), "vara": _vara(s0, a)},
+        "ingress": {"at": iso(t, a.tz)},
+    }
+    return [row], {"computedAt": AMRITSAR}
+
+
 def _year(q: EkadashiQuery, num: int | set[int], build) -> list[dict]:
     rows = _collect(
         q,
@@ -2071,6 +2139,9 @@ FESTIVALS = {
     "onam": (None, None, None, None),
     "vishwakarma-puja": (None, None, None, None),
     "karthigai-deepam": (None, None, None, None),
+    "lohri": (None, None, None, None),
+    # Decision 31: Thai 1 by the Tamil Rule (SD p. 12), sourced; the set below.
+    "pongal": (None, None, None, None),
 }
 POPULAR = {
     "chhath",
@@ -2080,12 +2151,31 @@ POPULAR = {
     "onam",
     "vishwakarma-puja",
     "karthigai-deepam",
+    "lohri",
 }
-YEARLY = {"onam": _onam, "vishwakarma-puja": _vishwakarma, "karthigai-deepam": _karthigai}
+YEARLY = {
+    "onam": _onam,
+    "vishwakarma-puja": _vishwakarma,
+    "karthigai-deepam": _karthigai,
+    "pongal": _pongal,
+    "lohri": _lohri,
+}
 KALA_SANKALITA = {
     "text": "Kala Sankalita",
     "author": "John Warren",
     "edition": "College Press, Madras, 1825",
+}
+KS_PONGAL = {
+    **KALA_SANKALITA,
+    "verse": "Uttarayana Punia Calum, the Pungol; Matoo Pungol",
+    "page": "402",
+}
+SEWELL_DIKSHIT = {
+    "text": "The Indian Calendar",
+    "author": "Robert Sewell and Sankara Balakrsna Dikshit",
+    "edition": "Swan Sonnenschein, London, 1896",
+    "verse": "Art. 28, the Tamil Rule",
+    "page": "12",
 }
 KRTYARATNAKARA = {
     "text": "Krtyaratnakara",
@@ -2112,6 +2202,22 @@ CONTEXT = {
         },
         {**SOURCE, "verse": "Tripurotsava lamps on the Karttika Purnima", "page": "312"},
         {**DS, "verse": "Tripurotsava lamps on the Karttika Purnima", "page": "84"},
+    ],
+    "pongal": [
+        {**DS, "verse": "the southern usage of a night Makara ingress", "page": "85"},
+        KS_PONGAL,
+        {
+            **DS,
+            "verse": "the Makara rites: the bath, sesame, the Sun bathed with milk",
+            "page": "86",
+        },
+    ],
+    "lohri": [
+        {
+            **SOURCE,
+            "verse": "Baudhayana: two holy days after a night Makara ingress, in the north",
+            "page": "327",
+        }
     ],
 }
 RITE_SOURCES = {
@@ -2148,6 +2254,10 @@ def festival(kind: str, q: EkadashiQuery) -> dict:
     if kind in POPULAR:
         source = None
         extra["context"] = CONTEXT.get(kind, [])
+    elif kind == "pongal":
+        source = SEWELL_DIKSHIT
+        also = {**SOURCE, "verse": "the southern usage of a night Makara ingress", "page": "326"}
+        extra["context"] = CONTEXT["pongal"]
     elif kind == "holashtak":
         source = MC_140
     elif kind == "durga-puja":
