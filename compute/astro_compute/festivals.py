@@ -22,7 +22,9 @@ ends, so month tests below use the amanta month.
 
 from __future__ import annotations
 
+import copy
 import datetime as dt
+from functools import lru_cache
 
 from jyotisha import muhurta as Mu
 from jyotisha.ephemeris import ascendant, luminaries, moon_rise_set
@@ -2153,6 +2155,8 @@ POPULAR = {
     "karthigai-deepam",
     "lohri",
 }
+# Computed at one regional place for every city (decisions 31-32): once per year and ayanamsa.
+ONE_PLACE = {"karthigai-deepam", "pongal", "lohri"}
 YEARLY = {
     "onam": _onam,
     "vishwakarma-puja": _vishwakarma,
@@ -2241,11 +2245,19 @@ MC_140 = {
 }
 
 
+@lru_cache(maxsize=32)
+def _one_place(kind: str, year: int, ayanamsa: str) -> tuple[list[dict], dict]:
+    """A one-place kind's year, once per Lambda container: bundles ask for it city by city."""
+    return YEARLY[kind](EkadashiQuery(year=year, lat=0, lon=0, tz="UTC", ayanamsa=ayanamsa))
+
+
 def festival(kind: str, q: EkadashiQuery) -> dict:
     num, build, pages, ds_pages = FESTIVALS[kind]
     extra: dict = {}
     if kind == "sawan-somvar":
         rows, extra["shravana"] = _sawan(q)
+    elif kind in ONE_PLACE:
+        rows, extra = copy.deepcopy(_one_place(kind, q.year, q.ayanamsa))
     elif kind in YEARLY:
         rows, extra = YEARLY[kind](q)
     else:

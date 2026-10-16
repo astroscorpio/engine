@@ -671,3 +671,15 @@ def test_chaiti_chhath_is_the_spring_shashthi_by_the_same_rule():
     if c["rule"] == "sunset_in_shashthi":
         assert c["tithi"]["start"] <= s["sandhyaArghya"]["sunset"] < c["tithi"]["end"]
     assert (c["variantDate"] is None) == (c["cautions"] == [])
+
+
+def test_one_place_kinds_compute_once_per_year():
+    """Decisions 31-32 give every city one date, so a bundle's cities share one computation."""
+    from astro_compute.models import EkadashiQuery
+
+    F._one_place.cache_clear()
+    delhi = F.festival(
+        "lohri", EkadashiQuery(year=2031, lat=28.6139, lon=77.209, tz="Asia/Kolkata")
+    )
+    london = F.festival("lohri", EkadashiQuery(year=2031, lat=51.5, lon=-0.13, tz="Europe/London"))
+    assert delhi == london and F._one_place.cache_info().hits == 1

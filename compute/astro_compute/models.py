@@ -269,7 +269,7 @@ class EkadashiQuery(Model):
     lon: float = Field(ge=-180, le=180)
     tz: str
     ayanamsa: Ayanamsa = "lahiri"
-    parana: bool = False  # Ekadashi fast-breaking times (observances.md s9, pending the lead)
+    parana: bool = False  # Ekadashi fast-breaking times (observances.md s9; decision 3)
 
     @field_validator("tz")
     @classmethod
