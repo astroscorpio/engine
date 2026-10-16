@@ -1891,6 +1891,106 @@ def _vishwakarma(q: EkadashiQuery) -> tuple[list[dict], dict]:
     return rows, {}
 
 
+# --- Karthigai Deepam (festivals.md s29, decision 32, 16 Oct 2026) ----------------------
+
+TIRUVANNAMALAI = {"name": "Tiruvannamalai", "lat": 12.2253, "lon": 79.0747, "tz": "Asia/Kolkata"}
+KRITTIKA, SCORPIO, SAGITTARIUS = 2, 7, 8  # nakshatra and sign indexes from 0
+
+
+def _at(place: dict, q: EkadashiQuery) -> EkadashiQuery:
+    """The query moved to a festival's one regional place, for every city (the lead)."""
+    return EkadashiQuery(
+        year=q.year, lat=place["lat"], lon=place["lon"], tz=place["tz"], ayanamsa=q.ayanamsa
+    )
+
+
+def _ingress(sign: int, t0: float, t1: float, q) -> float:
+    """The moment in [t0, t1] that the sidereal Sun enters `sign`."""
+    edges = Mu._scan(lambda t: luminaries(t, q.ayanamsa)[0].sign, t0, t1, 1.0)
+    return next(t for t, s in edges if s == sign)
+
+
+def _tamil_month_start(t: float, q) -> float:
+    """The sunrise starting the solar month whose ingress is at t, by the Tamil Rule
+    (Sewell and Dikshit, The Indian Calendar, Art. 28): an ingress before sunset starts
+    it that day; after sunset, or before dawn, at the next sunrise."""
+    s0, s1 = _sunrises(t, q.lat, q.lon, 2)
+    return s0 if t < _sunset(s0, q) else s1
+
+
+def _krittika_day(a: float, b: float, rises: list[float], sets: dict[float, float]):
+    """Decision 32 on a Krittika span [a, b): (the day's sunrise, rule, variant's sunrise)."""
+    at_set = [sr for sr in rises if a <= sets[sr] < b]
+    if len(at_set) == 1:
+        return at_set[0], "krittika_at_sunset", None
+    if len(at_set) == 2:
+        day = next((sr for sr in at_set if a <= sr < b), at_set[-1])
+        return day, "two_sunsets_sunrise_day", next(sr for sr in at_set if sr != day)
+    day = max(sr for sr in rises if sets[sr] <= a)
+    return day, "no_sunset_evening_it_begins", rises[rises.index(day) + 1]
+
+
+def _krittika_margin(a: float, b: float, rises: list[float], sets: dict, day: float) -> set:
+    """The other days a one-ghatika shift of either end of Krittika gives: a changed day,
+    or the next day when no sunset is left (research, 16 Oct 2026; as Chhath's caution)."""
+    other = set()
+    for x, y in ((a - DANDA, b), (a + DANDA, b), (a, b - DANDA), (a, b + DANDA)):
+        d, rule, v = _krittika_day(x, y, rises, sets)
+        if d != day:
+            other.add(d)
+        elif rule == "no_sunset_evening_it_begins":
+            other.add(v)
+    return other
+
+
+def _karthigai(q: EkadashiQuery) -> tuple[list[dict], dict]:
+    """s29 (decision 32): the day in solar Karttikai whose sunset falls in Krittika, at
+    Tiruvannamalai for every city. No sunset in it: the evening it begins, the next day as
+    variant. Two: the day also holding it at sunrise, the other as variant (our reading).
+    Two Krittika days in one Karttikai are both shown, neither picked, as for Onam."""
+    t = _at(TIRUVANNAMALAI, q)
+    nak = lambda x: Mu.nakshatra_at(x, t.ayanamsa)  # noqa: E731
+    t0 = local_jd(dt.date(t.year, 11, 1), 0.0, t.tz, "year")
+    t1 = local_jd(dt.date(t.year, 12, 31), 0.0, t.tz, "year")
+    first = _tamil_month_start(_ingress(SCORPIO, t0, t1, t), t)
+    nxt = _tamil_month_start(_ingress(SAGITTARIUS, first, t1, t), t)
+    rises = _sunrises(first - 3, t.lat, t.lon, int(nxt - first) + 7)
+    sets = {sr: _sunset(sr, t) for sr in rises}
+    tripura = {o["date"] for o in _year(t, 15, _tripura)}
+    rows = []
+    for a, b in _spans(nak, KRITTIKA, first - 2, nxt + 2, 0.1):
+        day, rule, variant = _krittika_day(a, b, rises, sets)
+        if not first <= day < nxt:
+            continue
+        cautions = []
+        if rule == "no_sunset_evening_it_begins":
+            cautions.append("no_krittika_sunset")
+        elif other := _krittika_margin(a, b, rises, sets, day):
+            cautions.append("krittika_margin")
+            variant = variant if variant in other else max(other)
+        date = _date(day, t)
+        rows.append(
+            {
+                "date": date,
+                "vara": _vara(day, t),
+                "rule": rule,
+                "variantDate": _date(variant, t) if variant is not None else None,
+                "cautions": cautions,
+                "krittika": _span((a, b), t),
+                "sunset": iso(sets[day], t.tz),
+                "tripurotsava": date in tripura,
+            }
+        )
+    if len(rows) > 1:
+        for r in rows:
+            r["twoKrittika"] = True
+    last = max(sr for sr in rises if sr < nxt)
+    return rows, {
+        "karttikai": {"start": _date(first, t), "end": _date(last, t)},
+        "computedAt": TIRUVANNAMALAI,
+    }
+
+
 def _year(q: EkadashiQuery, num: int | set[int], build) -> list[dict]:
     rows = _collect(
         q,
@@ -1970,9 +2070,23 @@ FESTIVALS = {
     "radhashtami": (8, _radhashtami, None, None),
     "onam": (None, None, None, None),
     "vishwakarma-puja": (None, None, None, None),
+    "karthigai-deepam": (None, None, None, None),
 }
-POPULAR = {"chhath", "chaiti-chhath", "hanuman-jayanti", "radhashtami", "onam", "vishwakarma-puja"}
-YEARLY = {"onam": _onam, "vishwakarma-puja": _vishwakarma}
+POPULAR = {
+    "chhath",
+    "chaiti-chhath",
+    "hanuman-jayanti",
+    "radhashtami",
+    "onam",
+    "vishwakarma-puja",
+    "karthigai-deepam",
+}
+YEARLY = {"onam": _onam, "vishwakarma-puja": _vishwakarma, "karthigai-deepam": _karthigai}
+KALA_SANKALITA = {
+    "text": "Kala Sankalita",
+    "author": "John Warren",
+    "edition": "College Press, Madras, 1825",
+}
 KRTYARATNAKARA = {
     "text": "Krtyaratnakara",
     "author": "Candeshvara Thakkura",
@@ -1990,6 +2104,15 @@ CONTEXT = {
         {**KRTYARATNAKARA, "verse": "the dark-Shashthi Sun vow (Bhavishya)", "page": "447-448"},
     ],
     "vishwakarma-puja": [{**DS, "verse": "sankranti punyakala", "page": "2"}],
+    "karthigai-deepam": [
+        {
+            **KALA_SANKALITA,
+            "verse": "Cartica Deepum and Survalaya Deepum (holy days 29-30)",
+            "page": "401",
+        },
+        {**SOURCE, "verse": "Tripurotsava lamps on the Karttika Purnima", "page": "312"},
+        {**DS, "verse": "Tripurotsava lamps on the Karttika Purnima", "page": "84"},
+    ],
 }
 RITE_SOURCES = {
     "karva-chauth": VRATARAJA,

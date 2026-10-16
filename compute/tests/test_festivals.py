@@ -311,6 +311,55 @@ def test_guru_purnima_split_years_add_the_sunrise_day():
     assert (o["variantDate"], o["cautions"]) == (o["days"][1]["date"], ["popular_sunrise_day"])
 
 
+def test_karthigai_deepam_at_tiruvannamalai_for_every_city():
+    """Decision 32 (s29): research's expected days, one date for every city."""
+
+    def rows(year, place=DELHI):
+        status, out = call("GET", "/v1/festivals/karthigai-deepam", {**place, "year": str(year)})
+        assert status == 200, out
+        assert out["basis"] == "popular_practice" and out["computedAt"]["name"] == "Tiruvannamalai"
+        return out["occurrences"]
+
+    def brief(o):
+        return o["date"], o["rule"], o["variantDate"], o["cautions"]
+
+    (k,) = rows(2026)
+    assert brief(k) == ("2026-11-24", "krittika_at_sunset", None, [])
+    assert k["tripurotsava"] and k["krittika"]["start"] < k["sunset"] < k["krittika"]["end"]
+    margin = ("2027-12-11", "krittika_at_sunset", "2027-12-12", ["krittika_margin"])
+    assert brief(rows(2027)[0]) == margin
+    assert brief(rows(2028)[0]) == ("2028-12-01", "krittika_at_sunset", None, [])
+    assert brief(rows(2029)[0]) == ("2029-11-21", "two_sunsets_sunrise_day", "2029-11-20", [])
+    london = {"lat": "51.5074", "lon": "-0.1278", "tz": "Europe/London"}
+    assert rows(2026, london) == [k]
+
+
+def test_karthigai_deepam_margins_on_synthetic_spans():
+    """Research's one-ghatika cautions (16 Oct 2026), on Krittika spans placed around
+    Tiruvannamalai's sunsets."""
+    from astro_compute.models import EkadashiQuery
+
+    q = F._at(F.TIRUVANNAMALAI, EkadashiQuery(year=2026, lat=0, lon=0, tz="UTC"))
+    rises = F._sunrises(F.local_jd(dt.date(2026, 11, 20), 12.0, q.tz, "year"), q.lat, q.lon, 6)
+    sets = {sr: F._sunset(sr, q) for sr in rises}
+    before, r0, r1 = rises[:3]
+    s0, s1 = sets[r0], sets[r1]
+    m = 10 / 1440
+
+    def run(a, b):
+        day, rule, variant = F._krittika_day(a, b, rises, sets)
+        return day, rule, variant, F._krittika_margin(a, b, rises, sets, day)
+
+    # Neither sunset: the evening it begins, the next day as variant.
+    assert run(s0 + m, s1 - m)[:3] == (r0, "no_sunset_evening_it_begins", r1)
+    # Beginning just before the sunset: the next day is the other day.
+    assert run(s0 - m, s1 - 0.1) == (r0, "krittika_at_sunset", None, {r1})
+    # Ending just after it: the day before.
+    assert run(s0 - 0.8, s0 + m) == (r0, "krittika_at_sunset", None, {before})
+    # Ending just before the next sunset: the next day.
+    assert run(s0 - 0.3, s1 - m) == (r0, "krittika_at_sunset", None, {r1})
+
+
 def test_bengal_durga_puja_follows_the_sunrise_tithi():
     status, out = call(
         "GET",

@@ -836,6 +836,11 @@ FESTIVAL_RULES = {
     "vishwakarma-puja": {
         "kanya_sankranti_punyakala": ("Vishwakarma Puja: the day of the Kanya sankranti's punyakala, as /observances/sankranti computes it (popular practice; no text read gives the day)", None),
     },
+    "karthigai-deepam": {
+        "krittika_at_sunset": ("Karthigai Deepam: the day in the solar month Karttikai (the Sun in sidereal Vrischika, the month begun by the Tamil Rule) whose sunset falls in Krittika, at Tiruvannamalai for every city (popular practice, documented by Warren in 1825)", "Kala Sankalita p. 401"),
+        "two_sunsets_sunrise_day": ("Krittika at both sunsets: the day that also has it at sunrise; the other day is the variant (our reading; popular practice)", None),
+        "no_sunset_evening_it_begins": ("Krittika at neither sunset: the evening on which it begins; the next day is the variant (popular practice)", None),
+    },
     "durga-puja": {
         "sunrise_ashtami": ("Mahashtami: the Ashtami current at sunrise for a muhurta, joined to the Navami", "Tithi-tattva pp. 77-79"),
         "complete_first_day": ("The Ashtami holding two sunrises: the complete first day", "Tithi-tattva p. 78"),
@@ -931,6 +936,7 @@ FESTIVAL_NOTES = {
     "radhashtami": "Popular practice; no text read gives the day. Our rule: the Bhadrapada shukla Ashtami covering midday (the 3rd fifth of daylight); if it covers both middays or neither, the later day, whose sunrise holds the Ashtami. pujaWindow is that midday, by practice. Dharmasindhu gives this Ashtami to the Durvashtami and a Jyeshtha-devi puja (p. 56).",
     "onam": "Popular practice; no text read gives the day. A civil day is in Chingam when the Sun is in sidereal Simha at its sunrise. Onam (Tiruvonam, the Shravana nakshatra) is the Chingam day whose sunrise falls in Shravana with at least 6 nadikas (2 h 24 min) of it left, else the day before; the six-nadika test is our statement of common Kerala usage. When Chingam holds two Tiruvonams both are shown (twoTiruvonam) and the rule does not choose between them. Each Onam carries atham, the festival's opening on Atham (Hasta): the last day before that Tiruvonam whose sunrise falls in Hasta with 6 nadikas of it left, else the day before; it can fall in late Karkataka, before Chingam (our reading; popular practice). Atham and Tiruvonam are star-days, so the festival runs nine to eleven civil days, not always ten; give both dates. The textual days sharing the Vamana story, the Shravana-dvadashi and Vamana-jayanti, are lunar days and do not give Onam's date.",
     "vishwakarma-puja": "Popular practice; no text read gives the worship. The day is the Kanya sankranti's punyakala as /observances/sankranti computes it; only that basis is textual (Dharmasindhu p. 2; Nirnaya-sindhu p. 5). In the Bengal calendar it is the last day of Bhadra.",
+    "karthigai-deepam": "Popular practice, documented by Warren (Kala Sankalita, 1825, p. 401): Cartica Deepum, 'the day on which the Moon is in the Nacshatra Critica during the month Cartica'. One date for every city, computed at Tiruvannamalai: the day in the solar month Karttikai (the Sun in sidereal Vrischika, the month begun by the Tamil Rule of Sewell and Dikshit's The Indian Calendar, 1896) whose sunset falls in Krittika. Krittika at neither sunset: the evening on which it begins, with the next day also kept. Krittika at both sunsets: the day that also has it at sunrise (our reading). Where moving either end of Krittika by one ghatika (24 minutes) would change the day, the other day is given too (our reading). Two Krittika days in one Karttikai are both shown (twoKrittika) and the rule does not choose between them. The texts' lamps of the Karttika Purnima, the Tripurotsava (Nirnaya-sindhu p. 312; Dharmasindhu p. 84), fall on the same day only in some years (tripurotsava). No time is given for lighting the lamps.",
     "navaratriDays": "Navaratra names a worship set in nine tithis, the Pratipada to the Navami (DS p. 65). Each day's worship goes with the tithi at its sunrise (our reading of DS p. 66); a tithi touching two sunrises is worshipped on both days and one touching none on the day it falls in, so the Navaratri runs eight, nine or ten days. Some keep only eight worships when a day is lost (DS p. 66). The first day is the kalasha-sthapana day.",
     "durgashtami": "Mahashtami: the Ashtami at sunrise joined to the Navami, never one touched by the Saptami however slightly, even with Mula (NS p. 263, DS p. 69). Especially praised on a Tuesday (DS). Bhadra does not bar the worship (Devi-purana, NS p. 264). Those with sons do not fast on it (DS p. 69; NS p. 265).",
     "mahanavami": "The Navami joined to the Ashtami is taken for the worship and the fast when it covers three muhurtas before that day's sunset (NS pp. 272-273, DS p. 69), so Durgashtami and Mahanavami often fall on one day. The animal bali is on the Dashami-joined day (DS p. 69).",
@@ -962,6 +968,8 @@ FESTIVAL_CAUTIONS = {
     "vaidhriti": "Vaidhriti yoga",
     "ghatika_margin": "The day the rule gives if the Shashthi's start or end moves by one ghatika (24 minutes)",
     "popular_sunrise_day": "Guru Pūrṇimā is also commonly kept on this day; popular practice",
+    "no_krittika_sunset": "Krittika falls at neither sunset; Karthigai Deepam is also kept on this day; popular practice",
+    "krittika_margin": "The day Karthigai Deepam may fall on if Krittika begins or ends one ghatika (24 minutes) earlier or later; our reading",
 }
 SANKASHTI_NOTE = (
     "Krishna paksha, by common practice; the texts read do not state the fortnight. Moonrise "
