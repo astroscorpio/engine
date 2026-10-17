@@ -172,7 +172,7 @@ def build(q: PanchangQuery) -> dict:
         cuts = [a, *(t for t, _ in Mu._scan(moon_sign, a, b, 1 / 24)), b]
         for x, y in zip(cuts, cuts[1:], strict=False):
             residence = Mu.bhadra_residence(moon_sign((x + y) / 2))
-            bhadra.append({"residence": residence, **win(x, y)})
+            bhadra.append({"residence": residence, "avoided": residence == "earth", **win(x, y)})
             if residence == "earth":
                 avoid.append((x, {"id": "vishti", "detail": "bhadra_earth", **win(x, y)}))
     avoid.sort(key=lambda r: r[0])

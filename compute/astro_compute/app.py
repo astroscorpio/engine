@@ -19,6 +19,7 @@ from pydantic import BaseModel, ValidationError
 from . import (
     chart_service,
     dasha_service,
+    eclipses,
     festivals,
     griha_pravesh,
     matching,
@@ -26,6 +27,7 @@ from . import (
     muhurta_service,
     mundan,
     observances,
+    pancaka,
     panchang_service,
     pitru_paksha,
     purchase,
@@ -112,6 +114,8 @@ ROUTES: dict[tuple[str, str], Callable[[dict, bytes | str | None], dict]] = {
     ("GET", "/v1/observances/sankranti"): lambda q, b: sankranti.sankranti(
         _parse(EkadashiQuery, q)
     ),
+    ("GET", "/v1/observances/pancaka"): lambda q, b: pancaka.pancaka(_parse(EkadashiQuery, q)),
+    ("GET", "/v1/eclipses"): lambda q, b: eclipses.eclipses(_parse(EkadashiQuery, q)),
     **{
         ("GET", f"/v1/festivals/{kind}"): (
             lambda k: lambda q, b: festivals.festival(k, _parse(EkadashiQuery, q))

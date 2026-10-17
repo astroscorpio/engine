@@ -102,7 +102,8 @@ def test_bhadra_is_avoided_only_while_on_earth():
         bhadra = out["windows"]["bhadra"]
         avoid = [w for w in out["windows"]["avoid"] if w["id"] == "vishti"]
         seen |= {b["residence"] for b in bhadra}
-        on_earth = [(b["start"], b["end"]) for b in bhadra if b["residence"] == "earth"]
+        assert all(b["avoided"] == (b["residence"] == "earth") for b in bhadra)
+        on_earth = [(b["start"], b["end"]) for b in bhadra if b["avoided"]]
         assert [(w["start"], w["end"]) for w in avoid] == on_earth
         assert all(w["detail"] == "bhadra_earth" for w in avoid)
     assert seen <= {"earth", "heaven", "patala"} and len(seen) >= 2

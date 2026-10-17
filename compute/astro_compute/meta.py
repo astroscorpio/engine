@@ -1411,6 +1411,60 @@ for _rid in ("same_sign_lord", "sign_lords_friendly", "tara_pure_both_ways"):
     MATCHING_NOTES[f"{_rid}_but_nadi_dosha"] = MATCHING_NOTES[_rid] + ", but nadi is not clear"
 
 
+# Eclipses (contract 7r; research's grahana.md, adopted by the lead 17 Oct 2026).
+ECLIPSE_RULES = {
+    "four_praharas_solar": ("For a solar eclipse no food is taken in the four praharas before the prahara holding the first contact seen at the place, the praharas being quarters of that place's day and night", "Dharmasindhu p. 28; Nirnaya-sindhu p. 89"),
+    "three_praharas_lunar": ("For a lunar eclipse no food is taken in the three praharas before the prahara holding the first contact seen at the place", "Dharmasindhu p. 28; Nirnaya-sindhu p. 89"),
+    "moon_rises_eclipsed_from_sunrise": ("When the Moon rises eclipsed, no food is taken through that day, from its sunrise", "Dharmasindhu p. 28; Nirnaya-sindhu p. 89"),
+    "four_praharas_total_lunar": ("Some give four praharas for a total lunar eclipse and three for a partial one", "Dharmasindhu p. 28"),
+    "last_contact": ("The vedha ends with the bath after the last contact seen at the place", "Dharmasindhu p. 26; Nirnaya-sindhu p. 95"),
+    "next_clear_sunrise": ("When the Sun sets eclipsed, the vedha ends with the bath at its next rising, when its disc is clear", "Dharmasindhu p. 28; Nirnaya-sindhu p. 89"),
+    "next_clear_moonrise": ("When the Moon sets eclipsed, the vedha ends with the bath at its next rising, when its disc is clear", "Dharmasindhu p. 28; Nirnaya-sindhu p. 89"),
+}  # fmt: skip
+ECLIPSE_NOTES = {
+    "name": "Vedha, popularly called sutak: the time before an eclipse when no food is taken",
+    "penumbral_no_bite": "No shadow bite: not reckoned as a grahana (our reading of Dharmasindhu p. 26's 'fit to be seen')",
+    "not_visible": "Below the horizon throughout here: an astronomical event only, with no vedha and no rites (Dharmasindhu p. 26; Nirnaya-sindhu pp. 103-106)",
+    "umbral_not_visible": "Only the penumbral phase is above the horizon here: no shadow bite is seen, so it is not reckoned (our reading of Dharmasindhu p. 26)",
+    "partly_visible": "Seen only in part here: it counts for the part above the horizon (Dharmasindhu p. 26)",
+    "clouds": "Clouds do not cancel it: the computed contact and release times stand (Dharmasindhu p. 26)",
+    "popular_start": "Popularly, sutak is counted 12 hours before a solar and 9 hours before a lunar eclipse; that is practice, not in the texts read",
+    "exemptions": "Children, the old and the sick: Dharmasindhu gives a vedha of one and a half praharas or three muhurtas (p. 28), Nirnaya-sindhu one prahara before the eclipse's prahara (p. 90)",
+    "householders": "Householders with sons do not keep the optional fast at an eclipse (Dharmasindhu p. 26)",
+}  # fmt: skip
+
+
+# Pancaka (contract 7s; research's pancaka.md, adopted by the lead 17 Oct 2026).
+PANCAKA_BARRED = {
+    "cremation": ("Cremation", "Muhurta-cintamani 2.48, p. 84"),
+    "travel_south": ("Travel to the south, Yama's quarter", "Muhurta-cintamani 2.48, p. 84"),
+    "weaving_cot": ("Weaving a cot", "Muhurta-cintamani 2.48 with the commentary, p. 84"),
+    "roofing": ("Covering a house, that is, roofing it", "Muhurta-cintamani 2.48 with the commentary, p. 84"),
+    "grass_wood": ("Gathering grass and wood, which Vasishtha, Narada and Shripati name", "Muhurta-cintamani 2.48 ('and the rest') with the commentary, pp. 84-85"),
+    "pillars": ("Raising a house's pillars", "Dharmasindhu p. 242"),
+}  # fmt: skip
+# Popular practice by the vara a pancaka begins on (the lead, 17 Oct 2026); no text gives them.
+PANCAKA_NAMES = {"roga": "Rog Panchak", "raja": "Raj Panchak", "agni": "Agni Panchak",
+                 "cora": "Chor Panchak", "mrtyu": "Mrityu Panchak"}  # fmt: skip
+PANCAKA_NOTES = {
+    "name": "Dhanishtha Panchak: the Moon from the second half of Dhanishtha through Revati, which is its passage through sidereal Aquarius and Pisces (Muhurta-cintamani 2.48 with the commentary, p. 84; Nirnaya-sindhu p. 943)",
+    "not_from_shravana": "It does not begin at Shravana: the Muhurta-cintamani's commentary rejects that wider span, which has no root text (p. 86)",
+    "not_general": "Nothing else is barred by the Panchak in the texts read. The Muhurta-cintamani's own marriage stars include Uttara Bhadrapada and Revati (6.53), both inside it",
+    "popular_names": "Popular practice; the texts read give the Dhanishtha-panchaka no weekday names",
+    "bana_names": "The five names roga, agni, raja, cora and mrtyu are the Muhurta-cintamani's banas, a separate count from the Sun's degrees with its own weekday table (6.71-72, pp. 289-290), not the Dhanishtha-panchaka's",
+    "no_name": "A Panchak beginning on a Wednesday or Thursday has no popular name",
+    "start_vara": "The weekday is the vara current at the start in the chosen city, sunrise to sunrise, not the civil date (our reading). A start between midnight and sunrise keeps the previous vara, so a name can differ between cities",
+    "cremation": "No cremation in the Panchak, whatever the star of the death (Muhurta-cintamani p. 85)",
+    "death": "In the Panchak both the death and the cremation are faulted (Muhurta-cintamani p. 85, with the Brahma-purana; Nirnaya-sindhu p. 944)",
+    "cannot_wait": "When the cremation cannot wait, it is done after a shanti (Muhurta-cintamani p. 85): the effigy rite",
+    "effigies_garuda": "The Garuda: four kusha effigies, consecrated with the stars' mantras, are laid by the body and burnt with it; after the impurity the sons perform the shantika and paushtika rites, with gifts of sesame, gold and ghee (Muhurta-cintamani p. 86; Nirnaya-sindhu p. 943)",
+    "effigies_brahma": "The Brahma: five kusha figures, bound with wool thread and smeared with barley paste and named Pretavaha, Pretasakha, Pretapa, Pretabhumipa and Pretaharta, are laid at the head, the eyes, the left side, the navel and the feet; by this rite the cremation may be done that same day (Nirnaya-sindhu p. 944)",
+    "effigy_count": "The count of effigies differs: four in the Garuda, five in the Brahma",
+    "five_gems": "Apararka adds the five gems for a death in the Dhanishtha-panchaka (Nirnaya-sindhu p. 944)",
+    "which_remedy": "A death in another star with the cremation in the Panchak: the effigies only. A death in the Panchak with the cremation after it: no effigies, and the shanti after the impurity (Muhurta-cintamani p. 86)",
+}  # fmt: skip
+
+
 # --- Names for the Hindi lane (the lead, 16 Oct 2026) ---------------------------------------
 # /hi/ pages take every name from meta and never retype one: these are the English names, and
 # api/src/meta/hi.labels.json holds the reviewed Hindi. Festival names follow the site's pages.
@@ -1514,6 +1568,7 @@ OBSERVANCE_NAMES = {
     "sankashti": "Sankashti Chaturthi",
     "pitru-paksha": "Pitru Paksha",
     "sankranti": "Sankranti",
+    "pancaka": "Panchak",
 }
 SANKRANTI_NAMES = dict(
     zip(
@@ -1828,6 +1883,13 @@ def _english() -> dict:
             for rid in sorted({rid for _, rid in RULES} | {"favoured_hora", "malefic_hora"})
         },
         "ayanamsas": {k: {"name": v} for k, v in AYANAMSAS.items()},
+        "eclipseRules": {k: {"name": n, "source": src} for k, (n, src) in ECLIPSE_RULES.items()},
+        "eclipseNotes": ECLIPSE_NOTES,
+        "pancakaBarred": {k: {"name": n, "source": src} for k, (n, src) in PANCAKA_BARRED.items()},
+        "pancakaNames": {
+            k: {"name": v, "basis": "popular_practice"} for k, v in PANCAKA_NAMES.items()
+        },
+        "pancakaNotes": PANCAKA_NOTES,
         "tithiNames": _tithi_names(),
         "festivals": {
             k: {
