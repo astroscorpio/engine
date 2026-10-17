@@ -29,7 +29,6 @@ from functools import lru_cache
 from jyotisha import muhurta as Mu
 from jyotisha.ephemeris import ascendant, luminaries, moon_rise_set, positions
 
-from .errors import ApiError
 from .fmt import provenance
 from .ids import MASA_IDS, tithi_id
 from .models import EkadashiQuery
@@ -2559,14 +2558,10 @@ def _magha_snana(q: EkadashiQuery) -> tuple[list[dict], dict]:
     t_kumbha = _ingress(AQUARIUS, t_makara + 25, t_makara + 35, p)
     edges = Mu._scan(lambda t: Mu.tithi_at(t, p.ayanamsa), t_makara - 75, t_kumbha + 45, 0.25)
     pausha, magha = _amanta(t_makara, edges), _amanta(t_kumbha, edges)
-    if pausha == magha:  # 1983: one lost month holds both ingresses; no rule built for it
-        raise ApiError(
-            "unsupported_season",
-            "this season's one lunar month holds both the Makara and Kumbha ingresses",
-            422,
-            "year",
-        )
-    rule = _month_rule(t_makara, t_kumbha, edges, p)
+    # v4 (1983): one lost month holds both ingresses, so DS p. 4's two Purnimas are one full
+    # moon and DS p. 86's Makara-to-Kumbha span is the month
+    solar_only = pausha == magha
+    rule = "month_kshaya_solar" if solar_only else _month_rule(t_makara, t_kumbha, edges, p)
 
     def full_or_new(month: tuple[float, float], num: int, held_rule: str) -> tuple[dict, tuple]:
         span = _tithi_span(edges, month, num)
@@ -2610,6 +2605,15 @@ def _magha_snana(q: EkadashiQuery) -> tuple[list[dict], dict]:
     ]
     for d in (days[0], days[3]):
         d["source"], d["alsoSource"] = month_cite
+    if solar_only:  # v5: each tithi of the lost month is in both months (DS p. 3; NS p. 21)
+        both = "a lost month's tithis in both months"
+        days[3].update(mark="lost_month_purnima", source=_ds(both, "3"), alsoSource=_ns(both, "21"))
+        days[2].update(
+            mark="lost_month_amavasya",
+            source=_ds(both, "3"),
+            alsoSource=_ns("the Amavasya following the Pausha full moon", "318"),
+        )
+        del days[0]  # the one full moon shows once, as the Maghi Purnima
     span5, span7 = _tithi_span(edges, magha, 5), _tithi_span(edges, magha, 7)
     vasanta = _vasanta(*span5, span5[1], p) if span5 else None
     ratha = _ratha(*span7, span7[1], p) if span7 else None
@@ -2672,23 +2676,27 @@ def _magha_snana(q: EkadashiQuery) -> tuple[list[dict], dict]:
             "kumbhaSankranti": iso(t_kumbha, p.tz),
             # v3: the vrata day's morning bath against the ingress
             "insideSolarSpan": rise < t_kumbha,
-            "mark": "outside_month",
+            # v4: the solar span is the month, so a vrata sunrise before Kumbha is inside it
+            "mark": "inside_month_not_named" if solar_only and rise < t_kumbha else "outside_month",
         }
 
+    lunar = None  # v4: DS p. 4's bounds collapse
+    if not solar_only:
+        lunar = {
+            "start": {
+                "ekadashi": _bound(_tithi_span(edges, pausha, 11), p, first=True),
+                "purnima": pp["date"],
+                "amavasya": mauni["date"],
+            },
+            "end": {
+                "dvadashi": _bound(_tithi_span(edges, magha, 12), p, first=False),
+                "purnima": maghi["date"],
+            },
+        }
     row = {
         "month": {
             "rule": rule,
-            "lunar": {
-                "start": {
-                    "ekadashi": _bound(_tithi_span(edges, pausha, 11), p, first=True),
-                    "purnima": pp["date"],
-                    "amavasya": mauni["date"],
-                },
-                "end": {
-                    "dvadashi": _bound(_tithi_span(edges, magha, 12), p, first=False),
-                    "purnima": maghi["date"],
-                },
-            },
+            "lunar": lunar,
             "solar": {
                 "start": {"at": iso(t_makara, p.tz), "date": _date(t_makara, p)},
                 "end": {"at": iso(t_kumbha, p.tz), "date": _date(t_kumbha, p)},

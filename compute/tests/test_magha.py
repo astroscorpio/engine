@@ -105,12 +105,31 @@ def test_mahamaghi_needs_jupiter_and_the_moon_in_magha():
 
 def test_lost_months():
     """DS p. 4 (v3): with Margashirsha lost into Pausha, the bathing begins on the Purnima
-    of the month holding the Makara ingress. One month holding both ingresses is refused."""
+    of the month holding the Makara ingress. v4: when one month holds both ingresses, DS p.
+    86's Makara-to-Kumbha span is the month and its one full moon shows once."""
     _, row = _season(2124)
     assert row["month"]["rule"] == "month_kshaya"
     assert _days(row)["pausha_purnima"]["date"] == "2124-01-01"
-    status, out = call("GET", "/v1/festivals/magha-snana", {**DELHI, "year": "1983"})
-    assert status == 422 and out["error"]["code"] == "unsupported_season"
+    _, row = _season(1983)
+    m, days = row["month"], _days(row)
+    assert (m["rule"], m["lunar"]) == ("month_kshaya_solar", None)
+    assert (m["solar"]["start"]["date"], m["solar"]["end"]["date"]) == ("1983-01-14", "1983-02-13")
+    assert "pausha_purnima" not in days and len(days) == 5
+    maghi, mauni, s = days["maghi_purnima"], days["mauni_amavasya"], row["shivaratri"]
+    assert (maghi["date"], maghi["mark"]) == ("1983-01-28", "lost_month_purnima")
+    assert (mauni["date"], mauni["mark"]) == ("1983-02-12", "lost_month_amavasya")
+    assert mauni["popularName"] == "Mauni Amavasya"
+    assert (s["date"], s["insideSolarSpan"], s["mark"]) == (
+        "1983-02-11",
+        True,
+        "inside_month_not_named",
+    )
+    assert row["ardhodaya"] is None and row["mahamaghi"] is None  # v5: Saturday; Jupiter Scorpio
+    for d in row["bathDays"]:
+        rules = OBSERVANCE_RULES["sankranti"] if d.get("ruleKind") == "sankranti" else None
+        assert d["rule"] in (rules or FESTIVAL_RULES[d.get("ruleKind") or "magha-snana"])
+        assert d["mark"] in MAGHA_MARKS, d
+    assert m["rule"] in FESTIVAL_RULES["magha-snana"]
     assert _season(1906)[1]["month"]["rule"] == "month_regular"  # 1 Jan 1906 had no midnight
 
 

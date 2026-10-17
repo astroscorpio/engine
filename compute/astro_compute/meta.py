@@ -956,6 +956,7 @@ FESTIVAL_RULES = {
         "month_adhika_pausha": ("An adhika month allows no start, so the bathing begins in the nija Pausha (our reading)", "Dharmasindhu p. 4"),
         "month_adhika_magha": ("When Magha is adhika, the bath and its rules run through both Maghas and close in the nija Magha", "Dharmasindhu p. 87"),
         "month_kshaya": ("When a month is lost, the bathing begins on the Purnima of the lost month holding the Makara sankranti and closes on the Magha Purnima joined to the Kumbha sankranti", "Dharmasindhu p. 4"),
+        "month_kshaya_solar": ("When one lost month holds both the Makara and the Kumbha sankranti, the texts read give no bounds for the bathing month; Dharmasindhu's solar reckoning is used", "Dharmasindhu p. 86"),
         "trayodashi": ("Most: the three days from the Trayodashi, Magha shukla Trayodashi, Caturdashi and Purnima, counted as three days ending on the Maghi Purnima day (the count is our reading)", "Nirnaya-sindhu p. 323; Dharmasindhu p. 87"),
         "makara_ratha_maghi": ("Some: Makara sankranti, Ratha-saptami and the Maghi Purnima", "Nirnaya-sindhu p. 323"),
         "from_dashami": ("Others: three days from Magha shukla Dashami, from the first sunrise in it (the dating is our reading)", "Nirnaya-sindhu p. 323"),
@@ -971,6 +972,8 @@ MAGHA_MARKS = {
     "inside_month_not_named": ("Inside the bathing month, where the daily bath applies, but no text read singles it out as a bathing day", "Nirnaya-sindhu p. 319; Dharmasindhu p. 86"),
     "texts_day": ("At Prayaga at first light, 'equal to ten million solar eclipses'", "Nirnaya-sindhu p. 330"),
     "month_end": ("The end of the month's bathing, Magha shukla Dvadashi or the Purnima", "Nirnaya-sindhu p. 319; Dharmasindhu p. 86"),
+    "lost_month_purnima": ("The lost month has one full moon. Dharmasindhu counts each tithi of a lost month in both of its months, so this is both the Pausha and the Magha Purnima (our reading). This season the bathing month is the Sun's Makara-to-Kumbha span, and the full moon falls inside it", "Dharmasindhu pp. 3, 86; Nirnaya-sindhu p. 21"),
+    "lost_month_amavasya": ("The lost month has one Amavasya. Dharmasindhu counts each tithi of a lost month in both of its months, so this is the Amavasya closing Pausha (our reading): the texts' own day, and the day of the ardhodaya yoga when it falls. This season no Amavasya falls between the Pausha and Magha full moons, which are one. It is inside the Sun's Makara-to-Kumbha bathing month. Only the name Mauni Amavasya is popular; silence is the rule for every bath of the month (Nirnaya-sindhu p. 321)", "Dharmasindhu pp. 3, 87; Nirnaya-sindhu pp. 21, 318"),
     "outside_month": ("Outside the Magha bathing month, which ends on Magha shukla Dvadashi or the Purnima. It lies in the dark half of the amanta month of Magha, so outside means outside the bathing month, not the calendar month. No text read names it a Prayaga bath", "Nirnaya-sindhu p. 319; Dharmasindhu p. 86"),
 }  # fmt: skip
 MAGHA_NOTES = {
@@ -1135,7 +1138,7 @@ GANGA_YOGAS = {
 AMAVASYA_NAMES = {
     "mahalaya": ("Mahalaya Amavasya", "The last day of the Mahalaya fortnight, the dark fortnight after the Bhadrapada full moon", "Nirnaya-sindhu p. 215"),
     "magha": ("Magha Amavasya", "A yugadi day: the new moon that ends amanta Magha", "Nirnaya-sindhu p. 341"),
-    "mauni": ("Mauni Amavasya (popular name)", "The new moon inside purnimanta Magha (amanta Pausha); the texts read do not use the name. Nirnaya-sindhu asks for silence during the Magha bath, which this new moon falls inside", "Nirnaya-sindhu p. 324 (silence in the Magha bath)"),
+    "mauni": ("Mauni Amavasya (popular name)", "The new moon inside purnimanta Magha (amanta Pausha); the texts read do not use the name. Nirnaya-sindhu asks for silence during the Magha bath, which this new moon falls inside", "Nirnaya-sindhu p. 321 (silence in the Magha bath)"),
     "somavati": ("Somavati Amavasya (Monday)", "A Monday Amavasya 'gives fruit like the equinox'; the commentary says 'somavari amavas'", "Nirnaya-sindhu p. 73 (Satatapa, Vyasa)"),
     "bhauma": ("Bhauma Amavasya (Tuesday)", "On a Tuesday Amavasya, bathing in the Ganga gives the fruit of a thousand cows", "Nirnaya-sindhu p. 73 (Satatapa)"),
     "shani": ("Shani Amavasya (Saturday)", "Popular observance; no classical source found", None),
