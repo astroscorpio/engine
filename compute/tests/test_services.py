@@ -287,3 +287,5 @@ def test_bundle_runs_one_route_for_several_places():
     bad = {**body, "path": "/v1/festivals/nope"}
     assert call("POST", "/v1/bundle", body=bad)[0] == 404
     assert call("POST", "/v1/bundle", body={**body, "path": "/v1/chart"})[0] == 400
+    status, out = call("POST", "/v1/bundle", body={**body, "path": "/v1/eclipses"})
+    assert status == 200 and all(r["data"]["eclipses"] for r in out["results"]), out

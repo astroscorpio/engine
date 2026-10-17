@@ -41,7 +41,7 @@ class BundlePlace(Model):
 class BundleRequest(Model):
     """POST /v1/bundle: one year-list route for several places (contract 7n)."""
 
-    path: str = Field(pattern=r"^/v1/(observances|festivals|muhurat)/[a-z-]+$")
+    path: str = Field(pattern=r"^/v1/((observances|festivals|muhurat)/[a-z-]+|eclipses)$")
     query: dict[str, str] = Field(default_factory=dict)
     places: list[BundlePlace] = Field(min_length=1, max_length=40)
 

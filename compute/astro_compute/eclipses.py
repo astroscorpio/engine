@@ -99,6 +99,12 @@ def _when(jd: float | None, q) -> str | None:
     return iso(jd, q.tz) if jd else None
 
 
+def _at(jd: float, body: str, q) -> dict:
+    """The eclipsed body's sidereal sign and nakshatra at a moment."""
+    pos = luminaries(jd, q.ayanamsa)[0 if body == "solar" else 1]
+    return {"sign": SIGN_IDS[pos.sign], "nakshatra": NAKSHATRA_IDS[pos.nakshatra]}
+
+
 def _vedha(body: str, kind: str, first: float, last: float, rose: float | None,
            sets_eclipsed: float | None, q) -> tuple[dict, dict | None]:  # fmt: skip
     """The vedha from the first contact seen at the place to its end, with DS's variant."""
@@ -167,7 +173,7 @@ def _solar(flag: int, g: tuple, q) -> dict:
         rise=_when(rise, q),
         set=_when(set_, q),
     )
-    return {"local": local, "first": first, "last": last, "rose": rise, "set": set_}
+    return {"local": local, "first": first, "last": last, "rose": rise, "set": set_, "c1": c1}
 
 
 def _lunar(flag: int, g: tuple, q) -> dict:
@@ -199,7 +205,7 @@ def _lunar(flag: int, g: tuple, q) -> dict:
         return {"local": local, "first": None, "seen": seen}
     first, last = (rise or u1), (set_ or u4)
     local.update(visibleFrom=iso(first, q.tz), visibleUntil=iso(last, q.tz))
-    return {"local": local, "first": first, "last": last, "rose": rise, "set": set_}
+    return {"local": local, "first": first, "last": last, "rose": rise, "set": set_, "c1": u1}
 
 
 def eclipses(q: EkadashiQuery) -> dict:
@@ -218,12 +224,7 @@ def eclipses(q: EkadashiQuery) -> dict:
                                (("p1", 6), ("u1", 2), ("u2", 4), ("greatest", 0), ("u3", 5),
                                 ("u4", 3), ("p4", 7))}  # fmt: skip
         # The eclipsed body at greatest eclipse: DS p. 28 reckons the signs from it.
-        pos = luminaries(g[0], q.ayanamsa)[0 if body == "solar" else 1]
-        row["atMaximum"] = {
-            "body": "sun" if body == "solar" else "moon",
-            "sign": SIGN_IDS[pos.sign],
-            "nakshatra": NAKSHATRA_IDS[pos.nakshatra],
-        }
+        row["atMaximum"] = {"body": "sun" if body == "solar" else "moon", **_at(g[0], body, q)}
         row["local"] = got["local"]
         if kind == "penumbral":
             reason = "penumbral_no_bite"
@@ -232,13 +233,20 @@ def eclipses(q: EkadashiQuery) -> dict:
         else:
             reason = None
         vedha = variant = None
+        # At the first and last contacts seen here, to show a change of sign or star.
+        row["local"]["atSeen"] = (
+            {"start": _at(got["first"], body, q), "end": _at(got["last"], body, q)}
+            if reason is None
+            else None
+        )
         if reason is None:
             vedha, variant = _vedha(
                 body, kind, got["first"], got["last"], got["rose"], got["set"], q
             )
-            # Practice, not the texts: 12 or 9 hours before the first contact seen here.
+            # Practice, not the texts: 12 or 9 hours before the eclipse's own first contact (the
+            # place's C1, the global U1), even with the body below the horizon (research).
             hours = POPULAR_HOURS[body]
-            vedha |= {"popularStart": iso(got["first"] - hours / 24, q.tz), "popularHours": hours}
+            vedha |= {"popularStart": iso(got["c1"] - hours / 24, q.tz), "popularHours": hours}
         rows.append(
             {
                 **row,

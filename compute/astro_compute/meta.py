@@ -945,6 +945,54 @@ FESTIVAL_RULES = {
         "neither_tail": ("Pradosha on neither day: the first night, in Bhadra's tail", "Dharmasindhu p. 94"),
         "neither_after_pradosha": ("Pradosha on neither day and no tail at night: in Bhadra after pradosha, avoiding its face (a first-half Bhadra is allowed at night, MC 1.44)", "Dharmasindhu p. 94"),
     },
+    "magha-snana": {
+        "pausha_later_day": ("The Pausha Purnima on the panchang's vrata day: the later day, whose sunrise the Purnima holds (our reading; no text read rules on it separately)", None),
+        "amavasya_pratipad_pair": ("The Amavasya joined to the Pratipada: the later day, whose sunrise the Amavasya holds", "Dharmasindhu p. 6"),
+        "maghi_later_day": ("The Maghi Purnima is the later day, whose sunrise the Purnima holds", "Nirnaya-sindhu p. 333"),
+        "only_day": ("The tithi holds no sunrise: the day it falls on", None),
+        "first_sunrise": ("The first sunrise in the tithi: the month's start is a span marker (our reading)", None),
+        "last_sunrise": ("The last sunrise in the tithi: the month's end is a span marker (our reading)", None),
+        "month_regular": ("No adhika or lost month falls in the season", None),
+        "month_adhika_pausha": ("An adhika month allows no start, so the bathing begins in the nija Pausha (our reading)", "Dharmasindhu p. 4"),
+        "month_adhika_magha": ("When Magha is adhika, the bath and its rules run through both Maghas and close in the nija Magha", "Dharmasindhu p. 87"),
+        "month_kshaya": ("When a month is lost, the bathing begins on the Purnima of the lost month holding the Makara sankranti and closes on the Magha Purnima joined to the Kumbha sankranti", "Dharmasindhu p. 4"),
+        "trayodashi": ("Most: the three days from the Trayodashi, Magha shukla Trayodashi, Caturdashi and Purnima, counted as three days ending on the Maghi Purnima day (the count is our reading)", "Nirnaya-sindhu p. 323; Dharmasindhu p. 87"),
+        "makara_ratha_maghi": ("Some: Makara sankranti, Ratha-saptami and the Maghi Purnima", "Nirnaya-sindhu p. 323"),
+        "from_dashami": ("Others: three days from Magha shukla Dashami, from the first sunrise in it (the dating is our reading)", "Nirnaya-sindhu p. 323"),
+        "makara_first_three": ("Others: the first three days of the Sun in Capricorn, from the Makara bath day (the dating is our reading)", "Nirnaya-sindhu p. 323"),
+        "magha_first_three": ("Some: the first three days of Magha, from the first sunrise in the month (the dating is our reading)", "Nirnaya-sindhu p. 323"),
+    },
+}  # fmt: skip
+# Magh Mela (contract 7t; research's magha-snana.md v3, adopted by the lead 17 Oct 2026).
+MAGHA_MARKS = {
+    "month_start": ("The start of the month's bathing, Pausha shukla Ekadashi or the Purnima", "Nirnaya-sindhu p. 319; Dharmasindhu p. 86"),
+    "solar_start": ("The solar start of the month: the bath from the Sun's entry into Capricorn to its entry into Aquarius", "Dharmasindhu p. 86"),
+    "texts_day_popular_name": ("The texts' own day: the Amavasya between the Pausha and Magha full moons, inside the bathing month and the day of the ardhodaya yoga when it falls. Only the name Mauni Amavasya is popular; silence is the rule for every bath of the month (Nirnaya-sindhu p. 321)", "Nirnaya-sindhu p. 318; Dharmasindhu p. 87"),
+    "inside_month_not_named": ("Inside the bathing month, where the daily bath applies, but no text read singles it out as a bathing day", "Nirnaya-sindhu p. 319; Dharmasindhu p. 86"),
+    "texts_day": ("At Prayaga at first light, 'equal to ten million solar eclipses'", "Nirnaya-sindhu p. 330"),
+    "month_end": ("The end of the month's bathing, Magha shukla Dvadashi or the Purnima", "Nirnaya-sindhu p. 319; Dharmasindhu p. 86"),
+    "outside_month": ("Outside the Magha bathing month, which ends on Magha shukla Dvadashi or the Purnima. It lies in the dark half of the amanta month of Magha, so outside means outside the bathing month, not the calendar month. No text read names it a Prayaga bath", "Nirnaya-sindhu p. 319; Dharmasindhu p. 86"),
+}  # fmt: skip
+MAGHA_NOTES = {
+    "basis": "By the texts, Magha-snana is a month of dawn bathing, most praised at Prayaga's confluence. It runs from Pausha shukla Ekadashi or Purnima to Magha shukla Dvadashi or Purnima, or by the Sun from Makara to Kumbha (Nirnaya-sindhu pp. 319-322; Dharmasindhu pp. 86-87)",
+    "start_options": "Dharmasindhu also lets the bathing begin on the Pausha Purnima or the Amavasya (p. 86)",
+    "hour": "From first light to morning: best while the stars show, middling when they have faded, lesser after sunrise (Nirnaya-sindhu p. 322; Dharmasindhu p. 86)",
+    "silence": "In silence, with the daily arghya to the Sun (Nirnaya-sindhu p. 321)",
+    "who": "Everyone may bathe: the student, the householder, the forest-dweller and the renunciant; children, the old and the young; men, women and those of the third sex (Nirnaya-sindhu p. 320, the Bhavishya; Dharmasindhu pp. 86-87)",
+    "standing": "It is both obligatory and elective (Dharmasindhu p. 87; Nirnaya-sindhu p. 323)",
+    "rules": "The month's rules: no fire for warmth after the bath, only for homa; sesame with sugar given daily; no oil massage and no radish; sleeping on the ground, havishya food and continence; gifts of fuel, blankets, clothes, sandals, oil, ghee, quilts, gold and food (Nirnaya-sindhu p. 323, the Naradiya; Dharmasindhu p. 87)",
+    "sesame": "Bathing with sesame, rubbing with sesame, offering sesame in the fire and in water, eating sesame and giving sesame: the six uses of sesame (Nirnaya-sindhu p. 324)",
+    "close": "The close: 'Divakara, lord of the world, Prabhakara, salutation to you; make this Magha bath complete, lord of the dawn' (Nirnaya-sindhu p. 325)",
+    "prayaga": "The bath is most praised at Prayaga: at the confluence of the Ganga and the Yamuna it is a hundred times that at Kashi (Nirnaya-sindhu p. 322). Dharmasindhu grades the water: home-heated water gives six years' fruit, the Ganga a thousandfold, and the confluence a hundred times that (p. 87)",
+    "anywhere": "Bathing anywhere, with Prayaga in mind (Dharmasindhu p. 87; Nirnaya-sindhu p. 322, the Brahma)",
+    "kashi": "If Prayaga is out of reach, the Prayaga tirtha at Kashi, north of Dashashvamedha (Nirnaya-sindhu p. 324, the Kashi-khanda)",
+    "three_days_prayaga": "Three days' bathing at Prayaga in Magha gives a fruit that a thousand horse sacrifices do not (Nirnaya-sindhu p. 323, the Padma)",
+    "veni_dana": "At Prayaga, the veni-dana, the offering of the hair, with shaving for all (Dharmasindhu p. 88)",
+    "fewer_days": "If the whole month is not possible, three days or one (Nirnaya-sindhu p. 323)",
+    "ardhodaya": "Ardhodaya: the Amavasya between the Pausha and Magha full moons falling with a Sunday, the Vyatipata yoga and Shravana, 'equal to ten million solar eclipses' (Dharmasindhu p. 87; Nirnaya-sindhu p. 318, the Skanda via Hemadri). The four must meet at one instant within the Sunday, sunrise to sunrise at Prayagraj (our reading)",
+    "ardhodaya_night": "NS counts a night ardhodaya; DS does not",
+    "mahamaghi": "Mahamaghi: Jupiter and the Moon in Magha on the Magha full moon (Nirnaya-sindhu p. 333, the Brahma via Hemadri); both in sidereal Magha at one instant within the Purnima (our reading)",
+    "shivaratri_solar": "Mahashivaratri is inside the Makara-to-Kumbha span only if the sunrise of its vrata day, the morning of the bath, comes before that year's Kumbha sankranti",
 }  # fmt: skip
 FESTIVAL_NOTES = {
     "dipavali": "Lakshmi is worshipped at pradosha on this day (Bhavishya, NS p. 299). Divodasiya prefers an Amavasya covering both pradosha and midnight (NS p. 300); nishithaCovered says whether it does. No fixed-lagna (Vrishabha) muhurat is sourced.",
@@ -1417,7 +1465,7 @@ ECLIPSE_RULES = {
     "three_praharas_lunar": ("For a lunar eclipse no food is taken in the three praharas before the prahara holding the first contact seen at the place", "Dharmasindhu p. 28; Nirnaya-sindhu p. 89"),
     "moon_rises_eclipsed_from_sunrise": ("When the Moon rises eclipsed, no food is taken through that day, from its sunrise", "Dharmasindhu p. 28; Nirnaya-sindhu p. 89"),
     "four_praharas_total_lunar": ("Some give four praharas for a total lunar eclipse and three for a partial one", "Dharmasindhu p. 28"),
-    "last_contact": ("The vedha ends with the bath after the last contact seen at the place", "Dharmasindhu p. 26; Nirnaya-sindhu p. 95"),
+    "last_contact": ("The vedha ends with the bath after the last contact seen at the place", "Dharmasindhu p. 26; Nirnaya-sindhu p. 89"),
     "next_clear_sunrise": ("When the Sun sets eclipsed, the vedha ends with the bath at its next rising, when its disc is clear", "Dharmasindhu p. 28; Nirnaya-sindhu p. 89"),
     "next_clear_moonrise": ("When the Moon sets eclipsed, the vedha ends with the bath at its next rising, when its disc is clear", "Dharmasindhu p. 28; Nirnaya-sindhu p. 89"),
 }  # fmt: skip
@@ -1428,7 +1476,7 @@ ECLIPSE_NOTES = {
     "umbral_not_visible": "Only the penumbral phase is above the horizon here: no shadow bite is seen, so it is not reckoned (our reading of Dharmasindhu p. 26)",
     "partly_visible": "Seen only in part here: it counts for the part above the horizon (Dharmasindhu p. 26)",
     "clouds": "Clouds do not cancel it: the computed contact and release times stand (Dharmasindhu p. 26)",
-    "popular_start": "Popularly, sutak is counted 12 hours before a solar and 9 hours before a lunar eclipse; that is practice, not in the texts read",
+    "popular_start": "Popularly, sutak is counted 12 hours before a solar and 9 hours before a lunar eclipse, from the eclipse's own first contact: for a lunar eclipse the first contact of the Earth's full shadow (the umbra), the same moment everywhere, even where the Moon rises eclipsed; for a solar eclipse the place's own first contact, even with the Sun below the horizon. That is practice, not in the texts read",
     "exemptions": "Children, the old and the sick: Dharmasindhu gives a vedha of one and a half praharas or three muhurtas (p. 28), Nirnaya-sindhu one prahara before the eclipse's prahara (p. 90)",
     "householders": "Householders with sons do not keep the optional fast at an eclipse (Dharmasindhu p. 26)",
 }  # fmt: skip
@@ -1457,8 +1505,9 @@ PANCAKA_NOTES = {
     "cremation": "No cremation in the Panchak, whatever the star of the death (Muhurta-cintamani p. 85)",
     "death": "In the Panchak both the death and the cremation are faulted (Muhurta-cintamani p. 85, with the Brahma-purana; Nirnaya-sindhu p. 944)",
     "cannot_wait": "When the cremation cannot wait, it is done after a shanti (Muhurta-cintamani p. 85): the effigy rite",
-    "effigies_garuda": "The Garuda: four kusha effigies, consecrated with the stars' mantras, are laid by the body and burnt with it; after the impurity the sons perform the shantika and paushtika rites, with gifts of sesame, gold and ghee (Muhurta-cintamani p. 86; Nirnaya-sindhu p. 943)",
-    "effigies_brahma": "The Brahma: five kusha figures, bound with wool thread and smeared with barley paste and named Pretavaha, Pretasakha, Pretapa, Pretabhumipa and Pretaharta, are laid at the head, the eyes, the left side, the navel and the feet; by this rite the cremation may be done that same day (Nirnaya-sindhu p. 944)",
+    "effigies_garuda": "The Garuda: four kusha effigies, consecrated with the stars' mantras, are laid by the body and burnt with it; after the impurity the sons perform the shantika and paushtika rites, with sesame, gold and ghee for the dead (Nirnaya-sindhu p. 943; the Muhurta-cintamani quotes its close, p. 86)",
+    "effigies_brahma": "The Brahma-purana: five kusha figures, bound with wool thread and smeared with barley paste, named Pretavaha, Pretasakha, Pretapa, Pretabhumipa and Pretaharta; the cremation after the Panchak, or that same day by this rite (Muhurta-cintamani p. 85; Nirnaya-sindhu p. 944). The Nirnaya-sindhu lays them at the head, the eyes, the left side, the navel and the feet (p. 944)",
+    "same_day": "The Muhurta-cintamani's commentary has the cremation done at once, with the rite, for a death from the second half of Dhanishtha on, since the Panchak lasts long and a body is not kept overnight; for a death at the very end of Revati, after Revati (p. 85)",
     "effigy_count": "The count of effigies differs: four in the Garuda, five in the Brahma",
     "five_gems": "Apararka adds the five gems for a death in the Dhanishtha-panchaka (Nirnaya-sindhu p. 944)",
     "which_remedy": "A death in another star with the cremation in the Panchak: the effigies only. A death in the Panchak with the cremation after it: no effigies, and the shanti after the impurity (Muhurta-cintamani p. 86)",
@@ -1523,9 +1572,10 @@ FESTIVAL_NAMES = {
     "cheti-chand": "Cheti Chand",
     "sheetala-ashtami": "Sheetala Ashtami",
     "pongal": "Pongal",
+    "magha-snana": "Magha Snana",
 }
 # Popular names served beside the name, as the English pages carry both (the lead, 16 Oct 2026).
-FESTIVAL_POPULAR = {"sheetala-ashtami": "Basoda"}
+FESTIVAL_POPULAR = {"sheetala-ashtami": "Basoda", "magha-snana": "Magh Mela"}
 CHHATHS = ["chhath", "chaiti-chhath"]
 # Named days inside a kind's answer: id -> (name, the kinds that carry it).
 FESTIVAL_DAY_NAMES = {
@@ -1808,6 +1858,8 @@ def _english() -> dict:
             "popular_practice": "Popular practice; no text read gives the day",
         },
         "festivalCautions": FESTIVAL_CAUTIONS,
+        "maghaMarks": {k: {"name": n, "source": src} for k, (n, src) in MAGHA_MARKS.items()},
+        "maghaNotes": MAGHA_NOTES,
         "purnimaEarlierDateNote": PURNIMA_EARLIER_NOTE,
         "purnimaNames": {
             k: {"name": n, "note": note, "source": src}

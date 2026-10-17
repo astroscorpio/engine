@@ -3,6 +3,7 @@ from conftest import DELHI, call
 from astro_compute.meta import ECLIPSE_NOTES, ECLIPSE_RULES
 
 LONDON = {"lat": "51.5074", "lon": "-0.1278", "tz": "Europe/London"}
+CHENNAI = {"lat": "13.0827", "lon": "80.2707", "tz": "Asia/Kolkata"}
 
 
 def _eclipses(year, place=DELHI):
@@ -42,6 +43,18 @@ def test_vedha_matches_research_delhi_examples():
     assert m["local"]["risesEclipsed"] and m["vedha"]["rule"] == "moon_rises_eclipsed_from_sunrise"
 
 
+def test_popular_start_counts_from_the_eclipses_own_first_contact():
+    """Research, 17 Oct 2026 (the 2026 reports for 3 Mar): nine hours before the global U1,
+    even where the Moon rises eclipsed; twelve before the place's own C1."""
+    m = _eclipses(2026)["2026-03-03-lunar"]
+    assert (m["contacts"]["u1"][11:16], m["vedha"]["popularStart"][11:16]) == ("15:20", "06:20")
+    s = _eclipses(2028, CHENNAI)["2028-07-22-solar"]
+    assert (s["local"]["contacts"]["c1"][11:16], s["vedha"]["popularStart"][:16]) == (
+        "06:22",
+        "2028-07-21T18:22",
+    )
+
+
 def test_only_what_is_seen_counts():
     """DS p. 26: below the horizon, nothing; a penumbral eclipse has no bite (our reading)."""
     y26 = _eclipses(2026, LONDON)
@@ -67,3 +80,14 @@ def test_eclipsed_body_at_maximum():
     lunar, solar = rows["2028-12-31-lunar"]["atMaximum"], rows["2028-07-22-solar"]["atMaximum"]
     assert (lunar["body"], solar["body"]) == ("moon", "sun")
     assert all(x["sign"] in SIGN_IDS and x["nakshatra"] for x in (lunar, solar))
+
+
+def test_seen_part_shows_a_change_of_sign_or_star():
+    """seo's spec: the eclipsed body's sign and star at the first and last contacts seen."""
+    a = _eclipses(2030)["2030-06-15-lunar"]["local"]["atSeen"]
+    assert a["start"] == {"sign": "scorpio", "nakshatra": "jyeshtha"}
+    assert a["end"] == {"sign": "sagittarius", "nakshatra": "mula"}
+    y27 = _eclipses(2027)
+    s = y27["2027-08-02-solar"]["local"]["atSeen"]
+    assert s["start"] == s["end"] == {"sign": "cancer", "nakshatra": "pushya"}
+    assert all(e["local"]["atSeen"] is None for e in y27.values() if not e["reckoned"])

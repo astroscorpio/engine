@@ -27,8 +27,9 @@ import datetime as dt
 from functools import lru_cache
 
 from jyotisha import muhurta as Mu
-from jyotisha.ephemeris import ascendant, luminaries, moon_rise_set
+from jyotisha.ephemeris import ascendant, luminaries, moon_rise_set, positions
 
+from .errors import ApiError
 from .fmt import provenance
 from .ids import MASA_IDS, tithi_id
 from .models import EkadashiQuery
@@ -45,6 +46,7 @@ from .observances import (
     _sunset,
     _vara,
 )
+from .sankranti import _one as _sankranti_one
 from .timeutil import aware, iso, local_jd
 
 DANDA = 24 / 1440  # one ghatika (danda), in days
@@ -2116,7 +2118,7 @@ PONGAL_MARGIN = 3 / 24  # a day ingress this close to sunset: the next day too (
 
 
 def _makara(q) -> float:
-    t0 = local_jd(dt.date(q.year, 1, 1), 0.0, q.tz, "year")
+    t0 = local_jd(dt.date(q.year, 1, 1), 12.0, q.tz, "year") - 0.5  # 1906 lost its midnight
     return _ingress(CAPRICORN, t0, t0 + 31, q)
 
 
@@ -2443,6 +2445,264 @@ def _cheti_chand(q: EkadashiQuery) -> tuple[list[dict], dict]:
     return out, {"computedAt": AHMEDABAD}
 
 
+# --- Magh Mela: Magha-snana at Prayaga (contract 7t; research's magha-snana.md v3) ------
+
+PRAYAGRAJ = {"name": "Prayagraj", "lat": 25.4358, "lon": 81.8463, "tz": "Asia/Kolkata"}
+SAGITTARIUS, AQUARIUS = 8, 10
+MAGHA_STAR = 9  # nakshatra index, Ashvini = 0
+VYATIPATA = 16  # yoga index, Vishkambha = 0: the 17th
+
+
+def _ns(verse: str, page: str) -> dict:
+    return {**SOURCE, "verse": verse, "page": page}
+
+
+def _ds(verse: str, page: str) -> dict:
+    return {**DS, "verse": verse, "page": page}
+
+
+def _amanta(t: float, edges: list[tuple[float, int]]) -> tuple[float, float]:
+    """The amanta month, new moon to new moon, holding t."""
+    starts = [jd for jd, num in edges if num == 1]
+    return max(x for x in starts if x <= t), min(x for x in starts if x > t)
+
+
+def _tithi_span(edges: list, month: tuple[float, float], num: int) -> tuple[float, float] | None:
+    """Tithi `num` of the month: the span that begins inside it."""
+    for (a, n), (b, _) in zip(edges, edges[1:], strict=False):
+        if n == num and month[0] <= a < month[1]:
+            return a, b
+    return None
+
+
+def _sunrise_bound(span: tuple[float, float], q, first: bool) -> tuple[float, str]:
+    """The first or last sunrise the tithi holds; with none, the day it falls on."""
+    a, b = span
+    s = _sunrises(a, q.lat, q.lon, 4)
+    held = [t for t in s if a <= t < b]
+    if not held:
+        return s[0], "only_day"
+    return (held[0], "first_sunrise") if first else (held[-1], "last_sunrise")
+
+
+def _bound(span: tuple[float, float], q, first: bool) -> dict:
+    rise, rule = _sunrise_bound(span, q, first)
+    return {"date": _date(rise, q), "vara": _vara(rise, q), "rule": rule, "tithi": _span(span, q)}
+
+
+def _plus(date: str, n: int) -> str:
+    return (dt.date.fromisoformat(date) + dt.timedelta(days=n)).isoformat()
+
+
+def _three(date: str) -> list[str]:
+    return [date, _plus(date, 1), _plus(date, 2)]
+
+
+def _meet(*spans: list[tuple[float, float]]) -> tuple[float, float] | None:
+    """The first stretch where one span from each list overlaps."""
+    lo, hi = max(s[0][0] for s in spans), min(s[0][1] for s in spans)
+    if hi > lo:
+        return lo, hi
+    head = min(range(len(spans)), key=lambda i: spans[i][0][1])
+    if len(spans[head]) == 1:
+        return None
+    return _meet(*(s[1:] if i == head else s for i, s in enumerate(spans)))
+
+
+def _ardhodaya(span: tuple[float, float], q) -> dict | None:
+    """v2 decision 3 (DS p. 87; NS p. 318): the Amavasya, a Sunday at Prayagraj (sunrise
+    to sunrise), the Vyatipata yoga and Shravana at one instant."""
+    a, b = span
+    s = _sunrises(a, q.lat, q.lon, 4)
+    sundays = [(x, y) for x, y in zip(s, s[1:], strict=False) if _vara(x, q) == "sunday"]
+    yoga = _spans(lambda t: Mu.yoga_at(t, q.ayanamsa), VYATIPATA, a, b, 0.05)
+    star = _spans(lambda t: Mu.nakshatra_at(t, q.ayanamsa), SHRAVANA, a, b, 0.05)
+    if not (sundays and yoga and star):
+        return None
+    hit = _meet([span], sundays, yoga, star)
+    if hit is None:
+        return None
+    rise = max(x for x, _ in sundays if x <= hit[0])
+    day = (rise, _sunset(rise, q))  # sunrise to sunset, our reading of "by day"
+    return {**_span(hit, q), "daylight": min(hit[1], day[1]) > max(hit[0], day[0])}
+
+
+def _mahamaghi(span: tuple[float, float], q) -> dict | None:
+    """v2 decision 4 (NS p. 333): Jupiter and the Moon in sidereal Magha at one instant
+    within the Maghi Purnima."""
+    a, b = span
+    moon = _spans(lambda t: Mu.nakshatra_at(t, q.ayanamsa), MAGHA_STAR, a, b, 0.05)
+    jupiter = _spans(lambda t: positions(t, q.ayanamsa)["Jupiter"].nakshatra, MAGHA_STAR, a, b, 0.5)
+    hit = _meet(moon, jupiter) if moon and jupiter else None
+    return _span(hit, q) if hit else None
+
+
+def _month_rule(t_makara: float, t_kumbha: float, edges: list, q) -> str:
+    """DS pp. 4, 87 (v3): which months the bathing runs through. The amanta month holding
+    the Makara ingress is Pausha and the one holding the Kumbha ingress Magha."""
+    pausha, magha = _amanta(t_makara, edges), _amanta(t_kumbha, edges)
+    t_dhanu = _ingress(SAGITTARIUS, t_makara - 35, t_makara - 25, q)
+    if pausha[0] <= t_dhanu:  # the month holding Makara holds Dhanu too
+        return "month_kshaya"
+    if magha[0] > pausha[1]:
+        return "month_adhika_magha"  # a month with no ingress between them
+    if t_dhanu < _amanta(pausha[0] - 1, edges)[0]:
+        return "month_adhika_pausha"
+    return "month_regular"
+
+
+def _magha_snana(q: EkadashiQuery) -> tuple[list[dict], dict]:
+    """Contract 7t: the bathing season whose Maghi Purnima falls in the year, at Prayagraj
+    for every city (the lead, 17 Oct 2026)."""
+    p = _at(PRAYAGRAJ, q)
+    t_makara = _makara(p)
+    t_kumbha = _ingress(AQUARIUS, t_makara + 25, t_makara + 35, p)
+    edges = Mu._scan(lambda t: Mu.tithi_at(t, p.ayanamsa), t_makara - 75, t_kumbha + 45, 0.25)
+    pausha, magha = _amanta(t_makara, edges), _amanta(t_kumbha, edges)
+    if pausha == magha:  # 1983: one lost month holds both ingresses; no rule built for it
+        raise ApiError(
+            "unsupported_season",
+            "this season's one lunar month holds both the Makara and Kumbha ingresses",
+            422,
+            "year",
+        )
+    rule = _month_rule(t_makara, t_kumbha, edges, p)
+
+    def full_or_new(month: tuple[float, float], num: int, held_rule: str) -> tuple[dict, tuple]:
+        span = _tithi_span(edges, month, num)
+        rise, how = _sunrise_bound(span, p, first=False)
+        day = {
+            "date": _date(rise, p),
+            "vara": _vara(rise, p),
+            "rule": held_rule if how == "last_sunrise" else "only_day",
+            "tithi": _span(span, p),
+        }
+        return day, span
+
+    pp, _ = full_or_new(pausha, 15, "pausha_later_day")
+    mauni, mauni_span = full_or_new(pausha, 30, "amavasya_pratipad_pair")
+    maghi, maghi_span = full_or_new(magha, 15, "maghi_later_day")
+    sk = _sankranti_one(t_makara, CAPRICORN, p)
+    month_cite = (_ns("the month of bathing", "319"), _ds("the month of bathing", "86"))
+
+    days = [
+        {"id": "pausha_purnima", **pp, "mark": "month_start"},
+        {
+            "id": "makara_sankranti",
+            "date": sk["date"],
+            "vara": sk["vara"],
+            "rule": sk["rule"],
+            "ruleKind": "sankranti",
+            "mark": "solar_start",
+            "source": _ds("the solar reckoning", "86"),
+            "alsoSource": _ns("the Makara punyakala", "325"),
+            "at": sk["at"],
+        },
+        {
+            "id": "mauni_amavasya",
+            **mauni,
+            "mark": "texts_day_popular_name",
+            "source": _ns("the Amavasya between the Pausha and Magha full moons", "318"),
+            "alsoSource": _ds("ardhodaya", "87"),
+            "popularName": "Mauni Amavasya",
+        },
+        {"id": "maghi_purnima", **maghi, "mark": "month_end"},
+    ]
+    for d in (days[0], days[3]):
+        d["source"], d["alsoSource"] = month_cite
+    span5, span7 = _tithi_span(edges, magha, 5), _tithi_span(edges, magha, 7)
+    vasanta = _vasanta(*span5, span5[1], p) if span5 else None
+    ratha = _ratha(*span7, span7[1], p) if span7 else None
+    if vasanta:
+        days.append(
+            {
+                "id": "vasanta_panchami",
+                "date": vasanta["date"],
+                "vara": vasanta["vara"],
+                "rule": vasanta["rule"],
+                "ruleKind": "vasanta-panchami",
+                "mark": "inside_month_not_named",
+                "source": month_cite[0],
+                "alsoSource": month_cite[1],
+            }
+        )
+    if ratha:
+        days.append(
+            {
+                "id": "ratha_saptami",
+                "date": ratha["date"],
+                "vara": ratha["vara"],
+                "rule": ratha["rule"],
+                "ruleKind": "ratha-saptami",
+                "mark": "texts_day",
+                "source": _ns("Ratha-saptami at Prayaga", "330"),
+                "alsoSource": None,
+            }
+        )
+    days.sort(key=lambda d: d["date"])
+
+    views = [{"id": "trayodashi", "dates": _three(_plus(maghi["date"], -2)), "headline": True}]
+    if ratha:
+        views.append(
+            {
+                "id": "makara_ratha_maghi",
+                "dates": [sk["date"], ratha["date"], maghi["date"]],
+                "headline": False,
+            }
+        )
+    dashami = _bound(_tithi_span(edges, magha, 10), p, first=True)["date"]
+    first_of_magha = _bound(_tithi_span(edges, magha, 1), p, first=True)["date"]
+    views += [
+        {"id": "from_dashami", "dates": _three(dashami), "headline": False},
+        {"id": "makara_first_three", "dates": _three(sk["date"]), "headline": False},
+        {"id": "magha_first_three", "dates": _three(first_of_magha), "headline": False},
+    ]
+
+    shivaratri = None
+    span29 = _tithi_span(edges, magha, 29)
+    sv = _shivaratri(*span29, span29[1], p, True) if span29 else None
+    if sv:
+        rise = _sunrises(local_jd(dt.date.fromisoformat(sv["date"]), 12.0, p.tz), p.lat, p.lon, 1)[
+            0
+        ]
+        shivaratri = {
+            "date": sv["date"],
+            "vara": sv["vara"],
+            "sunrise": iso(rise, p.tz),
+            "kumbhaSankranti": iso(t_kumbha, p.tz),
+            # v3: the vrata day's morning bath against the ingress
+            "insideSolarSpan": rise < t_kumbha,
+            "mark": "outside_month",
+        }
+
+    row = {
+        "month": {
+            "rule": rule,
+            "lunar": {
+                "start": {
+                    "ekadashi": _bound(_tithi_span(edges, pausha, 11), p, first=True),
+                    "purnima": pp["date"],
+                    "amavasya": mauni["date"],
+                },
+                "end": {
+                    "dvadashi": _bound(_tithi_span(edges, magha, 12), p, first=False),
+                    "purnima": maghi["date"],
+                },
+            },
+            "solar": {
+                "start": {"at": iso(t_makara, p.tz), "date": _date(t_makara, p)},
+                "end": {"at": iso(t_kumbha, p.tz), "date": _date(t_kumbha, p)},
+            },
+        },
+        "bathDays": days,
+        "threeDays": views,
+        "ardhodaya": _ardhodaya(mauni_span, p),
+        "mahamaghi": _mahamaghi(maghi_span, p),
+        "shivaratri": shivaratri,
+    }
+    return [row], {"computedAt": PRAYAGRAJ}
+
+
 def _year(q: EkadashiQuery, num: int | set[int], build) -> list[dict]:
     rows = _collect(
         q,
@@ -2540,6 +2800,7 @@ FESTIVALS = {
     "rang-panchami": (20, _rang_panchami, None, None),
     "cheti-chand": (None, None, None, None),
     "sheetala-ashtami": (23, _sheetala, None, None),
+    "magha-snana": (None, None, "pp. 318-326, 330, 333", "pp. 4, 6, 86-88"),
 }
 POPULAR = {
     "chhath",
@@ -2566,6 +2827,7 @@ ONE_PLACE = {
     "tamil-new-year",
     "baisakhi",
     "cheti-chand",
+    "magha-snana",
 }
 YEARLY = {
     "onam": _onam,
@@ -2577,6 +2839,7 @@ YEARLY = {
     "tamil-new-year": _tamil_new_year,
     "baisakhi": _baisakhi,
     "cheti-chand": _cheti_chand,
+    "magha-snana": _magha_snana,
 }
 KALA_SANKALITA = {
     "text": "Kala Sankalita",
