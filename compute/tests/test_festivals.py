@@ -422,7 +422,7 @@ def test_bengal_durga_puja_follows_the_sunrise_tithi():
         assert fore["start"] <= w["start"] < w["end"] <= fore["end"]
     # TT keeps Mahanavami on the sunrise Navami; NS and DS take the Ashtami day here.
     assert d["mahanavami"]["nsDsDate"] == d["mahashtami"]["date"]
-    assert out["source"]["page"] == "63-82"
+    assert out["source"]["page"] == "73-92"  # TT page = IA leaf - 18 (research, 17 Oct 2026)
 
 
 def test_february_strips_carry_both_candidate_days():
@@ -846,3 +846,55 @@ def test_three_spring_days():
             f"{year}-{saptami}",
             f"{year}-{rajasthan}" if rajasthan else None,
         ), year
+
+
+def test_durga_puja_acts_carry_the_ghatika_caution():
+    """The lead, 17 Oct 2026: in 2026 the Shashthi lasts 20 minutes past Saturday's sunrise,
+    so a reckoning 24 minutes earlier would put the leaf entry on Sat 17 Oct."""
+    kolkata = {"year": "2026", "lat": "22.5726", "lon": "88.3639", "tz": "Asia/Kolkata"}
+    status, out = call("GET", "/v1/festivals/durga-puja", kolkata)
+    assert status == 200, out
+    (d,) = out["occurrences"]
+    leaf = d["patrikaPravesha"]
+    want = ("2026-10-18", ["tithi_ghatika_margin"], "2026-10-17")
+    assert (leaf["date"], leaf["cautions"], leaf["variantDate"]) == want
+    assert leaf["margin"] == {"tithi": "saptami", "boundary": "start", "minutes": 20}
+    status, out28 = call("GET", "/v1/festivals/durga-puja", {**kolkata, "year": "2028"})
+    leaf28 = out28["occurrences"][0]["patrikaPravesha"]
+    assert (leaf28["variantDate"], leaf28["margin"]) == (
+        "2028-09-24",
+        {"tithi": "saptami", "boundary": "end", "minutes": 18},
+    )
+    for act in ("bodhana", "amantrana", "mahashtami", "mahanavami", "visarjana"):
+        a = d[act]
+        assert (a["cautions"] == []) == (a["variantDate"] is None) == (a["margin"] is None), act
+
+
+def test_durga_puja_is_keyed_to_kolkata_for_every_city():
+    """Research, 17 Oct 2026: Kolkata's days everywhere, instants in the city's own time,
+    the forenoon rites in its own forenoon, and localRuleDate where its sunrise differs."""
+    acts = ("bodhana", "amantrana", "patrikaPravesha", "mahashtami", "mahanavami", "visarjana")
+    kolkata = tuple(f"2026-10-{d}" for d in (16, 17, 18, 19, 20, 21))
+    early = {"amantrana": "2026-10-16", "patrikaPravesha": "2026-10-17"}
+    west = {**early, "mahashtami": "2026-10-18", "mahanavami": "2026-10-19"}
+    cities = {
+        "delhi": (DELHI, early, ("10:28", "11:16")),
+        "london": (
+            {"lat": "51.5074", "lon": "-0.1278", "tz": "Europe/London"},
+            west,
+            ("05:58", "06:46"),
+        ),
+        "new york": (
+            {"lat": "40.7128", "lon": "-74.0060", "tz": "America/New_York"},
+            {**west, "visarjana": "2026-10-20"},
+            ("00:58", "01:46"),
+        ),
+    }
+    for name, (place, local, sandhi) in cities.items():
+        status, out = call("GET", "/v1/festivals/durga-puja", {**place, "year": "2026"})
+        assert status == 200 and out["computedAt"]["name"] == "Kolkata", out
+        (d,) = out["occurrences"]
+        assert tuple(d[a]["date"] for a in acts) == kolkata, name
+        assert {a: d[a]["localRuleDate"] for a in acts if d[a]["localRuleDate"]} == local, name
+        assert (d["sandhiPuja"]["start"][11:16], d["sandhiPuja"]["end"][11:16]) == sandhi, name
+        assert d["patrikaPravesha"]["forenoon"]["start"][:10] == "2026-10-18", name
