@@ -56,7 +56,7 @@ EM = {
     "text": "Ekadashi-mahatmya, bhasha-tika sahita",
     "edition": "Babu Baijnath Prasad, Banaras, 1934",
 }
-NS_P51 = "Nirnaya-sindhu, 1898, p. 51 (Hindi commentary)"
+NS_P51 = "Nirṇaya-sindhu p. 51 (Hindi commentary)"
 EKADASHI_NAMES = {
     "margashirsha_krishna": (None, (), None, "Utpannā", "f. 1, 11b"),
     "margashirsha_shukla": ("Mokṣā", (), None, "Mokṣadā", "f. 18"),
