@@ -262,7 +262,7 @@ def eclipses(q: EkadashiQuery) -> dict:
     return {
         "year": q.year,
         "eclipses": rows,
-        "source": {**DS, "verse": "grahana-nirnaya", "page": "26–29"},
-        "alsoSource": {**NS, "verse": "grahana-nirnaya", "page": "89–107"},
+        "source": {**DS, "verse": "Grahaṇa-nirṇaya", "page": "26–29"},
+        "alsoSource": {**NS, "verse": "Grahaṇa-nirṇaya", "page": "89–107"},
         "engine": provenance(q.ayanamsa),
     }

@@ -28,7 +28,7 @@ MC = {
     "text": "Muhūrta-cintāmaṇi",
     "verse": "2.48, with the Pīyūṣadhārā",
     "edition": (
-        "Rāma Daivajña (1600 CE), with the Pīyūṣadhārā commentary of Govinda Daivajña (1603), "
+        "Rāma Daivajña (1600), with the Pīyūṣadhārā commentary of Govinda Daivajña (1603), "
         "1945 printing; the 1925 printing has the same page numbers"
     ),
     "page": "84–86",

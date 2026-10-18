@@ -23,7 +23,7 @@ SAPTAVARGA = [1, 2, 3, 7, 9, 12, 30]
 # Saptavargaja values in virupas, BPHS (1933) UK 2.9 with the ṭīkā, pp. 459-462:
 # mulatrikona, own sign, great friend, friend, neutral, enemy, great enemy. A graha in
 # its exaltation or debilitation sign scores by its relation to that sign's lord: the
-# 1990 reading, on the user's list (the 1933 ṭīkā scores exaltation itself, 1|0|0).
+# 1990 reading (the 1933 ṭīkā scores exaltation itself, 1|0|0).
 DIGNITY_VIRUPAS = {
     "moolatrikona": 45.0,
     "own": 30.0,

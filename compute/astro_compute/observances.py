@@ -113,7 +113,7 @@ VR_SAKAT = {
 }
 SOURCE = {
     "text": "Nirṇaya-sindhu",
-    "verse": "Ekadashi-nirnaya, pariccheda 1",
+    "verse": "Ekādaśī-nirṇaya, pariccheda 1",
     "edition": (
         "Kamalākara Bhaṭṭa (1612), with the Hindi commentary of Jvālāprasāda Miśra (1899), "
         "Gaṅgāviṣṇu Śrīkṛṣṇadās, Lakṣmī-Veṅkaṭeśvara Press, Kalyan, 1918; "
@@ -299,7 +299,7 @@ def ekadashi(q: EkadashiQuery) -> dict:
 
 # --- Purnima, Amavasya, Pradosha (docs/sources/observances.md s5, pradosha.md) -------
 
-NS_73 = {**SOURCE, "verse": "Purnima-nirnaya; Darsha-shraddha-kala", "page": "73, 81–87"}
+NS_73 = {**SOURCE, "verse": "Pūrṇimā-nirṇaya; Darśa-śrāddha-kāla", "page": "73, 81–87"}
 # observances.md s6: names a given Amavasya can carry (meta.amavasyaNames).
 MAHALAYA_AMANTA = "bhadrapada"  # the dark fortnight after the Bhadrapada full moon (NS p. 215)
 # NS p. 341 names a new moon by the amanta month it ends: its yugadi "Magha

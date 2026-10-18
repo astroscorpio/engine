@@ -343,7 +343,7 @@ def states_payload(chart: Chart) -> dict:
 # Both schemes are textual (docs/sources/chara-karakas.md): Jaimini Upadesa-sutra
 # 1.1.10-19 allows seven karakas (Sun to Saturn) or eight (with Rahu). The 1933 BPHS
 # (PK 8.1-2) counts seven and adds Rahu only when two tie; Rahu counted as 30 minus its
-# degrees is BPHS 1990 32.6, waiting on the user. Neither is favoured; both are returned.
+# degrees is BPHS 1990 32.6. Neither is favoured; both are returned.
 KARAKA_SOURCE = "Jaimini Upadeśa-sūtra 1.1.10; BPHS 1933 PK 8.1–2"
 
 

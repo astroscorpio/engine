@@ -1,6 +1,6 @@
 """GET /v1/observances/sankranti: the year's twelve sidereal solar ingresses at a place,
 with each one's punyakala and the day of the bath and gifts (docs/sources/sankranti.md,
-as the lead approved it on 15 Oct 2026; DS pp. 2-3, 41, 85-86; NS pp. 4-11, 161,
+as the lead approved it on 15 Oct 2026; DS pp. 2-3, 41, 85-86; NS pp. 5-11, 161,
 326-327). A ghati is 24 minutes and a nadi the same.
 """
 
@@ -42,8 +42,8 @@ ALSO = {
         "Gaṅgāviṣṇu Śrīkṛṣṇadās, Lakṣmī-Veṅkaṭeśvara Press, Kalyan, 1918; "
         "Khemrāj Śrīkṛṣṇadās’s 2019 Mumbai printing has the same page numbers"
     ),
-    "verse": "sankranti-nirnaya",
-    "page": "4–11, 161, 326–327",
+    "verse": "Saṅkrānti-nirṇaya",
+    "page": "5–11, 161, 326–327",
 }
 
 

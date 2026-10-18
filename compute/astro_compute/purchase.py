@@ -31,7 +31,7 @@ SOURCE = {
     "text": "Muhūrta-cintāmaṇi",
     "verse": "2.16–18 with the commentary (the Vyavahāroccaya on 2.18)",
     "edition": (
-        "Rāma Daivajña (1600 CE), with the Pīyūṣadhārā commentary of Govinda Daivajña (1603), "
+        "Rāma Daivajña (1600), with the Pīyūṣadhārā commentary of Govinda Daivajña (1603), "
         "1945 printing; "
         "the 1925 printing has the same page numbers (2.18 checked in the 1925 printing)"
     ),

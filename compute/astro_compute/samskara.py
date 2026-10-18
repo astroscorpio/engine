@@ -56,7 +56,7 @@ ANNA_SOURCE = {
     "text": "Muhūrta-cintāmaṇi",
     "verse": "5.17–18",
     "edition": (
-        "Rāma Daivajña (1600 CE), with the Pīyūṣadhārā commentary of Govinda Daivajña (1603), "
+        "Rāma Daivajña (1600), with the Pīyūṣadhārā commentary of Govinda Daivajña (1603), "
         "1945 printing; the 1925 printing has the same page numbers"
     ),
     "page": "178–181",
@@ -73,7 +73,7 @@ AKSHARA_SOURCE = {
     "text": "Muhūrta-cintāmaṇi",
     "verse": "5.37",
     "edition": (
-        "Rāma Daivajña (1600 CE), with the Pīyūṣadhārā commentary of Govinda Daivajña (1603), "
+        "Rāma Daivajña (1600), with the Pīyūṣadhārā commentary of Govinda Daivajña (1603), "
         "1945 printing; the 1925 printing has the same page numbers"
     ),
     "page": "197–198",

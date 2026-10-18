@@ -46,7 +46,7 @@ OWN_SIGNS = {
     "Ketu": [],
 }
 # (sign, exact degree): BPHS (1933) PK 2.46-48, p. 7. The nodes' 20 degrees are not in it:
-# our reading, pending the user.
+# our reading.
 EXALTATION = {
     "Sun": (0, 10),
     "Moon": (1, 3),
@@ -74,7 +74,7 @@ MOOLATRIKONA = {
 EXALTED_TO = {"Moon": 3.0, "Mercury": 15.0}
 # Rahu and Ketu exalted in Taurus and Scorpio: BPHS (1933) PK 36.35, p. 261. Mulatrikona
 # in Gemini and Sagittarius, own signs Aquarius and Scorpio ("some": Virgo and Pisces):
-# BPHS Dasa-phala vv. 35-36 (p. 329), until the user decides. Their debilitation as the
+# BPHS (1990) Dasa-phala vv. 35-36 (p. 329). Their debilitation as the
 # 7th from exaltation is our reading.
 NODE_SIGNS = {
     "Rahu": {"exalted": 1, "debilitated": 7, "moolatrikona": 2, "own": 10},

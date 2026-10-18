@@ -2870,8 +2870,8 @@ KS_PONGAL = {
 }
 SEWELL_DIKSHIT = {
     "text": "The Indian Calendar",
-    "author": "Robert Sewell and Śaṅkara Bālakṛṣṇa Dīkshit",
-    "edition": "Robert Sewell and Śaṅkara Bālakṛṣṇa Dīkshit, Swan Sonnenschein, London, 1896",
+    "author": "Robert Sewell and Śaṅkara Bālkṛishṇa Dīkshit",
+    "edition": "Robert Sewell and Śaṅkara Bālkṛishṇa Dīkshit, Swan Sonnenschein, London, 1896",
     "verse": "Art. 28, the Tamil Rule",
     "page": "12",
 }
@@ -3047,7 +3047,7 @@ MC_140 = {
     "text": "Muhūrta-cintāmaṇi",
     "verse": "1.40, with the Śīghrabodha in the commentary",
     "edition": (
-        "Rāma Daivajña (1600 CE), with the Pīyūṣadhārā commentary of Govinda Daivajña (1603), "
+        "Rāma Daivajña (1600), with the Pīyūṣadhārā commentary of Govinda Daivajña (1603), "
         "1945 printing; the 1925 printing has the same page numbers"
     ),
     "page": "33–34",

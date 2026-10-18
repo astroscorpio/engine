@@ -505,7 +505,7 @@ KANA = {
     6: "Chitra",
 }
 # Abhijit, the 28th nakshatra: the last quarter of U.Ashadha and the first fifteenth
-# of Shravana (Muhurta-martanda 1909, travel v. 4, p. 139), in sidereal degrees.
+# of Shravana (Muhurta-martanda 1907, travel v. 4, p. 139), in sidereal degrees.
 ABHIJIT = (276 + 40 / 60, 280 + 53 / 60 + 20 / 3600)
 
 

@@ -46,7 +46,7 @@ SOURCE = {
     "text": "Muhūrta-cintāmaṇi",
     "verse": "5.26–30; 1.47–48",
     "edition": (
-        "Rāma Daivajña (1600 CE), with the Pīyūṣadhārā commentary of Govinda Daivajña (1603), "
+        "Rāma Daivajña (1600), with the Pīyūṣadhārā commentary of Govinda Daivajña (1603), "
         "1945 printing; "
         "the 1925 printing has the same page numbers (5.27–30 from the 1925 printing)"
     ),
