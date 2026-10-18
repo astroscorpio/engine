@@ -4,8 +4,8 @@ Every table below is transcribed from docs/sources/ashtakoota.md, which quotes
 the scanned verse for each. Citations use that file's keys:
 
   MC   Muhurta Chintamani ch. 6 with the Piyushadhara commentary
-  MC49 the 1949 Khemraj edition of MC, with printed point tables
-  MM   Muhurta Martanda (1909 edition)
+  MC (1927) the 1927 Khemraj printing of MC, with printed point tables
+  MM   Muhurta Martanda (1907 printing)
   BJS  Brihat Jyotishsara (1892)
   DM   Daivajna-manohara, quoted inside MC
 
@@ -77,7 +77,7 @@ def vashya_group(sign: int, deg: float) -> str:
 TARA_BAD = {3, 5, 7}
 TARA_PURE = {2, 4, 6, 8, 9}  # "pure both ways", the bhakoot cancellation (Rajamartanda, MC p. 255)
 
-# --- yoni: MC 6.25-26, p. 247 (assignment); MC49 p. 84 (printed table) --------
+# --- yoni: MC 6.25-26, p. 247 (assignment); MC (1927) p. 84 (printed table) ---
 YONIS = [
     "horse", "elephant", "sheep", "serpent", "dog", "cat", "rat",
     "cow", "buffalo", "tiger", "deer", "monkey", "mongoose", "lion",
@@ -88,7 +88,7 @@ YONI_OF_NAKSHATRA = [
     "buffalo", "tiger", "deer", "deer", "dog", "monkey", "mongoose",  # Swati..U.Ashadha
     "monkey", "lion", "horse", "lion", "cow", "elephant",  # Shravana..Revati
 ]  # fmt: skip
-# MC49 p. 84 (PDF 195), majority of four reads, rows and columns in YONIS order.
+# MC (1927) p. 84 (PDF 195), majority of four reads, rows and columns in YONIS order.
 # None is the cell damaged in print (cow row, buffalo column).
 YONI_PRINTED = [
     [4, 2, 2, 3, 2, 2, 2, 1, 0, 1, 3, 3, 2, 1],
@@ -111,7 +111,7 @@ YONI_PRINTED = [
 # and Abhijit are female; the rest male. Shown only; the points are unchanged (vv.
 # 11-12 are notes; the lead's decision of 15 Oct 2026).
 YONI_FEMALE = {1, 2, 10, 16, 24, 25}
-YONI_GENDER_SOURCE = "Jyotih-prakasha in Jyotirnibandha p. 142 (vv. 10-12)"
+YONI_GENDER_SOURCE = "Jyotiḥprakāśa in Jyotirnibandha p. 142 (vv. 10–12)"
 
 
 def yoni_gender(nakshatra: int) -> str:
@@ -185,7 +185,7 @@ GANA_POINTS = {
 # --- bhakoot: MC 6.31, p. 251; cancellations MC 6.32-33 and p. 256 -----------
 BHAKOOT_BAD = {frozenset((6, 8)): "6/8", frozenset((5, 9)): "5/9", frozenset((2, 12)): "2/12"}
 
-# --- nadi: MC 6.34, p. 257; MC49 p. 84 (same 0, different 8) -----------------
+# --- nadi: MC 6.34, p. 257; MC (1927) p. 84 (same 0, different 8) ------------
 NADI_OF_NAKSHATRA = [
     "adi", "madhya", "antya", "antya", "madhya", "adi", "adi",  # Ashwini..Punarvasu
     "madhya", "antya", "antya", "madhya", "adi", "adi", "madhya",  # Pushya..Chitra
@@ -195,13 +195,13 @@ NADI_OF_NAKSHATRA = [
 
 SOURCES = {
     "varna": "MC 6.22, p. 245",
-    "vashya": "BJS vv. 579-582, p. 183; table p. 187 (our reading)",
+    "vashya": "BJS vv. 579–582, p. 183; table p. 187 (our reading)",
     "tara": "MC 6.24, p. 246",
-    "yoni": "MC 6.25-26, p. 247; MC49 p. 84",
-    "graha_maitri": "MC 6.27-28, p. 248; DM in MC p. 249",
-    "gana": "MC 6.29-30, p. 249; DM in MC p. 250",
-    "bhakoot": "MC 6.31-33, pp. 251-257",
-    "nadi": "MC 6.34 and 6.36, pp. 257-261",
+    "yoni": "MC 6.25–26, p. 247; Muhūrta-cintāmaṇi (1927) p. 84",
+    "graha_maitri": "MC 6.27–28, p. 248; DM in MC p. 249",
+    "gana": "MC 6.29–30, p. 249; DM in MC p. 250",
+    "bhakoot": "MC 6.31–33, pp. 251–257",
+    "nadi": "MC 6.34 and 6.36, pp. 257–261",
 }
 MAX = {
     "varna": 1,
@@ -269,7 +269,7 @@ def _name_reading(name: str | None, side: str) -> dict:
     if not name:
         raise ApiError(
             "name_required",
-            f"The other partner is matched by name, so the {side} is too (Muhurta Martanda "
+            f"The other partner is matched by name, so the {side} is too (Muhūrta-mārtaṇḍa "
             f"v.54). Give the {side}'s name.",
             422,
             f"{side}.name",

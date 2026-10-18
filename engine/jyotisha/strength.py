@@ -20,10 +20,10 @@ from .vargas import varga
 
 SAPTAVARGA = [1, 2, 3, 7, 9, 12, 30]
 
-# Saptavargaja values in virupas, BPHS 28.3 (1939 ed., p. 155): mulatrikona,
-# own sign, great friend, friend, neutral, enemy, great enemy. Exaltation is not
-# one of them (uccha bala scores it), so a graha in its exaltation or
-# debilitation sign scores by its relation to that sign's lord.
+# Saptavargaja values in virupas, BPHS (1933) UK 2.9 with the ṭīkā, pp. 459-462:
+# mulatrikona, own sign, great friend, friend, neutral, enemy, great enemy. A graha in
+# its exaltation or debilitation sign scores by its relation to that sign's lord: the
+# 1990 reading, on the user's list (the 1933 ṭīkā scores exaltation itself, 1|0|0).
 DIGNITY_VIRUPAS = {
     "moolatrikona": 45.0,
     "own": 30.0,
@@ -70,7 +70,7 @@ DREKKANA_SEX = {"Sun": 0, "Mars": 0, "Jupiter": 0, "Mercury": 1, "Saturn": 1, "M
 NORTH_STRONG = {"Sun", "Mars", "Jupiter", "Venus"}
 SOUTH_STRONG = {"Saturn", "Moon"}
 
-# Minimum shadbala required, in rupas: BPHS 28.32-33 with Jha's gloss (p. 160),
+# Minimum shadbala required, in rupas: BPHS (1933) UK 2.39-40, p. 486,
 # 390, 360, 300, 420, 390, 330 and 300 shashtiamsas.
 REQUIRED_RUPAS = {
     "Sun": 6.5,
@@ -222,8 +222,8 @@ PAKSHA_BENEFICS = {"Moon", "Mercury", "Venus", "Jupiter"}
 
 
 def paksha_bala(chart: Chart, g: str) -> float:
-    """BPHS 28.10-11: the Moon's distance from the Sun, taken from the nearer
-    side, in degrees / 3, for the Moon, Mercury, Venus and Jupiter; sixty less
+    """BPHS (1933) UK 2.16-18, pp. 469-470: the Moon's distance from the Sun, taken
+    from the nearer side, in degrees / 3, for the Moon, Mercury, Venus and Jupiter; sixty less
     that for the Sun, Mars and Saturn. The Moon's figure counts once here and
     once more as its chesta bala (28.18), nowhere else."""
     elong = (chart.grahas["Moon"].longitude - chart.grahas["Sun"].longitude) % 360

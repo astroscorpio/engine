@@ -53,10 +53,14 @@ BARRED_JUPITER = {4, 9}
 MOVABLE = {0, 3, 6, 9}
 RIKTA = {4, 9, 14, 19, 24, 29, 30}
 SOURCE = {
-    "text": "Muhurta-cintamani",
-    "verse": "13.1, 13.3-6; 1.46-48, 5.27",
-    "edition": "with Govinda's Piyushadhara, 1945 (13.2-3a from the 1925 printing)",
-    "page": "437-447",
+    "text": "Muhūrta-cintāmaṇi",
+    "verse": "13.1, 13.3–6; 1.46–48, 5.27",
+    "edition": (
+        "Rāma Daivajña (1600 CE), with the Pīyūṣadhārā commentary of Govinda Daivajña (1603), "
+        "1945 printing; "
+        "the 1925 printing has the same page numbers (13.2–3a from the 1925 printing)"
+    ),
+    "page": "437–447",
 }
 
 
@@ -112,13 +116,13 @@ def griha_pravesh(q: EkadashiQuery, explain: dict | None = None) -> dict:
                 why = why or f"{planet.lower()}_{kind}"
             elif kind == "set":
                 day_relax["venus_set"] = (
-                    "Venus is within the Surya-siddhanta's 10 time-degrees of the Sun (9.6-7)",
+                    "Venus is within the Sūrya-siddhānta's 10 time-degrees of the Sun (9.6–7)",
                     _venus_facts(*y.days[i][:2], q),
                 )
             else:
                 day_relax["infancy_old"] = (
                     f"{planet} is in its {'infancy' if kind == 'infant' else 'old age'}, "
-                    f"{detail} (Muhurta Chintamani 5.27)",
+                    f"{detail} (Muhūrta-cintāmaṇi 5.27)",
                     _state_facts(planet, kind, detail),
                 )
         if why:
@@ -138,8 +142,8 @@ def griha_pravesh(q: EkadashiQuery, explain: dict | None = None) -> dict:
                 continue
             if name in MIDDLING:
                 relax["middling_month"] = (
-                    f"The lunar month is {name}, which Narada counts middling for house entry; "
-                    "Muhurta Chintamani 13.1 asks for the Sun's northern course",
+                    f"The lunar month is {name}, which Nārada counts middling for house entry; "
+                    "Muhūrta-cintāmaṇi 13.1 asks for the Sun's northern course",
                     {"month": MASA_IDS[Mu.MASA.index(name)]},
                 )
             elif name not in MONTHS or sun.sign not in UTTARAYANA:
@@ -151,13 +155,13 @@ def griha_pravesh(q: EkadashiQuery, explain: dict | None = None) -> dict:
                     continue
                 relax["sun_sign"] = (
                     "The Sun is in Aquarius, where Guru bars house entry "
-                    "(Muhurta Chintamani 13.1 commentary)",
+                    "(Muhūrta-cintāmaṇi 13.1 commentary)",
                     {"sign": SIGN_IDS[sun.sign]},
                 )
             jupiter = positions(mid, ay)["Jupiter"].sign
             if jupiter in BARRED_JUPITER:
                 relax["jupiter_sign"] = (
-                    f"Jupiter is in {Mu.SIGNS[jupiter]}; Muhurta Chintamani 1.48 bars the "
+                    f"Jupiter is in {Mu.SIGNS[jupiter]}; Muhūrta-cintāmaṇi 1.48 bars the "
                     "whole of its stay",
                     {"sign": SIGN_IDS[jupiter]},
                 )

@@ -74,14 +74,14 @@ def test_meta_is_english_only_for_now():
     assert call("GET", "/v1/meta", {"lang": "hi"})[0] == 400
 
 
-def test_vargas_cite_bphs_7_and_label_modern_readings():
+def test_vargas_cite_bphs_1933_and_label_modern_readings():
     status, out = call("GET", "/v1/meta", {"lang": "en"})
     assert status == 200
     vargas = out["vargas"]
     assert len(vargas) == 16
     for v in vargas.values():
-        assert v["signifies"] and v["source"]["page"] == "57"
-        assert v["source"]["verse"].startswith("7.")
+        assert v["signifies"] and v["source"]["page"] == "41"
+        assert v["source"]["verse"].startswith("PK 3.10")
     modern = {k for k, v in vargas.items() if v["modernReading"]}
     assert modern == {"D3", "D4", "D10", "D40", "D45", "D60"}
 

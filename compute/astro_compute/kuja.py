@@ -17,7 +17,7 @@ from __future__ import annotations
 from jyotisha.chart import Chart
 
 RULE = "khankhoje_1943"
-SOURCE = "Khankhoje, Sulabh Jyotish Gyana (1943), pp. 223-226"
+SOURCE = "Khankhoje 1943 pp. 223–226"
 KUJA_HOUSES = {1, 4, 7, 8, 12}  # SJG p. 223
 COMMON_HOUSES = {1, 2, 4, 7, 8, 12}  # common practice, source pending
 # SJG p. 226: the groom's Mars in these houses wants the bride's Mars or Saturn in them.

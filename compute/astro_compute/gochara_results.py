@@ -7,16 +7,16 @@ Ketu takes Rahu's lines (MC 4 commentary, p. 142: "ketus tat-phalam eva rasisu v
 from __future__ import annotations
 
 PHALADIPIKA_26 = {
-    "text": "Phaladipika",
-    "verse": "26.1-24",
-    "edition": "Mantresvara, tr. V. Subrahmanya Sastri, 1937",
-    "page": "286-296",
+    "text": "Phaladīpikā",
+    "verse": "26.1–24",
+    "edition": "Mantreśvara, translated by V. Subrahmanya Sastri, First edition, 1937",
+    "page": "286–296",
 }
 
 # graha: (verse, page or None, the lines for houses 1-12)
 RESULTS: dict[str, tuple[str, str | None, tuple[str, ...]]] = {
     "Sun": (
-        "26.9-11",
+        "26.9–11",
         None,
         (
             "fatigue and loss of wealth. He will become irritated and suffer from diseases. "
@@ -57,7 +57,7 @@ RESULTS: dict[str, tuple[str, str | None, tuple[str, ...]]] = {
         ),
     ),
     "Mars": (
-        "26.13-16",
+        "26.13–16",
         None,
         (
             "dejection of the mind, separation from one's relations and diseases caused by "
@@ -97,7 +97,7 @@ RESULTS: dict[str, tuple[str, str | None, tuple[str, ...]]] = {
         ),
     ),
     "Jupiter": (
-        "26.18-20",
+        "26.18–20",
         None,
         (
             "may have to leave his country, incur heavy expenditure and bear ill-will towards "
@@ -137,8 +137,8 @@ RESULTS: dict[str, tuple[str, str | None, tuple[str, ...]]] = {
         ),
     ),
     "Saturn": (
-        "26.22-23",
-        "294-295",
+        "26.22–23",
+        "294–295",
         (
             "will suffer from disease; he will perform funeral rites",
             "trouble to wealth and children",

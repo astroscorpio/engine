@@ -29,9 +29,15 @@ DUSTHANA = (6, 8, 12)
 # The benefics PD 6.19 (Amala) means and BJ 13.2 (Adhi) names: Mercury, Jupiter, Venus.
 NATURAL_BENEFICS = ("Mercury", "Jupiter", "Venus")
 
-PD = ("Phaladipika", "Mantresvara, tr. V. Subrahmanya Sastri, 1937")
-BJ = ("Brihat Jataka", "Varahamihira, tr. Swami Vijnanananda, 1912")
-BPHS = ("Brihat Parasara Hora Sastra", "with Devachandra Jha's Vimarsa-sudha, 1939")
+PD = ("Phaladīpikā", "Mantreśvara, translated by V. Subrahmanya Sastri, First edition, 1937")
+BJ = ("Bṛhaj-jātaka", "Varāhamihira, translated by Swami Vijñānānanda, 1912")
+BPHS = (
+    "Bṛhat Parāśara Horā-śāstra",
+    (
+        "With the Vimarśa-sudhā commentary of Devachandra Jhā, Chaukhamba Sanskrit Sansthan, "
+        "Varanasi, fourth edition, Saṃvat 2047 (1990)"
+    ),
+)
 
 
 def _src(book: tuple[str, str], verse: str, page: str) -> dict:
@@ -41,7 +47,7 @@ def _src(book: tuple[str, str], verse: str, page: str) -> dict:
 SOURCES = {
     "mahapurusha_lagna": _src(PD, "6.1", "47"),
     "mahapurusha_moon": _src(PD, "6.4", "48"),
-    "mahapurusha_bphs": _src(BPHS, "75.1-2", "584"),
+    "mahapurusha_bphs": _src(BPHS, "75.1–2", "584"),
     "chandra": _src(PD, "6.5", "48"),  # BJ 13.3, p. 225 agrees
     "gaja_kesari": _src(PD, "6.14", "52"),
     "gaja_kesari_bphs": _src(BPHS, "Bahuvidha-yoga 3", "211"),
@@ -55,11 +61,11 @@ SOURCES = {
     "lakshmi": _src(BPHS, "Bahuvidha-yoga 27", "214"),
     "lakshmi_pd": _src(PD, "6.24", "55"),
     "vipareeta": _src(PD, "6.57", "68"),
-    "neecha_bhanga": _src(PD, "7.27-30", "81-82"),
-    "raja": _src(BPHS, "Yogakaraka 11-15", "198-199"),
+    "neecha_bhanga": _src(PD, "7.27–30", "81–82"),
+    "raja": _src(BPHS, "Yogakaraka 11-15", "198–199"),
     "nabhasa_ashraya": _src(BJ, "12.2, 12.12", "205, 213"),
     "nabhasa_dala": _src(BJ, "12.2", "205"),
-    "nabhasa_akriti": _src(BJ, "12.4-9", "207-211"),
+    "nabhasa_akriti": _src(BJ, "12.4–9", "207–211"),
     "nabhasa_sankhya": _src(BJ, "12.10", "212"),
 }
 
@@ -210,9 +216,10 @@ KRURA = {3, 6, 11}
 
 
 def raja_yogas(chart: Chart) -> list[Yoga]:
-    """A kendra lord linked to a trikona lord (BPHS Yogakaraka vv. 11-12), or one
-    graha ruling both (v.13). The 9th and 10th lords together are the strongest.
-    v.15: no yoga from the link alone when both lords also rule a krura house."""
+    """A kendra lord linked to a trikona lord (BPHS Yogakaraka vv. 11-12; the base rule
+    is also BPHS (1933) PK 28.37), or one graha ruling both (v.13). The 9th and 10th
+    lords together are the strongest. v.15: no yoga from the link alone when both lords
+    also rule a krura house."""
     out = []
     kendra_lords = {chart.lord(h): h for h in KENDRA}
     trikona_lords = {chart.lord(h): h for h in TRIKONA}
@@ -264,7 +271,7 @@ DHANA_LAGNA = [
     (15, "Saturn", ("Mars", "Jupiter")),
 ]
 for _v, *_ in DHANA_FIFTH + DHANA_LAGNA:
-    SOURCES[f"dhana_{_v}"] = _src(BPHS, f"42.{_v}", "228" if _v <= 8 else "228-229")
+    SOURCES[f"dhana_{_v}"] = _src(BPHS, f"42.{_v}", "228" if _v <= 8 else "228–229")
 
 
 def dhana_yogas(chart: Chart) -> list[Yoga]:

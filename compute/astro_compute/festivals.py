@@ -1,6 +1,6 @@
 """GET /v1/festivals/<id>: the festival days of a year at a place.
 
-Rules from docs/sources/festivals.md: Nirnaya-sindhu (1898 printing; "NS") and,
+Rules from docs/sources/festivals.md: Nirnaya-sindhu (1918 Kalyan printing; "NS") and,
 where research recommends it, the Dharmasindhu (1888 printing; "DS"), with NS's
 own day kept as variantDate where the two differ. Windows:
   madhyahna  the 3rd fifth of the daytime (NS p. 28);
@@ -53,7 +53,10 @@ ROHINI, CHITRA, SHRAVANA = 3, 13, 21  # nakshatra indexes, Ashvini = 0
 VAIDHRITI = 26  # yoga index, Vishkambha = 0
 DS = {
     "text": "Dharmasindhu",
-    "edition": "Kasinatha Upadhyaya, ed. Krsna Sastri Navare, Nirnaya-sagara Press, Bombay, 1888",
+    "edition": (
+        "Kāśīnātha Upādhyāya (1790), edited by Kṛṣṇa Śāstrī Navare, First edition, "
+        "Nirṇaya-sāgara Press, Bombay, 1888"
+    ),
 }
 
 
@@ -841,15 +844,21 @@ def _holika(start: float, end: float, _next: float, q: EkadashiQuery) -> dict | 
 
 
 TITHI_TATTVA = {
-    "text": "Tithi-tattva (Raghunandana), quoting the Samvatsara-pradipa",
-    "edition": "Smrti-tattva, part 1, Calcutta, 1895",
+    "text": "Tithi-tattva (Raghunandana), quoting the Saṃvatsara-pradīpa",
+    "edition": (
+        "Raghunandana Bhaṭṭācārya, edited by Jīvānanda Vidyāsāgara, 2nd edition, Nārāyaṇa Press, "
+        "Calcutta, 1895"
+    ),
     "page": "34",
 }
 VRATARAJA = {
-    "text": "Vratraja",
-    "author": "Vishvanatha",
-    "edition": "Bombay pothi, Khemraj Shrikrishnadas (Internet Archive dates the copy to 1897)",
-    "page": "ff. 81-82",
+    "text": "Vratarāja",
+    "author": "Viśvanātha",
+    "edition": (
+        "Viśvanātha, Pothi edition, Bombay, "
+        "undated (Internet Archive catalogues it as Khemrāj Śrīkṛṣṇadās, 1897)"
+    ),
+    "page": "ff. 81–82",
 }
 
 
@@ -2723,43 +2732,43 @@ def _year(q: EkadashiQuery, num: int | set[int], build) -> list[dict]:
 
 # kind: (tithi, builder, NS pages, DS pages or None)
 FESTIVALS = {
-    "dipavali": (30, _dipavali, "pp. 299-300", None),
+    "dipavali": (30, _dipavali, "pp. 299–300", None),
     "mahashivaratri": (
         29,
         lambda a, b, c, q: _shivaratri(a, b, c, q, True),
-        "pp. 334-337",
+        "pp. 334–337",
         None,
     ),
     "masik-shivaratri": (29, lambda a, b, c, q: _shivaratri(a, b, c, q, False), "p. 340", None),
     "ganesha-chaturthi": (4, _ganesha, "pp. 47, 198", None),
-    "raksha-bandhan": (15, _raksha, "pp. 179-180", "p. 49"),
-    "janmashtami": (23, _janmashtami, "pp. 183-192", "pp. 49-51"),
-    "sharad-navaratri": (1, _navaratri, "pp. 240-241, 262-265, 272-273", "pp. 65-66, 68-69"),
+    "raksha-bandhan": (15, _raksha, "pp. 179–180", "p. 49"),
+    "janmashtami": (23, _janmashtami, "pp. 183–192", "pp. 49–51"),
+    "sharad-navaratri": (1, _navaratri, "pp. 240–241, 262–265, 272–273", "pp. 65–66, 68–69"),
     "chaitra-navaratri": (
         1,
         lambda a, b, c, q: _navaratri(a, b, c, q, "chaitra"),
-        "pp. 113, 118, 240-241, 262-265, 272-273",
-        "pp. 31, 33-34, 65-66, 69",
+        "pp. 113, 118, 240–241, 262–265, 272–273",
+        "pp. 31, 33–34, 65–66, 69",
     ),
-    "ramanavami": (9, _ramanavami, "pp. 118-120", "p. 33"),
-    "vijayadashami": (10, _vijayadashami, "pp. 283-284", "p. 71"),
-    "holika-dahana": (15, _holika, "pp. 342-345", "pp. 94-95"),
+    "ramanavami": (9, _ramanavami, "pp. 118–120", "p. 33"),
+    "vijayadashami": (10, _vijayadashami, "pp. 283–284", "p. 71"),
+    "holika-dahana": (15, _holika, "pp. 342–345", "pp. 94–95"),
     "karva-chauth": (19, _karva, "p. 293", "pp. 9, 76"),
-    "tulsi-vivah": (11, _tulsi, "p. 306", "pp. 81-82"),
-    "tripurotsava": (15, _tripura, "pp. 311-312", "p. 84"),
+    "tulsi-vivah": (11, _tulsi, "p. 306", "pp. 81–82"),
+    "tripurotsava": (15, _tripura, "pp. 311–312", "p. 84"),
     "vasanta-panchami": (5, _vasanta, "p. 329", "pp. 9, 89"),
-    "ratha-saptami": (7, _ratha, "pp. 329-332", "p. 89"),
-    "bhishma-ashtami": (8, _bhishma, "pp. 332-333, 718", "pp. 89-90"),
-    "kalashtami": (23, _kalashtami, "pp. 312-313", "p. 84"),
+    "ratha-saptami": (7, _ratha, "pp. 329–332", "p. 89"),
+    "bhishma-ashtami": (8, _bhishma, "pp. 332–333, 718", "pp. 89–90"),
+    "kalashtami": (23, _kalashtami, "pp. 312–313", "p. 84"),
     "dattatreya-jayanti": (15, _dattatreya, "p. 315", "p. 84"),
     "ganesha-jayanti": (4, _ganesha_jayanti, "p. 329", "p. 89"),
     "holashtak": (8, _holashtak, None, None),
-    "akshaya-tritiya": (3, _akshaya, "pp. 134-135", "pp. 36-37"),
+    "akshaya-tritiya": (3, _akshaya, "pp. 134–135", "pp. 36–37"),
     "parashurama-jayanti": (3, _parashurama, "p. 134", "p. 37"),
-    "guru-purnima": (15, _guru_purnima, "p. 160", "pp. 20, 43-44"),
-    "durga-puja": (6, _durga_puja, "pp. 262-265, 272-273", "p. 69"),
-    "vat-savitri": ({15, 30}, _vat_savitri, "pp. 146-148", "pp. 4, 41"),
-    "ganga-dussehra": (10, _ganga, "pp. 143-146", "pp. 38-39"),
+    "guru-purnima": (15, _guru_purnima, "p. 160", "pp. 20, 43–44"),
+    "durga-puja": (6, _durga_puja, "pp. 262–265, 272–273", "p. 69"),
+    "vat-savitri": ({15, 30}, _vat_savitri, "pp. 146–148", "pp. 4, 41"),
+    "ganga-dussehra": (10, _ganga, "pp. 143–146", "pp. 38–39"),
     "rath-yatra": (2, _rath, "p. 149", None),
     "sawan-somvar": (None, None, None, "p. 44"),
     "hariyali-teej": (
@@ -2782,7 +2791,7 @@ FESTIVALS = {
     ),
     "nag-panchami": (5, _naga, "p. 164", "p. 44"),
     "rishi-panchami": (5, _rishi, None, "p. 55"),
-    "anant-chaturdashi": (14, _ananta, "pp. 210-211", "p. 58"),
+    "anant-chaturdashi": (14, _ananta, "pp. 210–211", "p. 58"),
     # Popular practice (s27): no source; context, where a text touches the day, below.
     "chhath": (6, _chhath, None, None),
     "chaiti-chhath": (6, lambda a, b, c, q: _chhath(a, b, c, q, "chaitra"), None, None),
@@ -2799,16 +2808,16 @@ FESTIVALS = {
     "tamil-new-year": (None, None, None, None),
     "baisakhi": (None, None, None, None),
     # Decision 34: per city, as every tithi festival.
-    "gangaur": (3, _gangaur, "p. 114", "pp. 9, 31-32"),
+    "gangaur": (3, _gangaur, "p. 114", "pp. 9, 31–32"),
     # Decision 35: the monthly vratas, per city; Vinayaka Chaturthi monthly is popular practice.
     "vinayaka-chaturthi": (4, _vinayaka, None, None),
-    "skanda-sashti": (6, _skanda, "p. 48", "pp. 9-10"),
+    "skanda-sashti": (6, _skanda, "p. 48", "pp. 9–10"),
     "kalashtami-monthly": (23, _kalashtami_monthly, None, "p. 10"),
     # Decisions 36-38: popular practice; cheti-chand at Ahmedabad for every city.
     "rang-panchami": (20, _rang_panchami, None, None),
     "cheti-chand": (None, None, None, None),
     "sheetala-ashtami": (23, _sheetala, None, None),
-    "magha-snana": (None, None, "pp. 318-326, 330, 333", "pp. 4, 6, 86-88"),
+    "magha-snana": (None, None, "pp. 318–326, 330, 333", "pp. 4, 6, 86–88"),
 }
 POPULAR = {
     "chhath",
@@ -2852,7 +2861,7 @@ YEARLY = {
 KALA_SANKALITA = {
     "text": "Kala Sankalita",
     "author": "John Warren",
-    "edition": "College Press, Madras, 1825",
+    "edition": "John Warren, College Press, Madras, 1825",
 }
 KS_PONGAL = {
     **KALA_SANKALITA,
@@ -2861,8 +2870,8 @@ KS_PONGAL = {
 }
 SEWELL_DIKSHIT = {
     "text": "The Indian Calendar",
-    "author": "Robert Sewell and Sankara Balakrsna Dikshit",
-    "edition": "Swan Sonnenschein, London, 1896",
+    "author": "Robert Sewell and Śaṅkara Bālakṛṣṇa Dīkshit",
+    "edition": "Robert Sewell and Śaṅkara Bālakṛṣṇa Dīkshit, Swan Sonnenschein, London, 1896",
     "verse": "Art. 28, the Tamil Rule",
     "page": "12",
 }
@@ -2871,26 +2880,29 @@ DS_MESHA = [  # research, 16 Oct 2026: the bath and gifts are p. 2; p. 31 is the
     {**DS, "verse": "the Mesha punyakala, ten nadis either side of the ingress", "page": "31"},
 ]
 KRTYARATNAKARA = {
-    "text": "Krtyaratnakara",
-    "author": "Candeshvara Thakkura",
-    "edition": "ed. Kamala-krsna Smrtitirtha, Asiatic Society of Bengal, Calcutta, 1925",
+    "text": "Kṛtyaratnākara",
+    "author": "Caṇḍeśvara Ṭhakkura",
+    "edition": (
+        "Caṇḍeśvara Ṭhakkura, edited by Kamala-kṛṣṇa Smṛtitīrtha, "
+        "Asiatic Society of Bengal (Baptist Mission Press), Calcutta, 1925"
+    ),
 }
 # Texts that touch the day without giving it (s27): shown as context, never as source.
 CONTEXT = {
     "chhath": [
         {**DS, "verse": "Surya-shashthi of Bhadrapada", "page": "55"},
-        {**KRTYARATNAKARA, "verse": "the dark-Shashthi Sun vow (Bhavishya)", "page": "447-448"},
+        {**KRTYARATNAKARA, "verse": "the dark-Shashthi Sun vow (Bhaviṣya)", "page": "447–448"},
         {**KRTYARATNAKARA, "verse": "the Kartika Shashthi, to Karttikeya", "page": "415"},
     ],
     "chaiti-chhath": [
         {**DS, "verse": "Surya-shashthi of Bhadrapada", "page": "55"},
-        {**KRTYARATNAKARA, "verse": "the dark-Shashthi Sun vow (Bhavishya)", "page": "447-448"},
+        {**KRTYARATNAKARA, "verse": "the dark-Shashthi Sun vow (Bhaviṣya)", "page": "447–448"},
     ],
     "vishwakarma-puja": [{**DS, "verse": "sankranti punyakala", "page": "2"}],
     "karthigai-deepam": [
         {
             **KALA_SANKALITA,
-            "verse": "Cartica Deepum and Survalaya Deepum (holy days 29-30)",
+            "verse": "Cartica Deepum and Survalaya Deepum (holy days 29–30)",
             "page": "401",
         },
         {**SOURCE, "verse": "Tripurotsava lamps on the Karttika Purnima", "page": "312"},
@@ -2908,24 +2920,24 @@ CONTEXT = {
     "lohri": [
         {
             **SOURCE,
-            "verse": "Baudhayana: two holy days after a night Makara ingress, in the north",
+            "verse": "Baudhāyana: two holy days after a night Makara ingress, in the north",
             "page": "327",
         }
     ],
     "vishu": [
         {
-            "text": "Malabar (the Malabar Manual)",
+            "text": "Malabar",
             "author": "William Logan",
-            "edition": "Government Press, Madras, 1887, vol. 1",
+            "edition": "William Logan, Vol. 1, Government Press, Madras, 1887",
             "verse": "Vishu, the astronomical new year day",
-            "page": "160-161",
+            "page": "160–161",
         },
         {
             "text": "The Travancore State Manual",
             "author": "V. Nagam Aiya",
-            "edition": "Travancore Government Press, Trivandrum, 1906, vol. 2",
+            "edition": "V. Nagam Aiya, Vol. 2, Travancore Government Press, Trivandrum, 1906",
             "verse": "Vishu and the Kani",
-            "page": "366-367",
+            "page": "366–367",
         },
         {**SEWELL_DIKSHIT, "verse": "Art. 28, rule (b), the Malabar month's own rule"},
     ],
@@ -2933,7 +2945,7 @@ CONTEXT = {
     "vinayaka-chaturthi": [
         {
             **SOURCE,
-            "verse": "Brhaspati: the Caturthi at midday, the next day if it reaches it",
+            "verse": "Bṛhaspati: the Caturthi at midday, the next day if it reaches it",
             "page": "47",
         },
         {**DS, "verse": "the Vinayaka-vrata Caturthi at midday", "page": "9"},
@@ -2950,14 +2962,14 @@ CONTEXT = {
         {
             "text": "An Indian Ephemeris, A.D. 700 to A.D. 1799",
             "author": "L. D. Swamikannu Pillai",
-            "edition": "Government Press, Madras, 1922, vol. 1, part 1",
+            "edition": "L. D. Swamikannu Pillai, Vol. 1, part 1, Government Press, Madras, 1922",
             "verse": "Rangapanchami, when colours are thrown about",
-            "page": "65-66",
+            "page": "65–66",
         },
         {
-            "text": "Gazetteer of the Bombay Presidency, vol. XVIII, part 1, Poona",
-            "author": "ed. James M. Campbell",
-            "edition": "Government Central Press, Bombay, 1885",
+            "text": "Gazetteer of the Bombay Presidency, vol. XVIII, part 1: Poona",
+            "author": "Edited by James M. Campbell",
+            "edition": "Edited by James M. Campbell, Government Central Press, Bombay, 1885",
             "verse": "Rang-panchmi, where the Holi ends among the Kunbis",
             "page": "293",
         },
@@ -2971,20 +2983,27 @@ CONTEXT = {
         {
             "text": "Gazetteer of the Province of Sind",
             "author": "E. H. Aitken",
-            "edition": "Mercantile Steam Press, Karachi, 1907",
+            "edition": (
+                "E. H. Aitken, Printed for Government at the “Mercantile” Steam Press, Karachi, "
+                "1907"
+            ),
             "verse": "Cheti Chand, the first day of the first month of the Hindu year",
             "page": "206",
         },
         {
-            "text": "The Imperial Gazetteer of India, new edition, vol. XXII",
-            "edition": "Clarendon Press, Oxford, 1908",
+            "text": "The Imperial Gazetteer of India",
+            "edition": (
+                "Published under the authority of His Majesty’s Secretary of State for India in "
+                "Council, New edition, vol. XXII (Samadhiala to Singhana), Clarendon Press, "
+                "Oxford, 1908"
+            ),
             "verse": "Chetichand, the Hindu New Year, observed on the river-side (Sind)",
             "page": "411",
         },
         {
             "text": "Folk Tales of Sind and Guzarat",
             "author": "C. A. Kincaid",
-            "edition": "Daily Gazette Press, Karachi, 1925",
+            "edition": "C. A. Kincaid, Daily Gazette Press, Karachi, 1925",
             "verse": "Udero Lal born on Cheti Chand",
             "page": "12",
         },
@@ -2993,7 +3012,7 @@ CONTEXT = {
         {
             "text": "Census Report, Jaipur State",
             "author": "Munshi Govinda Sarana",
-            "edition": "Newul Kishore Press, Lucknow, 1903",
+            "edition": "Munshi Govinda Sarana, Newul Kishore Press, Lucknow, 1903",
             "verse": "Sitla Ashtami among Jaipur's March festivals",
             "page": "356",
         },
@@ -3011,12 +3030,12 @@ CONTEXT = {
 }
 RITE_SOURCES = {
     "karva-chauth": VRATARAJA,
-    "akshaya-tritiya": {**VRATARAJA, "page": "ff. 43-44"},
+    "akshaya-tritiya": {**VRATARAJA, "page": "ff. 43–44"},
     "parashurama-jayanti": {**VRATARAJA, "page": "f. 43"},
     "vasanta-panchami": {**VRATARAJA, "page": "f. 103"},
     "ratha-saptami": {**VRATARAJA, "page": "f. 115"},
-    "sawan-somvar": {**VRATARAJA, "page": "ff. 347-354"},
-    "hartalika-teej": {**VRATARAJA, "page": "ff. 48-52"},
+    "sawan-somvar": {**VRATARAJA, "page": "ff. 347–354"},
+    "hartalika-teej": {**VRATARAJA, "page": "ff. 48–52"},
     "gangaur": {**VRATARAJA, "page": "f. 38"},
     "skanda-sashti": {**VRATARAJA, "page": "f. 108"},
 }
@@ -3025,10 +3044,13 @@ TT_RATHA = {**TITHI_TATTVA, "text": "Tithi-tattva (Raghunandana), quoting the Sk
 
 
 MC_140 = {
-    "text": "Muhurta-cintamani",
-    "verse": "1.40, with the Shighrabodha in the commentary",
-    "edition": "with Govinda's Piyushadhara, 1945",
-    "page": "33-34",
+    "text": "Muhūrta-cintāmaṇi",
+    "verse": "1.40, with the Śīghrabodha in the commentary",
+    "edition": (
+        "Rāma Daivajña (1600 CE), with the Pīyūṣadhārā commentary of Govinda Daivajña (1603), "
+        "1945 printing; the 1925 printing has the same page numbers"
+    ),
+    "page": "33–34",
 }
 
 
@@ -3068,7 +3090,7 @@ def festival(kind: str, q: EkadashiQuery) -> dict:
     elif kind == "holashtak":
         source = MC_140
     elif kind == "durga-puja":
-        source = {**TITHI_TATTVA, "text": "Tithi-tattva (Raghunandana)", "page": "73-92"}
+        source = {**TITHI_TATTVA, "text": "Tithi-tattva (Raghunandana)", "page": "73–92"}
         extra["computedAt"] = KOLKATA  # the days; instants and rites are local
     elif pages is None:  # Dharmasindhu alone
         source, also = also, None

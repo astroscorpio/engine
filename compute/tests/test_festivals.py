@@ -422,7 +422,7 @@ def test_bengal_durga_puja_follows_the_sunrise_tithi():
         assert fore["start"] <= w["start"] < w["end"] <= fore["end"]
     # TT keeps Mahanavami on the sunrise Navami; NS and DS take the Ashtami day here.
     assert d["mahanavami"]["nsDsDate"] == d["mahashtami"]["date"]
-    assert out["source"]["page"] == "73-92"  # TT page = IA leaf - 18 (research, 17 Oct 2026)
+    assert out["source"]["page"] == "73–92"  # TT page = IA leaf - 18 (research, 17 Oct 2026)
 
 
 def test_february_strips_carry_both_candidate_days():
@@ -536,7 +536,7 @@ def test_popular_practice_kinds_carry_their_basis_and_follow_our_rules():
     assert [days_apart(a, b) for a, b in zip(order, order[1:], strict=False)] == [1, 1, 1]
     assert s["sandhyaArghya"]["sunset"][:10] == c["date"] and c["lunarMonth"]["amanta"] == "kartika"
     assert outs["chhath"]["context"] and any(
-        "Krtyaratnakara" in x["text"] for x in outs["chhath"]["context"]
+        "Kṛtyaratnākara" in x["text"] for x in outs["chhath"]["context"]
     )
     # Hanuman Jayanti is the Caitra Purnima's vrata day.
     status, purnima = call("GET", "/v1/observances/purnima", DELHI)

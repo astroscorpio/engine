@@ -28,10 +28,14 @@ RIDING = {i for i, n in enumerate(NAKSHATRAS) if n in Mu.RIDING_STARS}
 RIDING_VARAS = {"thursday", "monday", "sunday", "friday", "wednesday"}
 STEP = 10 / 1440  # every veto stretch lasts longer; the edges are bisected
 SOURCE = {
-    "text": "Muhurta-cintamani",
-    "verse": "2.16-18 with the commentary (the Vyavaharoccaya on 2.18)",
-    "edition": "with Govinda's Piyushadhara, 1945 (2.18 checked in the 1925 printing)",
-    "page": "62-64",
+    "text": "Muhūrta-cintāmaṇi",
+    "verse": "2.16–18 with the commentary (the Vyavahāroccaya on 2.18)",
+    "edition": (
+        "Rāma Daivajña (1600 CE), with the Pīyūṣadhārā commentary of Govinda Daivajña (1603), "
+        "1945 printing; "
+        "the 1925 printing has the same page numbers (2.18 checked in the 1925 printing)"
+    ),
+    "page": "62–64",
 }
 
 
@@ -130,6 +134,6 @@ def property_(q: EkadashiQuery) -> dict:
     return {
         "year": q.year,
         "days": _year(q, BUYING, None, Mu.PROFILES["property"]),
-        "source": {**SOURCE, "verse": "2.16-17"},
+        "source": {**SOURCE, "verse": "2.16–17"},
         "engine": provenance(q.ayanamsa),
     }

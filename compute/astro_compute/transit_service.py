@@ -62,14 +62,14 @@ SADE_SATI_MERGE = 3 * YEAR  # a retrograde dip out of the band does not end it
 # and 2nd from the natal Moon sign one sign at a time; the period and its name
 # come later (Khankhoje 1943, p. 142).
 SADE_SATI_SOURCE = {
-    "text": "Phaladipika",
-    "verse": "26.22-23",
-    "edition": "Mantresvara, tr. V. Subrahmanya Sastri, 1937",
-    "page": "294-295",
+    "text": "Phaladīpikā",
+    "verse": "26.22–23",
+    "edition": "Mantreśvara, translated by V. Subrahmanya Sastri, First edition, 1937",
+    "page": "294–295",
 }
 SADE_SATI_NAME_NOTE = (
     'The name sāḍhe-sātī ("seven and a half" years) is a later Hindi and Marathi one, in print '
-    "from Khankhoje 1943, p. 142; the classical texts treat each sign separately."
+    "from Khankhoje 1943 p. 142; the classical texts treat each sign separately."
 )
 SADE_SATI_CONVENTION = (
     "From Saturn's first entry into the 12th sign from the natal Moon to its last exit from the "

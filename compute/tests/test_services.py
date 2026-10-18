@@ -25,7 +25,7 @@ def test_personal_transits():
     assert times == sorted(times)
     assert out["sadeSati"]["active"] is False and out["sadeSati"]["next"]["start"] > AT[:10]
     assert (
-        out["sadeSati"]["saturnHouse"] is None and out["sadeSati"]["source"]["verse"] == "26.22-23"
+        out["sadeSati"]["saturnHouse"] is None and out["sadeSati"]["source"]["verse"] == "26.22–23"
     )
     assert (
         "Khankhoje 1943" in out["sadeSati"]["nameNote"] and "our" in out["sadeSati"]["convention"]

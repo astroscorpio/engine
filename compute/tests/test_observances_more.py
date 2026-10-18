@@ -21,7 +21,7 @@ def test_purnima_and_amavasya_fasts_take_the_later_day():
                 assert day["tithiAtSunrise"] == tithi_id
                 if kind == "amavasya":
                     assert v["earlierDate"] < v["date"]
-        assert out["source"]["text"] == "Nirnaya-sindhu"
+        assert out["source"]["text"] == "Nirṇaya-sindhu"
     # DS p. 20: a Purnima's earlier day only when the Caturdashi lasts under 18 nadis
     # after its sunrise. For New Delhi 2026 these are Drik's four extra Purnima vrats.
     status, out = call("GET", "/v1/observances/purnima", DELHI)
@@ -147,7 +147,7 @@ def test_popular_names_on_sankashti_and_ekadashi():
     status, out = call("GET", "/v1/observances/sankashti", DELHI)
     sakat = [r for r in out["occurrences"] if r.get("popularName") == "Sakat Chauth"]
     assert len(sakat) == 1 and sakat[0]["lunarMonth"]["purnimanta"] == "magha"
-    assert sakat[0]["riteSource"]["page"] == "ff. 82-86"
+    assert sakat[0]["riteSource"]["page"] == "ff. 82–86"
     status, out = call("GET", "/v1/observances/ekadashi", DELHI)
     moksha = next(r for r in out["ekadashis"] if r["nameId"] == "margashirsha_shukla")
     # 2026: Mokshada falls with the Sun in Dhanus, so it is Vaikuntha Ekadashi too.
@@ -164,4 +164,4 @@ def test_buddha_purnima_is_a_popular_name_on_the_vaishakha_purnima():
     named = [(r["lunarMonth"]["amanta"], r["names"]) for r in out["occurrences"] if r["names"]]
     assert named == [("vaishakha", ["buddha"])]
     assert all("names" in r for r in out["occurrences"])
-    assert PURNIMA_NAMES["buddha"][2] == "Dharmasindhu p. 32; Nirnaya-sindhu pp. 116-117"
+    assert PURNIMA_NAMES["buddha"][2] == "Dharmasindhu p. 32; Nirṇaya-sindhu pp. 116–117"

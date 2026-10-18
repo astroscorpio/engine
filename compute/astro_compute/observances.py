@@ -2,7 +2,7 @@
 Smarta and Vaishnava fast days.
 
 Rules from docs/sources/observances.md: Kamalakara Bhatta, Nirnaya-sindhu
-(1612), 1898 printing with Jvalaprasada Misra's Hindi tika, Ekadashi-nirnaya,
+(1612), 1918 Kalyan printing with Jvalaprasada Misra's Hindi tika, Ekadashi-nirnaya,
 pp. 49-63 ("NS").
 
 Smarta (Daśamī at sunrise is the test; NS pp. 58-63):
@@ -51,14 +51,19 @@ KULA_DHARMA_NADIS = 18
 # Names from the Ekadashi-mahatmya with bhasha-tika (Banaras, 1934), by folio,
 # keyed by the purnimanta month and paksha as the text names them
 # (docs/sources/ekadashi-names.md). (name, other names in the text, a name printed
-# in Nirnaya-sindhu's 1898 commentary, the popular name where it differs, folio)
+# in Nirnaya-sindhu's commentary, the popular name where it differs, folio)
 EM = {
-    "text": "Ekadashi-mahatmya, bhasha-tika sahita",
-    "edition": "Babu Baijnath Prasad, Banaras, 1934",
+    "text": "Ekādaśī-māhātmya, with a Hindi commentary",
+    "edition": (
+        "A compilation of Purāṇic chapters (the Bhaviṣyottara-purāṇa, Brahmāṇḍa-purāṇa, "
+        "Brahma-purāṇa, Varāha-purāṇa, Skanda-purāṇa and Brahma-vaivarta-purāṇa, "
+        "as its colophons name them), Bābū Baijnāth Prasād, Banaras, 1934; "
+        "printed at Śrī Viśveśvara Press, Kāśī"
+    ),
 }
 NS_P51 = "Nirṇaya-sindhu p. 51 (Hindi commentary)"
 EKADASHI_NAMES = {
-    "margashirsha_krishna": (None, (), None, "Utpannā", "f. 1, 11b"),
+    "margashirsha_krishna": (None, (), None, "Utpannā", "ff. 1, 11b"),
     "margashirsha_shukla": ("Mokṣā", (), None, "Mokṣadā", "f. 18"),
     "pausha_krishna": ("Saphalā", (), None, None, "f. 18b"),
     "pausha_shukla": ("Putradā", (), None, None, "f. 24b"),
@@ -73,11 +78,11 @@ EKADASHI_NAMES = {
     "jyeshtha_krishna": ("Aparā", (), None, None, "f. 71b"),
     "jyeshtha_shukla": ("Nirjalā", (), None, None, "f. 80"),
     "ashadha_krishna": ("Yoginī", (), None, None, "f. 80b"),
-    "ashadha_shukla": ("Padmā", ("Śayanī",), "Devaśayanī", None, "f. 84b, 109"),
+    "ashadha_shukla": ("Padmā", ("Śayanī",), "Devaśayanī", None, "ff. 84b, 109"),
     "shravana_krishna": ("Kāmikā", (), None, None, "f. 109b"),
     "shravana_shukla": ("Putradā", (), None, None, "f. 116b"),
     "bhadrapada_krishna": ("Ajā", (), None, None, "f. 117b"),
-    "bhadrapada_shukla": ("Parivartinī", ("Vāmanā", "Jayantī"), None, "Pārśva", "f. 120, 124"),
+    "bhadrapada_shukla": ("Parivartinī", ("Vāmanā", "Jayantī"), None, "Pārśva", "ff. 120, 124"),
     "ashwin_krishna": ("Indirā", (), None, None, "f. 124b"),
     "ashwin_shukla": ("Pāśāṅkuśā", (), None, "Pāpāṅkuśā", "f. 128b"),
     "kartika_krishna": ("Ramā", (), None, None, "f. 131"),
@@ -98,16 +103,23 @@ def name_id(purnimanta: str, paksha: str, adhika: bool) -> str:
 
 EKADASHI = {11: "shukla", 26: "krishna"}
 VR_SAKAT = {
-    "text": "Vratraja",
-    "author": "Vishvanatha",
-    "edition": "Bombay pothi, Khemraj Shrikrishnadas (Internet Archive dates the copy to 1897)",
-    "page": "ff. 82-86",
+    "text": "Vratarāja",
+    "author": "Viśvanātha",
+    "edition": (
+        "Viśvanātha, Pothi edition, Bombay, "
+        "undated (Internet Archive catalogues it as Khemrāj Śrīkṛṣṇadās, 1897)"
+    ),
+    "page": "ff. 82–86",
 }
 SOURCE = {
-    "text": "Nirnaya-sindhu",
+    "text": "Nirṇaya-sindhu",
     "verse": "Ekadashi-nirnaya, pariccheda 1",
-    "edition": "Kamalakara Bhatta, with Jvalaprasada Misra's Hindi tika, 1898",
-    "page": "49-63",
+    "edition": (
+        "Kamalākara Bhaṭṭa (1612), with the Hindi commentary of Jvālāprasāda Miśra (1899), "
+        "Gaṅgāviṣṇu Śrīkṛṣṇadās, Lakṣmī-Veṅkaṭeśvara Press, Kalyan, 1918; "
+        "Khemrāj Śrīkṛṣṇadās’s 2019 Mumbai printing has the same page numbers"
+    ),
+    "page": "49–63",
 }
 
 
@@ -287,7 +299,7 @@ def ekadashi(q: EkadashiQuery) -> dict:
 
 # --- Purnima, Amavasya, Pradosha (docs/sources/observances.md s5, pradosha.md) -------
 
-NS_73 = {**SOURCE, "verse": "Purnima-nirnaya; Darsha-shraddha-kala", "page": "72-73, 81-87"}
+NS_73 = {**SOURCE, "verse": "Purnima-nirnaya; Darsha-shraddha-kala", "page": "73, 81–87"}
 # observances.md s6: names a given Amavasya can carry (meta.amavasyaNames).
 MAHALAYA_AMANTA = "bhadrapada"  # the dark fortnight after the Bhadrapada full moon (NS p. 215)
 # NS p. 341 names a new moon by the amanta month it ends: its yugadi "Magha
@@ -567,5 +579,5 @@ def amavasya(q: EkadashiQuery) -> dict:
 
 def pradosha(q: EkadashiQuery) -> dict:
     rows = _collect(q, {13, 28}, _pradosha, lambda r: (r["date"],))
-    source = {**SOURCE, "verse": "Pradosha-vrata (footnote, Brahmottara-khanda)", "page": "72"}
+    source = {**SOURCE, "verse": "Pradosha-vrata (footnote, Brahmottara-khaṇḍa)", "page": "72"}
     return {"year": q.year, "occurrences": rows, "source": source, "engine": provenance(q.ayanamsa)}

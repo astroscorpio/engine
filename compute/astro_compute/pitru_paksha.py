@@ -2,7 +2,7 @@
 fortnight at a place (docs/sources/observances.md s8; provisional until the lead
 rules on decision 8).
 
-Nirnaya-sindhu, 1898 ("NS"). The fortnight is the dark half ending amanta
+Nirnaya-sindhu, 1918 Kalyan printing ("NS"). The fortnight is the dark half ending amanta
 Bhadrapada (p. 215). Mahalaya shraddha is parvana, kept on the day whose
 afternoon the tithi holds (p. 718):
   one day only: that day;
@@ -33,10 +33,13 @@ from .timeutil import iso
 
 WINDOWS = {"aparahna": (9, 12), "kutapaRauhina": (7, 9), "sangava": (3, 6)}
 BHARANI, MAGHA, HASTA = 1, 9, 12  # nakshatra indexes, Ashvini = 0
-PAGES = {**SOURCE, "verse": "Mahalaya (pitr-paksha) shraddha", "page": "215-239, 717-720"}
+PAGES = {**SOURCE, "verse": "Mahalaya (pitr-paksha) shraddha", "page": "215–239, 717–720"}
 DS_P61 = {
     "text": "Dharmasindhu",
-    "edition": "Kasinatha Upadhyaya, ed. Krsna Sastri Navare, Nirnaya-sagara Press, Bombay, 1888",
+    "edition": (
+        "Kāśīnātha Upādhyāya (1790), edited by Kṛṣṇa Śāstrī Navare, First edition, "
+        "Nirṇaya-sāgara Press, Bombay, 1888"
+    ),
     "page": "61",
 }
 

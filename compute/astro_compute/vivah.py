@@ -78,15 +78,22 @@ SANKRANTI_GHATIS = 16.5  # half of MC 6.78's 33 each side (research's reading)
 # DS p. 181 note: days barred after and before an eclipse, by the fraction covered.
 ECLIPSE_DAYS = ((1.0, 8, 4), (0.75, 6, 3), (0.5, 4, 2), (0.0, 3, 1.5))
 SOURCE = {
-    "text": "Muhurta-cintamani",
-    "verse": "1.46-48, 5.26, 6.13, 6.41, 6.53-54, 6.78, 6.97-99",
-    "edition": "with Govinda's Piyushadhara, 1945 (6.84-85 from the 1925 printing)",
-    "page": "39-42, 186-187, 234-235, 265, 275-277, 293, 305-307",
+    "text": "Muhūrta-cintāmaṇi",
+    "verse": "1.46–48, 5.26, 6.13, 6.41, 6.53–54, 6.78, 6.97–99",
+    "edition": (
+        "Rāma Daivajña (1600 CE), with the Pīyūṣadhārā commentary of Govinda Daivajña (1603), "
+        "1945 printing; "
+        "the 1925 printing has the same page numbers (6.84–85 from the 1925 printing)"
+    ),
+    "page": "39–42, 186–187, 234–235, 265, 275–277, 293, 305–307",
 }
 DS = {
     "text": "Dharmasindhu",
-    "edition": "Kasinatha Upadhyaya, ed. Krsna Sastri Navare, Nirnaya-sagara Press, Bombay, 1888",
-    "page": "4-5, 181-182",
+    "edition": (
+        "Kāśīnātha Upādhyāya (1790), edited by Kṛṣṇa Śāstrī Navare, First edition, "
+        "Nirṇaya-sāgara Press, Bombay, 1888"
+    ),
+    "page": "4–5, 181–182",
 }
 
 
@@ -306,10 +313,10 @@ def _day_yogas(rows: list[tuple], vara: str, ay: str):
             ("kana", "Kana", KANA),
         ):
             if table.get(w) == n28:
-                text = f"{n28} on a {day} is {name} yoga (Muhurta Chintamani 1.30)"
+                text = f"{n28} on a {day} is {name} yoga (Muhūrta-cintāmaṇi 1.30)"
                 out.add((rid, text, (("weekday", vara), ("star", _star_id(n28)))))
         if DAGDHA.get(w) == n27:
-            text = f"{n27} on a {day} is Dagdha yoga (Narada in Muhurta Chintamani 1.5)"
+            text = f"{n27} on a {day} is Dagdha yoga (Nārada in Muhūrta-cintāmaṇi 1.5)"
             out.add(("dagdha", text, (("weekday", vara), ("star", _star_id(n27)))))
         if siddhi:
             out.clear()
@@ -317,7 +324,7 @@ def _day_yogas(rows: list[tuple], vara: str, ay: str):
             tithi = Mu.TITHI_NAMES[AMRITA_VISHA_TITHI[w] - 1]
             text = (
                 f"{n27} on a {day} is a siddhi pair, turned to visha on {tithi} "
-                "(Muhurta Chintamani 1.20-21)"
+                "(Muhūrta-cintāmaṇi 1.20–21)"
             )
             facts = (("weekday", vara), ("star", _star_id(n27)))
             out.add(("visha", text, (*facts, ("tithi", tithi_id(AMRITA_VISHA_TITHI[w])))))
@@ -356,7 +363,7 @@ def vivah(q: EkadashiQuery, explain: dict | None = None) -> dict:
         strict_why = None
         if vara == "tuesday":
             day_relax["tuesday"] = (
-                "Tuesday, which Vasishtha avoids always (Muhurta Chintamani 6.53)",
+                "Tuesday, which Vasiṣṭha avoids always (Muhūrta-cintāmaṇi 6.53)",
                 {"weekday": vara},
             )
         for planet, state in y.states.items():
@@ -367,13 +374,13 @@ def vivah(q: EkadashiQuery, explain: dict | None = None) -> dict:
                 strict_why = strict_why or f"{planet.lower()}_{kind}"
             elif kind == "set":
                 day_relax["venus_set"] = (
-                    "Venus is within the Surya-siddhanta's 10 time-degrees of the Sun (9.6-7)",
+                    "Venus is within the Sūrya-siddhānta's 10 time-degrees of the Sun (9.6–7)",
                     _venus_facts(sr, ss, q),
                 )
             else:
                 day_relax["infancy_old"] = (
                     f"{planet} is in its {'infancy' if kind == 'infant' else 'old age'}, "
-                    f"{detail} (Muhurta Chintamani 5.27)",
+                    f"{detail} (Muhūrta-cintāmaṇi 5.27)",
                     _state_facts(planet, kind, detail),
                 )
         hit = next((d for a, b, d in eclipse_bars if a <= sr + 0.5 <= b), None)
@@ -407,7 +414,7 @@ def vivah(q: EkadashiQuery, explain: dict | None = None) -> dict:
                     reasons.append("month")
                     continue
                 relax["solar_month"] = (
-                    f"The lunar month is {name}; Muhurta Chintamani's commentary sets aside "
+                    f"The lunar month is {name}; Muhūrta-cintāmaṇi's commentary sets aside "
                     "counting by the solar month",
                     {"month": MASA_IDS[Mu.MASA.index(name)], "sunSign": SIGN_IDS[sun.sign]},
                 )
@@ -417,7 +424,7 @@ def vivah(q: EkadashiQuery, explain: dict | None = None) -> dict:
             p = positions(mid, ay)
             if p["Jupiter"].sign in BARRED_JUPITER:
                 relax["jupiter_sign"] = (
-                    f"Jupiter is in {Mu.SIGNS[p['Jupiter'].sign]}; Muhurta Chintamani 1.48 "
+                    f"Jupiter is in {Mu.SIGNS[p['Jupiter'].sign]}; Muhūrta-cintāmaṇi 1.48 "
                     "bars marriage for its whole stay",
                     {"sign": SIGN_IDS[p["Jupiter"].sign]},
                 )
@@ -431,7 +438,7 @@ def vivah(q: EkadashiQuery, explain: dict | None = None) -> dict:
                 continue
             if base in TITHI_NAME:
                 relax["rikta"] = (
-                    f"{TITHI_NAME[base]} is a rikta tithi, barred by Muhurta Chintamani 6.53",
+                    f"{TITHI_NAME[base]} is a rikta tithi, barred by Muhūrta-cintāmaṇi 6.53",
                     {"tithi": tithi_id(num)},
                 )
             piercers = _pierced(nak, moon.longitude, p)
@@ -442,7 +449,7 @@ def vivah(q: EkadashiQuery, explain: dict | None = None) -> dict:
                 star = Mu.NAKSHATRAS[nak]
                 relax["vedha_slow"] = (
                     f"{', '.join(piercers)} in {VEDHA_PAIRS[star]} pierces {star} "
-                    "(Muhurta Chintamani 6.54)",
+                    "(Muhūrta-cintāmaṇi 6.54)",
                     {
                         "planets": [GRAHA_ID[g] for g in piercers],
                         "star": _star_id(VEDHA_PAIRS[star]),
@@ -586,7 +593,7 @@ def _no_lagna(day: dict) -> dict:
             barred[rule] = barred.get(rule, 0) + m
     rules = {
         "no_lagna": (
-            "No lagna in the windows clears Muhurta Chintamani's lagna rules (ch. 6), and "
+            "No lagna in the windows clears Muhūrta-cintāmaṇi's lagna rules (ch. 6), and "
             "godhuli is excluded (6.99)",
             {"barred": dict(sorted(barred.items()))},
         )

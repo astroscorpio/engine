@@ -43,10 +43,14 @@ VARAS = {"monday", "wednesday", "thursday", "friday"}  # Monday in the bright fo
 BENEFIC_SIGNS = {1, 2, 3, 5, 6, 8, 11}  # Kashyapa: the signs of Mercury, Moon, Venus, Jupiter
 KENDRA = {1, 4, 7, 10}
 SOURCE = {
-    "text": "Muhurta-cintamani",
-    "verse": "5.26-30; 1.47-48",
-    "edition": "with Govinda's Piyushadhara, 1945 (5.27-30 from the 1925 printing)",
-    "page": "40-41, 186-193",
+    "text": "Muhūrta-cintāmaṇi",
+    "verse": "5.26–30; 1.47–48",
+    "edition": (
+        "Rāma Daivajña (1600 CE), with the Pīyūṣadhārā commentary of Govinda Daivajña (1603), "
+        "1945 printing; "
+        "the 1925 printing has the same page numbers (5.27–30 from the 1925 printing)"
+    ),
+    "page": "40–41, 186–193",
 }
 
 
@@ -112,13 +116,13 @@ def mundan(q: EkadashiQuery, explain: dict | None = None) -> dict:
                 why = f"{planet.lower()}_{kind}"
             elif kind == "set":
                 day_relax["venus_set"] = (
-                    "Venus is within the Surya-siddhanta's 10 time-degrees of the Sun (9.6-7)",
+                    "Venus is within the Sūrya-siddhānta's 10 time-degrees of the Sun (9.6–7)",
                     _venus_facts(*y.days[i][:2], q),
                 )
             else:
                 day_relax["infancy_old"] = (
                     f"{planet} is in its {'infancy' if kind == 'infant' else 'old age'}, "
-                    f"{detail} (Muhurta Chintamani 5.27)",
+                    f"{detail} (Muhūrta-cintāmaṇi 5.27)",
                     _state_facts(planet, kind, detail),
                 )
         if why:
@@ -136,7 +140,7 @@ def mundan(q: EkadashiQuery, explain: dict | None = None) -> dict:
             jupiter = positions(mid, ay)["Jupiter"].sign
             if jupiter in BARRED_JUPITER:
                 relax["jupiter_sign"] = (
-                    f"Jupiter is in {Mu.SIGNS[jupiter]}; Muhurta Chintamani 1.48 bars the "
+                    f"Jupiter is in {Mu.SIGNS[jupiter]}; Muhūrta-cintāmaṇi 1.48 bars the "
                     "whole of its stay",
                     {"sign": SIGN_IDS[jupiter]},
                 )

@@ -45,7 +45,8 @@ OWN_SIGNS = {
     "Rahu": [],
     "Ketu": [],
 }
-# (sign, exact degree)
+# (sign, exact degree): BPHS (1933) PK 2.46-48, p. 7. The nodes' 20 degrees are not in it:
+# our reading, pending the user.
 EXALTATION = {
     "Sun": (0, 10),
     "Moon": (1, 3),
@@ -58,7 +59,7 @@ EXALTATION = {
     "Ketu": (7, 20),
 }
 DEBILITATION = {n: ((s + 6) % 12, d) for n, (s, d) in EXALTATION.items()}
-# (sign, from_degree, to_degree): BPHS 3.52-55 (1939 ed., p. 16).
+# (sign, from_degree, to_degree): BPHS (1933) PK 2.49-52, p. 7.
 MOOLATRIKONA = {
     "Sun": (4, 0, 20),
     "Moon": (1, 3, 30),
@@ -68,12 +69,13 @@ MOOLATRIKONA = {
     "Venus": (6, 0, 15),
     "Saturn": (10, 0, 20),
 }
-# BPHS 3.52-53: in its exaltation sign the Moon is exalted only to 3 degrees and
+# BPHS (1933) PK 2.49-51, p. 7: in its exaltation sign the Moon is exalted only to 3 degrees and
 # Mercury to 15; the rest is mulatrikona (for Mercury, then own sign from 20).
 EXALTED_TO = {"Moon": 3.0, "Mercury": 15.0}
-# BPHS Dasa-phala vv. 35-36 (p. 329): Rahu and Ketu exalted in Taurus and Scorpio,
-# mulatrikona in Gemini and Sagittarius, own signs Aquarius and Scorpio ("some":
-# Virgo and Pisces). Their debilitation as the 7th from exaltation is our reading.
+# Rahu and Ketu exalted in Taurus and Scorpio: BPHS (1933) PK 36.35, p. 261. Mulatrikona
+# in Gemini and Sagittarius, own signs Aquarius and Scorpio ("some": Virgo and Pisces):
+# BPHS Dasa-phala vv. 35-36 (p. 329), until the user decides. Their debilitation as the
+# 7th from exaltation is our reading.
 NODE_SIGNS = {
     "Rahu": {"exalted": 1, "debilitated": 7, "moolatrikona": 2, "own": 10},
     "Ketu": {"exalted": 7, "debilitated": 1, "moolatrikona": 8, "own": 7},
@@ -92,9 +94,9 @@ BENEFICS = {"Jupiter", "Venus"}  # Mercury and Moon are conditional
 MALEFICS = {"Sun", "Mars", "Saturn", "Rahu", "Ketu"}
 
 # Special graha drishti beyond the universal 7th.
-# BPHS 27.2-3 (1939 ed., p. 151): every graha aspects the 7th; Saturn also the
-# 3rd and 10th, Jupiter the 5th and 9th, Mars the 4th and 8th, all fully. BPHS 27,
-# BJ 2.13 and JP 2.30-31 give Rahu and Ketu no aspect, so they have none here.
+# Bṛhaj-jātaka 2.13, pp. 48-49: every graha aspects the 7th; Saturn also the 3rd and
+# 10th, Jupiter the 5th and 9th, Mars the 4th and 8th, all fully. BJ 2.13 and JP
+# 2.30-31 name no aspect for Rahu or Ketu, so they have none here.
 SPECIAL_ASPECTS = {
     "Mars": [4, 8],
     "Jupiter": [5, 9],
@@ -161,8 +163,9 @@ class Chart:
 
     def dignity(self, name: str) -> str | None:
         """Exalted, debilitated, moolatrikona, own, or the compound relation to
-        the sign's lord. Rahu and Ketu have no natural friendships (BPHS ch. 3),
-        so outside their own dignities they have none: None."""
+        the sign's lord. Rahu and Ketu have no natural friendships (BPHS (1933)
+        PK 2.53-58 and the table, pp. 8-9), so outside their own dignities they have
+        none: None."""
         p = self.grahas[name]
         if name in NODE_SIGNS:
             return next((k for k, sign in NODE_SIGNS[name].items() if p.sign == sign), None)
@@ -244,7 +247,7 @@ class Chart:
         return sep <= orb
 
     def is_benefic(self, name: str) -> bool:
-        """BPHS 3.11-12: the Sun, Mars, Saturn, Rahu, Ketu and the waning Moon are
+        """Phaladīpikā 2.27, pp. 19-20: the Sun, Mars, Saturn, Rahu, Ketu and the waning Moon are
         malefic, and so is Mercury joined with a malefic; the rest are benefic.
         Waning, per the translator's note to BJ 2.5 (1912, pp. 40-41), runs from
         the 8th of the dark half to the 8th of the bright half, so the Moon is a

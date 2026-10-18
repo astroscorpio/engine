@@ -16,7 +16,7 @@ def test_every_ekadashi_of_the_year_with_both_traditions():
     assert status == 200, out
     rows = out["ekadashis"]
     assert 24 <= len(rows) <= 26
-    assert out["source"]["text"] == "Nirnaya-sindhu" and out["source"]["page"] == "49-63"
+    assert out["source"]["text"] == "Nirṇaya-sindhu" and out["source"]["page"] == "49–63"
     dates = [r["smarta"]["date"] for r in rows]
     assert dates == sorted(dates) and all(r["paksha"] in ("shukla", "krishna") for r in rows)
     for r in rows:

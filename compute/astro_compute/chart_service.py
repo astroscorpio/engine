@@ -103,8 +103,9 @@ def graha_aspects(chart: Chart, g: str, house_of) -> list[dict]:
 
 
 def dignity_note(chart: Chart, g: str) -> str | None:
-    """Rahu and Ketu (BPHS Dasa-phala vv. 35-36): debilitation as the 7th from
-    exaltation is our reading; Virgo and Pisces are own signs "according to some"."""
+    """Rahu and Ketu, exalted in Taurus and Scorpio (BPHS (1933) PK 36.35, p. 261):
+    debilitation as the 7th from exaltation is our reading; Virgo and Pisces are own signs
+    "according to some" (BPHS Dasa-phala v. 36)."""
     if g not in NODE_SIGNS:
         return None
     sign = chart.grahas[g].sign
@@ -140,10 +141,10 @@ def yoga_participants(chart: Chart, y: Y.Yoga) -> list[str]:
 
 
 KUJA_SOURCE = {
-    "text": "Sulabh Jyotish Gyan",
+    "text": "Sulabh Jyotiṣ Jñān",
     "verse": None,
-    "edition": "Vasudev Sadashiva Khankhoje, Hindi, 1943",
-    "page": "223-226",
+    "edition": "Vasudev Sadashiva Khankhoje, 1943 (Hindi)",
+    "page": "223–226",
 }
 
 
@@ -340,9 +341,10 @@ def states_payload(chart: Chart) -> dict:
 
 
 # Both schemes are textual (docs/sources/chara-karakas.md): Jaimini Upadesa-sutra
-# 1.1.10-19 and BPHS 32.1-15 allow seven karakas (Sun to Saturn) or eight (with
-# Rahu, counted as 30 minus its degrees). Neither is favoured, so both are returned.
-KARAKA_SOURCE = "Jaimini Upadesa-sutra 1.1.10; BPHS 32.1-2"
+# 1.1.10-19 allows seven karakas (Sun to Saturn) or eight (with Rahu). The 1933 BPHS
+# (PK 8.1-2) counts seven and adds Rahu only when two tie; Rahu counted as 30 minus its
+# degrees is BPHS 1990 32.6, waiting on the user. Neither is favoured; both are returned.
+KARAKA_SOURCE = "Jaimini Upadeśa-sūtra 1.1.10; BPHS 1933 PK 8.1–2"
 
 
 def _karakas(chart: Chart, scheme: int) -> tuple[dict[str, str], list[float]]:
@@ -362,8 +364,8 @@ def jaimini_payload(chart: Chart) -> dict:
         "charaKarakas8": eight,
         "charaKarakas7": seven,
         "differs": [role for role, graha in seven.items() if eight.get(role) != graha],
-        # BPHS 32.16-17: two grahas on the same degree (to the second) are read from the
-        # sthira karakas instead; not computed here, only flagged.
+        # BPHS (1933) PK 8.19-20: the last karaka lapses and is read among the sthira
+        # karakas; flagged only.
         "karakaTie": len(set(seconds)) < len(seconds),
         "karakaSource": KARAKA_SOURCE,
         "charaKarakas": eight,  # deprecated alias of charaKarakas8, until ui switches

@@ -1066,7 +1066,7 @@ def evaluate(
     elif n in ((4, 9, 14) if profile.home or profile.rikta_only else (4, 8, 9, 14)):
         v.vetoes.append(tithi_label(t))
     if nak in profile.barred_nakshatras:
-        v.vetoes.append(f"{nak}: a selling star, barred for buying (MC 2.16-17)")
+        v.vetoes.append(f"{nak}: a selling star, barred for buying (MC 2.16–17)")
     if d.vara in profile.barred_varas:
         v.vetoes.append(f"{VARA_NAME[d.vara]}: not a riding weekday (MC 2.18 commentary)")
     # MC 1.30 counts 28 nakshatras (Monday's kana is Abhijit). Utpata and kana
@@ -1213,7 +1213,7 @@ def evaluate(
         else:
             v.vetoes.append(k)
             continue
-        v.notes.append(f"{k} lifted by {lifter} (MC 1.41-42)")
+        v.notes.append(f"{k} lifted by {lifter} (MC 1.41–42)")
     lord = SIGN_LORDS[lagna]
     if house(lord) in (1, 4, 5, 7, 9, 10) and (
         p[lord].sign in OWN_SIGNS[lord] or p[lord].sign == EXALTATION[lord][0]
@@ -1292,14 +1292,14 @@ def _home_vetoes(v, month, p, moon, asc, house, n, door, old_house, planet_state
             v.vetoes.append("dakshinayana (MC 13.1)")
     elif month.name in HOME_MIDDLING or (old_house and month.name == "Shravana"):
         if not old_house:
-            v.defects.append(("middling month for house entry (Narada)", 1.5))
+            v.defects.append(("middling month for house entry (Nārada)", 1.5))
     else:
         v.vetoes.append(f"{month.name}: no house entry (MC 13.1)")
     if sun in (3, 5, 10):
         v.vetoes.append(f"Sun in {SIGNS[sun]} (Guru, MC 13.1)")
     if not old_house:
         for g, state in sorted((planet_states or {}).items()):
-            v.vetoes.append(f"{g} {state} (MC 1.46-48, 5.27)")
+            v.vetoes.append(f"{g} {state} (MC 1.46–48, 5.27)")
         if p["Jupiter"].sign in (4, 9):
             v.vetoes.append(f"Jupiter in {SIGNS[p['Jupiter'].sign]} (MC 1.48)")
     if asc.sign in MOVABLE:
@@ -1310,7 +1310,7 @@ def _home_vetoes(v, month, p, moon, asc, house, n, door, old_house, planet_state
     if held:
         v.vetoes.append(f"{', '.join(held)} in the 4th or 8th (MC 13.4)")
     if house("Moon") in (1, 6, 12):
-        v.vetoes.append(f"Moon in the {ORDINAL[house('Moon')]} (MC 13.3-4)")
+        v.vetoes.append(f"Moon in the {ORDINAL[house('Moon')]} (MC 13.3–4)")
     count = (moon.nakshatra - p["Sun"].nakshatra) % 27 + 1
     if count <= 5 or 14 <= count <= 21:
         v.vetoes.append(f"pot chakra {count} (MC 13.6)")
@@ -1320,7 +1320,7 @@ def _home_vetoes(v, month, p, moon, asc, house, n, door, old_house, planet_state
         if n not in DOOR_TITHIS[door]:
             v.vetoes.append(f"tithi not for a {door} door (MC 13.5)")
         if house("Sun") not in DOOR_SUN[door]:
-            v.vetoes.append(f"Sun not on the left for a {door} door (MC 13.4-5)")
+            v.vetoes.append(f"Sun not on the left for a {door} door (MC 13.4–5)")
 
 
 ORDINAL = {1: "1st", 6: "6th", 12: "12th"}
@@ -1350,7 +1350,7 @@ def _mundan_vetoes(v, month, p, moon, asc, house, t, vara, planet_states) -> Non
     if p["Sun"].sign not in UTTARAYANA:
         v.vetoes.append("dakshinayana (MC 5.26, 5.29)")
     for g, state in sorted((planet_states or {}).items()):
-        v.vetoes.append(f"{g} {state} (MC 5.26-27)")
+        v.vetoes.append(f"{g} {state} (MC 5.26–27)")
     if p["Jupiter"].sign in (4, 9):
         v.vetoes.append(f"Jupiter in {SIGNS[p['Jupiter'].sign]} (MC 1.48)")
     nak = NAKSHATRAS[moon.nakshatra]
@@ -1359,7 +1359,7 @@ def _mundan_vetoes(v, month, p, moon, asc, house, t, vara, planet_states) -> Non
     if (t - 1) % 15 + 1 not in MUNDAN_TITHIS:
         v.vetoes.append(f"{tithi_label(t)}: not a tonsure tithi (MC 5.29)")
     if vara not in ("Moon", "Mercury", "Jupiter", "Venus") or (vara == "Moon" and t > 15):
-        v.vetoes.append(f"{VARA_NAME[vara]}: not a tonsure weekday (MC 5.29; Parashara)")
+        v.vetoes.append(f"{VARA_NAME[vara]}: not a tonsure weekday (MC 5.29; Parāśara)")
     if asc.sign not in BENEFIC_SIGNS:
         v.vetoes.append(f"{SIGNS[asc.sign]} lagna: not a benefic's (MC 5.29)")
     elif (nav := int(asc.longitude // (30 / 9)) % 12) not in BENEFIC_SIGNS:
@@ -1412,7 +1412,7 @@ def _annaprashan_vetoes(v, d, month, p, moon, asc, house, t, jd, karana, yoga, s
     if nak not in ANNA_STARS:
         v.vetoes.append(f"{nak}: not a first-rice star (DS p. 135)")
     if not d.sunrise <= jd < (d.sunrise + d.sunset) / 2:
-        v.vetoes.append("not the forenoon (Narada, MC 5.17 commentary)")
+        v.vetoes.append("not the forenoon (Nārada, MC 5.17 commentary)")
     if karana == "Vishti":
         v.vetoes.append("Vishti, whatever its residence (DS p. 135)")
     if yoga in ANNA_YOGAS:
@@ -1477,7 +1477,7 @@ def _samskara_child(v, rite: str, jd: float, asc, child: dict) -> None:
     if asc.sign in eighths:
         v.vetoes.append("lagna 8th from the child's birth (MC 5.17)")
     elif int(asc.longitude // (30 / 9)) % 12 in eighths:
-        v.vetoes.append("navamsa 8th from the child's birth (MC 5.17; Kashyapa)")
+        v.vetoes.append("navamsa 8th from the child's birth (MC 5.17; Kaśyapa)")
     sex = child.get("sex")
     if sex:
         month = int(age // 30.436875) + 1

@@ -171,7 +171,7 @@ def _moment(t: float, couple: list[Partner]) -> tuple[list, list, list, list]:
 def _guru_remedy(sign: int, t: float) -> str | None:
     """MC p. 272 (Guru): which condition lifts the 8th lagna, if any: the rising sign's
     lord in a kendra with a benefic's aspect, in its own or a benefic's navamsa, exalted,
-    or in its own or a friend's sign (BPHS)."""
+    or in its own or a friend's sign (BPHS 1933 PK 2.53-58)."""
     p = positions(t)
     lord = SIGN_LORDS[sign]
     at = p[lord].sign

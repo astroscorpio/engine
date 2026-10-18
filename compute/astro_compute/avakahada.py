@@ -34,16 +34,16 @@ from dataclasses import dataclass, field
 
 from .ids import NAKSHATRA_IDS
 
-SOURCE = "MM vv. 54-55, pp. 104-106; Sitarama Jha 1932, pp. 22-26"
+SOURCE = "MM vv. 54–55, pp. 104–106; Sītārāma Jhā 1932 pp. 22–26"
 ABHIJIT = ("uttara_ashadha", 4)
 RULES = {
     "conjunct_first_letter": "MM v.55, commentary p. 106",
-    "vowel_pairs": "Sitarama Jha 1932, p. 26",
-    "equivalent_letters": "MM v.55, commentary p. 106; Sitarama Jha 1932, p. 26",
+    "vowel_pairs": "Sītārāma Jhā 1932 p. 26",
+    "equivalent_letters": "MM v.55, commentary p. 106; Sītārāma Jhā 1932 p. 26",
     "nasal_read_as": "MM v.55, commentary p. 106",
-    "r_vowel_as_ra": "Sitarama Jha 1932, p. 25",
+    "r_vowel_as_ra": "Sītārāma Jhā 1932 p. 25",
     "abhijit_as_uttara_ashadha": "MC 6.52, p. 275",
-    "r_in_syllable_as_ra": "our reading of Sitarama Jha 1932, p. 25 with MM v.55",
+    "r_in_syllable_as_ra": "our reading of Sītārāma Jhā 1932 p. 25 with MM v.55",
     "single_cell_consonant": "our reading; no text read states it",
 }
 OUR_READINGS = {"r_in_syllable_as_ra", "single_cell_consonant"}
@@ -187,17 +187,17 @@ def _deva(word: str) -> Parsed:
         p.readings.append(("", _DEVA_VOWEL[first], False))
         return p
     if first not in _DEVA_CONSONANT:
-        p.reason = f"'{first}' is not a letter in the Avakahada chakra."
+        p.reason = f"'{first}' is not a letter in the Avakahaḍā chakra."
         return p
     if word[1:2] == _NUKTA:
-        p.reason = f"'{word[:2]}' has no letter in the Avakahada chakra."
+        p.reason = f"'{word[:2]}' has no letter in the Avakahaḍā chakra."
         return p
     i, conjunct = 1, False
     while word[i : i + 1] == _HALANT and word[i + 1 : i + 2] in _DEVA_CONSONANT:
         conjunct, i = True, i + 2
     sign = word[i : i + 1]
     if sign in _OTHER_SIGNS:
-        p.reason = f"The Avakahada chakra has no syllable '{word[: i + 1]}'."
+        p.reason = f"The Avakahaḍā chakra has no syllable '{word[: i + 1]}'."
         return p
     p.readings.append((_DEVA_CONSONANT[first], _DEVA_SIGN.get(sign, "a"), conjunct))
     return p
@@ -218,7 +218,7 @@ def _cluster(rest: str) -> tuple[str, bool]:
 def _latin(word: str, letters: str) -> Parsed:
     p = Parsed(word, "latin")
     if letters[0] in _NO_LETTER:
-        p.reason = f"'{_NO_LETTER[letters[0]]}' has no letter in the Avakahada chakra."
+        p.reason = f"'{_NO_LETTER[letters[0]]}' has no letter in the Avakahaḍā chakra."
         return p
     if letters[0] not in _CONSONANT_LETTERS:
         p.readings.append(("", _vowel(letters), False))
@@ -310,7 +310,7 @@ def lookup(name: str) -> dict:
             "matched": False,
             "exact": False,
             "syllableRead": read,
-            "reason": f"The Avakahada chakra has no syllable '{read}'.",
+            "reason": f"The Avakahaḍā chakra has no syllable '{read}'.",
         }
     # Readings the cited rules reach come before our readings, then spelling order.
     hits.sort(key=lambda h: (h[0], h[1]))

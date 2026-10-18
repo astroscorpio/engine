@@ -53,10 +53,13 @@ ANNA_BAD_LAGNAS = {0, 7, 11}  # Aries, Scorpio, Pisces (MC 5.17)
 # DS p. 135, MC's commentary p. 179: barred for their own spans.
 ANNA_YOGAS = {"Vaidhriti", "Vyatipata", "Ganda", "Atiganda", "Vajra", "Shula", "Parigha"}
 ANNA_SOURCE = {
-    "text": "Muhurta-cintamani",
-    "verse": "5.17-18",
-    "edition": "with Govinda's Piyushadhara, 1945",
-    "page": "178-181",
+    "text": "Muhūrta-cintāmaṇi",
+    "verse": "5.17–18",
+    "edition": (
+        "Rāma Daivajña (1600 CE), with the Pīyūṣadhārā commentary of Govinda Daivajña (1603), "
+        "1945 printing; the 1925 printing has the same page numbers"
+    ),
+    "page": "178–181",
 }
 
 # MC 5.37: Hasta, Ashvini, Pushya, Shravana, Svati, Revati, Punarvasu, Ardra, Citra and
@@ -67,10 +70,13 @@ AKSHARA_TITHIS = {2, 3, 5, 10, 11, 12}  # both texts; DS adds 13, MC 6
 AKSHARA_LAGNAS = {1, 2, 5, 8, 11}  # Taurus, Gemini, Virgo, Sagittarius, Pisces
 AQUARIUS, GEMINI = 10, 2
 AKSHARA_SOURCE = {
-    "text": "Muhurta-cintamani",
+    "text": "Muhūrta-cintāmaṇi",
     "verse": "5.37",
-    "edition": "with Govinda's Piyushadhara, 1945",
-    "page": "197-198",
+    "edition": (
+        "Rāma Daivajña (1600 CE), with the Pīyūṣadhārā commentary of Govinda Daivajña (1603), "
+        "1945 printing; the 1925 printing has the same page numbers"
+    ),
+    "page": "197–198",
 }
 DS_ONLY = "allowed by DS only"
 MC_ONLY = "allowed by MC only"
@@ -99,13 +105,13 @@ def _planet_relax(y: _Year, i: int, q) -> tuple[str | None, dict]:
             return f"{planet.lower()}_{kind}", relax
         if kind == "set":
             relax["venus_set"] = (
-                "Venus is within the Surya-siddhanta's 10 time-degrees of the Sun (9.6-7)",
+                "Venus is within the Sūrya-siddhānta's 10 time-degrees of the Sun (9.6–7)",
                 _venus_facts(sr, ss, q),
             )
         else:
             relax["infancy_old"] = (
                 f"{planet} is in its {'infancy' if kind == 'infant' else 'old age'}, "
-                f"{detail} (Muhurta Chintamani 5.27)",
+                f"{detail} (Muhūrta-cintāmaṇi 5.27)",
                 _state_facts(planet, kind, detail),
             )
     return None, relax
@@ -358,7 +364,7 @@ def annaprashan(q: EkadashiQuery, explain: dict | None = None) -> dict:
         "nearest": [] if out_days else near,
         "blocks": _in_year(blocks, q),
         "source": ANNA_SOURCE,
-        "alsoSource": {**DS, "page": "4-5, 135"},
+        "alsoSource": {**DS, "page": "4–5, 135"},
         "engine": provenance(ay),
     }
 
@@ -416,7 +422,7 @@ def akshararambh(q: EkadashiQuery, explain: dict | None = None) -> dict:
                 )
             elif base == 6:
                 relax["mc_only"] = (
-                    f"Shashthi, {MC_ONLY} (Muhurta Chintamani 5.37)",
+                    f"Shashthi, {MC_ONLY} (Muhūrta-cintāmaṇi 5.37)",
                     {"tithi": tithi_id(num)},
                 )
             elif base not in AKSHARA_TITHIS:

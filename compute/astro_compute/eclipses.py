@@ -24,7 +24,10 @@ from .timeutil import iso
 FL = swe.FLG_SWIEPH
 DS = {
     "text": "Dharmasindhu",
-    "edition": "Kasinatha Upadhyaya, ed. Krsna Sastri Navare, Nirnaya-sagara Press, Bombay, 1888",
+    "edition": (
+        "Kāśīnātha Upādhyāya (1790), edited by Kṛṣṇa Śāstrī Navare, First edition, "
+        "Nirṇaya-sāgara Press, Bombay, 1888"
+    ),
 }
 VEDHA_PRAHARAS = {"solar": 4, "lunar": 3}
 POPULAR_HOURS = {"solar": 12, "lunar": 9}
@@ -259,7 +262,7 @@ def eclipses(q: EkadashiQuery) -> dict:
     return {
         "year": q.year,
         "eclipses": rows,
-        "source": {**DS, "verse": "grahana-nirnaya", "page": "26-29"},
-        "alsoSource": {**NS, "verse": "grahana-nirnaya", "page": "89-107"},
+        "source": {**DS, "verse": "grahana-nirnaya", "page": "26–29"},
+        "alsoSource": {**NS, "verse": "grahana-nirnaya", "page": "89–107"},
         "engine": provenance(q.ayanamsa),
     }

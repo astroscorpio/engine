@@ -28,15 +28,22 @@ WINDOWS = [
 KARKA, MAKARA = 3, 9
 SOURCE = {
     "text": "Dharmasindhu",
-    "edition": "Kasinatha Upadhyaya, ed. Krsna Sastri Navare, Nirnaya-sagara Press, Bombay, 1888",
+    "edition": (
+        "Kāśīnātha Upādhyāya (1790), edited by Kṛṣṇa Śāstrī Navare, First edition, "
+        "Nirṇaya-sāgara Press, Bombay, 1888"
+    ),
     "verse": "sankranti",
-    "page": "2-3, 41, 85-86",
+    "page": "2–3, 41, 85–86",
 }
 ALSO = {
-    "text": "Nirnaya-sindhu",
-    "edition": "Kamalakara Bhatta, Nirnaya-sagara Press, Bombay, 1898",
+    "text": "Nirṇaya-sindhu",
+    "edition": (
+        "Kamalākara Bhaṭṭa (1612), with the Hindi commentary of Jvālāprasāda Miśra (1899), "
+        "Gaṅgāviṣṇu Śrīkṛṣṇadās, Lakṣmī-Veṅkaṭeśvara Press, Kalyan, 1918; "
+        "Khemrāj Śrīkṛṣṇadās’s 2019 Mumbai printing has the same page numbers"
+    ),
     "verse": "sankranti-nirnaya",
-    "page": "4-11, 161, 326-327",
+    "page": "4–11, 161, 326–327",
 }
 
 

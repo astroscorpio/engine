@@ -25,14 +25,20 @@ KUMBHA, MESHA = 10, 0
 POPULAR_NAMES = {"sunday": "roga", "monday": "raja", "tuesday": "agni", "friday": "cora",
                  "saturday": "mrtyu"}  # fmt: skip
 MC = {
-    "text": "Muhurta-cintamani",
-    "verse": "2.48, with the Piyushadhara",
-    "edition": "with Govinda's Piyushadhara, 1945",
-    "page": "84-86",
+    "text": "Muhūrta-cintāmaṇi",
+    "verse": "2.48, with the Pīyūṣadhārā",
+    "edition": (
+        "Rāma Daivajña (1600 CE), with the Pīyūṣadhārā commentary of Govinda Daivajña (1603), "
+        "1945 printing; the 1925 printing has the same page numbers"
+    ),
+    "page": "84–86",
 }
 DS = {
     "text": "Dharmasindhu",
-    "edition": "Kasinatha Upadhyaya, ed. Krsna Sastri Navare, Nirnaya-sagara Press, Bombay, 1888",
+    "edition": (
+        "Kāśīnātha Upādhyāya (1790), edited by Kṛṣṇa Śāstrī Navare, First edition, "
+        "Nirṇaya-sāgara Press, Bombay, 1888"
+    ),
     "verse": "building a house: the pillars",
     "page": "242",
 }
@@ -68,6 +74,6 @@ def pancaka(q: EkadashiQuery) -> dict:
         "spans": rows,
         "barred": list(BARRED),
         "source": MC,
-        "alsoSource": [{**NS, "verse": "the Garuda via the Madanaratna", "page": "943-944"}, DS],
+        "alsoSource": [{**NS, "verse": "the Garuḍa via the Madanaratna", "page": "943–944"}, DS],
         "engine": provenance(q.ayanamsa),
     }
