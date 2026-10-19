@@ -33,6 +33,7 @@ from .fmt import provenance
 from .ids import MASA_IDS, tithi_id
 from .models import EkadashiQuery
 from .observances import (
+    NEAR_BOUNDARY,
     SOURCE,
     _collect,
     _full_or_new,
@@ -242,8 +243,9 @@ def _moonrise(sunrise_jd: float, q) -> float | None:
 def _naraka(start: float, end: float, q) -> dict:
     """s10, DS pp. 76-77 (NS pp. 295-296): the oil bath on the Caturdashi current at
     the pre-dawn moonrise; at both moonrises the earlier; at neither, the first dawn
-    if the Caturdashi begins between its moonrise and sunrise, else the second day
-    at moonrise. The bath runs from moonrise (or the tithi's start) to sunrise."""
+    if the Caturdashi begins between its moonrise and sunrise, the next dawn if it holds
+    no sunrise at all (DS's second example of the case), else the second day at
+    moonrise. The bath runs from moonrise (or the tithi's start) to sunrise."""
     s = _sunrises(start, q.lat, q.lon, 3)  # s[0] <= start < s[1]
     m = [_moonrise(s[1], q), _moonrise(s[2], q)]
     at = [x is not None and start <= x < end for x in m]
@@ -258,6 +260,12 @@ def _naraka(start: float, end: float, q) -> dict:
         # example starts one pala before; research's reading of 15 Oct 2026).
         chosen, rule = 0, "naraka_began_before_sunrise"
         bath = (start, s[1])
+    elif end <= s[1]:
+        # Holding no sunrise, it is over before that dawn's moonrise, and the bath is still
+        # at that dawn: DS p. 77, "in both cases the bath is at the next moonrise" (research,
+        # festivals.md, backend check on s10, 18 Oct 2026).
+        chosen, rule = 0, "naraka_no_sunrise_next_dawn"
+        bath = (m[0] if m[0] is not None else s[1] - ARUNODAYA, s[1])
     else:
         chosen, rule = 1, "naraka_later_moonrise"
         bath = (m[1] if m[1] is not None else s[2] - ARUNODAYA, s[2])
@@ -2446,6 +2454,78 @@ def _sheetala(start: float, end: float, _next: float, q: EkadashiQuery) -> dict 
     )
 
 
+# --- Kali Puja and Ahoi Ashtami (festivals.md s35-36, decisions 44-45, 18 Oct 2026) -----
+# Popular practice: no text read gives either day. Each weighs one window on the day the
+# tithi begins and the next, with decision 43's five-minute caution at the window's edges.
+
+
+def _window_choice(cover: list[float], window: str) -> tuple[int, str]:
+    """The day whose window the tithi covers; covering both, the day with more of it, the
+    earlier if equal; covering neither, the later day (our reading)."""
+    if cover[0] > 0 and cover[1] > 0:
+        return (0 if cover[0] >= cover[1] else 1), f"{window}_both_more"
+    if cover[0] > 0 or cover[1] > 0:
+        return (0 if cover[0] > 0 else 1), window
+    return 1, f"{window}_neither_later"
+
+
+def _near_window(start: float, end: float, ws: list[tuple], window: str, k: int) -> int | None:
+    """The other day the rule gives if the tithi's start or end moves by five minutes."""
+    n = NEAR_BOUNDARY
+    moved = ((start - n, end), (start + n, end), (start, end - n), (start, end + n))
+    days = {_window_choice([_share(a, b, w) for w in ws], window)[0] for a, b in moved}
+    return min(days - {k}, default=None)
+
+
+def _two_days(start: float, end: float, q: EkadashiQuery, window: str) -> tuple:
+    """The window on the two days, the rule's day and the caution: (sunrises, windows,
+    the day, the row)."""
+    s, days = _days(start, end, q, (window,))
+    ws = [d["_w"][window] for d in days]
+    k, rule = _window_choice([_share(start, end, w) for w in ws], window)
+    other = _near_window(start, end, ws, window, k)
+    row = {
+        "days": _strip(days),
+        "date": days[k]["date"],
+        "vara": days[k]["vara"],
+        "rule": rule,
+        "cautions": ["near_boundary"] if other is not None else [],
+        "nearBoundaryDate": days[other]["date"] if other is not None else None,
+    }
+    return s, ws, k, row
+
+
+def _kali_puja(start: float, end: float, _next: float, q: EkadashiQuery) -> dict | None:
+    """s35 (decision 44): the Dipavali Amavasya, on the night whose nishitha it covers;
+    covering both, the night with more of it, the earlier if equal; covering neither, the
+    later night, which holds it at pradosha (our reading). pujaWindow is that nishitha
+    within the Amavasya."""
+    base = _base(start, end, 30, q)
+    if not _in_month(base, "ashwin"):
+        return None
+    _, ws, k, row = _two_days(start, end, q, "nishitha")
+    return {**base, **row, "pujaWindow": _span(_clip(start, end, ws[k]), q)}
+
+
+def _ahoi(start: float, end: float, _next: float, q: EkadashiQuery) -> dict | None:
+    """s36 (decision 45): the nija amanta Ashvina (purnimanta Kartika) krishna Ashtami, on
+    the day whose pradosha it covers; covering both, the day with more of it, the earlier
+    if equal; covering neither, the later day, whose sunrise holds it (our reading). That
+    day's sunset, and its moonrise, the first after its sunrise and the visible rise as for
+    Karva Chauth; no text read gives a star-sighting time."""
+    base = _base(start, end, 23, q)
+    if not _in_month(base, "ashwin"):
+        return None
+    s, ws, k, row = _two_days(start, end, q, "pradosha")
+    rise, _ = moon_rise_set(s[k], s[k + 1], q.lat, q.lon, upper_limb=True)
+    return {
+        **base,
+        **row,
+        "sunset": iso(ws[k][0], q.tz),
+        "moonrise": iso(rise, q.tz) if rise is not None else None,
+    }
+
+
 def _cheti_chand(q: EkadashiQuery) -> tuple[list[dict], dict]:
     """s33.2 (decision 37): the nija Caitra shukla Dvitiya on the first day whose sunset it
     holds; holding none, the first day whose sunrise it holds; at Ahmedabad for every city.
@@ -2849,6 +2929,9 @@ FESTIVALS = {
     "cheti-chand": (None, None, None, None),
     "sheetala-ashtami": (23, _sheetala, None, None),
     "magha-snana": (None, None, "pp. 318–326, 330, 333", "pp. 4, 6, 86–88"),
+    # Decisions 44-45 (s35-36): popular practice, per city.
+    "kali-puja": (30, _kali_puja, None, None),
+    "ahoi-ashtami": (23, _ahoi, None, None),
 }
 POPULAR = {
     "chhath",
@@ -2865,6 +2948,8 @@ POPULAR = {
     "rang-panchami",
     "cheti-chand",
     "sheetala-ashtami",
+    "kali-puja",
+    "ahoi-ashtami",
 }
 # Computed at one regional place for every city (decisions 31-33): once per year and ayanamsa.
 ONE_PLACE = {
@@ -3056,6 +3141,28 @@ CONTEXT = {
             **SOURCE,
             "verse": "the Bhadrapada (purnimanta) Shitala-vrata, not this day",
             "page": "183",
+        },
+    ],
+    # s35: the texts give this night Lakshmi at pradosha and Alakshmi driven out, never Kali.
+    "kali-puja": [
+        {
+            **TITHI_TATTVA,
+            "text": "Tithi-tattva (Raghunandana)",
+            "verse": "Lakshmi at pradosha on the Sukharatri, and torches for the ancestors",
+            "page": "185–186",
+        },
+        {
+            **SOURCE,
+            "verse": "Lakshmi at pradosha; the Divodāsīya's Amavasya at pradosha and midnight",
+            "page": "299–300",
+        },
+        {**DS, "verse": "Alakshmi driven out of the house-yards after midnight", "page": "77"},
+    ],
+    "ahoi-ashtami": [
+        {
+            **DS,
+            "verse": "a bath in Radha-kunda on this Ashtami, for those who live near Mathura",
+            "page": "76",
         },
     ],
 }

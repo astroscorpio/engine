@@ -56,6 +56,26 @@ def test_kojagara_beside_the_fast():
     assert k["moonrise"][:10] == k["date"] and ny["moonrise"][:10] == ny["date"]
 
 
+def test_kojagara_near_boundary():
+    """Decision 43 for the vigil, as Kali Puja's and Ahoi Ashtami's: a five-minute move of the
+    Purnima's start or end that gives the other night names it. Nights here are two days apart in
+    day units: pradosha then nishitha. A Purnima covering the first nishitha and ending a minute
+    before the second gives the first night, and five minutes more gives the second. Ending a
+    minute before the second nishitha after missing the first, it gives the second night either
+    way, as New York's 2026 Ashvina Purnima does."""
+    m = 1 / 1440
+    parts = [((0.0, 0.1), (0.4, 0.42)), ((1.0, 1.1), (1.4, 1.42))]
+    assert O._kojagara_night(0.3, 1.4 - m, parts)[0] == 0
+    assert O._kojagara_near(0.3, 1.4 - m, parts, 0) == 1
+    assert O._kojagara_night(0.45, 1.4 - m, parts)[0] == 1
+    assert O._kojagara_near(0.45, 1.4 - m, parts, 1) is None
+    for place in (DELHI, NEW_YORK):
+        k = ashvina(place)["kojagara"]
+        assert (k["cautions"] == ["near_boundary"]) == (k["nearBoundaryDate"] is not None)
+        assert k["nearBoundaryDate"] != k["date"]
+    assert ashvina(NEW_YORK)["kojagara"]["nearBoundaryDate"] is None
+
+
 def test_divodasiya_lamps_and_the_eve():
     """NS p. 297: with the bath on the Caturdashi's second day, the lamps at the first evening's
     pradosha while it is current (Delhi); London's Caturdashi begins before the first sunrise, so

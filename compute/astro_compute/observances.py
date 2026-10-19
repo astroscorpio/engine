@@ -456,12 +456,26 @@ def _kojagara_choice(at_pradosha: list[bool], at_nishitha: list[bool]) -> tuple[
     return k, rule, some_say
 
 
+def _kojagara_night(start: float, end: float, parts: list[tuple]) -> tuple[int, str, bool]:
+    """The night the Purnima from start to end gives, by its two nights' pradosha and nishitha."""
+    at_p = [_overlap(start, end, *p) > 0 for p, _ in parts]
+    at_n = [_overlap(start, end, *n) > 0 for _, n in parts]
+    return _kojagara_choice(at_p, at_n)
+
+
+def _kojagara_near(start: float, end: float, parts: list[tuple], k: int) -> int | None:
+    """Decision 43: the other night the rule gives if the Purnima's start or end moves by five
+    minutes, as Kali Puja's and Ahoi Ashtami's records give theirs."""
+    n = NEAR_BOUNDARY
+    moved = ((start - n, end), (start + n, end), (start, end - n), (start, end + n))
+    return min({_kojagara_night(a, b, parts)[0] for a, b in moved} - {k}, default=None)
+
+
 def _kojagara(start: float, end: float, s: list[float], day: list[str], q) -> dict:
     """The Kojagara vigil of the Ashvina Purnima night (DS p. 74), beside the Purnima fast."""
     parts = [_night_parts(s[i], q) for i in (0, 1)]
-    at_p = [_overlap(start, end, *p) > 0 for p, _ in parts]
-    at_n = [_overlap(start, end, *n) > 0 for _, n in parts]
-    k, rule, some_say = _kojagara_choice(at_p, at_n)
+    k, rule, some_say = _kojagara_night(start, end, parts)
+    other = _kojagara_near(start, end, parts, k)
     a, b = max(start, parts[k][1][0]), min(end, parts[k][1][1])  # nishitha within the Purnima
     # That evening's moonrise for pages, the visible rise as _sankashti gives it (our convention)
     rise, _ = moon_rise_set(s[k], s[k + 1], q.lat, q.lon, upper_limb=True)
@@ -473,6 +487,8 @@ def _kojagara(start: float, end: float, s: list[float], day: list[str], q) -> di
         "moonrise": iso(rise, q.tz) if rise is not None else None,
         "variantDate": day[1] if some_say else None,
         "variantRule": "kojagara_some_say" if some_say else None,
+        "cautions": ["near_boundary"] if other is not None else [],
+        "nearBoundaryDate": day[other] if other is not None else None,
     }
 
 

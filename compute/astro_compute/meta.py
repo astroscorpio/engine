@@ -108,7 +108,7 @@ VIVAH_RULES = {
     "season_best": ("Magha, Phalguna, Vaishakha or Jyeshtha (amanta): best", "Muhūrta-cintāmaṇi 6.13 commentary, p. 235 (Nārada); Dharmasindhu p. 181"),
     "season_middling": ("Ashadha shukla 1-10, Kartika from shukla 11, or Margashirsha: middling", "Muhūrta-cintāmaṇi 6.13 commentary, p. 235; 5.26, p. 186"),
     "chaturmas": ("Hari's sleep, Ashadha shukla 11 to Kartika shukla 11: barred", "Muhūrta-cintāmaṇi 6.13 commentary, p. 235"),
-    "off_season": ("A lunar month outside the season (Pausha, Chaitra, Shravana, Bhadrapada, Ashvina): barred, or for Pausha and Chaitra excluded when the Sun's sign is allowed", "Muhūrta-cintāmaṇi 6.13 and commentary"),
+    "off_season": ("A lunar month outside the season (Pausha, Chaitra, Shravana, Bhadrapada, Ashvina): barred, or for Pausha and Chaitra excluded when the Sun's sign is allowed", "Muhūrta-cintāmaṇi 6.13, p. 234, with the commentary, p. 235"),
     "sun_sign": ("The Sun in Pisces, Sagittarius or Leo: barred", "Garga in Muhūrta-cintāmaṇi 6.13 commentary, p. 235"),
     "adhika_month": ("An adhika or kshaya month, and the adhika months around a kshaya month: barred", "Muhūrta-cintāmaṇi 1.47, pp. 39–40; Dharmasindhu p. 4"),
     "jupiter_set": ("Jupiter within 11 time-degrees of the Sun: set", "Sūrya-siddhānta 9.6–7; Muhūrta-cintāmaṇi 1.46–48, 5.26"),
@@ -134,15 +134,15 @@ VIVAH_RULES = {
     "rikta": ("Excluded: a rikta tithi (Chaturthi, Navami, Chaturdashi)", "Muhūrta-cintāmaṇi 6.53, p. 275"),
     "vedha_slow": ("Excluded: pierced only by a slow planet (Jupiter, Saturn, Rahu, Ketu) sitting in the paired star", "Muhūrta-cintāmaṇi 6.54, p. 276"),
     "infancy_old": ("Excluded: Jupiter's or Venus's infancy or old age beyond 3 days", "Muhūrta-cintāmaṇi 5.27 (5.28 gives 3 as the shortest)"),
-    "utpata": ("Utpata yoga, the weekday's star in MC 1.30's utpata column (28 nakshatras), removed unless a Ravi or siddhi yoga holds then (MC 1.27, 1.42; only a Ravi yoga lifts a visha)", "Muhūrta-cintāmaṇi 1.30, p. 23"),
-    "marana": ("Mrtyu yoga, the weekday's star in MC 1.30's mrtyu column, removed unless a Ravi or siddhi yoga holds then (MC 1.27, 1.42; only a Ravi yoga lifts a visha)", "Muhūrta-cintāmaṇi 1.30, p. 23"),
-    "kana": ("Kana yoga, the weekday's star in MC 1.30's kana column (Monday's is Abhijit), removed unless a Ravi or siddhi yoga holds then (MC 1.27, 1.42; only a Ravi yoga lifts a visha)", "Muhūrta-cintāmaṇi 1.30, p. 23"),
+    "utpata": ("Utpata yoga, the weekday's star in the utpata column of MC 1.30 (28 nakshatras), removed unless a Ravi or siddhi yoga holds then (MC 1.27, 1.42; only a Ravi yoga lifts a visha)", "Muhūrta-cintāmaṇi 1.30, p. 23"),
+    "marana": ("Mrtyu yoga, the weekday's star in the mrtyu column of MC 1.30, removed unless a Ravi or siddhi yoga holds then (MC 1.27, 1.42; only a Ravi yoga lifts a visha)", "Muhūrta-cintāmaṇi 1.30, p. 23"),
+    "kana": ("Kana yoga, the weekday's star in the kana column of MC 1.30 (Monday's is Abhijit), removed unless a Ravi or siddhi yoga holds then (MC 1.27, 1.42; only a Ravi yoga lifts a visha)", "Muhūrta-cintāmaṇi 1.30, p. 23"),
     "dagdha": ("Dagdha yoga, Nārada's burnt weekday-star pairs, removed unless a Ravi or siddhi yoga holds then (MC 1.27, 1.42; only a Ravi yoga lifts a visha)", "Nārada in Muhūrta-cintāmaṇi 1.5 commentary, p. 13"),
     "visha": ("A siddhi (amrta) weekday-star pair on its tithi, which turns it to visha, removed unless a Ravi or siddhi yoga holds then (MC 1.27, 1.42; only a Ravi yoga lifts a visha)", "Muhūrta-cintāmaṇi 1.20–21, pp. 19–20"),
     "godhuli": ("Godhuli, the alternative: half a ghatika either side of sunset; Thursday only before it, Saturday only after; none with the Moon 1st, 6th or 8th from the lagna, or Mars 1st, 7th or 8th", "Muhūrta-cintāmaṇi 6.97–99, pp. 305–307"),
     "weak_tithi": ("Shashthi or Ashtami: 'little fruit' (DS); Vasiṣṭha drops them", "Dharmasindhu p. 181; Muhūrta-cintāmaṇi 6.53"),
     "middling_weekday": ("Sunday or Saturday: middling", "Vasiṣṭha in Muhūrta-cintāmaṇi 6.53; Dharmasindhu p. 181"),
-    "middling_weekday_dvadashi_trayodashi": ("Sunday or Saturday on a Dvadashi or Trayodashi: of great fault (Vasiṣṭha, MC 6.53 commentary); only Tuesday is barred outright", "Vasiṣṭha in Muhūrta-cintāmaṇi 6.53 commentary, p. 275"),
+    "middling_weekday_dvadashi_trayodashi": ("Sunday or Saturday on a Dvadashi or Trayodashi: of great fault (Vasiṣṭha, MC 6.53 commentary, p. 275); only Tuesday is barred outright", "Vasiṣṭha in Muhūrta-cintāmaṇi 6.53 commentary, p. 275"),
     "krishna_paksha": ("The dark fortnight: middling", "Dharmasindhu p. 181"),
     "no_clean_lagna": ("No lagna in the day's windows is free of every fault; godhuli, the cow-dust hour, is the texts' alternative", "Muhūrta-cintāmaṇi 6.97, p. 305"),
     "no_lagna": ("Excluded: no lagna in the windows clears the lagna rules (6.84's houses, the jamitra, kartari, the navamsa, 6.90's points), and godhuli is excluded by 6.99", "Muhūrta-cintāmaṇi 6.42–90, 6.97–99, pp. 268–307"),
@@ -164,25 +164,25 @@ VIVAH_NOTES = {
 # vivah.md "Phase 2" (V1-V10, the lead's decisions of 16 Oct 2026): the lagna's bars,
 # faults and their weight, for windows[].lagnas and windows[].lagnaBars.
 VIVAH_LAGNA_RULES = {
-    "h1": ("The Moon or a malefic in the lagna", "Muhūrta-cintāmaṇi 6.84, p. 296 (1925 printing)", "bar"),
-    "h3_venus": ("Venus in the 3rd", "Muhūrta-cintāmaṇi 6.84, p. 296 (1925 printing)", "bar"),
+    "h1": ("The Moon or a malefic in the lagna", "Muhūrta-cintāmaṇi 6.84, p. 296", "bar"),
+    "h3_venus": ("Venus in the 3rd", "Muhūrta-cintāmaṇi 6.84, p. 296", "bar"),
     "h6": ("The lagna lord, Venus or the Moon in the 6th; Venus in an enemy's sign or debilitated, or the Moon debilitated or in a debilitated navamsa, is excused (6.86)", "Muhūrta-cintāmaṇi 6.84, 6.86, pp. 296, 298", "bar"),
     "h7": ("Any planet in the 7th, Rahu and Ketu included (our reading): the jamitra from the lagna", "Muhūrta-cintāmaṇi 6.65, 6.84, pp. 285, 296", "bar"),
     "h8": ("The Moon, the lagna lord, a benefic or Mars in the 8th; Mars combust, in an enemy's sign or debilitated, or the Moon debilitated or in a debilitated navamsa, is excused (6.86)", "Muhūrta-cintāmaṇi 6.84, 6.86, pp. 296, 298", "bar"),
-    "h10_mars": ("Mars in the 10th", "Muhūrta-cintāmaṇi 6.84, p. 296 (1925 printing)", "bar"),
-    "h12_saturn": ("Saturn in the 12th", "Muhūrta-cintāmaṇi 6.84, p. 296 (1925 printing)", "bar"),
-    "jamitra_moon": ("The Moon in the 55th navamsa from the Sun, Mars, Saturn, Rahu or Ketu (the navamsa opposite theirs), unless the Moon is exalted, in its own, a benefic's or a friend's sign, or aspected by a benefic", "Muhūrta-cintāmaṇi 6.65 and commentary, pp. 285–286 (1925 printing)", "bar"),
+    "h10_mars": ("Mars in the 10th", "Muhūrta-cintāmaṇi 6.84, p. 296", "bar"),
+    "h12_saturn": ("Saturn in the 12th", "Muhūrta-cintāmaṇi 6.84, p. 296", "bar"),
+    "jamitra_moon": ("The Moon in the 55th navamsa from the Sun, Mars, Saturn, Rahu or Ketu (the navamsa opposite theirs), unless the Moon is exalted, in its own, a benefic's or a friend's sign, or aspected by a benefic", "Muhūrta-cintāmaṇi 6.65, p. 285, with the commentary, p. 286", "bar"),
     "kartari": ("Kartari: a malefic moving direct in the 12th and a retrograde one in the 2nd (Rahu and Ketu always retrograde; the Moon a malefic in the dark fortnight, our reading), unless both are in an enemy's sign, debilitated or combust (6.86)", "Muhūrta-cintāmaṇi 6.42, 6.86, pp. 268–270, 298–299", "bar"),
     "navamsa": ("The lagna's navamsa is not Gemini, Virgo, Libra or the first half of Sagittarius (Pisces and Dharmasindhu's Taurus and Cancer apart)", "Muhūrta-cintāmaṇi 6.82–83, pp. 294–295", "bar"),
     "last_navamsa": ("The last navamsa of the sign, unless vargottama", "Muhūrta-cintāmaṇi 6.83, p. 295", "bar"),
     "movable_navamsa": ("With the Moon in Libra or Capricorn, a movable navamsa in a movable lagna", "Muhūrta-cintāmaṇi 6.83, p. 295", "bar"),
-    "vimsopaka": ("Under 5 of 6.90's 20 points: rejected", "Muhūrta-cintāmaṇi 6.90, pp. 301–302", "bar"),
+    "vimsopaka": ("Under 5 of 6.90's 20 points: rejected", "Muhūrta-cintāmaṇi 6.90, p. 301, with the commentary, p. 302", "bar"),
     "purity_lagna": ("The groom's side is not pure: neither the navamsa's lord, the lagna lord nor a benefic friend of the navamsa's lord joins or aspects the lagna or its navamsa (any aspect fraction, by the lord's sign: our reading)", "Muhūrta-cintāmaṇi 6.73–76, pp. 290–292", "heavy"),
     "purity_seventh": ("The bride's side is not pure: the same test for the 7th and the 7th from the lagna's navamsa", "Muhūrta-cintāmaṇi 6.73–76, pp. 290–292", "heavy"),
     "kartari_moon": ("Kartari round the Moon, no benefic aspecting the Moon", "Kaśyapa in Muhūrta-cintāmaṇi 6.42 commentary, p. 268", "fault"),
     "kuvarga": ("Fewer than three of the lagna's six vargas (sign, hora, drekkana, navamsa, dvadashamsha, trimshamsha) ruled by benefics", "Vasiṣṭha in Muhūrta-cintāmaṇi 6.40 commentary, p. 265; Dharmasindhu p. 182", "fault"),
     "navamsa_pisces": ("A Pisces navamsa: only when no other lagna clears", "Muhūrta-cintāmaṇi 6.82 commentary, p. 294", "last_resort"),
-    "vimsopaka_poor": ("5 to under 10 of 6.90's points: poor, only when no other lagna exists", "Muhūrta-cintāmaṇi 6.90, p. 302", "last_resort"),
+    "vimsopaka_poor": ("5 to under 10 of 6.90's points: poor, only when no other lagna exists", "Muhūrta-cintāmaṇi 6.90, p. 301, with the commentary, p. 302", "last_resort"),
     "navamsa_ds_only": ("A Taurus or Cancer navamsa: good by Dharmasindhu only", "Dharmasindhu p. 182", "ds_only"),
     "blind_lagna": ("A blind lagna at its time (by day Leo, Aries, Taurus; by night Virgo, Gemini, Cancer), not aspected by its lord or Jupiter, nor lifted by Mercury, Jupiter or Venus in a kendra other than the 7th or a trine (6.87)", "Muhūrta-cintāmaṇi 6.79, 6.81, 6.87, pp. 293–294, 299", "light"),
     "deaf_lagna": ("A deaf lagna at its time (by day Libra, Scorpio; by night Capricorn, Sagittarius), not aspected by its lord or Jupiter, nor lifted under 6.87", "Muhūrta-cintāmaṇi 6.79, 6.81, 6.87, pp. 293–294, 299", "light"),
@@ -206,8 +206,8 @@ VIVAH_KUVARGA = {
 # rules for /muhurat/vivah/personal (contract 7q). A remedy is the text's own statement.
 MC_P271 = "Kaśyapa and Nārada in Muhūrta-cintāmaṇi 6.44 commentary, p. 271"
 VIVAH_PERSONAL_RULES = {
-    "sun_groom": ("The Sun good by gochara from the groom's Moon sign (with vedha)", "Muhūrta-cintāmaṇi 6.12 and commentary, p. 234; Phaladīpikā 26", "support", None),
-    "sun_groom_weak": ("The Sun not good by gochara from the groom's Moon sign; the texts read give no remedy (a fault, not a bar: our reading)", "Muhūrta-cintāmaṇi 6.12 and commentary, pp. 232–234", "fault", None),
+    "sun_groom": ("The Sun good by gochara from the groom's Moon sign (with vedha)", "Muhūrta-cintāmaṇi 6.12, p. 232, with the commentary, p. 234; Phaladīpikā 26.2–3, pp. 286–287", "support", None),
+    "sun_groom_weak": ("The Sun not good by gochara from the groom's Moon sign; the texts read give no remedy (a fault, not a bar: our reading)", "Muhūrta-cintāmaṇi 6.12, p. 232, with the commentary, pp. 233–234", "fault", None),
     "moon_good": ("The Moon good by gochara from the partner's Moon sign (with vedha)", "Muhūrta-cintāmaṇi 6.12; Dharmasindhu p. 181", "support", None),
     "moon_weak": ("The Moon not good by gochara for one partner", "Dharmasindhu p. 181", "fault", ("Dharmasindhu p. 181: if one of the two lacks the Moon's strength, a gift of silver or the like is made", "Dharmasindhu p. 181")),
     "moon_weak_both": ("The Moon not good by gochara for both partners (a bar, since the text's remedy is for one: our reading)", "Dharmasindhu p. 181", "bar", None),
@@ -220,7 +220,7 @@ VIVAH_PERSONAL_RULES = {
     "birth_day_favourable": ("The birth month, star or tithi of a partner who is not the first-born: favourable", "Muhūrta-cintāmaṇi 6.14, p. 236 (Cyavana, Vaṭeśvara)", "support", None),
     "three_jyeshtha": ("Both partners first-born, in amanta Jyeshtha: the three jyeshthas", "Muhūrta-cintāmaṇi 6.15, p. 236; Dharmasindhu p. 181", "bar", None),
     "eldest_jyeshtha": ("One first-born partner, in Jyeshtha: middling, only when there is no other way", "Muhūrta-cintāmaṇi 6.15 commentary, p. 236; Dharmasindhu p. 181", "light", None),
-    "eighth_lagna": ("The 8th sign from a partner's birth lagna or Moon sign rising, unless it is one of MC 6.45's exempt signs, or Guru's remedy holds: the lagna lord in a kendra aspected by a benefic, in its own or a benefic's navamsa, exalted, or in its own or a friend's sign (friendship by BPHS: our reading)", "Muhūrta-cintāmaṇi 6.44–45, pp. 271–272", "bar", None),
+    "eighth_lagna": ("The 8th sign from a partner's birth lagna or Moon sign rising, unless it is one of the exempt signs (MC 6.45), or Guru's remedy holds: the lagna lord in a kendra aspected by a benefic, in its own or a benefic's navamsa, exalted, or in its own or a friend's sign (friendship by BPHS: our reading)", "Muhūrta-cintāmaṇi 6.44–45, pp. 271–272", "bar", None),
     "janma_rashi_rising": ("A partner's birth Moon sign rising", MC_P271, "fault", None),
     "janma_lagna_rising": ("A partner's birth lagna rising, or an upacaya sign (3, 6, 10, 11) from their birth lagna or Moon sign", MC_P271, "support", None),
     "no_lagna": ("No lagna and no godhuli left for the couple", "Muhūrta-cintāmaṇi 6.97–99", "bar", None),
@@ -281,9 +281,9 @@ MUNDAN_RULES = {
     "gandanta_lagna": ("Half a ghatika either side of the lagna's Cancer-Leo, Scorpio-Sagittarius and Pisces-Aries boundaries, removed", "Muhūrta-cintāmaṇi 6.41, p. 265"),
     "sankranti": ("16.5 ghatikas either side of the Sun's sign change, removed (half of MC's 33 each side, our reading)", "Muhūrta-cintāmaṇi 6.78, p. 293"),
     "mahapata": ("Mahapata, equal declinations of the Sun and Moon, removed", "Muhūrta-cintāmaṇi 6.59"),
-    "utpata": ("Utpata yoga, the weekday's star in MC 1.30's utpata column (28 nakshatras), removed unless a Ravi or siddhi yoga holds then (MC 1.27, 1.42; only a Ravi yoga lifts a visha)", "Muhūrta-cintāmaṇi 1.30, p. 23"),
-    "marana": ("Mrtyu yoga, the weekday's star in MC 1.30's mrtyu column, removed unless a Ravi or siddhi yoga holds then (MC 1.27, 1.42; only a Ravi yoga lifts a visha)", "Muhūrta-cintāmaṇi 1.30, p. 23"),
-    "kana": ("Kana yoga, the weekday's star in MC 1.30's kana column (Monday's is Abhijit), removed unless a Ravi or siddhi yoga holds then (MC 1.27, 1.42; only a Ravi yoga lifts a visha)", "Muhūrta-cintāmaṇi 1.30, p. 23"),
+    "utpata": ("Utpata yoga, the weekday's star in the utpata column of MC 1.30 (28 nakshatras), removed unless a Ravi or siddhi yoga holds then (MC 1.27, 1.42; only a Ravi yoga lifts a visha)", "Muhūrta-cintāmaṇi 1.30, p. 23"),
+    "marana": ("Mrtyu yoga, the weekday's star in the mrtyu column of MC 1.30, removed unless a Ravi or siddhi yoga holds then (MC 1.27, 1.42; only a Ravi yoga lifts a visha)", "Muhūrta-cintāmaṇi 1.30, p. 23"),
+    "kana": ("Kana yoga, the weekday's star in the kana column of MC 1.30 (Monday's is Abhijit), removed unless a Ravi or siddhi yoga holds then (MC 1.27, 1.42; only a Ravi yoga lifts a visha)", "Muhūrta-cintāmaṇi 1.30, p. 23"),
     "dagdha": ("Dagdha yoga, Nārada's burnt weekday-star pairs, removed unless a Ravi or siddhi yoga holds then (MC 1.27, 1.42; only a Ravi yoga lifts a visha)", "Nārada in Muhūrta-cintāmaṇi 1.5 commentary, p. 13"),
     "visha": ("A siddhi (amrta) weekday-star pair on its tithi, which turns it to visha, removed unless a Ravi or siddhi yoga holds then (MC 1.27, 1.42; only a Ravi yoga lifts a visha)", "Muhūrta-cintāmaṇi 1.20–21, pp. 19–20"),
     "krishna_last_three": ("A dark Trayodashi: DS keeps the dark fortnight except its last three days", "Dharmasindhu p. 137"),
@@ -410,7 +410,7 @@ VARGA_USES = {
 GRIHA_PRAVESH_RULES = {
     "month": ("Magha, Phalguna, Vaishakha or Jyeshtha (amanta), with the Sun in its northern course", "Muhūrta-cintāmaṇi 13.1, p. 437; Nārada, p. 438"),
     "adhika_month": ("An adhika or kshaya month: barred", "Muhūrta-cintāmaṇi 1.47, pp. 39–40; Dharmasindhu p. 4"),
-    "off_season": ("A lunar month outside MC 13.1's four (Magha, Phalguna, Vaishakha, Jyeshtha) and Nārada's middling two (Kartika, Margashirsha): barred", "Muhūrta-cintāmaṇi 13.1, 13.4 and commentary"),
+    "off_season": ("A lunar month outside MC 13.1's four (Magha, Phalguna, Vaishakha, Jyeshtha) and Nārada's middling two (Kartika, Margashirsha): barred", "Muhūrta-cintāmaṇi 13.1, p. 437, with the commentary, p. 438; 13.4, p. 442"),
     "dakshinayana": ("The Sun in its southern course, Cancer to Sagittarius: barred", "Muhūrta-cintāmaṇi 13.1, p. 437"),
     "sun_sign": ("The Sun in Cancer, Virgo or Aquarius: barred", "Guru in Muhūrta-cintāmaṇi 13.1 commentary, p. 439"),
     "jupiter_set": ("Jupiter within 11 time-degrees of the Sun: set", "Sūrya-siddhānta 9.6–7; Muhūrta-cintāmaṇi 1.46, applied by the 13.1 commentary, p. 438"),
@@ -419,14 +419,14 @@ GRIHA_PRAVESH_RULES = {
     "venus_set": ("Venus within 8 time-degrees of the Sun (retrograde) or 10 (direct): set", "Sūrya-siddhānta 9.6–7; Muhūrta-cintāmaṇi 1.46, applied by the 13.1 commentary, p. 438"),
     "venus_old": ("The 15 days before Venus sets in the east, or the 5 before it sets in the west", "Muhūrta-cintāmaṇi 5.27"),
     "venus_infant": ("The 3 days after Venus rises in the east, or the 10 after it rises in the west", "Muhūrta-cintāmaṇi 5.27"),
-    "jupiter_sign": ("Jupiter in Leo or Capricorn: barred for its whole stay", "Muhūrta-cintāmaṇi 1.48, p. 40; 13.2, 1925 printing p. 440"),
+    "jupiter_sign": ("Jupiter in Leo or Capricorn: barred for its whole stay", "Muhūrta-cintāmaṇi 1.48, p. 40; 13.2, p. 440"),
     "nakshatra": ("The Moon in Citra, the three Uttaras, Rohini, Mrgashira, Anuradha, Dhanishtha, Revati or Shatabhisha", "Vasiṣṭha in Muhūrta-cintāmaṇi 13.1 commentary, p. 439"),
     "pot_chakra": ("The pot chakra: counting the Sun's star as the 1st, the Moon's star is not 1-5 or 14-21", "Muhūrta-cintāmaṇi 13.6, p. 446; Dharmasindhu p. 242"),
     "tithi": ("Not a rikta tithi (4, 9, 14) or Amavasya", "Muhūrta-cintāmaṇi 13.4, p. 442"),
     "weekday": ("Not a Sunday or Tuesday", "Muhūrta-cintāmaṇi 13.4, p. 442"),
     "lagna": ("A fixed lagna, or a dual one; never a movable one", "Muhūrta-cintāmaṇi 13.1, 13.4; Vasiṣṭha, p. 443"),
     "navamsa": ("The lagna's navamsa not movable", "Muhūrta-cintāmaṇi 13.4 commentary, p. 442"),
-    "houses_4_8": ("The 4th and 8th houses empty of every planet", "Muhūrta-cintāmaṇi 13.4 and commentary, p. 443"),
+    "houses_4_8": ("The 4th and 8th houses empty of every planet", "Muhūrta-cintāmaṇi 13.4, p. 442, with the commentary, p. 443"),
     "moon_house": ("The Moon not in the 1st, 6th, 8th or 12th from the lagna", "Vasiṣṭha in Muhūrta-cintāmaṇi 13.3–4 commentary"),
     "bhadra": ("Bhadra on earth removed from the window, as for marriage", "Muhūrta-cintāmaṇi 1.43–45; 13.1 commentary, p. 439"),
     "bad_yoga": ("The bad yogas' opening ghatis, Parigha's first half, and Vyatipata and Vaidhriti whole, removed, as for marriage", "Muhūrta-cintāmaṇi 1.34–35; 13.1 commentary, p. 439"),
@@ -435,9 +435,9 @@ GRIHA_PRAVESH_RULES = {
     "gandanta_lagna": ("Half a ghatika either side of the lagna's Cancer-Leo, Scorpio-Sagittarius and Pisces-Aries boundaries, removed", "Muhūrta-cintāmaṇi 6.41, p. 265"),
     "sankranti": ("16.5 ghatikas either side of the Sun's sign change, removed (half of MC's 33 each side, our reading)", "Muhūrta-cintāmaṇi 6.78, p. 293; 13.1 commentary, p. 439"),
     "mahapata": ("Mahapata, equal declinations of the Sun and Moon, removed", "Muhūrta-cintāmaṇi 6.59; 13.1 commentary, p. 439"),
-    "utpata": ("Utpata yoga, the weekday's star in MC 1.30's utpata column (28 nakshatras), removed unless a Ravi or siddhi yoga holds then (MC 1.27, 1.42; only a Ravi yoga lifts a visha)", "Muhūrta-cintāmaṇi 1.30, p. 23"),
-    "marana": ("Mrtyu yoga, the weekday's star in MC 1.30's mrtyu column, removed unless a Ravi or siddhi yoga holds then (MC 1.27, 1.42; only a Ravi yoga lifts a visha)", "Muhūrta-cintāmaṇi 1.30, p. 23"),
-    "kana": ("Kana yoga, the weekday's star in MC 1.30's kana column (Monday's is Abhijit), removed unless a Ravi or siddhi yoga holds then (MC 1.27, 1.42; only a Ravi yoga lifts a visha)", "Muhūrta-cintāmaṇi 1.30, p. 23"),
+    "utpata": ("Utpata yoga, the weekday's star in the utpata column of MC 1.30 (28 nakshatras), removed unless a Ravi or siddhi yoga holds then (MC 1.27, 1.42; only a Ravi yoga lifts a visha)", "Muhūrta-cintāmaṇi 1.30, p. 23"),
+    "marana": ("Mrtyu yoga, the weekday's star in the mrtyu column of MC 1.30, removed unless a Ravi or siddhi yoga holds then (MC 1.27, 1.42; only a Ravi yoga lifts a visha)", "Muhūrta-cintāmaṇi 1.30, p. 23"),
+    "kana": ("Kana yoga, the weekday's star in the kana column of MC 1.30 (Monday's is Abhijit), removed unless a Ravi or siddhi yoga holds then (MC 1.27, 1.42; only a Ravi yoga lifts a visha)", "Muhūrta-cintāmaṇi 1.30, p. 23"),
     "dagdha": ("Dagdha yoga, Nārada's burnt weekday-star pairs, removed unless a Ravi or siddhi yoga holds then (MC 1.27, 1.42; only a Ravi yoga lifts a visha)", "Nārada in Muhūrta-cintāmaṇi 1.5 commentary, p. 13"),
     "visha": ("A siddhi (amrta) weekday-star pair on its tithi, which turns it to visha, removed unless a Ravi or siddhi yoga holds then (MC 1.27, 1.42; only a Ravi yoga lifts a visha)", "Muhūrta-cintāmaṇi 1.20–21, pp. 19–20"),
     "middling_month": ("Excluded: Kartika or Margashirsha, which Nārada counts middling for house entry, outside MC 13.1's northern course", "Nārada in Muhūrta-cintāmaṇi 13.1 commentary, p. 438"),
@@ -446,7 +446,7 @@ GRIHA_PRAVESH_RULES = {
     "saturday": ("Saturday: stability, with a fear of thieves", "Vasiṣṭha in Muhūrta-cintāmaṇi 13.4 commentary, p. 443"),
 }  # fmt: skip
 GRIHA_PRAVESH_NOTES = {
-    "vastuPuja": "The vastu-puja and bhuta-bali are done the day before entry, under the soft, fixed, swift or movable stars or Mula (Muhūrta-cintāmaṇi 13.3a, 1925 printing p. 441; Dharmasindhu p. 242).",
+    "vastuPuja": "The vastu-puja and bhuta-bali are done the day before entry, under the soft, fixed, swift or movable stars or Mula (Muhūrta-cintāmaṇi 13.3a, p. 441; Dharmasindhu p. 242).",
     "door": "The door's direction sets the tithi class and the side the Sun must be on (Muhūrta-cintāmaṇi 13.5). The muhurta finder applies them when a door direction is given; this list does not.",
     "oldHouse": "An old house, or one rebuilt after fire or flood, also allows Margashirsha, Kartika and Shravana and four more stars, without the checks on Jupiter and Venus (Muhūrta-cintāmaṇi 13.2). The muhurta finder's old-house option applies it; this list is for a new house.",
     "owner": "The lagna should not be the 8th sign from the owner's birth lagna or Moon sign, and is best 3rd, 6th, 10th or 11th from them (Muhūrta-cintāmaṇi 13.1, 13.4). These need the owner's chart and are not applied here.",
@@ -639,11 +639,12 @@ FESTIVAL_RULES = {
         "dhanteras_pradosha": ("Dhanteras: the dark Trayodashi current at pradosha, when the lamp for Yama is set outside", "Nirṇaya-sindhu p. 294; Dharmasindhu p. 76"),
         "dhanteras_both_later": ("The Trayodashi at pradosha on both days: the later day, as a dark Trayodashi is taken on the later day", "Dharmasindhu p. 20"),
         "dhanteras_neither_later": ("The Trayodashi at pradosha on neither day: the later day", "Dharmasindhu p. 20"),
-        "naraka_moonrise": ("Naraka-caturdashi: the Caturdashi current at the pre-dawn moonrise", "Dharmasindhu p. 76; Nirṇaya-sindhu p. 294"),
-        "naraka_moonrise_both_earlier": ("The Caturdashi at moonrise on both days: the earlier", "Dharmasindhu p. 76; Nirṇaya-sindhu p. 295"),
+        "naraka_moonrise": ("The oil bath is taken at the dawn whose pre-dawn moonrise falls in the Caturdashi.", "Dharmasindhu p. 76; Nirṇaya-sindhu p. 294"),
+        "naraka_moonrise_both_earlier": ("When the Caturdashi is current at the pre-dawn moonrise on both days, the bath is taken on the earlier day.", "Dharmasindhu p. 76; Nirṇaya-sindhu p. 295"),
         "naraka_lamps_divodasiya": ("With the bath on the second day, the Divodāsīya gives the lamps at the earlier evening's pradosha, while the Caturdashi is current.", "Nirṇaya-sindhu p. 297"),
-        "naraka_began_before_sunrise": ("At moonrise on neither day, beginning between the first day's moonrise and sunrise: that dawn, from its start to sunrise", "Dharmasindhu pp. 76–77"),
-        "naraka_later_moonrise": ("At moonrise on neither day otherwise: the second day, at moonrise", "Dharmasindhu p. 77"),
+        "naraka_began_before_sunrise": ("When the Caturdashi begins between the first day's moonrise and sunrise, at least a ghatika before sunrise, and ends before the second day's moonrise, the bath is taken that first dawn, from its start to sunrise.", "Dharmasindhu pp. 76–77"),
+        "naraka_later_moonrise": ("When the Caturdashi touches the first day only at sunrise, beginning less than a ghatika before it, and ends before the second day's moonrise, the bath is taken on the second day, at moonrise.", "Dharmasindhu p. 77"),
+        "naraka_no_sunrise_next_dawn": ("When the Caturdashi holds no sunrise, the bath is taken at the next dawn, after the Caturdashi has ended.", "Dharmasindhu p. 77"),
         "govardhan_nine_muhurtas": ("Govardhana-puja and Bali-pratipada: the Pratipada at sunrise lasting nine muhurtas or more after it puts every rite on that day (ten in the text; nine to ten our reading)", "Dharmasindhu p. 78"),
         "govardhan_earlier": ("Lasting under nine muhurtas: Bali's worship, the cow play, the Govardhana-puja and the margapali on the Amavasya-joined day before; the bath, new clothes and nirajana stay on the sunrise day (bathDate)", "Dharmasindhu p. 78"),
         "govardhan_no_sunrise_earlier": ("A Pratipada touching no sunrise: the day it begins, joined with the Amavasya (our reading of DS's rule)", "Dharmasindhu p. 78"),
@@ -742,7 +743,7 @@ FESTIVAL_RULES = {
         "vow_pradosha_neither_later": ("Covering neither pradosha: the later day (our reading)", "Dharmasindhu p. 89"),
     },
     "holashtak": {
-        "holashtak_period": ("The eight days from the Phalguna shukla Ashtami to the Purnima, avoided for marriage and auspicious acts only on the Beas, Ravi and Sutlej and at Pushkar", "Muhūrta-cintāmaṇi 1.40 and commentary (the Śīghrabodha), pp. 33–34"),
+        "holashtak_period": ("The eight days from the Phalguna shukla Ashtami to the Purnima, avoided for marriage and auspicious acts only on the Beas, Ravi and Sutlej and at Pushkar", "Muhūrta-cintāmaṇi 1.40, p. 33, with the commentary, p. 34, which quotes the Śīghrabodha"),
     },
     "akshaya-tritiya": {
         "forenoon": ("The Vaishakha shukla Tritiya covering the forenoon (sunrise to midday) on one day: that day", "Nirṇaya-sindhu p. 134; Dharmasindhu p. 36; Vratarāja f. 43"),
@@ -897,6 +898,17 @@ FESTIVAL_RULES = {
         "sunrise": ("Sheetala Ashtami (Basoda) is kept on the day whose sunrise the dark Ashtami after Holi holds (popular practice; no text read gives the day)", None),
         "two_sunrises_first": ("When the Ashtami holds two sunrises, the first of those days is kept (popular practice)", None),
         "no_sunrise_day_it_falls_on": ("When the Ashtami holds no sunrise, the day in which it begins is kept (popular practice)", None),
+    },
+    # Decisions 44-45 (festivals.md s35-36, 18 Oct 2026): popular practice.
+    "kali-puja": {
+        "nishitha": ("Kali Puja is kept on the night whose nishitha, the middle muhurta of the night, falls in the Amavasya (popular practice; no text read gives the day).", None),
+        "nishitha_both_more": ("When the Amavasya covers nishitha on both nights, the night with more of it is kept, and the earlier night if the two are equal (popular practice).", None),
+        "nishitha_neither_later": ("When the Amavasya covers nishitha on neither night, the later night is kept, as it holds the Amavasya at pradosha (our reading).", None),
+    },
+    "ahoi-ashtami": {
+        "pradosha": ("Ahoi Ashtami is kept on the day whose pradosha, the three muhurtas after sunset, falls in the dark Ashtami (popular practice; no text read gives the day).", None),
+        "pradosha_both_more": ("When the Ashtami covers pradosha on both days, the day with more of it is kept, and the earlier day if the two are equal (popular practice).", None),
+        "pradosha_neither_later": ("When the Ashtami covers pradosha on neither day, the later day is kept, as its sunrise holds the Ashtami (our reading).", None),
     },
     "durga-puja": {
         "sunrise_ashtami": ("Mahashtami: the Ashtami current at sunrise for a muhurta, joined to the Navami", "Tithi-tattva pp. 87–89"),
@@ -1057,6 +1069,8 @@ FESTIVAL_NOTES = {
     "rang-panchami": "Popular practice; no text read names Rang Panchami or gives its day. Dharmasindhu p. 95 says that ordinary people now keep the colour festival up to the dark Panchami, though its own day for the colours is the dark Dvitiya. Swamikannu Pillai's Indian Ephemeris (1922, pp. 65–66) and the Poona Gazetteer (1885, p. 293) describe the Panchami as the day colours are thrown and the Holi ends. The day is ours: the first day whose sunrise holds the dark Panchami after Holi, else the day in which it begins. The Gair and the processions are popular practice.",
     "cheti-chand": "Popular practice; no text read names Cheti Chand or Udero Lal. One date for every city, computed at Ahmedabad: the first day whose sunset falls in the Caitra shukla Dvitiya, else the first day whose sunrise holds it; the first day of Chet, when the young moon is first seen (our reading). Dharmasindhu p. 31 gives a worship of the young moon at nightfall on this Dvitiya, a different vow. The Sind gazetteers describe the Sindhi new year kept at the riverside and at Uderolal's fair (Aitken 1907 p. 206; Imperial Gazetteer 1908 p. 411), and Kincaid (1925, p. 12) the tradition that Udero Lal was born on it. When the Dvitiya begins inside the earlier evening's pradosha, that day is also given, as some keep it; in an adhika-Caitra year the day in the first Caitra is also given. The Behrana Sahib and the processions are popular practice.",
     "sheetala-ashtami": "Popular practice; no text read gives the Caitra Sheetala Ashtami or Saptami. The day is ours: the first day whose sunrise holds the dark Ashtami after Holi (the amanta Phalguna krishna, the purnimanta Caitra krishna), else the day in which it begins; the worship is at dawn with food cooked the day before. Two variants are given: the Saptami by the same rule, kept in some regions and families, and in Rajasthan a move off a Sunday, Tuesday or Saturday to the nearest earlier other day. Jaipur's 1903 census lists Sitla Ashtami among its March festivals (p. 356). The texts' only Shitala vow is the Shravana (purnimanta Bhadrapada) dark Saptami (Vratarāja f. 110; Nirṇaya-sindhu p. 183), not this day. The stale food, the Saptami and the weekday shift are popular practice, and no health result is claimed.",
+    "kali-puja": "Popular practice; no text read names Kali Puja (Shyama Puja) or gives its day. The day is ours, from the kept days: the night whose nishitha, the middle muhurta of the night, falls in the Dipavali Amavasya (amanta Ashvina, purnimanta Kartika); if the Amavasya covers both nights' nishitha, the night with more of it is kept, and the earlier if they are equal; if it covers neither, the later night, which holds the Amavasya at pradosha (our reading). pujaWindow is that nishitha within the Amavasya. The texts read give this night other rites: Lakshmi worshipped at pradosha (Tithi-tattva pp. 185–186; Nirṇaya-sindhu pp. 299–300), and the women of the town driving Alakshmi out of their house-yards after midnight (Dharmasindhu p. 77). None of them names Kali or Shyama, and the image, the offerings and the night's rites are practice.",
+    "ahoi-ashtami": "Popular practice; no text read gives Ahoi Ashtami, its day or its story. The day is ours, from the kept days: the dark Ashtami of the nija amanta Ashvina (purnimanta Kartika), on the day whose pradosha, the three muhurtas after sunset, falls in it; if it covers both days' pradosha, the day with more of it is kept, and the earlier if they are equal; if it covers neither, the later day, whose sunrise holds it (our reading). The fast is broken at dusk on sighting the stars, or after moonrise in some families; no text read gives a star-sighting time, so sunset and moonrise are the times given. Dharmasindhu p. 76 has only a bath in Radha-kunda on this Ashtami, for those who live near Mathura.",
     "navaratriDays": "Navaratra names a worship set in nine tithis, the Pratipada to the Navami (DS p. 65). Each day's worship goes with the tithi at its sunrise (our reading of DS p. 66); a tithi touching two sunrises is worshipped on both days and one touching none on the day it falls in, so the Navaratri runs eight, nine or ten days. Some keep only eight worships when a day is lost (DS p. 66). The first day is the kalasha-sthapana day.",
     "durgashtami": "Mahashtami: the Ashtami at sunrise joined to the Navami, never one touched by the Saptami however slightly, even with Mula (NS p. 263, DS p. 69). Especially praised on a Tuesday (DS). Bhadra does not bar the worship (Devī-purāṇa, NS p. 264). Those with sons do not fast on it (DS p. 69; NS p. 265).",
     "mahanavami": "The Navami joined to the Ashtami is taken for the worship and the fast when it covers three muhurtas before that day's sunset (NS pp. 272–273, DS p. 69), so Durgashtami and Mahanavami often fall on one day. The animal bali is on the Dashami-joined day (DS p. 69).",
@@ -1289,7 +1303,7 @@ MUHURTA_RULE_NAMES = {
     "eldest_jyeshtha": "Jyeshtha, for an eldest child (Ratnamālā, MC 5.33 commentary)",
     "selling_star": "A selling star, barred for buying: the three Purvas, Vishakha, Krttika, Ashlesha, Bharani (MC 2.16–17)",
     "riding_weekday": "Not a riding weekday: Thursday, Monday, Sunday, Friday or Wednesday (the Vyavahāroccaya in MC 2.18 commentary)",
-    "not_buying_star": "Not one of the six buying stars: middling for buying (MC 2.16 and its commentary)",
+    "not_buying_star": "Not one of the six buying stars: middling for buying (MC 2.16, p. 62, with the commentary, p. 63)",
     "middling_month_home": "Kartika or Margashirsha: middling, for necessity (Nārada in MC 13.1)",
     "sun_sign_home": "The Sun in Cancer, Virgo or Aquarius (Guru in MC 13.1)",
     "jupiter_venus_state": "Jupiter or Venus set, old or infant (MC 1.46–48, 5.27)",
@@ -1400,10 +1414,10 @@ MUHURTA_RULE_NOTES = {
     ),
     **dict.fromkeys(
         ("yogini_ahead", "yogini_behind"),
-        "MC 11.31 and its commentary (1925 printing, pp. 348–349): in front or on the left "
-        "the Yogini is not commended, on the right or behind she is. Popular practice "
-        "reverses left and right. A minor factor: the commentary weighs it mainly in war "
-        "journeys.",
+        "In front or on the left the Yogini is not commended (MC 11.31, p. 348); on the "
+        "right or behind she is (MC 11.31, p. 348, with the commentary, p. 349). Popular "
+        "practice reverses left and right. A minor factor: the commentary weighs it mainly "
+        "in war journeys (MC 11.32 commentary, p. 352).",
     ),
 }
 SUPPORTS = {
@@ -1580,11 +1594,17 @@ FESTIVAL_NAMES = {
     "rang-panchami": "Rang Panchami",
     "cheti-chand": "Cheti Chand",
     "sheetala-ashtami": "Sheetala Ashtami",
+    "kali-puja": "Kali Puja",
+    "ahoi-ashtami": "Ahoi Ashtami",
     "pongal": "Pongal",
     "magha-snana": "Magha Snana",
 }
 # Popular names served beside the name, as the English pages carry both (the lead, 16 Oct 2026).
-FESTIVAL_POPULAR = {"sheetala-ashtami": "Basoda", "magha-snana": "Magh Mela"}
+FESTIVAL_POPULAR = {
+    "sheetala-ashtami": "Basoda",
+    "magha-snana": "Magh Mela",
+    "kali-puja": "Shyama Puja",
+}
 CHHATHS = ["chhath", "chaiti-chhath"]
 # Named days inside a kind's answer: id -> (name, the kinds that carry it).
 FESTIVAL_DAY_NAMES = {

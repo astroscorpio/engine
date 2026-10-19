@@ -160,3 +160,19 @@ def test_nabhasa_exact_houses_and_precedence():
     assert "Mala (Srak) Yoga" in names(Y.nabhasa(make(0, **signs)))
     signs["Venus"] = 3  # two kendras only
     assert "Mala (Srak) Yoga" not in names(Y.nabhasa(make(0, **signs)))
+
+
+def test_sources_follow_the_page_map():
+    """Research's page map of 19 Oct 2026 (docs/sources/pagemap-2026-10-19.tsv): each cite carries
+    every page its verse and translation stand on, and parivartana cites PD 6.32, the verse that
+    defines the exchange yogas (6.33 gives the Dainya results)."""
+    s = Y.SOURCES
+    pages = {k: (s[k]["verse"], s[k]["page"]) for k in s}
+    assert pages["mahapurusha_lagna"] == ("6.1", "46–47")
+    assert pages["chandra"] == ("6.5", "48–49")
+    assert pages["solar"] == ("6.8", "49–50")
+    assert pages["parivartana"] == ("6.32", "59–60")
+    assert pages["amala"] == ("6.19", "53–54")
+    assert pages["lakshmi_pd"] == ("6.24", "55–56")
+    assert pages["nabhasa_sankhya"] == ("12.10", "211–212")
+    assert [pages[f"dhana_{v}"][1] for v in range(2, 16)] == ["228"] * 9 + ["229"] * 5

@@ -45,28 +45,28 @@ def _src(book: tuple[str, str], verse: str, page: str) -> dict:
 
 
 SOURCES = {
-    "mahapurusha_lagna": _src(PD, "6.1", "47"),
+    "mahapurusha_lagna": _src(PD, "6.1", "46–47"),
     "mahapurusha_moon": _src(PD, "6.4", "48"),
     "mahapurusha_bphs": _src(BPHS, "75.1–2", "584"),
-    "chandra": _src(PD, "6.5", "48"),  # BJ 13.3, p. 225 agrees
+    "chandra": _src(PD, "6.5", "48–49"),  # BJ 13.3, p. 225 agrees
     "gaja_kesari": _src(PD, "6.14", "52"),
     "gaja_kesari_bphs": _src(BPHS, "Bahuvidha-yoga 3", "211"),
     "shakata": _src(PD, "6.14", "52"),
     "adhi_moon": _src(BJ, "13.2", "224"),  # PD 6.42 agrees
     "adhi_lagna": _src(PD, "6.42", "63"),
-    "solar": _src(PD, "6.8", "50"),
-    "parivartana": _src(PD, "6.33", "59"),
-    "amala": _src(PD, "6.19", "54"),  # BPHS Bahuvidha-yoga 5 agrees
+    "solar": _src(PD, "6.8", "49–50"),
+    "parivartana": _src(PD, "6.32", "59–60"),
+    "amala": _src(PD, "6.19", "53–54"),  # BPHS Bahuvidha-yoga 5 agrees
     "saraswati": _src(PD, "6.26", "56"),
     "lakshmi": _src(BPHS, "Bahuvidha-yoga 27", "214"),
-    "lakshmi_pd": _src(PD, "6.24", "55"),
+    "lakshmi_pd": _src(PD, "6.24", "55–56"),
     "vipareeta": _src(PD, "6.57", "68"),
     "neecha_bhanga": _src(PD, "7.27–30", "81–82"),
     "raja": _src(BPHS, "Yogakaraka 11-15", "198–199"),
     "nabhasa_ashraya": _src(BJ, "12.2, 12.12", "205, 213"),
     "nabhasa_dala": _src(BJ, "12.2", "205"),
     "nabhasa_akriti": _src(BJ, "12.4–9", "207–211"),
-    "nabhasa_sankhya": _src(BJ, "12.10", "212"),
+    "nabhasa_sankhya": _src(BJ, "12.10", "211–212"),
 }
 
 
@@ -271,7 +271,7 @@ DHANA_LAGNA = [
     (15, "Saturn", ("Mars", "Jupiter")),
 ]
 for _v, *_ in DHANA_FIFTH + DHANA_LAGNA:
-    SOURCES[f"dhana_{_v}"] = _src(BPHS, f"42.{_v}", "228" if _v <= 8 else "228–229")
+    SOURCES[f"dhana_{_v}"] = _src(BPHS, f"42.{_v}", "228" if _v <= 10 else "229")
 
 
 def dhana_yogas(chart: Chart) -> list[Yoga]:
@@ -508,7 +508,7 @@ def solar_yogas(chart: Chart) -> list[Yoga]:
 
 
 def parivartana(chart: Chart) -> list[Yoga]:
-    """PD 6.33: exchanges involving the 6th, 8th or 12th are Dainya, the 3rd
+    """PD 6.32: exchanges involving the 6th, 8th or 12th are Dainya, the 3rd
     Khala, the rest Maha."""
     out = []
     for a, b in combinations(SEVEN, 2):

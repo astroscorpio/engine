@@ -132,3 +132,56 @@ def test_pending_hindi_labels_name_real_ids(meta):
         for k, v in names.items():
             assert k in section, (key, k)
             assert set(v if isinstance(v, dict) else {"name": v}) <= set(section[k]), (key, k)
+
+
+def test_mc_cites_give_the_plain_page():
+    """The 1925 and 1945 Muhūrta-cintāmaṇi printings share their pages, and /sources names
+    the 1945, so a cite gives the page and names no printing; a verse cited with its
+    commentary reads "X, p. N, with the commentary, p. M" (the lead's rulings on cite forms).
+    The verse and commentary pages are research's, from its map and its reading of each
+    commentary."""
+    status, out = call("GET", "/v1/meta", {"lang": "en"})
+    assert status == 200
+    lagna, griha = out["vivahLagnaRules"], out["grihaPraveshRules"]
+    for k in ("h1", "h3_venus", "h10_mars", "h12_saturn"):
+        assert lagna[k]["source"] == "Muhūrta-cintāmaṇi 6.84, p. 296"
+    assert griha["jupiter_sign"]["source"] == "Muhūrta-cintāmaṇi 1.48, p. 40; 13.2, p. 440"
+    c, pd = "with the commentary", "Phaladīpikā 26.2–3, pp. 286–287"
+    cites = {
+        ("vivahLagnaRules", "jamitra_moon"): f"6.65, p. 285, {c}, p. 286",
+        ("vivahLagnaRules", "vimsopaka"): f"6.90, p. 301, {c}, p. 302",
+        ("vivahLagnaRules", "vimsopaka_poor"): f"6.90, p. 301, {c}, p. 302",
+        ("vivahRules", "off_season"): f"6.13, p. 234, {c}, p. 235",
+        ("vivahPersonalRules", "sun_groom"): f"6.12, p. 232, {c}, p. 234; {pd}",
+        ("vivahPersonalRules", "sun_groom_weak"): f"6.12, p. 232, {c}, pp. 233–234",
+        ("grihaPraveshRules", "off_season"): f"13.1, p. 437, {c}, p. 438; 13.4, p. 442",
+        ("grihaPraveshRules", "houses_4_8"): f"13.4, p. 442, {c}, p. 443",
+    }
+    for (section, key), cite in cites.items():
+        assert out[section][key]["source"] == f"Muhūrta-cintāmaṇi {cite}", key
+    holashtak = out["festivalRules"]["holashtak"]["holashtak_period"]["source"]
+    assert holashtak == f"Muhūrta-cintāmaṇi 1.40, p. 33, {c}, p. 34, which quotes the Śīghrabodha"
+    assert out["muhurtaRules"]["not_buying_star"]["name"].endswith(f"(MC 2.16, p. 62, {c}, p. 63)")
+    sources = [r["source"] for d in (lagna, griha) for r in d.values()]
+    assert not [s for s in sources if "printing" in s]
+    vastu = out["grihaPraveshNotes"]["vastuPuja"]
+    assert "(Muhūrta-cintāmaṇi 13.3a, p. 441; Dharmasindhu p. 242)" in vastu
+    yogini = out["muhurtaRules"]["yogini_ahead"]["note"]
+    assert out["muhurtaRules"]["yogini_behind"]["note"] == yogini
+    notes = ("(MC 11.31, p. 348)", f"(MC 11.31, p. 348, {c}, p. 349)")
+    assert all(n in yogini for n in (*notes, "(MC 11.32 commentary, p. 352)"))
+    assert "printing" not in vastu + yogini
+
+    def strings(x):
+        if isinstance(x, dict):
+            x = list(x.values())
+        if isinstance(x, list):
+            for v in x:
+                yield from strings(v)
+        elif isinstance(x, str):
+            yield x
+
+    assert not [s for s in strings(out) if "and commentary" in s or "and its commentary" in s]
+    assert not [s for s in strings(out) if "1.30's" in s or "6.45's" in s]
+    middling = out["vivahRules"]["middling_weekday_dvadashi_trayodashi"]["name"]
+    assert "(Vasiṣṭha, MC 6.53 commentary, p. 275)" in middling
