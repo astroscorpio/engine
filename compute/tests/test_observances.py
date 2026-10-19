@@ -122,7 +122,13 @@ def test_padmini_2026_at_delhi_matches_both_long():
     # day's sunrise: everyone keeps 27 May.
     status, out = call("GET", "/v1/observances/ekadashi", DELHI)
     row = next(r for r in out["ekadashis"] if r["tithi"]["start"].startswith("2026-05-26"))
-    assert row["smarta"] == {"date": "2026-05-27", "asceticDate": None, "rule": "both_increase"}
+    assert row["smarta"] == {
+        "date": "2026-05-27",
+        "asceticDate": None,
+        "rule": "both_increase",
+        "cautions": [],
+        "nearBoundaryDate": None,
+    }
     assert row["vaishnava"]["date"] == "2026-05-27"
     nov = next(r for r in out["ekadashis"] if r["tithi"]["start"].startswith("2026-11-20"))
     assert (nov["smarta"]["date"], nov["smarta"]["asceticDate"]) == ("2026-11-20", "2026-11-21")

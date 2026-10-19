@@ -131,7 +131,10 @@ def _sunrises(first: float, lat: float, lon: float, n: int) -> list[float]:
     return out
 
 
-def _one(start: float, end: float, dv_end: float, q: EkadashiQuery) -> dict:
+def _ekadashi_choice(start: float, end: float, dv_end: float, q: EkadashiQuery) -> tuple:
+    """The Smarta and Vaishnava fast days for an Ekadashi [start, end) whose Dvadashi ends at
+    dv_end: (sunrises, dates, smarta, its rule, the ascetics' day, vaishnava, its rule,
+    arunodaya, whether the Dashami is current at it)."""
     zone = q.tz
     s = _sunrises(start, q.lat, q.lon, 5)  # s[0] <= start < s[1]
     day = [aware(t, zone).date().isoformat() for t in s]
@@ -175,7 +178,37 @@ def _one(start: float, end: float, dv_end: float, q: EkadashiQuery) -> dict:
         vaishnava, v_rule = e + 1, "increase"
     else:
         vaishnava, v_rule = e, "pure"
+    return s, day, smarta, s_rule, ascetic, vaishnava, v_rule, dawn, pierced
 
+
+# The lead, 18 Oct 2026 (research's festival audit): a tithi boundary this close to the deciding
+# moment gives the other day as well, as Chhath's ghatika margin does.
+NEAR_BOUNDARY = 5 / 1440
+
+
+def _near_boundary(start: float, end: float, dv_end: float, q: EkadashiQuery, own: dict) -> dict:
+    """The other day each tradition's rule gives when the Ekadashi's start or end, or the
+    Dvadashi's end, moves by five minutes; None where none does."""
+    n = NEAR_BOUNDARY
+    moved = (
+        (start - n, end, dv_end), (start + n, end, dv_end), (start, end - n, dv_end),
+        (start, end + n, dv_end), (start, end, dv_end - n), (start, end, dv_end + n),
+    )  # fmt: skip
+    other: dict[str, set[str]] = {"smarta": set(), "vaishnava": set()}
+    for a, b, c in moved:
+        _, day, smarta, _, _, vaishnava, _, _, _ = _ekadashi_choice(a, b, c, q)
+        other["smarta"].add(day[smarta])
+        other["vaishnava"].add(day[vaishnava])
+    return {k: min(v - {own[k]}, default=None) for k, v in other.items()}
+
+
+def _one(start: float, end: float, dv_end: float, q: EkadashiQuery) -> dict:
+    zone = q.tz
+    s, day, smarta, s_rule, ascetic, vaishnava, v_rule, dawn, pierced = _ekadashi_choice(
+        start, end, dv_end, q
+    )
+    own = {"smarta": day[smarta], "vaishnava": day[vaishnava]}
+    near = _near_boundary(start, end, dv_end, q, own)
     lunar = Mu.lunar_month(s[1], q.ayanamsa)
     masa = Mu.MASA.index(lunar.name)
     num = Mu.tithi_at(start + 1e-6, q.ayanamsa)
@@ -208,12 +241,16 @@ def _one(start: float, end: float, dv_end: float, q: EkadashiQuery) -> dict:
             "date": day[smarta],
             "asceticDate": day[ascetic] if ascetic is not None else None,
             "rule": s_rule,
+            "cautions": ["near_boundary"] if near["smarta"] else [],
+            "nearBoundaryDate": near["smarta"],
         },
         "vaishnava": {
             "date": day[vaishnava],
             "rule": v_rule,
             "arunodaya": iso(dawn, zone) if dawn is not None else None,
             "dashamiAtArunodaya": pierced,
+            "cautions": ["near_boundary"] if near["vaishnava"] else [],
+            "nearBoundaryDate": near["vaishnava"],
         },
         "differs": day[smarta] != day[vaishnava],
     } | (
@@ -370,6 +407,8 @@ def _full_or_new(start: float, end: float, _next_end: float, q: EkadashiQuery) -
         # A popular name only: the texts give the Buddha avatara other days (festivals.md
         # s26.2; decision 26, 15 Oct 2026).
         row["names"] = ["buddha"] if lunar["amanta"] == "vaishakha" and not lunar["adhika"] else []
+        if lunar["amanta"] == "ashwin" and not lunar["adhika"]:
+            row["kojagara"] = _kojagara(start, end, s, day, q)
     if num == 30:
         names = []
         if lunar["amanta"] == MAHALAYA_AMANTA and not lunar["adhika"]:
@@ -391,6 +430,50 @@ def _full_or_new(start: float, end: float, _next_end: float, q: EkadashiQuery) -
         for i in range(last + 1)
     ]
     return row
+
+
+def _night_parts(sunrise_jd: float, q: EkadashiQuery) -> tuple[tuple, tuple]:
+    """The night's pradosha (its first three of fifteen muhurtas) and nishitha (its middle
+    muhurta), as festivals._windows reckons them."""
+    ss = _sunset(sunrise_jd, q)
+    night = _rise_set(ss + 0.01, q.lat, q.lon, True) - ss
+    mid = ss + night / 2
+    return (ss, ss + 3 * night / 15), (mid - night / 30, mid + night / 30)
+
+
+def _kojagara_choice(at_pradosha: list[bool], at_nishitha: list[bool]) -> tuple[int, str, bool]:
+    """DS p. 74, NS p. 285: the first night when only it has the Purnima at nishitha, else the
+    second (at nishitha alone, on both nights, or on neither). Some say the second, when the
+    first has the Purnima at nishitha only and the second at pradosha only. (night, rule,
+    whether the some-say case holds)"""
+    if at_nishitha[0] and not at_nishitha[1]:
+        k, rule = 0, "kojagara_nishitha"
+    elif at_nishitha[1]:
+        k, rule = 1, "kojagara_nishitha_both_later" if at_nishitha[0] else "kojagara_nishitha"
+    else:
+        k, rule = 1, "kojagara_nishitha_neither_later"
+    some_say = at_nishitha[0] and not at_pradosha[0] and at_pradosha[1] and not at_nishitha[1]
+    return k, rule, some_say
+
+
+def _kojagara(start: float, end: float, s: list[float], day: list[str], q) -> dict:
+    """The Kojagara vigil of the Ashvina Purnima night (DS p. 74), beside the Purnima fast."""
+    parts = [_night_parts(s[i], q) for i in (0, 1)]
+    at_p = [_overlap(start, end, *p) > 0 for p, _ in parts]
+    at_n = [_overlap(start, end, *n) > 0 for _, n in parts]
+    k, rule, some_say = _kojagara_choice(at_p, at_n)
+    a, b = max(start, parts[k][1][0]), min(end, parts[k][1][1])  # nishitha within the Purnima
+    # That evening's moonrise for pages, the visible rise as _sankashti gives it (our convention)
+    rise, _ = moon_rise_set(s[k], s[k + 1], q.lat, q.lon, upper_limb=True)
+    return {
+        "date": day[k],
+        "vara": _vara(s[k], q),
+        "rule": rule,
+        "nishitha": {"start": iso(a, q.tz), "end": iso(b, q.tz)} if b > a else None,
+        "moonrise": iso(rise, q.tz) if rise is not None else None,
+        "variantDate": day[1] if some_say else None,
+        "variantRule": "kojagara_some_say" if some_say else None,
+    }
 
 
 def _kutapa_choice(spans: list[tuple], kshaya: bool) -> tuple[int, str]:

@@ -501,6 +501,12 @@ OBSERVANCE_RULES = {
         "later_day": ("The later day, joined to the next Pratipada; never the day joined to Chaturdashi (Brahma-vaivarta). The Savitri vrata keeps the earlier day", "Nirṇaya-sindhu p. 73"),
         "only_day": ("The tithi touches no sunrise: its only day", "Nirṇaya-sindhu p. 73"),
     },
+    "kojagara": {
+        "kojagara_nishitha": ("Kojagara is kept on the night whose nishitha, the middle muhurta of the night, falls in the Purnima.", "Dharmasindhu p. 74; Nirṇaya-sindhu p. 285"),
+        "kojagara_nishitha_both_later": ("When the Purnima covers nishitha on both nights, the later night is kept.", "Dharmasindhu p. 74; Nirṇaya-sindhu p. 285"),
+        "kojagara_nishitha_neither_later": ("When the Purnima covers nishitha on neither night, the later night is kept.", "Dharmasindhu p. 74; Nirṇaya-sindhu p. 285"),
+        "kojagara_some_say": ("Some keep the later night when the Purnima covers only the earlier night's nishitha and only the later night's pradosha.", "Dharmasindhu p. 74"),
+    },
     "shraddha": {
         "aparahna": ("The Amavasya touches the aparahna (the last third of the daytime) of one day: that day", "Nirṇaya-sindhu pp. 81, 87"),
         "aparahna_both_kutapa": ("It touches both afternoons: the day whose kutapa (the 8th of the 15 day muhurtas) it covers (Mādhava)", "Nirṇaya-sindhu p. 87"),
@@ -635,6 +641,7 @@ FESTIVAL_RULES = {
         "dhanteras_neither_later": ("The Trayodashi at pradosha on neither day: the later day", "Dharmasindhu p. 20"),
         "naraka_moonrise": ("Naraka-caturdashi: the Caturdashi current at the pre-dawn moonrise", "Dharmasindhu p. 76; Nirṇaya-sindhu p. 294"),
         "naraka_moonrise_both_earlier": ("The Caturdashi at moonrise on both days: the earlier", "Dharmasindhu p. 76; Nirṇaya-sindhu p. 295"),
+        "naraka_lamps_divodasiya": ("With the bath on the second day, the Divodāsīya gives the lamps at the earlier evening's pradosha, while the Caturdashi is current.", "Nirṇaya-sindhu p. 297"),
         "naraka_began_before_sunrise": ("At moonrise on neither day, beginning between the first day's moonrise and sunrise: that dawn, from its start to sunrise", "Dharmasindhu pp. 76–77"),
         "naraka_later_moonrise": ("At moonrise on neither day otherwise: the second day, at moonrise", "Dharmasindhu p. 77"),
         "govardhan_nine_muhurtas": ("Govardhana-puja and Bali-pratipada: the Pratipada at sunrise lasting nine muhurtas or more after it puts every rite on that day (ten in the text; nine to ten our reading)", "Dharmasindhu p. 78"),
@@ -1089,6 +1096,7 @@ FESTIVAL_CAUTIONS = {
     "adhika_month": "The day in the first (adhika) Caitra of this year; popular practice",
     "saptami": "Kept on the Saptami in some regions and families; popular practice",
     "rajasthan_weekday": "In Rajasthan the worship moves off a Sunday, Tuesday or Saturday; popular practice",
+    "near_boundary": "A close call: had the tithi begun or ended five minutes differently, the rule would give this day.",
 }
 SANKASHTI_NOTE = (
     "Krishna paksha, by common practice; the texts read do not state the fortnight. Moonrise "

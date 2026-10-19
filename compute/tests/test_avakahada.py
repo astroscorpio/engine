@@ -17,7 +17,7 @@ def test_chakra_has_112_distinct_cells_with_abhijit_in_uttara_ashadha():
     abhijit = [k for k, c in A.TABLE.items() if c.abhijit]
     assert sorted(abhijit) == [("j", "e"), ("j", "o"), ("j", "u"), ("kh", "a")]
     assert all(A.TABLE[k].nakshatra == "uttara_ashadha" and A.TABLE[k].pada == 4 for k in abhijit)
-    assert A.CHAKRA[5]["padas"][2] == {"pada": 3, "syllable": "ṅa", "devanagari": "ङ"}
+    assert A.CHAKRA[5]["padas"][2] == {"pada": 3, "syllable": "ṅā", "devanagari": "ङा"}
     singles = {"gh", "ng", "ch", "ss", "nn", "tth", "dh", "ph", "ddh", "th", "jh", "ny"}
     assert set(A.SINGLE) == singles
 
@@ -28,7 +28,7 @@ def test_the_texts_own_examples():
     # AC p. 25: Riddhinatha is Chitra (pada 3); AC p. 26: Amaranatha and
     # Adityaprasada are both Krittika 1.
     out = A.lookup("प्रद्युम्न")
-    assert (out["nakshatra"], out["pada"], out["syllable"]) == ("uttara_phalguni", 3, "pa")
+    assert (out["nakshatra"], out["pada"], out["syllable"]) == ("uttara_phalguni", 3, "pā")
     assert out["rules"] == ["conjunct_first_letter"] and out["exact"]
     assert at("प्रियवचन") == ("uttara_phalguni", 4)
     assert at("द्रुपद") == ("uttara_bhadrapada", 1)
@@ -101,7 +101,7 @@ def test_latin_spellings_list_the_other_readings():
     assert (out["nakshatra"], out["pada"], out["syllable"]) == ("purva_bhadrapada", 4, "di")
     assert out["alternatives"] == [
         {
-            "syllable": "ḍi",
+            "syllable": "ḍī",
             "devanagari": "डी",
             "nakshatra": "ashlesha",
             "pada": 1,
@@ -199,3 +199,43 @@ def test_unreadable_name_is_a_422_naming_the_field():
     # Without basis "name" a lone name is an incomplete chart input, never a silent name match.
     status, out = call("POST", "/v1/matching", body={"bride": {"name": "Priya"}, "groom": EXAMPLE})
     assert status == 400 and out["error"]["field"] == "bride.date"
+
+
+# research's avakahada.md v3: the ten cells corrected to the printed chakra,
+# (star, pada) -> the old Devanagari
+CORRECTED = {
+    ("rohini", 2): "वा", ("ardra", 3): "ङ", ("magha", 3): "मू",
+    ("uttara_phalguni", 4): "पी", ("hasta", 2): "ष", ("anuradha", 1): "ना",
+    ("purva_bhadrapada", 3): "दा", ("purva_bhadrapada", 4): "दी",
+    ("uttara_bhadrapada", 1): "दू", ("uttara_bhadrapada", 2): "थ",
+}  # fmt: skip
+# The 28 rows as research reads the printing, Ashvini to Revati with Abhijit.
+PRINTED = [
+    "cū ce co lā", "lī lū le lo", "a ī ū e", "o va vī vū", "ve vo kā kī",
+    "kū gha ṅā chā", "ke ko hā hī", "hū he ho ḍā", "ḍī ḍū ḍe ḍo", "mā mī mu me",
+    "mo ṭā ṭī ṭū", "ṭe ṭo pā pi", "pū ṣā ṇā ṭhā", "pe po rā rī", "rū re ro tā",
+    "tī tū te to", "na nī nū ne", "no yā yī yū", "ye yo bhā bhī", "bhū dhā phā ḍhā",
+    "bhe bho jā jī", "jū je jo khā", "khī khū khe kho", "gā gī gū ge", "go sā sī sū",
+    "se so da di", "du thā jha ña", "de do cā cī",
+]  # fmt: skip
+
+
+def test_printed_devanagari_changes_no_key_and_no_lookup():
+    """All 112 cells: the cell's Devanagari, before and after the correction, reads to the
+    cell's own length-free key, and a name spelled either way gets the same answer."""
+    seen = 0
+    for row, (star, codes, _) in zip(A.CHAKRA, A._ROWS, strict=True):
+        assert row["star"] == star
+        for cell, code in zip(row["padas"], codes.split(), strict=True):
+            new = cell["devanagari"]
+            old = CORRECTED.get((star, cell["pada"]), new)
+            key = tuple(code.split("-"))
+            assert A._parse(old).readings == A._parse(new).readings == [(*key, False)]
+            assert {**A.lookup(old), "nameUsed": None} == {**A.lookup(new), "nameUsed": None}
+            seen += 1
+    assert seen == len(A.TABLE) == 112 and len(CORRECTED) == 10
+
+
+def test_display_iast_is_the_devanagari_letter_for_letter():
+    assert [" ".join(p["syllable"] for p in row["padas"]) for row in A.CHAKRA] == PRINTED
+    assert all(cell.syllable == A.display(cell.devanagari) for cell in A.TABLE.values())

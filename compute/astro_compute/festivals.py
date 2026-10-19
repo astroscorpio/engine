@@ -166,6 +166,18 @@ def _dipavali(start: float, end: float, _next: float, q: EkadashiQuery) -> dict 
         chosen, rule = 1, "neither_later"
     chaturdashi = _edge(start, q, False)  # its start; it ends where the Amavasya begins
     trayodashi = (_edge(chaturdashi, q, False), chaturdashi)
+    naraka = _naraka(chaturdashi, start, q)
+    # Decision 42 (18 Oct 2026): the row on the eve of the Lakshmi Puja, the lamps evening or
+    # the bath day, if either falls there.
+    eve = (dt.date.fromisoformat(days[chosen]["date"]) - dt.timedelta(1)).isoformat()
+    lamps = naraka["lampsVariant"]
+    eve_row = (
+        "lampsVariant"
+        if lamps and lamps["date"] == eve
+        else "narakaChaturdashi"
+        if naraka["date"] == eve
+        else None
+    )
     return {
         **base,
         "days": _strip(days),
@@ -174,9 +186,10 @@ def _dipavali(start: float, end: float, _next: float, q: EkadashiQuery) -> dict 
         "rule": rule,
         "lakshmiPuja": _span(_clip(start, end, days[chosen]["_w"]["pradosha"]), q),
         "nishithaCovered": days[chosen]["nishitha"]["covered"] > 0,
+        "eveRow": eve_row,
         "set": {
             "dhanteras": _dhanteras(*trayodashi, q),
-            "narakaChaturdashi": _naraka(chaturdashi, start, q),
+            "narakaChaturdashi": naraka,
             "lakshmiPuja": {"date": days[chosen]["date"], "vara": days[chosen]["vara"]},
             "govardhan": _govardhan(end, _next, q),
             "bhaiDooj": _bhai_dooj(_next, _edge(_next, q, True), q),
@@ -250,6 +263,19 @@ def _naraka(start: float, end: float, q) -> dict:
         bath = (m[1] if m[1] is not None else s[2] - ARUNODAYA, s[2])
     rise = s[1 + chosen]
     day = {"date": _date(rise, q), "vara": _vara(rise, q)}
+    # NS p. 297 (the Divodasiya): with the bath on the Caturdashi's second day, the lamps may be
+    # given at the first day's pradosha while the Caturdashi is current then.
+    early = _clip(start, end, _windows(s[0], q)["pradosha"]) if chosen == 0 else None
+    lamps_variant = (
+        {
+            "date": _date(s[0], q),
+            "vara": _vara(s[0], q),
+            "rule": "naraka_lamps_divodasiya",
+            "pradosha": _span(early, q),
+        }
+        if early
+        else None
+    )
     return {
         **day,
         "rule": rule,
@@ -258,6 +284,7 @@ def _naraka(start: float, end: float, q) -> dict:
         "abhyangaSnana": _span(bath, q),
         "arunodaya": _span((rise - ARUNODAYA, rise), q),
         "lamps": _span(_windows(rise, q)["pradosha"], q),
+        "lampsVariant": lamps_variant,
     }
 
 
@@ -892,6 +919,8 @@ def _tulsi(start: float, end: float, _next: float, q: EkadashiQuery) -> dict | N
     dates = [_date(t, q) for t in s]
     smarta = dates.index(row["smarta"]["date"]) + 1
     vaishnava = dates.index(row["vaishnava"]["date"]) + 1
+    other = row["smarta"]["nearBoundaryDate"]
+    near = (dt.date.fromisoformat(other) + dt.timedelta(1)).isoformat() if other else None
     return {
         "lunarMonth": month,
         "tithi": row["tithi"],
@@ -901,6 +930,8 @@ def _tulsi(start: float, end: float, _next: float, q: EkadashiQuery) -> dict | N
         "rule": "parana_day_early_night",
         "variantDate": dates[vaishnava] if vaishnava != smarta else None,
         "window": _span(_windows(s[smarta], q)["pradosha"], q),
+        "cautions": ["near_boundary"] if near else [],
+        "nearBoundaryDate": near,
     }
 
 

@@ -34,16 +34,16 @@ from dataclasses import dataclass, field
 
 from .ids import NAKSHATRA_IDS
 
-SOURCE = "MM vv. 54–55, pp. 104–106; Sītārāma Jhā 1932 pp. 22–26"
+SOURCE = "MM vv. 54–55, pp. 104–106; Avakahaḍā-cakram pp. 22–26"
 ABHIJIT = ("uttara_ashadha", 4)
 RULES = {
-    "conjunct_first_letter": "MM v.55, commentary p. 106",
-    "vowel_pairs": "Sītārāma Jhā 1932 p. 26",
-    "equivalent_letters": "MM v.55, commentary p. 106; Sītārāma Jhā 1932 p. 26",
-    "nasal_read_as": "MM v.55, commentary p. 106",
-    "r_vowel_as_ra": "Sītārāma Jhā 1932 p. 25",
+    "conjunct_first_letter": "MM v. 55, commentary p. 106",
+    "vowel_pairs": "Avakahaḍā-cakram p. 26",
+    "equivalent_letters": "MM v. 55, commentary p. 106; Avakahaḍā-cakram p. 26",
+    "nasal_read_as": "MM v. 55, commentary p. 106",
+    "r_vowel_as_ra": "Avakahaḍā-cakram p. 25",
     "abhijit_as_uttara_ashadha": "MC 6.52, p. 275",
-    "r_in_syllable_as_ra": "our reading of Sītārāma Jhā 1932 p. 25 with MM v.55",
+    "r_in_syllable_as_ra": "our reading of Avakahaḍā-cakram p. 25 with MM v. 55, p. 106",
     "single_cell_consonant": "our reading; no text read states it",
 }
 OUR_READINGS = {"r_in_syllable_as_ra", "single_cell_consonant"}
@@ -54,20 +54,20 @@ _ROWS = [
     ("ashwini", "c-u c-e c-o l-a", "चू चे चो ला"),
     ("bharani", "l-i l-u l-e l-o", "ली लू ले लो"),
     ("krittika", "-a -i -u -e", "अ ई ऊ ए"),
-    ("rohini", "-o v-a v-i v-u", "ओ वा वी वू"),
+    ("rohini", "-o v-a v-i v-u", "ओ व वी वू"),
     ("mrigashira", "v-e v-o k-a k-i", "वे वो का की"),
-    ("ardra", "k-u gh-a ng-a ch-a", "कू घ ङ छा"),
+    ("ardra", "k-u gh-a ng-a ch-a", "कू घ ङा छा"),
     ("punarvasu", "k-e k-o h-a h-i", "के को हा ही"),
     ("pushya", "h-u h-e h-o dd-a", "हू हे हो डा"),
     ("ashlesha", "dd-i dd-u dd-e dd-o", "डी डू डे डो"),
-    ("magha", "m-a m-i m-u m-e", "मा मी मू मे"),
+    ("magha", "m-a m-i m-u m-e", "मा मी मु मे"),
     ("purva_phalguni", "m-o tt-a tt-i tt-u", "मो टा टी टू"),
-    ("uttara_phalguni", "tt-e tt-o p-a p-i", "टे टो पा पी"),
-    ("hasta", "p-u ss-a nn-a tth-a", "पू ष णा ठा"),
+    ("uttara_phalguni", "tt-e tt-o p-a p-i", "टे टो पा पि"),
+    ("hasta", "p-u ss-a nn-a tth-a", "पू षा णा ठा"),
     ("chitra", "p-e p-o r-a r-i", "पे पो रा री"),
     ("swati", "r-u r-e r-o t-a", "रू रे रो ता"),
     ("vishakha", "t-i t-u t-e t-o", "ती तू ते तो"),
-    ("anuradha", "n-a n-i n-u n-e", "ना नी नू ने"),
+    ("anuradha", "n-a n-i n-u n-e", "न नी नू ने"),
     ("jyeshtha", "n-o y-a y-i y-u", "नो या यी यू"),
     ("mula", "y-e y-o bh-a bh-i", "ये यो भा भी"),
     ("purva_ashadha", "bh-u dh-a ph-a ddh-a", "भू धा फा ढा"),
@@ -76,8 +76,8 @@ _ROWS = [
     ("shravana", "kh-i kh-u kh-e kh-o", "खी खू खे खो"),
     ("dhanishta", "g-a g-i g-u g-e", "गा गी गू गे"),
     ("shatabhisha", "g-o s-a s-i s-u", "गो सा सी सू"),
-    ("purva_bhadrapada", "s-e s-o d-a d-i", "से सो दा दी"),
-    ("uttara_bhadrapada", "d-u th-a jh-a ny-a", "दू थ झ ञ"),
+    ("purva_bhadrapada", "s-e s-o d-a d-i", "से सो द दि"),
+    ("uttara_bhadrapada", "d-u th-a jh-a ny-a", "दु था झ ञ"),
     ("revati", "d-e d-o c-a c-i", "दे दो चा ची"),
 ]
 _IAST = {
@@ -90,11 +90,31 @@ def iast(consonant: str, vowel: str) -> str:
     return _IAST.get(consonant, consonant) + {"ri": "ṛ"}.get(vowel, vowel)
 
 
+# A cell's display IAST, read from its Devanagari letter for letter (research's
+# avakahada.md v3): vowel length, the retroflex and nasal letters, c and ch, as
+# printed. Matching keeps the length-free codes above.
+_DEVA_IAST_CONSONANT = {
+    "क": "k", "ख": "kh", "ग": "g", "घ": "gh", "ङ": "ṅ", "च": "c", "छ": "ch", "ज": "j", "झ": "jh",
+    "ञ": "ñ", "ट": "ṭ", "ठ": "ṭh", "ड": "ḍ", "ढ": "ḍh", "ण": "ṇ", "त": "t", "थ": "th", "द": "d",
+    "ध": "dh", "न": "n", "प": "p", "फ": "ph", "भ": "bh", "म": "m", "य": "y", "र": "r", "ल": "l",
+    "व": "v", "ष": "ṣ", "स": "s", "ह": "h",
+}  # fmt: skip
+_DEVA_IAST_SIGN = {"": "a", "ा": "ā", "ि": "i", "ी": "ī", "ु": "u", "ू": "ū", "े": "e", "ो": "o"}
+_DEVA_IAST_VOWEL = {"अ": "a", "ई": "ī", "ऊ": "ū", "ए": "e", "ओ": "o"}
+
+
+def display(deva: str) -> str:
+    """A chakra cell's IAST, from its Devanagari: "ङा" -> "ṅā"."""
+    if deva in _DEVA_IAST_VOWEL:
+        return _DEVA_IAST_VOWEL[deva]
+    return _DEVA_IAST_CONSONANT[deva[0]] + _DEVA_IAST_SIGN[deva[1:]]
+
+
 @dataclass(frozen=True)
 class Cell:
     nakshatra: str
     pada: int
-    syllable: str  # IAST
+    syllable: str  # IAST, letter for letter from the Devanagari
     devanagari: str
     abhijit: bool
 
@@ -107,7 +127,7 @@ for _star, _codes, _deva in _ROWS:
         {
             "star": _star,
             "padas": [
-                {"pada": i + 1, "syllable": iast(*code.split("-")), "devanagari": dv}
+                {"pada": i + 1, "syllable": display(dv), "devanagari": dv}
                 for i, (code, dv) in enumerate(_cells)
             ],
         }
@@ -115,7 +135,7 @@ for _star, _codes, _deva in _ROWS:
     for _i, (_code, _dv) in enumerate(_cells):
         _key = tuple(_code.split("-"))
         _nak, _pada = ABHIJIT if _star == "abhijit" else (_star, _i + 1)
-        TABLE[_key] = Cell(_nak, _pada, iast(*_key), _dv, _star == "abhijit")
+        TABLE[_key] = Cell(_nak, _pada, display(_dv), _dv, _star == "abhijit")
 assert len(TABLE) == 4 * len(_ROWS) == 112, "two chakra cells share a syllable"
 assert all(star in NAKSHATRA_IDS or star == "abhijit" for star, _, _ in _ROWS)
 
