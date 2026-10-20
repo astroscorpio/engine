@@ -209,6 +209,13 @@ def luminaries(jd_ut: float, ayanamsa: str = "lahiri") -> tuple[Position, Positi
     return Position("Sun", s[0] % 360, s[3], s[1]), Position("Moon", m[0] % 360, m[3], m[1])
 
 
+def moon_longitude(jd_ut: float, ayanamsa: str = "lahiri") -> float:
+    """The Moon's longitude alone, computed exactly as luminaries() computes it, for the
+    scans that read nothing else: one swisseph call instead of two."""
+    flags = _flags(set_ayanamsa(ayanamsa))
+    return swe.calc_ut(jd_ut, swe.MOON, flags)[0][0] % 360
+
+
 SUN_RADIUS_KM, MOON_RADIUS_KM, AU_KM = 695_700.0, 1_737.4, 149_597_870.7
 
 

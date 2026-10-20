@@ -25,7 +25,7 @@ import re
 
 import swisseph as swe
 from jyotisha import muhurta as Mu
-from jyotisha.ephemeris import luminaries, positions
+from jyotisha.ephemeris import luminaries, moon_longitude, positions
 from jyotisha.rare import (
     ABHIJIT,
     AMRITA_SIDDHI,
@@ -153,13 +153,19 @@ def _details(rules: dict) -> tuple[list[str], list[dict]]:
 def _month(jd: float, ay: str, cache: dict) -> tuple[str, bool, bool, float]:
     """(name, adhika, kshaya, month start) of the amanta month holding jd. A month with
     two solar ingresses is kshaya; MC and DS bar it and the adhika months around it,
-    which are adhika anyway."""
+    which are adhika anyway. A jd inside a month already found reads that month, so a
+    year's tithis search for each new moon once rather than once a tithi."""
+    found = cache.setdefault("found", [])
+    for start, end, key in found:
+        if start <= jd < end:
+            return cache[key]
     lm = Mu.lunar_month(jd, ay)
     key = round(lm.start, 4)
     if key not in cache:
         a = positions(lm.start, ay)["Sun"].sign
         b = positions(lm.end, ay)["Sun"].sign
         cache[key] = (lm.name, lm.adhika, (b - a) % 12 == 2, lm.start)
+    found.append((lm.start, lm.end, key))
     return cache[key]
 
 
@@ -227,9 +233,7 @@ class _Year:
         edges = _edges(q)
         self.tithis = [(a, b, n) for (a, n), (b, _) in zip(edges, edges[1:], strict=False)]
         y0, y1 = self.tithis[0][0], self.tithis[-1][1]
-        self.moon_pada = _spans(
-            lambda t: int(luminaries(t, ay)[1].longitude // (360 / 108)), y0, y1, 1 / 12
-        )
+        self.moon_pada = _spans(lambda t: int(moon_longitude(t, ay) // (360 / 108)), y0, y1, 1 / 12)
         self.sun_sign = _spans(lambda t: luminaries(t, ay)[0].sign, lo, hi, 1.0)
         self.jupiter = _spans(lambda t: positions(t, ay)["Jupiter"].sign, lo, hi, 2.0)
         months: dict = {}
