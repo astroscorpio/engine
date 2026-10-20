@@ -48,6 +48,7 @@ from .observances import (
     _sunrises,
     _sunset,
     _vara,
+    ekadashi,
 )
 from .sankranti import _one as _sankranti_one
 from .timeutil import aware, iso, local_jd
@@ -2232,6 +2233,76 @@ def _lohri(q: EkadashiQuery) -> tuple[list[dict], dict]:
     return [row], {"computedAt": AMRITSAR}
 
 
+# --- Vaikuntha Ekadashi (festivals.md s37, the lead's rulings of 19 Oct 2026) ---------------
+
+
+@lru_cache(maxsize=64)
+def _ekadashi_year(year: int, lat: float, lon: float, tz: str, ay: str, parana: bool) -> tuple:
+    """A year's /ekadashi rows at a place, kept for the seasons and requests that share it."""
+    q = EkadashiQuery(year=year, lat=lat, lon=lon, tz=tz, ayanamsa=ay, parana=parana)
+    return tuple(ekadashi(q)["ekadashis"])
+
+
+def _instant(stamp: str) -> int:
+    """An ISO time in whole minutes, to match one tithi across places."""
+    return round(dt.datetime.fromisoformat(stamp).timestamp() / 60)
+
+
+@lru_cache(maxsize=32)
+def _vaikuntha_season(season: int, ay: str) -> tuple | None:
+    """At Chennai, for the Margazhi that begins in December of `season`: (the chosen Ekadashi's
+    tithi start, its leading day there, Margazhi's first and last days), or None when no shukla
+    Ekadashi's leading day falls in it."""
+    c = EkadashiQuery(
+        year=season, lat=CHENNAI["lat"], lon=CHENNAI["lon"], tz=CHENNAI["tz"], ayanamsa=ay
+    )
+    t0 = local_jd(dt.date(season, 12, 1), 0.0, c.tz, "year")
+    first = _tamil_month_start(_ingress(SAGITTARIUS, t0, t0 + 31, c), c)
+    thai = _tamil_month_start(_ingress(CAPRICORN, first + 25, first + 35, c), c)
+    start, end = _date(first, c), _date(thai, c)
+    for year in (season, season + 1):
+        for r in _ekadashi_year(year, c.lat, c.lon, c.tz, ay, False):
+            if r["paksha"] == "shukla" and start <= r["smarta"]["date"] < end:
+                return r["tithi"]["start"], r["smarta"]["date"], start, _date(thai - 1, c)
+    return None
+
+
+def _vaikuntha(q: EkadashiQuery) -> tuple[list[dict], dict]:
+    """s37 (the lead's rulings, 19 Oct 2026): the shukla Ekadashi whose leading day, the
+    Smarta-side day /ekadashi leads with, falls in Margazhi by the Tamil Rule, chosen at Chennai
+    for every city. Each city's occurrence is that Ekadashi's own /ekadashi row there, with the
+    Vaishnava day as its variant where it differs. Popular practice; a civil year holds none, one
+    or two."""
+    chosen = {}
+    for season in (q.year - 1, q.year):
+        found = _vaikuntha_season(season, q.ayanamsa)
+        if found:
+            chosen[_instant(found[0])] = (season, *found[1:])
+    rows = []
+    for r in _ekadashi_year(q.year, q.lat, q.lon, q.tz, q.ayanamsa, q.parana):
+        hit = chosen.get(_instant(r["tithi"]["start"]))
+        lead, other = r["smarta"], r["vaishnava"]
+        if hit is None or lead["date"][:4] != str(q.year):
+            continue
+        season, chennai, first, last = hit
+        rows.append(
+            {
+                **copy.deepcopy(r),
+                "date": lead["date"],
+                "vara": WEEKDAYS[dt.date.fromisoformat(lead["date"]).weekday()],
+                "rule": "margazhi_leading_day",
+                "variantDate": other["date"] if r["differs"] else None,
+                "variantBasis": "vaishnava" if r["differs"] else None,
+                "cautions": list(lead["cautions"]),
+                "nearBoundaryDate": lead["nearBoundaryDate"],
+                "season": season,
+                "margazhi": {"start": first, "end": last},
+                "chennaiDate": chennai,
+            }
+        )
+    return rows, {"computedAt": CHENNAI}
+
+
 # --- The Mesha new year and Gangaur (festivals.md s30-31, decisions 33-34, 16 Oct 2026) ---
 
 KOCHI = {"name": "Kochi", "lat": 9.9312, "lon": 76.2673, "tz": "Asia/Kolkata"}
@@ -2929,6 +3000,7 @@ FESTIVALS = {
     # Decisions 36-38: popular practice; cheti-chand at Ahmedabad for every city.
     "rang-panchami": (20, _rang_panchami, None, None),
     "cheti-chand": (None, None, None, None),
+    "vaikuntha-ekadashi": (None, None, None, None),
     "sheetala-ashtami": (23, _sheetala, None, None),
     "magha-snana": (None, None, "pp. 318–326, 330, 333", "pp. 4, 6, 86–88"),
     # Decisions 44-45 (s35-36): popular practice, per city.
@@ -2952,6 +3024,7 @@ POPULAR = {
     "sheetala-ashtami",
     "kali-puja",
     "ahoi-ashtami",
+    "vaikuntha-ekadashi",
 }
 # Computed at one regional place for every city (decisions 31-33): once per year and ayanamsa.
 ONE_PLACE = {
@@ -2975,6 +3048,7 @@ YEARLY = {
     "baisakhi": _baisakhi,
     "cheti-chand": _cheti_chand,
     "magha-snana": _magha_snana,
+    "vaikuntha-ekadashi": _vaikuntha,
 }
 KALA_SANKALITA = {
     "text": "Kala Sankalita",
@@ -3007,6 +3081,17 @@ KRTYARATNAKARA = {
 }
 # Texts that touch the day without giving it (s27): shown as context, never as source.
 CONTEXT = {
+    "vaikuntha-ekadashi": [
+        {
+            "text": "An Indian Ephemeris, A.D. 700 to A.D. 1799",
+            "author": "L. D. Swamikannu Pillai",
+            "edition": "L. D. Swamikannu Pillai, Vol. 1, part 1, Government Press, Madras, 1922",
+            "verse": "Putrada, Mukkoti or Vaikuntha Ekadasi, under Pausha shukla 11",
+            "page": "64",
+        },
+        SEWELL_DIKSHIT,
+        SOURCE,
+    ],
     "chhath": [
         {**DS, "verse": "Surya-shashthi of Bhadrapada", "page": "55"},
         {**KRTYARATNAKARA, "verse": "the dark-Shashthi Sun vow (Bhaviṣya)", "page": "447–448"},
