@@ -28,7 +28,17 @@ from .festivals import _date, _spans
 from .fmt import provenance
 from .ids import tithi_id
 from .models import EkadashiQuery
-from .observances import SOURCE, _edges, _lunar, _overlap, _shraddha, _sunrises, _sunset, _vara
+from .observances import (
+    SOURCE,
+    _edges,
+    _lunar,
+    _near_call,
+    _overlap,
+    _shraddha,
+    _sunrises,
+    _sunset,
+    _vara,
+)
 from .timeutil import iso
 
 WINDOWS = {"aparahna": (9, 12), "kutapaRauhina": (7, 9), "sangava": (3, 6)}
@@ -168,7 +178,12 @@ def pitru_paksha(q: EkadashiQuery) -> dict:
                 break
         else:
             raise unsupported_location("no Mahalaya fortnight in this year's range")
-        rows = [_row(edges[k][0], edges[k + 1][0], edges[k][1], q) for k in range(i, i + 15)]
+        rows = [
+            _near_call(
+                lambda a, b, qq, n=edges[k][1]: _row(a, b, n, qq), edges[k][0], edges[k + 1][0], q
+            )
+            for k in range(i, i + 15)
+        ]
         first, last = edges[i][0], edges[i + 15][0]
         span = _sunrises(first, q.lat, q.lon, 18)
         days = [t for t in span if t < last] + [next(t for t in span if t >= last)]

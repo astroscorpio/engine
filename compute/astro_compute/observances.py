@@ -32,6 +32,7 @@ Ekadashi touches no sunrise), as research reads NS pp. 59-62.
 
 from __future__ import annotations
 
+import contextvars
 import datetime as dt
 
 from jyotisha import muhurta as Mu
@@ -200,6 +201,71 @@ def _near_boundary(start: float, end: float, dv_end: float, q: EkadashiQuery, ow
         other["smarta"].add(day[smarta])
         other["vaishnava"].add(day[vaishnava])
     return {k: min(v - {own[k]}, default=None) for k, v in other.items()}
+
+
+# Decision 43 for every kind (the lead, 19 Oct 2026). WEEKDAYS is in date.weekday() order.
+WEEKDAYS = ("monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday")
+MARGINS = {"ghatika_margin", "tithi_ghatika_margin"}  # one-ghatika margins a record may show
+_RERUN = contextvars.ContextVar("near_rerun", default=False)
+
+
+def _record(row: dict | None, path: tuple) -> dict | None:
+    for key in path:
+        row = row.get(key) if isinstance(row, dict) else None
+    return row if isinstance(row, dict) else None
+
+
+def _margin_days(r: dict) -> set:
+    days = {v["date"] for v in r.get("variants", []) if v["reason"] in MARGINS}
+    if "ghatika_margin" in r.get("cautions", []):  # Chhath: variantDate is its margin day
+        days.add(r.get("variantDate"))
+    return days
+
+
+def _near_rerun(build, paths: tuple = ((),)):
+    """The kind's own rule rerun with the tithi's start or end moved by five minutes, four
+    ways. Another day one of them gives, on a record at one of paths, is its nearBoundaryDate,
+    with "near_boundary" in its cautions (and its variants, where it lists them); a day a
+    one-ghatika margin already shows is left to the margin. Records that work their own
+    caution out keep it, and a rerun never reruns."""
+
+    def wrapped(start: float, end: float, nxt: float, q: EkadashiQuery) -> dict | None:
+        row = build(start, end, nxt, q)
+        todo = [
+            p
+            for p in paths
+            if (r := _record(row, p)) and r.get("date") and "nearBoundaryDate" not in r
+        ]
+        if _RERUN.get() or not todo:
+            return row
+        n = NEAR_BOUNDARY
+        token = _RERUN.set(True)
+        try:
+            moved = ((start - n, end), (start + n, end), (start, end - n), (start, end + n))
+            alts = [build(a, b, nxt, q) for a, b in moved]
+        finally:
+            _RERUN.reset(token)
+        for p in todo:
+            r = _record(row, p)
+            days = {(_record(alt, p) or {}).get("date") for alt in alts} - {None, r["date"]}
+            days -= _margin_days(r)
+            r["nearBoundaryDate"] = min(days) if days else None
+            if days:
+                r["cautions"] = [*r.get("cautions", []), "near_boundary"]
+                if "variants" in r:
+                    d = r["nearBoundaryDate"]
+                    vara = WEEKDAYS[dt.date.fromisoformat(d).weekday()]
+                    r["variants"].append({"date": d, "vara": vara, "reason": "near_boundary"})
+                    r["variantDate"] = r.get("variantDate") or d
+        return row
+
+    return wrapped
+
+
+def _near_call(fn, start: float, end: float, q: EkadashiQuery) -> dict:
+    """_near_rerun for a day built from its own tithi alone (the Dipavali set, the
+    Pitru-paksha days)."""
+    return _near_rerun(lambda a, b, _n, qq: fn(a, b, qq))(start, end, 0.0, q)
 
 
 def _one(start: float, end: float, dv_end: float, q: EkadashiQuery) -> dict:
@@ -661,22 +727,24 @@ def _sankashti(start: float, end: float, _next_end: float, q: EkadashiQuery) -> 
 
 
 def sankashti(q: EkadashiQuery) -> dict:
-    rows = _collect(q, {19}, _sankashti, lambda r: (r["date"],))
+    rows = _collect(q, {19}, _near_rerun(_sankashti), lambda r: (r["date"],))
     source = {**SOURCE, "verse": "Sankashta-chaturthi", "page": "47"}
     return {"year": q.year, "occurrences": rows, "source": source, "engine": provenance(q.ayanamsa)}
 
 
 def purnima(q: EkadashiQuery) -> dict:
-    rows = _collect(q, {15}, _full_or_new, lambda r: (r["vrata"]["date"],))
+    near = _near_rerun(_full_or_new, (("vrata",), ("kojagara",)))
+    rows = _collect(q, {15}, near, lambda r: (r["vrata"]["date"],))
     return {"year": q.year, "occurrences": rows, "source": NS_73, "engine": provenance(q.ayanamsa)}
 
 
 def amavasya(q: EkadashiQuery) -> dict:
-    rows = _collect(q, {30}, _full_or_new, lambda r: (r["vrata"]["date"], r["shraddha"]["date"]))
+    near = _near_rerun(_full_or_new, (("vrata",), ("shraddha",)))
+    rows = _collect(q, {30}, near, lambda r: (r["vrata"]["date"], r["shraddha"]["date"]))
     return {"year": q.year, "occurrences": rows, "source": NS_73, "engine": provenance(q.ayanamsa)}
 
 
 def pradosha(q: EkadashiQuery) -> dict:
-    rows = _collect(q, {13, 28}, _pradosha, lambda r: (r["date"],))
+    rows = _collect(q, {13, 28}, _near_rerun(_pradosha), lambda r: (r["date"],))
     source = {**SOURCE, "verse": "Pradosha-vrata (footnote, Brahmottara-khaṇḍa)", "page": "72"}
     return {"year": q.year, "occurrences": rows, "source": source, "engine": provenance(q.ayanamsa)}

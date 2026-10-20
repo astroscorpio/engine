@@ -1,0 +1,70 @@
+"""Decision 43 for every kind (the lead, 19 Oct 2026): each kind's own rule rerun with the tithi's
+start or end moved by five minutes, four ways, the other day on the record whose day moved. No date
+is written here."""
+
+from conftest import call
+
+from astro_compute import observances as O
+
+DELHI = {"year": "2026", "lat": "28.65195", "lon": "77.23149", "tz": "Asia/Kolkata"}
+LUCKNOW = {"year": "2026", "lat": "26.83928", "lon": "80.92313", "tz": "Asia/Kolkata"}
+EDGE = 10.0  # a rule's boundary: a tithi ending after it gives day "a", else "b"
+
+
+def rule(start: float, end: float, _next: float, _q) -> dict:
+    return {"date": "a" if end > EDGE else "b", "cautions": []}
+
+
+def test_a_five_minute_move_gives_the_other_day():
+    near = O._near_rerun(rule)
+    row = near(9.0, EDGE + 2 / 1440, 11.0, None)
+    assert (row["date"], row["nearBoundaryDate"], row["cautions"]) == ("a", "b", ["near_boundary"])
+    row = near(9.0, EDGE + 30 / 1440, 11.0, None)
+    assert (row["nearBoundaryDate"], row["cautions"]) == (None, [])
+
+
+def test_a_margin_day_stays_with_its_margin():
+    """A day the one-ghatika margin already shows gains no second caution."""
+
+    def chhath(start, end, nxt, q):
+        return {**rule(start, end, nxt, q), "cautions": ["ghatika_margin"], "variantDate": "b"}
+
+    row = O._near_rerun(chhath)(9.0, EDGE + 2 / 1440, 11.0, None)
+    assert (row["nearBoundaryDate"], row["cautions"]) == (None, ["ghatika_margin"])
+
+
+def test_own_cautions_are_kept_and_reruns_never_rerun():
+    calls = []
+
+    def own(start, end, nxt, q):
+        calls.append(end)
+        return {"date": "a", "nearBoundaryDate": None}
+
+    O._near_rerun(own)(9.0, EDGE, 11.0, None)
+    assert len(calls) == 1
+    nested = O._near_rerun(lambda a, b, c, q: O._near_rerun(rule)(a, b, c, q))
+    row = nested(9.0, EDGE + 2 / 1440, 11.0, None)
+    assert row["nearBoundaryDate"] == "b" and row["cautions"] == ["near_boundary"]
+
+
+def test_every_tithi_record_is_checked():
+    """The Dipavali set's days, the Purnima vrata (and Kojagara), Pradosha and the Pitru-paksha
+    days carry nearBoundaryDate; Lucknow's Tulsi Vivah keeps its own single caution."""
+    status, out = call("GET", "/v1/festivals/dipavali", DELHI)
+    assert status == 200, out
+    (occ,) = out["occurrences"]
+    assert "nearBoundaryDate" in occ
+    assert all("nearBoundaryDate" in occ["set"][k] for k in ("dhanteras", "narakaChaturdashi"))
+    assert all("nearBoundaryDate" in occ["set"][k] for k in ("govardhan", "bhaiDooj"))
+    status, out = call("GET", "/v1/observances/purnima", DELHI)
+    assert all("nearBoundaryDate" in r["vrata"] for r in out["occurrences"])
+    assert all("nearBoundaryDate" in r["kojagara"] for r in out["occurrences"] if "kojagara" in r)
+    status, out = call("GET", "/v1/observances/pradosha", DELHI)
+    assert all("nearBoundaryDate" in r for r in out["occurrences"])
+    status, out = call("GET", "/v1/observances/pitru-paksha", DELHI)
+    assert status == 200, out
+    assert all("nearBoundaryDate" in t for t in out["tithis"])
+    status, out = call("GET", "/v1/festivals/tulsi-vivah", LUCKNOW)
+    assert out["occurrences"][0]["cautions"] == ["near_boundary"]
+    status, out = call("GET", "/v1/festivals/durga-puja", DELHI)  # its own one-ghatika caution
+    assert all("nearBoundaryDate" not in r for r in out["occurrences"])

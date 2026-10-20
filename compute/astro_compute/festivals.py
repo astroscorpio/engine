@@ -35,9 +35,12 @@ from .models import EkadashiQuery
 from .observances import (
     NEAR_BOUNDARY,
     SOURCE,
+    WEEKDAYS,
     _collect,
     _full_or_new,
     _lunar,
+    _near_call,
+    _near_rerun,
     _one,
     _overlap,
     _rise_set,
@@ -167,7 +170,7 @@ def _dipavali(start: float, end: float, _next: float, q: EkadashiQuery) -> dict 
         chosen, rule = 1, "neither_later"
     chaturdashi = _edge(start, q, False)  # its start; it ends where the Amavasya begins
     trayodashi = (_edge(chaturdashi, q, False), chaturdashi)
-    naraka = _naraka(chaturdashi, start, q)
+    naraka = _near_call(_naraka, chaturdashi, start, q)
     # Decision 42 (18 Oct 2026): the row on the eve of the Lakshmi Puja, the lamps evening or
     # the bath day, if either falls there.
     eve = (dt.date.fromisoformat(days[chosen]["date"]) - dt.timedelta(1)).isoformat()
@@ -189,11 +192,11 @@ def _dipavali(start: float, end: float, _next: float, q: EkadashiQuery) -> dict 
         "nishithaCovered": days[chosen]["nishitha"]["covered"] > 0,
         "eveRow": eve_row,
         "set": {
-            "dhanteras": _dhanteras(*trayodashi, q),
+            "dhanteras": _near_call(_dhanteras, *trayodashi, q),
             "narakaChaturdashi": naraka,
             "lakshmiPuja": {"date": days[chosen]["date"], "vara": days[chosen]["vara"]},
-            "govardhan": _govardhan(end, _next, q),
-            "bhaiDooj": _bhai_dooj(_next, _edge(_next, q, True), q),
+            "govardhan": _near_call(_govardhan, end, _next, q),
+            "bhaiDooj": _near_call(_bhai_dooj, _next, _edge(_next, q, True), q),
         },
     }
 
@@ -2374,7 +2377,6 @@ def _kalashtami_monthly(start: float, end: float, _next: float, q: EkadashiQuery
 # Popular practice: no text read gives these days; each rule is ours, tested on kept days.
 
 AHMEDABAD = {"name": "Ahmedabad", "lat": 23.0225, "lon": 72.5714, "tz": "Asia/Kolkata"}
-WEEKDAYS = ("monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday")
 RAJASTHAN_AVOIDED = {"sunday", "tuesday", "saturday"}
 
 
@@ -3198,6 +3200,11 @@ def _one_place(kind: str, year: int, ayanamsa: str) -> tuple[list[dict], dict]:
     return YEARLY[kind](EkadashiQuery(year=year, lat=0, lon=0, tz="UTC", ayanamsa=ayanamsa))
 
 
+# Durga Puja checks each act against a one-ghatika move of every tithi boundary, Shashthi to
+# Dashami, itself (research, 17 Oct 2026), so decision 43's rerun leaves it to that.
+OWN_MARGIN = {"durga-puja"}
+
+
 def festival(kind: str, q: EkadashiQuery) -> dict:
     num, build, pages, ds_pages = FESTIVALS[kind]
     extra: dict = {}
@@ -3208,7 +3215,7 @@ def festival(kind: str, q: EkadashiQuery) -> dict:
     elif kind in YEARLY:
         rows, extra = YEARLY[kind](q)
     else:
-        rows = _year(q, num, build)
+        rows = _year(q, num, build if kind in OWN_MARGIN else _near_rerun(build))
     also = {**DS, "verse": kind, "page": ds_pages} if ds_pages else None
     if kind in POPULAR:
         source = None
