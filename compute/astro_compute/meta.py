@@ -69,9 +69,9 @@ WINDOWS = {
     "brahma": ("Brahma Muhurta", "The second-last muhurta of the night, ending one muhurta before sunrise."),
     "abhijit": ("Abhijit Muhurta", "The eighth of the fifteen daytime muhurtas, around local noon; not used on Wednesdays."),
     "pradosha": ("Pradosha", "The three muhurtas after sunset."),
-    "rahu_kalam": ("Rahu Kalam", "One eighth of the daylight, fixed by weekday; avoided for beginnings."),
-    "yamaganda": ("Yamaganda", "Jupiter's eighth of the daylight; avoided for beginnings."),
-    "gulika": ("Gulika Kalam", "Saturn's eighth of the daylight; avoided for beginnings."),
+    "rahu_kalam": ("Rahu Kalam", "One eighth of the daylight, fixed by weekday; avoided for auspicious beginnings."),
+    "yamaganda": ("Yamaganda", "Jupiter's eighth of the daylight; avoided for auspicious beginnings."),
+    "gulika": ("Gulika Kalam", "Saturn's eighth of the daylight; avoided for auspicious beginnings."),
     "durmuhurta": ("Durmuhurta", "Daytime muhurtas marked inauspicious for the weekday."),
     "bad_yoga": ("Inauspicious yoga", "The opening ghatis of Vishkambha (3), Vajra (3), Shula (5), Ganda and Atiganda (6) and Vyaghata (9), the first half of Parigha, and all of Vyatipata and Vaidhriti."),
     "vishti": ("Bhadra (Vishti karana)", "Vishti karana, avoided while Bhadra resides on earth (Moon in Cancer, Leo, Aquarius or Pisces). Elsewhere its effect falls in that world."),
@@ -83,14 +83,24 @@ WINDOW_SOURCES = {
     "gulika": "Kālaprakāśikā pp. 175–176",
     "durmuhurta": "Muhūrta-cintāmaṇi 6.52, p. 275",
     "abhijit": "Muhūrta-cintāmaṇi 6.50, p. 274 (the 8th day muhurta); 6.52, p. 275 (not on Wednesday)",
-    "bad_yoga": "Muhūrta-cintāmaṇi 1.34–35, p. 28; Nirṇaya-sindhu p. 33 (Muhūrta-mārtaṇḍa v.2 gives Vajra 9)",
+    "bad_yoga": "Muhūrta-cintāmaṇi 1.34–35, p. 28; Nirṇaya-sindhu p. 33 (Vajra 9 in Muhūrta-mārtaṇḍa v. 2, p. 3)",
     "vishti": "Muhūrta-cintāmaṇi 1.43–45, pp. 35–38",
     "pradosha": "Muhūrta-cintāmaṇi 3.6 commentary, p. 125 (Skanda); Nirṇaya-sindhu p. 29; Vīramitrodaya, Samaya-prakāśa, p. 129",
 }
+# A note windows share, served once under windowNotes and pointed to by each window's noteKey (the
+# lead, 18 Oct 2026): the names of the eighths and the commentary's half-eighth rule (hindi-terms.md,
+# decisions 1-2), decision 1's sentence first.
+WINDOW_SHARED_NOTES = {
+    "eighths": "In the Bṛhat Parāśara Horā-śāstra (1933 printing), Saturn's eighth of the day is gulika and Jupiter's is yamaghaṇṭaka (BPHS 1933 PK 2.67–70, pp. 11–12). Kaśyapa, quoted in the commentary on Muhūrta-cintāmaṇi 1.37, p. 32, puts kulika and yamaghaṇṭa in these same eighths. The commentary avoids only the latter half of each, and Vasiṣṭha, quoted there, says they do no harm at night. The windows here follow Kālaprakāśikā pp. 175–176: the whole eighth, every day."
+}
+WINDOW_NOTE_KEYS = {"gulika": "eighths", "yamaganda": "eighths"}
 WINDOW_NOTES = {
-    "pradosha": "Three muhurtas after sunset, a muhurta being a fifteenth of the night (MC 6.50–51; our reading). The first 72 minutes are sandhya, the evening twilight (Nirṇaya-sindhu p. 29, Skanda). The Gauda view of two ghatikas (48 minutes) is rejected for vows by Nirṇaya-sindhu p. 29.",
+    "pradosha": "Three muhurtas after sunset, a muhurta being a fifteenth of the night (MC 6.50–51, p. 274; our reading). The first 72 minutes are sandhya, the evening twilight (Nirṇaya-sindhu p. 29, Skanda). The Gauda view of two ghatikas (48 minutes) is rejected for vows by Nirṇaya-sindhu p. 29.",
     "brahma": "Current practice: the 14th of the night's 15 muhurtas, ending one muhurta before sunrise. Manusmṛti 4.92 names the brahma muhurta; Kullūka (1909, p. 149) reads it as the last yama of the night, and Govindarāja, as Kullūka reports him, as its last muhurta.",
 }
+# A window's `reason` (windows.abhijit.reason) in words, so the web never composes the note
+# (the lead, 18 Oct 2026).
+WINDOW_REASONS = {"wednesday": "Not used on Wednesdays"}
 # gochara.md: what the gochara endpoint leaves to notes (the lead's rulings, 15 Oct 2026).
 GOCHARA_NOTES = {
     "count": "Houses are counted from the Moon sign, which is the 1st (Phaladīpikā 26.1).",
@@ -238,7 +248,7 @@ VIVAH_LIFTS = {
     "guru_kendra_aspect": ("Guru's remedy: the lagna lord in a kendra, aspected by a benefic", GURU_P272),
     "guru_navamsa": ("Guru's remedy: the lagna lord in its own or a benefic's navamsa", GURU_P272),
     "guru_exalted": ("Guru's remedy: the lagna lord exalted", GURU_P272),
-    "guru_own_friend": ("Guru's remedy: the lagna lord in its own or a friend's sign (BPHS 1933 PK 2.53–58 friendship: our reading)", GURU_P272),
+    "guru_own_friend": ("Guru's remedy: the lagna lord in its own or a friend's sign (friendship as in BPHS 1933 PK 2.53–58, p. 8; our reading)", GURU_P272),
 }  # fmt: skip
 VIVAH_JUPITER_BRIDE = {
     "best": "Jupiter in the 2nd, 5th, 7th, 9th or 11th from the bride's Moon sign",
@@ -459,7 +469,7 @@ TAJIKA_NILAKANTHI = {
     "edition": "Nīlakaṇṭha Daivajña (1587), with the Hindi commentary of Pt. Sītārāma, revised by Gaṇeśadatta Pāṭhaka, Bhārgava Pustakālaya, Benares, Saṃvat 1994 (1937–38)",
     "page": "2–6",
 }
-VIRGO_ELEMENT_NOTE = "BPHS 1933 PK 3.14 calls Virgo prabhañjinī, 'wind'."
+VIRGO_ELEMENT_NOTE = "BPHS 1933 PK 3.14, p. 14 calls Virgo prabhañjinī, 'wind'."
 # MC 1.45 (p. 38): "bhadra tatraiva tatphalam", its effect falls where it resides.
 BHADRA_RESIDENCES = {
     "earth": ("On earth (martya)", "With the Moon in Cancer, Leo, Aquarius or Pisces, Bhadra is on earth, and its effect falls here."),
@@ -1098,7 +1108,7 @@ BHADRA_PARTS = {
         "note": "The last 3 ghatis of another prahara; auspicious.",
         "source": "Muhūrta-cintāmaṇi 1.44, pp. 35–36",
     },
-    "dayNight": "MC 1.44 adds that a Bhadra in the second half of a tithi is auspicious by day, and one in the first half at night. The avoid list does not apply this yet.",
+    "dayNight": "Muhūrta-cintāmaṇi adds that a Bhadra in the second half of a tithi is auspicious by day, and one in the first half at night (MC 1.44, pp. 35–36). The avoid list does not apply this yet.",
 }
 FESTIVAL_CAUTIONS = {
     "first_16_nadis": "The Pratipada's first sixteen nadis (6 h 24 min)",
@@ -1220,7 +1230,7 @@ YOGA_NOTES = {
     "bphs_42_our_reading": "Our reading of BPHS 42: every named graha in the 11th, or in or aspecting the lagna",
 }  # fmt: skip
 SPECIAL_YOGAS = {
-    "amrita_siddhi": ("Siddhi (amrta) yoga", "Nārada, quoted in Muhūrta-cintāmaṇi 1.21's commentary, p. 20. Avoided on its excluded tithi (1.20–21) and for its act (1.22: Tuesday-Ashwini for entering a house, Saturday-Rohini for a journey, Thursday-Pushya for a marriage); it never lifts Bhadra, Vyatipata or Vaidhriti (p. 35)", "good"),
+    "amrita_siddhi": ("Siddhi (amrta) yoga", "Nārada, quoted in Muhūrta-cintāmaṇi 1.21 commentary, p. 20. Avoided on its excluded tithi (Muhūrta-cintāmaṇi 1.20–21, pp. 19–20) and for its act: Tuesday-Ashwini for entering a house, Saturday-Rohini for a journey and Thursday-Pushya for a marriage (Muhūrta-cintāmaṇi 1.22, p. 20); it never lifts Bhadra, Vyatipata or Vaidhriti (Muhūrta-cintāmaṇi 1.42 commentary, p. 35)", "good"),
     "visha": ("Visha yoga", "Muhūrta-cintāmaṇi 1.20–21, pp. 19–20: a siddhi pair on its excluded tithi (Daivajña-manohara calls these visha)", "avoid"),
     "sarvartha_siddhi": ("Sarvartha Siddhi", "Muhūrta-cintāmaṇi 1.28–29, p. 22, main reading (a footnoted variant reads Anuradha for Purva Phalguni on Friday)", "good"),
     "siddha": ("Siddha", "Muhūrta-cintāmaṇi 1.4, Kaśyapa in the commentary, p. 12", "good"),
@@ -1228,7 +1238,7 @@ SPECIAL_YOGAS = {
     "utpata": ("Utpata", "Muhūrta-cintāmaṇi 1.30, p. 23: the first of each weekday's run of four nakshatras; 'its effect is like its name'", "avoid"),
     "kana": ("Kana", "Muhūrta-cintāmaṇi 1.30, p. 23: the third of the run. Monday's is Abhijit, the last quarter of Uttara Ashadha and the first fifteenth of Shravana (Muhūrta-mārtaṇḍa p. 139)", "avoid"),
     "siddhi": ("Siddhi (weekday and nakshatra)", "Muhūrta-cintāmaṇi 1.30, p. 23: the fourth of the run; 'its effect is like its name'", "good"),
-    "mahapata": ("Mahapata (equal declinations)", "Muhūrta-cintāmaṇi 1.34, commentary p. 30: the moment the Sun's and Moon's declinations are equal, computed by the Sūrya-siddhānta 11 (Burgess): Vyatipata-type with longitudes summing to about 180 degrees and declinations equal, Vaidhriti-type summing to about 360 and opposite; its half-duration is per Sūrya-siddhānta 11.14, sixty times the half-sum of the two discs over the difference of the daily motions, in nadis; near the equator it can occur twice, near a solstice not at all (11.19). Nārada, quoted in MC, avoids the whole day", "avoid"),
+    "mahapata": ("Mahapata (equal declinations)", "Muhūrta-cintāmaṇi 1.34 commentary, p. 30: the moment the Sun's and Moon's declinations are equal, computed as in Sūrya-siddhānta ch. 11, pp. 273–280: Vyatipata-type with longitudes summing to about 180 degrees and declinations equal, Vaidhriti-type summing to about 360 and opposite; its half-duration, per Sūrya-siddhānta 11.14, p. 277, is sixty times the half-sum of the two discs over the difference of the daily motions, in nadis; near the equator it can occur twice, near a solstice not at all (Sūrya-siddhānta 11.19, p. 279). Nārada, quoted in MC, avoids the whole day", "avoid"),
     "ravi": ("Ravi yoga", "Muhūrta-cintāmaṇi 1.27, p. 22: the Moon's nakshatra the 4th, 6th, 9th, 10th, 13th or 20th from the Sun's, counted inclusively (our reading); it 'destroys a host of defects'", "good"),
     "dagdha": ("Dagdha", "Muhūrta-cintāmaṇi 1.5, Nārada in the commentary, p. 13", "avoid"),
 }  # fmt: skip
@@ -1814,9 +1824,12 @@ def _english() -> dict:
                 "description": d,
                 "source": WINDOW_SOURCES.get(k),
                 "note": WINDOW_NOTES.get(k),
+                "noteKey": WINDOW_NOTE_KEYS.get(k),
             }
             for k, (n, d) in WINDOWS.items()
         },
+        "windowReasons": {k: {"name": v} for k, v in WINDOW_REASONS.items()},
+        "windowNotes": WINDOW_SHARED_NOTES,
         "bhadraParts": BHADRA_PARTS,
         "bhadraResidences": {
             k: {"name": n, "description": d, "source": "Muhūrta-cintāmaṇi 1.45, p. 38"}

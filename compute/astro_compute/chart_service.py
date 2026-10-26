@@ -344,7 +344,7 @@ def states_payload(chart: Chart) -> dict:
 # 1.1.10-19 allows seven karakas (Sun to Saturn) or eight (with Rahu). The 1933 BPHS
 # (PK 8.1-2) counts seven and adds Rahu only when two tie; Rahu counted as 30 minus its
 # degrees is BPHS 1990 32.6. Neither is favoured; both are returned.
-KARAKA_SOURCE = "Jaimini Upadeśa-sūtra 1.1.10; BPHS 1933 PK 8.1–2"
+KARAKA_SOURCE = "Jaimini Upadeśa-sūtra 1.1.10, p. 34; BPHS 1933 PK 8.1–2, p. 56"
 
 
 def _karakas(chart: Chart, scheme: int) -> tuple[dict[str, str], list[float]]:

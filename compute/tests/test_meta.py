@@ -36,6 +36,7 @@ def test_every_emitted_id_has_a_meta_entry(chart, panchang, meta):
         r["id"] in meta["choghadiya"] for r in p["choghadiya"]["day"] + p["choghadiya"]["night"]
     )
     assert all(r["id"] in meta["windows"] for r in p["windows"]["avoid"])
+    assert p["windows"]["abhijit"]["reason"] in (None, *meta["windowReasons"])
     assert all(r["id"] in meta["specialYogas"] for r in p["specialYogas"])
     assert p["lunarMonth"]["amanta"] in meta["masas"]
 
@@ -185,3 +186,58 @@ def test_mc_cites_give_the_plain_page():
     assert not [s for s in strings(out) if "1.30's" in s or "6.45's" in s]
     middling = out["vivahRules"]["middling_weekday_dvadashi_trayodashi"]["name"]
     assert "(Vasiṣṭha, MC 6.53 commentary, p. 275)" in middling
+
+
+def test_window_reasons_are_served_not_composed(meta):
+    """The lead, 18 Oct 2026: the Abhijit note comes from meta in en and hi, never from the web.
+    The English is the wording the web composed."""
+    assert meta["windowReasons"] == {"wednesday": {"name": "Not used on Wednesdays"}}
+
+
+def test_gulika_and_yamaganda_share_the_eighths_note(meta):
+    """The lead, 18 Oct 2026: the two windows share one note, served once under windowNotes, with
+    BPHS 1933's names of the eighths first (hindi-terms.md decisions 1-2)."""
+    w = meta["windows"]
+    assert w["gulika"]["noteKey"] == w["yamaganda"]["noteKey"] == "eighths"
+    assert w["gulika"]["note"] is None and w["yamaganda"]["note"] is None
+    assert all(v["noteKey"] in (None, *meta["windowNotes"]) for v in w.values())
+    note = meta["windowNotes"]["eighths"]
+    assert note.startswith("In the Bṛhat Parāśara Horā-śāstra (1933 printing)")
+    assert note.index("(BPHS 1933 PK 2.67–70, pp. 11–12)") < note.index("these same eighths")
+
+
+def test_bphs_1933_cites_carry_their_page(meta):
+    """The lead, 18 Oct 2026: every cite a reader sees carries its page."""
+    import json
+    import re
+
+    text = json.dumps(meta, ensure_ascii=False)
+    bare = re.findall(r"BPHS 1933 [PU]K [\d.–-]+(?![\d.–-])(?!, pp?\. )", text)
+    assert not bare, bare
+
+
+def test_hindi_sources_keep_the_cite(meta):
+    """The lead, 18 Oct 2026: a Hindi source keeps the cite's work and locator byte for byte. Only
+    the gloss (in parentheses, or after the colon that ends the reference) is Hindi, so the web's
+    short cut still ends at the reference."""
+    import json
+    import pathlib
+    import re
+
+    def skeleton(s: str) -> str:
+        head = re.split(r": |\.\s+(?=[A-Z])", s)[0]
+        return re.sub(r" ?\([^()]*\)", "", head)
+
+    path = pathlib.Path(__file__).parents[2] / "api/src/meta/hi.labels.json"
+    seen = 0
+    for section, labels in json.loads(path.read_text(encoding="utf-8")).items():
+        if section.startswith("_"):
+            continue
+        for key, label in labels.items():
+            if isinstance(label, dict) and isinstance(label.get("source"), str):
+                # the lead: a qualifier outside the cite, such as "main reading", is Hindi
+                en = meta[section][key]["source"].replace(", main reading", ", मुख्य पाठ")
+                assert skeleton(label["source"]) == skeleton(en), (section, key)
+                assert re.search("[\u0900-\u097f]", label["source"]), (section, key)
+                seen += 1
+    assert seen >= 11
