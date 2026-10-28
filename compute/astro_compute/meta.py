@@ -191,7 +191,7 @@ VIVAH_LAGNA_RULES = {
     "purity_seventh": ("The bride's side is not pure: the same test for the 7th and the 7th from the lagna's navamsa", "Muhūrta-cintāmaṇi 6.73–76, pp. 290–292", "heavy"),
     "kartari_moon": ("Kartari round the Moon, no benefic aspecting the Moon", "Kaśyapa in Muhūrta-cintāmaṇi 6.42 commentary, p. 268", "fault"),
     "kuvarga": ("Fewer than three of the lagna's six vargas (sign, hora, drekkana, navamsa, dvadashamsha, trimshamsha) ruled by benefics", "Vasiṣṭha in Muhūrta-cintāmaṇi 6.40 commentary, p. 265; Dharmasindhu p. 182", "fault"),
-    "navamsa_pisces": ("A Pisces navamsa: only when no other lagna clears", "Muhūrta-cintāmaṇi 6.82 commentary, p. 294", "last_resort"),
+    "navamsa_pisces": ("A Pisces navamsa: only when no other lagna clears", "Muhūrta-cintāmaṇi 6.82 commentary, p. 295", "last_resort"),
     "vimsopaka_poor": ("5 to under 10 of 6.90's points: poor, only when no other lagna exists", "Muhūrta-cintāmaṇi 6.90, p. 301, with the commentary, p. 302", "last_resort"),
     "navamsa_ds_only": ("A Taurus or Cancer navamsa: good by Dharmasindhu only", "Dharmasindhu p. 182", "ds_only"),
     "blind_lagna": ("A blind lagna at its time (by day Leo, Aries, Taurus; by night Virgo, Gemini, Cancer), not aspected by its lord or Jupiter, nor lifted by Mercury, Jupiter or Venus in a kendra other than the 7th or a trine (6.87)", "Muhūrta-cintāmaṇi 6.79, 6.81, 6.87, pp. 293–294, 299", "light"),

@@ -1,7 +1,7 @@
 """Phaladipika 26.9-24 (tr. V. Subrahmanya Sastri, 1937): each graha's result in
 each house from the Moon sign, quoted as docs/sources/gochara.md transcribes them
 from the scan. Classical statements, to be shown as quotations, never as forecasts.
-Ketu takes Rahu's lines (MC 4 commentary, p. 142: "ketus tat-phalam eva rasisu vadet").
+Ketu takes Rahu's lines (MC 4.1-3 commentary, p. 142: "ketus tat-phalam eva rasisu vadet").
 """
 
 from __future__ import annotations
@@ -181,7 +181,7 @@ RESULTS: dict[str, tuple[str, str | None, tuple[str, ...]]] = {
     ),
 }
 RESULTS["Ketu"] = (
-    "26.24 (Rahu's; Ketu the same per MC 4 commentary, p. 142)",
+    "26.24 (Rahu's; Ketu the same per MC 4.1–3 commentary, p. 142)",
     "296",
     RESULTS["Rahu"][2],
 )

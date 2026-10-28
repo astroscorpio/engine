@@ -48,7 +48,7 @@ def test_gochara_rules():
     assert table(Venus=11, Mars=3)["Venus"] == ("neutral", "mars")
     assert table(Venus=12, Jupiter=6)["Venus"] == ("neutral", "jupiter")
     assert table(Venus=6)["Venus"] == ("bad", None)
-    # Ketu quotes Rahu's lines (MC 4 commentary).
+    # Ketu quotes Rahu's lines (MC 4.1-3 commentary).
     assert T.RESULTS["Ketu"][2] == T.RESULTS["Rahu"][2]
     assert T.RESULTS["Sun"][2][9] == "a very mighty undertaking will be successfully completed"
 
