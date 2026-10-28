@@ -66,10 +66,29 @@ def test_listed_days_keep_every_day_rule():
             assert not day_yoga(w, d["vara"]), (d["date"], w)
         assert set(d["cautions"]) <= set(VIVAH_RULES)
         g = d["godhuli"]
-        if g and d["vara"] == "thursday":  # MC 6.99: only before sunset
+        if g:  # MC 6.99's weekday halves: test_godhuli_thursday_after_sunset_saturday_before
             assert g["start"] < g["end"]
     for b in out["blocks"]:
         assert b["rule"] in VIVAH_RULES
+
+
+def test_godhuli_thursday_after_sunset_saturday_before():
+    """MC 6.99 and its commentary (p. 307): Thursday's godhuli only after sunset (ardhayama
+    falls before it), Saturday's only before (kulika after); elsewhere half a ghatika either
+    side. Each window against the day's sunset, in minutes."""
+    want = {"thursday": (0, 12), "saturday": (-12, 0)}
+    seen = set()
+    for d in year("2026")["days"]:
+        g = d["godhuli"]
+        if not g or (d["vara"] in seen and d["vara"] not in want):
+            continue
+        seen.add(d["vara"])
+        status, p = call("GET", "/v1/panchang", {"date": d["date"], **DELHI})
+        assert status == 200, p
+        ss = jd(p["sunset"])
+        got = (round((jd(g["start"]) - ss) * 1440), round((jd(g["end"]) - ss) * 1440))
+        assert got == want.get(d["vara"], (-12, 12)), (d["date"], d["vara"], got)
+    assert set(want) <= seen
 
 
 def test_venus_infancy_follows_the_side_it_rises_on():

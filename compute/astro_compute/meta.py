@@ -149,7 +149,7 @@ VIVAH_RULES = {
     "kana": ("Kana yoga, the weekday's star in the kana column of MC 1.30 (Monday's is Abhijit), removed unless a Ravi or siddhi yoga holds then (MC 1.27, 1.42; only a Ravi yoga lifts a visha)", "Muhūrta-cintāmaṇi 1.30, p. 23"),
     "dagdha": ("Dagdha yoga, Nārada's burnt weekday-star pairs, removed unless a Ravi or siddhi yoga holds then (MC 1.27, 1.42; only a Ravi yoga lifts a visha)", "Nārada in Muhūrta-cintāmaṇi 1.5 commentary, p. 13"),
     "visha": ("A siddhi (amrta) weekday-star pair on its tithi, which turns it to visha, removed unless a Ravi or siddhi yoga holds then (MC 1.27, 1.42; only a Ravi yoga lifts a visha)", "Muhūrta-cintāmaṇi 1.20–21, pp. 19–20"),
-    "godhuli": ("Godhuli, the alternative: half a ghatika either side of sunset; Thursday only before it, Saturday only after; none with the Moon 1st, 6th or 8th from the lagna, or Mars 1st, 7th or 8th", "Muhūrta-cintāmaṇi 6.97–99, pp. 305–307"),
+    "godhuli": ("Godhuli, the alternative: half a ghatika either side of sunset; Thursday only after it, Saturday only before; none with the Moon 1st, 6th or 8th from the lagna, or Mars 1st, 7th or 8th", "Muhūrta-cintāmaṇi 6.97–99, pp. 305–307"),
     "weak_tithi": ("Shashthi or Ashtami: 'little fruit' (DS); Vasiṣṭha drops them", "Dharmasindhu p. 181; Muhūrta-cintāmaṇi 6.53"),
     "middling_weekday": ("Sunday or Saturday: middling", "Vasiṣṭha in Muhūrta-cintāmaṇi 6.53; Dharmasindhu p. 181"),
     "middling_weekday_dvadashi_trayodashi": ("Sunday or Saturday on a Dvadashi or Trayodashi: of great fault (Vasiṣṭha, MC 6.53 commentary, p. 275); only Tuesday is barred outright", "Vasiṣṭha in Muhūrta-cintāmaṇi 6.53 commentary, p. 275"),

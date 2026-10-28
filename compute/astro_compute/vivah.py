@@ -706,14 +706,15 @@ def _pierced(nak: int, moon_lon: float, p: dict) -> list[str]:
 
 
 def _godhuli(ss: float, vara: str, q) -> dict | None:
-    """MC 6.97-99: half a ghatika either side of sunset; Thursday only before it,
-    Saturday only after; none with the Moon 1st, 6th or 8th from the lagna or
-    Mars 1st, 7th or 8th."""
+    """MC 6.97-99: half a ghatika either side of sunset; Thursday only after it
+    (ardhayama before it), Saturday only before (kulika after; MC 6.99 commentary,
+    p. 307); none with the Moon 1st, 6th or 8th from the lagna or Mars 1st, 7th or
+    8th."""
     a, b = ss - GHATI / 2, ss + GHATI / 2
     if vara == "thursday":
-        b = ss
-    elif vara == "saturday":
         a = ss
+    elif vara == "saturday":
+        b = ss
     lagna = Mu.lagna_at(ss, q.lat, q.lon, q.ayanamsa)
     p = positions(ss, q.ayanamsa)
     house = {g: (p[g].sign - lagna) % 12 + 1 for g in ("Moon", "Mars")}
