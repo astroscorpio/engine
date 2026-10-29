@@ -155,7 +155,7 @@ VIVAH_RULES = {
     "middling_weekday_dvadashi_trayodashi": ("Sunday or Saturday on a Dvadashi or Trayodashi: of great fault (Vasiṣṭha, MC 6.53 commentary, p. 275); only Tuesday is barred outright", "Vasiṣṭha in Muhūrta-cintāmaṇi 6.53 commentary, p. 275"),
     "krishna_paksha": ("The dark fortnight: middling", "Dharmasindhu p. 181"),
     "no_clean_lagna": ("No lagna in the day's windows is free of every fault; godhuli, the cow-dust hour, is the texts' alternative", "Muhūrta-cintāmaṇi 6.97, p. 305"),
-    "no_lagna": ("Excluded: no lagna in the windows clears the lagna rules (6.84's houses, the jamitra, kartari, the navamsa, 6.90's points), and godhuli is excluded by 6.99", "Muhūrta-cintāmaṇi 6.42–90, 6.97–99, pp. 268–307"),
+    "no_lagna": ("Excluded: no lagna in the windows clears the lagna rules (6.84's houses, the jamitra, kartari, the navamsa, 6.90's points), and godhuli is excluded by 6.99", "Muhūrta-cintāmaṇi 6.42 (pp. 268–270), 6.65 (pp. 285–286), 6.82–86 (pp. 294–299), 6.90 (pp. 301–302), 6.97–99 (pp. 305–307)"),
 }  # fmt: skip
 VIVAH_NOTES = {
     "infancy": "Infancy and old age follow MC 5.27 by the side of the sky. MC 5.28 gives 10, 7 or 3 days as alternatives, and Dharmasindhu p. 5 takes 7 days either side as the middle view.",
@@ -223,17 +223,17 @@ VIVAH_PERSONAL_RULES = {
     "moon_weak_both": ("The Moon not good by gochara for both partners (a bar, since the text's remedy is for one: our reading)", "Dharmasindhu p. 181", "bar", None),
     "tara_bad": ("The Moon's star is the 3rd, 5th or 7th tara (vipat, pratyari, vadha) from one partner's birth star, not lifted by the Moon in a benefic's sign and good by gochara (MC 5.32)", "Muhūrta-cintāmaṇi 4.18 commentary, p. 157; 5.32, p. 192", "fault", ("Muhūrta-cintāmaṇi 4.18: rock salt is the gift for a bad tara", "Muhūrta-cintāmaṇi 4.18, p. 157")),
     "tara_bad_both": ("A bad tara for both partners (a bar: our reading)", "Muhūrta-cintāmaṇi 4.18 commentary, p. 157", "bar", None),
-    "birth_month": ("The first-born partner's birth month (amanta)", "Muhūrta-cintāmaṇi 6.14, p. 236; ch. 1 commentary, pp. 28–29", "bar", None),
+    "birth_month": ("The first-born partner's birth month (amanta)", "Muhūrta-cintāmaṇi 6.14, p. 236; 1.34 commentary, pp. 28–29", "bar", None),
     "birth_star": ("The Moon in the first-born partner's birth star", "Muhūrta-cintāmaṇi 6.14, p. 236", "bar", None),
     "birth_tithi": ("The first-born partner's birth tithi", "Muhūrta-cintāmaṇi 6.14, p. 236", "bar", None),
     "birth_muhurta": ("The muhurta of the day or night with the number of the first-born partner's birth muhurta (Vasiṣṭha; the numbering is our reading)", "Muhūrta-cintāmaṇi 6.14 commentary, p. 236", "bar", None),
-    "birth_day_favourable": ("The birth month, star or tithi of a partner who is not the first-born: favourable", "Muhūrta-cintāmaṇi 6.14, p. 236 (Cyavana, Vaṭeśvara)", "support", None),
+    "birth_day_favourable": ("The birth month, star or tithi of a partner who is not the first-born: favourable", "Muhūrta-cintāmaṇi 6.14, p. 236 (Cyavana, Caṇḍeśvara)", "support", None),
     "three_jyeshtha": ("Both partners first-born, in amanta Jyeshtha: the three jyeshthas", "Muhūrta-cintāmaṇi 6.15, p. 236; Dharmasindhu p. 181", "bar", None),
     "eldest_jyeshtha": ("One first-born partner, in Jyeshtha: middling, only when there is no other way", "Muhūrta-cintāmaṇi 6.15 commentary, p. 236; Dharmasindhu p. 181", "light", None),
     "eighth_lagna": ("The 8th sign from a partner's birth lagna or Moon sign rising, unless it is one of the exempt signs (MC 6.45), or Guru's remedy holds: the lagna lord in a kendra aspected by a benefic, in its own or a benefic's navamsa, exalted, or in its own or a friend's sign (friendship by BPHS: our reading)", "Muhūrta-cintāmaṇi 6.44–45, pp. 271–272", "bar", None),
     "janma_rashi_rising": ("A partner's birth Moon sign rising", MC_P271, "fault", None),
     "janma_lagna_rising": ("A partner's birth lagna rising, or an upacaya sign (3, 6, 10, 11) from their birth lagna or Moon sign", MC_P271, "support", None),
-    "no_lagna": ("No lagna and no godhuli left for the couple", "Muhūrta-cintāmaṇi 6.97–99", "bar", None),
+    "no_lagna": ("No lagna and no godhuli left for the couple", "Muhūrta-cintāmaṇi 6.42 (pp. 268–270), 6.44–45 (pp. 271–272), 6.65 (pp. 285–286), 6.82–86 (pp. 294–299), 6.90 (pp. 301–302), 6.97–99 (pp. 305–307)", "bar", None),
 }  # fmt: skip
 # What lifted a rule that would otherwise apply, for `lifted` in 7i lagnas and 7q marks.
 GURU_P272 = "Guru in Muhūrta-cintāmaṇi 6.45 commentary, p. 272"

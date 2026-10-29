@@ -222,12 +222,19 @@ def _margin_days(r: dict) -> set:
     return days
 
 
+def _fast_day(r: dict | None) -> str | None:
+    """A record's fast day: its fastDate, or its date where the fast keeps that day."""
+    return (r.get("fastDate") or r.get("date")) if r else None
+
+
 def _near_rerun(build, paths: tuple = ((),)):
     """The kind's own rule rerun with the tithi's start or end moved by five minutes, four
     ways. Another day one of them gives, on a record at one of paths, is its nearBoundaryDate,
     with "near_boundary" in its cautions (and its variants, where it lists them); a day a
     one-ghatika margin already shows is left to the margin. Records that work their own
-    caution out keep it, and a rerun never reruns."""
+    caution out keep it, and a rerun never reruns. A record with a fastDate is checked on its
+    fast day too (0nf, the lead, 28 Oct 2026): another fast day a move gives is its
+    fastNearBoundaryDate, with fastCautions ["near_boundary"], both set only then."""
 
     def wrapped(start: float, end: float, nxt: float, q: EkadashiQuery) -> dict | None:
         row = build(start, end, nxt, q)
@@ -257,6 +264,11 @@ def _near_rerun(build, paths: tuple = ((),)):
                     vara = WEEKDAYS[dt.date.fromisoformat(d).weekday()]
                     r["variants"].append({"date": d, "vara": vara, "reason": "near_boundary"})
                     r["variantDate"] = r.get("variantDate") or d
+            if "fastDate" in r:
+                fasts = {_fast_day(_record(alt, p)) for alt in alts} - {None, _fast_day(r)}
+                if fasts:
+                    r["fastNearBoundaryDate"] = min(fasts)
+                    r["fastCautions"] = ["near_boundary"]
         return row
 
     return wrapped

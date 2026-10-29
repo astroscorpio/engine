@@ -944,6 +944,8 @@ def _tulsi(start: float, end: float, _next: float, q: EkadashiQuery) -> dict | N
         "window": _span(_windows(s[smarta], q)["pradosha"], q),
         "cautions": ["near_boundary"] if near else [],
         "nearBoundaryDate": near,
+        # 0nf (the lead, 28 Oct 2026): the fast day's own, the Smarta Ekadashi's other day.
+        **({"fastNearBoundaryDate": other, "fastCautions": ["near_boundary"]} if other else {}),
     }
 
 

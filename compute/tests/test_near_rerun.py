@@ -2,12 +2,15 @@
 start or end moved by five minutes, four ways, the other day on the record whose day moved. No date
 is written here."""
 
+import datetime as dt
+
 from conftest import call
 
 from astro_compute import observances as O
 
 DELHI = {"year": "2026", "lat": "28.65195", "lon": "77.23149", "tz": "Asia/Kolkata"}
 LUCKNOW = {"year": "2026", "lat": "26.83928", "lon": "80.92313", "tz": "Asia/Kolkata"}
+SINGAPORE = {"lat": "1.28967", "lon": "103.85007", "tz": "Asia/Singapore"}
 EDGE = 10.0  # a rule's boundary: a tithi ending after it gives day "a", else "b"
 
 
@@ -68,3 +71,60 @@ def test_every_tithi_record_is_checked():
     assert out["occurrences"][0]["cautions"] == ["near_boundary"]
     status, out = call("GET", "/v1/festivals/durga-puja", DELHI)  # its own one-ghatika caution
     assert all("nearBoundaryDate" not in r for r in out["occurrences"])
+
+
+def test_a_fast_day_a_move_changes_gets_its_own_fields():
+    """0nf (the lead, 28 Oct 2026): a five-minute move that gives another fast day, the puja day
+    staying, adds fastNearBoundaryDate and fastCautions and leaves the puja day's fields alone; a
+    null fastDate is a fast on the date."""
+
+    def vow(start, end, _next, _q):
+        return {"date": "b", "fastDate": "a" if end > EDGE else None}
+
+    near = O._near_rerun(vow)
+    row = near(9.0, EDGE + 2 / 1440, 11.0, None)
+    assert (row["nearBoundaryDate"], row["fastNearBoundaryDate"], row["fastCautions"]) == (
+        None,
+        "b",
+        ["near_boundary"],
+    )
+    assert "cautions" not in row
+    row = near(9.0, EDGE - 2 / 1440, 11.0, None)
+    assert (row["fastDate"], row["fastNearBoundaryDate"]) == (None, "a")
+    row = near(9.0, EDGE + 30 / 1440, 11.0, None)
+    assert "fastNearBoundaryDate" not in row and "fastCautions" not in row
+
+
+def _day_before(d: str) -> str:
+    return (dt.date.fromisoformat(d) - dt.timedelta(1)).isoformat()
+
+
+def test_singapores_vat_savitri_fast_rests_on_seconds():
+    """Research's 0ma finding 3: Singapore's 2028 Amavasya form keeps the fast on the puja day,
+    the tithi starting seconds short of three muhurtas before sunset; a five-minute move gives the
+    day before. The Purnima form is clear."""
+    status, out = call("GET", "/v1/festivals/vat-savitri", {"year": "2028", **SINGAPORE})
+    assert status == 200, out
+    (a,) = [o for o in out["occurrences"] if o["form"] == "amavasya"]
+    assert (a["rule"], a["fastDate"], a["nearBoundaryDate"]) == (
+        "under_three_muhurtas_later",
+        None,
+        None,
+    )
+    assert (a["fastNearBoundaryDate"], a["fastCautions"]) == (
+        _day_before(a["date"]),
+        ["near_boundary"],
+    )
+    assert "cautions" not in a
+    (p,) = [o for o in out["occurrences"] if o["form"] == "purnima"]
+    assert "fastNearBoundaryDate" not in p and "fastCautions" not in p
+
+
+def test_tulsi_vivahs_fast_carries_its_ekadashis_other_day():
+    """Lucknow's Tulsi Vivah: the Smarta Ekadashi fast's other day, a day before the puja's."""
+    status, out = call("GET", "/v1/festivals/tulsi-vivah", LUCKNOW)
+    assert status == 200, out
+    (o,) = out["occurrences"]
+    assert o["cautions"] == ["near_boundary"] and o["fastCautions"] == ["near_boundary"]
+    assert o["fastNearBoundaryDate"] == _day_before(o["nearBoundaryDate"])
+    assert o["fastNearBoundaryDate"] != o["fastDate"]
