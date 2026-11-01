@@ -550,6 +550,18 @@ OBSERVANCE_RULES["parana"] = {
     ),
     "within_dvadashi": ("After Hari-vasara and before Dvadashi ends (our fallback)", None),
 }
+# The pāraṇa close call's {alt} (festivalCautions.parana_near_boundary): altWindow's form, by its rule, then the
+# shared times with {start} and {end} its local times, left off when both fall in the same minute (the lead,
+# 25 Oct 2026).
+PARANA_ALT = {
+    "forms": {
+        "morning": "in the morning",
+        "afternoon": "in the afternoon",
+        "trayodashi": "on Trayodaśī",
+        "within_dvadashi": "before the Dvādaśī ends",
+    },
+    "times": ", between {start} and {end}",
+}
 PARANA_NOTE = (
     "Break the fast before Dvadashi ends (breakBefore): letting Dvadashi pass is a grave fault "
     "(Dharmasindhu p. 19). In a difficulty, water counts as breaking it (Devala, Nirṇaya-sindhu "
@@ -861,6 +873,12 @@ FESTIVAL_RULES = {
         "tamil_rule_day_ingress": ("Pongal, Thai 1: the Sun enters sidereal Makara between sunrise and sunset, so the solar month Thai begins that day (the Tamil Rule); computed at Chennai for every city", "The Indian Calendar (Sewell and Dīkshit, 1896), Art. 28, p. 12"),
         "tamil_rule_night_ingress": ("Pongal, Thai 1: the Sun enters sidereal Makara after sunset or before dawn, so Thai begins at the next sunrise (the Tamil Rule); computed at Chennai for every city", "The Indian Calendar (Sewell and Dīkshit, 1896), Art. 28, p. 12"),
     },
+    # s38 (the lead's rulings of 19 and 20 Oct 2026): popular practice, per city.
+    "thaipusam": {
+        "majority_with_sunrise": ("Thaipusam is kept on the day of the solar month Tai that Pusam covers most, counted from midnight to midnight in the city's own time; Pusam also holds that day's sunrise (popular practice; our reading of the days kept)", None),
+        "majority_sunrise_variant": ("Pusam covers most of one day of Tai but holds the next day's sunrise, so the day it covers most is taken and the next day is the variant (popular practice; our reading of the days kept)", None),
+        "majority_no_sunrise": ("Pusam holds no sunrise in Tai, so the day it covers most is taken and there is no variant (popular practice; our reading of the days kept)", None),
+    },
     "lohri": {
         "eve_of_ingress_day": ("Lohri is kept on the evening before the day, counted from sunrise to sunrise at Amritsar, in which the Sun enters sidereal Makara; that day is Maghi. One date for every city, with no time (popular practice; no text read gives the day)", None),
     },
@@ -920,8 +938,18 @@ FESTIVAL_RULES = {
         "pradosha_both_more": ("When the Ashtami covers pradosha on both days, the day with more of it is kept, and the earlier day if the two are equal (popular practice).", None),
         "pradosha_neither_later": ("When the Ashtami covers pradosha on neither day, the later day is kept, as its sunrise holds the Ashtami (our reading).", None),
     },
+    "vivah-panchami": {
+        "sunrise": ("Vivah Panchami is kept on the day whose sunrise the Margashirsha shukla Panchami holds (popular practice; no text read gives the rule for the day)", None),
+        "two_sunrises_first": ("When the Panchami holds two sunrises, the first of those days is kept (popular practice)", None),
+        "no_sunrise_day_it_falls_on": ("When the Panchami holds no sunrise, the day in which it begins is kept (popular practice)", None),
+    },
     "vaikuntha-ekadashi": {
         "margazhi_leading_day": ("Vaikuntha Ekadashi: the shukla Ekadashi whose Smarta fast falls in Margazhi, the Tamil solar month, which begins on the day the Sun enters sidereal Dhanus if it enters before sunset, otherwise on the next day; chosen at Chennai for every city (popular practice; no text read gives the day)", "The Indian Calendar (Sewell and Dīkshit, 1896), Art. 28, p. 12"),
+    },
+    # s39.2 (ruling 3, 21 Oct 2026, as corrected 25 Oct 2026): popular practice on the Maghi Purnima.
+    "ravidas-jayanti": {
+        "maghi_later_day": ("Ravidas Jayanti is kept on the Maghi Purnima: the later day, whose sunrise the Purnima holds, reckoned at Prayagraj for every city (popular practice; no text read gives the festival)", "Nirṇaya-sindhu p. 333"),
+        "only_day": ("The Purnima holds no sunrise: the day it falls on", None),
     },
     "durga-puja": {
         "sunrise_ashtami": ("Mahashtami: the Ashtami current at sunrise for a muhurta, joined to the Navami", "Tithi-tattva pp. 87–89"),
@@ -1073,6 +1101,7 @@ FESTIVAL_NOTES = {
     "pongal": "Thai Pongal is the first day of the Tamil solar month Thai, the Sun in sidereal Makara, by the Tamil Rule of Sewell and Dīkshit's The Indian Calendar (1896, Art. 28, p. 12): an ingress between sunrise and sunset starts the month that day, a later one at the next sunrise. That is also the southern usage for the Makara day (Nirṇaya-sindhu p. 326; Dharmasindhu p. 85). One date for every city, computed at Chennai. Warren (Kala Sankalita, 1825, p. 402) describes the boiled rice offered to the Sun and scattered over the fields, and the cattle worshipped and decked on Mattu Pongal, the day after; Dharmasindhu p. 86 gives the Makara rites: the bath, sesame, and the Sun bathed with milk. When the Sun enters Makara by day but less than three hours before sunset, Pongal is also commonly kept the next day (variantDate; popular practice, our reading), as it was on 15 Jan 2026. Bhogi, the day before, and Kanum Pongal, two days after, are popular practice, as are the four days as a set, the pot boiling over, sugarcane, kolam, Bhogi's bonfire, Kanu, Jallikattu and Thiruvalluvar Day. No time is given for setting the pot.",
     "lohri": "Popular practice; no text read names Lohri. It is kept on the evening before the day, counted from sunrise to sunrise at Amritsar, in which the Sun enters sidereal Makara; that day is Maghi, the first of Magh. One date for every city, with no time. Linking Maghi to Baudhāyana's two holy days after a night ingress, kept in the north (Nirṇaya-sindhu p. 327), is our reading. The bonfire, the Dulla Bhatti songs, rewri and gajak are popular practice.",
     "vishu": "Popular practice. Vishu is the day whose sunrise is the first after the Sun enters sidereal Mesha, computed at Kochi, with one date for every city: the Kani is set out the night before so that it is the first sight of that morning (Logan, Malabar, 1887, pp. 160–161; Nagam Aiya, The Travancore State Manual, 1906, pp. 366–367). That day is our reading of the kept days and of the two manuals. The Malabar month's own rule (Sewell and Dīkshit, 1896, Art. 28, rule b) can give a day earlier after a morning ingress, so Vishu is not called the first of Medam as a rule. No time is given for the Kani.",
+    "thaipusam": "Popular practice. Tai Pusam is kept on the day over which the asterism Pushya (Pusam) presides in the Tamil month of Tai, a day that generally falls on the full moon (Jagadisa Ayyar, South Indian Festivities, 1921, p. 31). It does not say which civil day counts when Pusam spans two, so the day of Tai that Pusam covers most, counted from midnight to midnight in the city's own time, is taken, and where Pusam holds the next day's sunrise, that day is given as the variant (our reading of the days kept). Tai begins at each city by the Tamil Rule (Sewell and Dīkshit, The Indian Calendar, 1896, Art. 28, p. 12). When Tai holds two Pusams, the one nearest the full moon in Tai is taken (twoPusam). In two of the years checked, the day kept was the other one: Malaysia in 2017 kept the Thursday, though Pusam covered more of the Friday at Kuala Lumpur, and Tamil Nadu in 2023 kept the Sunday, though Pusam covered more of the Saturday at Chennai.",
     "tamil-new-year": "Tamil New Year (Puthandu) is Chittirai 1, the first day of the solar month with the Sun in sidereal Mesha, by the Tamil Rule of Sewell and Dīkshit's The Indian Calendar (1896, Art. 28, p. 12), computed at Chennai with one date for every city. Warren (Kala Sankalita, 1825, p. 402) describes the day as kept by bathing in sacred rivers, giving alms and offering to the ancestors; Dharmasindhu p. 2 gives the bath and gifts at the ingress, and p. 31 the Mesha punyakala, ten nadis either side. The mango pachadi, the kolam and the temple visits are popular practice.",
     "baisakhi": "Popular practice; no text read names Baisakhi. It is kept on the day, counted from sunrise to sunrise at Amritsar, in which the Sun enters sidereal Mesha, the way Lohri's Maghi is found; one date for every city, with no time. Dharmasindhu p. 2 gives the bath and gifts at the ingress, and p. 31 the Mesha punyakala, ten nadis either side. The harvest fair, the Khalsa's founding in 1699, the nagar kirtan and the bhangra are popular practice or history, outside the texts read.",
     "gangaur": "Gangaur is the popular name of the Gauri-tritiya: Gauri worshipped with Shiva on the Caitra shukla Tritiya, then rocked on a swing (Nirṇaya-sindhu p. 114, from the Devī-purāṇa; Dharmasindhu pp. 31–32; Vratarāja f. 38, a women's rite for good fortune with a night vigil). The day follows Dharmasindhu p. 9's Gauri-vrata rule: the day whose sunrise the Tritiya holds, even by a trace; two such, the later; none, the Dvitiya-joined day on which it begins. Nirṇaya-sindhu, after Mādhava, asks for at least a muhurta of Tritiya on the later day. The eighteen days of worship from the day after Holi, the clay images, the processions and the immersion are popular practice.",
@@ -1084,7 +1113,9 @@ FESTIVAL_NOTES = {
     "sheetala-ashtami": "Popular practice; no text read gives the Caitra Sheetala Ashtami or Saptami. The day here is our rule: the first day whose sunrise holds the dark Ashtami after Holi (the amanta Phalguna krishna, the purnimanta Caitra krishna), else the day in which it begins; the worship is at dawn with food cooked the day before. Two variants are given: the Saptami by the same rule, kept in some regions and families, and in Rajasthan a move off a Sunday, Tuesday or Saturday to the nearest earlier other day. Jaipur's 1903 census lists Sitla Ashtami among its March festivals (p. 356). The texts' only Shitala vow is the Shravana (purnimanta Bhadrapada) dark Saptami (Vratarāja f. 110; Nirṇaya-sindhu p. 183), not this day. The stale food, the Saptami and the weekday shift are popular practice, and no health result is claimed.",
     "kali-puja": "Popular practice; no text read names Kali Puja (Shyama Puja) or gives its day. The day here is our rule, drawn from the days observed: the night whose nishitha, the middle muhurta of the night, falls in the Dipavali Amavasya (amanta Ashvina, purnimanta Kartika); if the Amavasya covers both nights' nishitha, the night with more of it is kept, and the earlier if they are equal; if it covers neither, the later night, which holds the Amavasya at pradosha (our reading). pujaWindow is that nishitha within the Amavasya. The texts read give this night other rites: Lakshmi worshipped at pradosha (Tithi-tattva pp. 185–186; Nirṇaya-sindhu pp. 299–300), and the women of the town driving Alakshmi out of their house-yards after midnight (Dharmasindhu p. 77). None of them names Kali or Shyama, and the image, the offerings and the night's rites are practice.",
     "ahoi-ashtami": "Popular practice; no text read gives Ahoi Ashtami, its day or its story. The day here is our rule, drawn from the days observed: the dark Ashtami of the nija amanta Ashvina (purnimanta Kartika), on the day whose pradosha, the three muhurtas after sunset, falls in it; if it covers both days' pradosha, the day with more of it is kept, and the earlier if they are equal; if it covers neither, the later day, whose sunrise holds it (our reading). The fast is broken at dusk on sighting the stars, or after moonrise in some families; no text read gives a star-sighting time, so sunset and moonrise are the times given. Dharmasindhu p. 76 has only a bath in Radha-kunda on this Ashtami, for those who live near Mathura.",
+    "vivah-panchami": "Popular practice; no text read names Vivah Panchami or gives a rule for its day. The Fyzabad Gazetteer records Rama's wedding, the Ram-ka-Biah, kept in Aghan in almost every town or large village of the district (Nevill 1905, p. 46), and lists the Ram Biah fair at Ayodhya on Aghan Sudi 5th, the Margashirsha shukla Panchami (Nevill 1905, Appendix, p. xxxvi). The day here is our rule: the first day whose sunrise holds that Panchami, else the day in which it begins.",
     "vaikuntha-ekadashi": "Popular practice; no text read gives the day. Swamikannu Pillai's Indian Ephemeris (1922, p. 64) names it under Pausha shukla 11, a lunar placement, but the days observed follow the solar month, so the rule takes the shukla Ekadashi whose Smarta fast falls in Margazhi at Chennai, for every city. Each city keeps it on its own Ekadashi day, the Smarta fast, with the Vaishnava fast as a variant where the two differ. A calendar year can hold none, one or two.",
+    "ravidas-jayanti": "Popular practice; no text read gives Ravidas Jayanti, or Ravidas's birth date or birthplace. It is kept on the Maghi Purnima: the later day, whose sunrise the Purnima holds (Nirṇaya-sindhu p. 333), or the day the Purnima falls on when it holds no sunrise. The day is reckoned at Prayagraj for every city, as the Magh Mela's days are.",
     "navaratriDays": "Navaratra names a worship set in nine tithis, the Pratipada to the Navami (DS p. 65). Each day's worship goes with the tithi at its sunrise (our reading of DS p. 66); a tithi touching two sunrises is worshipped on both days and one touching none on the day it falls in, so the Navaratri runs eight, nine or ten days. Some keep only eight worships when a day is lost (DS p. 66). The first day is the kalasha-sthapana day.",
     "durgashtami": "Mahashtami: the Ashtami at sunrise joined to the Navami, never one touched by the Saptami however slightly, even with Mula (NS p. 263, DS p. 69). Especially praised on a Tuesday (DS). Bhadra does not bar the worship (Devī-purāṇa, NS p. 264). Those with sons do not fast on it (DS p. 69; NS p. 265).",
     "mahanavami": "The Navami joined to the Ashtami is taken for the worship and the fast when it covers three muhurtas before that day's sunset (NS pp. 272–273, DS p. 69), so Durgashtami and Mahanavami often fall on one day. The animal bali is on the Dashami-joined day (DS p. 69).",
@@ -1122,9 +1153,11 @@ FESTIVAL_CAUTIONS = {
     "tithi_ghatika_margin": "The day the rule gives if the tithi's start or end moves by one ghatika (24 minutes)",
     "pradosha_start": "Cheti Chand is also kept on this day; popular practice",
     "adhika_month": "The day in the first (adhika) Caitra of this year; popular practice",
+    "adhika_new_year": "The new year's bath and sankalpa, on the Pratipada of the first (adhika) Caitra of this year; the flag, neem, forecast and Navaratri stay in the nija Caitra (Dharmasindhu p. 31)",
     "saptami": "Kept on the Saptami in some regions and families; popular practice",
     "rajasthan_weekday": "In Rajasthan the worship moves off a Sunday, Tuesday or Saturday; popular practice",
     "near_boundary": "A close call: had the tithi begun or ended five minutes differently, the rule would give this day.",
+    "parana_near_boundary": "A close call: had the Dvādaśī begun or ended five minutes differently, the fast would be broken {alt}.",
 }
 SANKASHTI_NOTE = (
     "Krishna paksha, by common practice; the texts read do not state the fortnight. Moonrise "
@@ -1610,8 +1643,11 @@ FESTIVAL_NAMES = {
     "sheetala-ashtami": "Sheetala Ashtami",
     "kali-puja": "Kali Puja",
     "ahoi-ashtami": "Ahoi Ashtami",
+    "vivah-panchami": "Vivah Panchami",
     "vaikuntha-ekadashi": "Vaikuntha Ekadashi",
+    "ravidas-jayanti": "Ravidas Jayanti",
     "pongal": "Pongal",
+    "thaipusam": "Thaipusam",
     "magha-snana": "Magha Snana",
 }
 # Popular names served beside the name, as the English pages carry both (the lead, 16 Oct 2026).
@@ -1857,6 +1893,7 @@ def _english() -> dict:
         "shraddhaNote": SHRADDHA_NOTE,
         "sankashtiNote": SANKASHTI_NOTE,
         "paranaNote": PARANA_NOTE,
+        "paranaAlt": PARANA_ALT,
         "pitruPakshaNotes": PITRU_PAKSHA_NOTES,
         "gocharaNotes": GOCHARA_NOTES,
         "vivahRules": {k: {"name": n, "source": src} for k, (n, src) in VIVAH_RULES.items()},

@@ -898,3 +898,37 @@ def test_durga_puja_is_keyed_to_kolkata_for_every_city():
         assert {a: d[a]["localRuleDate"] for a in acts if d[a]["localRuleDate"]} == local, name
         assert (d["sandhiPuja"]["start"][11:16], d["sandhiPuja"]["end"][11:16]) == sandhi, name
         assert d["patrikaPravesha"]["forenoon"]["start"][:10] == "2026-10-18", name
+
+
+def test_vivah_panchami():
+    """s40 (the lead, 26 Oct 2026): Rama's wedding, the Margashirsha shukla Panchami, by Rang
+    Panchami's three rules, per city; popular practice, with Nevill 1905 as context. On each
+    sunrise-rule date the panchang has that Panchami at sunrise."""
+    at = {k: DELHI[k] for k in ("lat", "lon", "tz")}
+
+    def row(year, place=at):
+        status, o = call("GET", "/v1/festivals/vivah-panchami", {**place, "year": str(year)})
+        assert status == 200, o
+        assert (o["basis"], o["source"], len(o["context"])) == ("popular_practice", None, 2)
+        (r,) = o["occurrences"]
+        assert r["rule"] in FESTIVAL_RULES["vivah-panchami"]
+        assert (r["lunarMonth"]["amanta"], r["lunarMonth"]["adhika"]) == ("margashirsha", False)
+        return r
+
+    want = {
+        2026: ("12-14", "sunrise"),
+        2027: ("12-03", "sunrise"),
+        2028: ("11-21", "sunrise"),
+        2001: ("12-19", "two_sunrises_first"),
+        2038: ("11-30", "no_sunrise_day_it_falls_on"),
+    }
+    for year, (day, rule) in want.items():
+        r = row(year)
+        assert (r["date"], r["rule"], r["variants"]) == (f"{year}-{day}", rule, []), year
+        if rule == "sunrise":
+            status, p = call("GET", "/v1/panchang", {**at, "date": r["date"]})
+            assert status == 200, p
+            assert (p["tithi"]["paksha"], p["tithi"]["id"]) == ("shukla", "panchami"), year
+    new_york = {"lat": "40.71427", "lon": "-74.00597", "tz": "America/New_York"}
+    r = row(2026, new_york)
+    assert (r["date"], r["rule"]) == ("2026-12-13", "two_sunrises_first")

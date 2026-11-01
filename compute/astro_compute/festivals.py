@@ -51,7 +51,7 @@ from .observances import (
     ekadashi,
 )
 from .sankranti import _one as _sankranti_one
-from .timeutil import aware, iso, local_jd
+from .timeutil import aware, iso, local_jd, tzinfo
 
 DANDA = 24 / 1440  # one ghatika (danda), in days
 ROHINI, CHITRA, SHRAVANA = 3, 13, 21  # nakshatra indexes, Ashvini = 0
@@ -629,7 +629,22 @@ def _navaratri(
                 for i in shown
             ],
         }
+        # DS p. 31: in an adhika Caitra the new year's bath and sankalpa take the adhika
+        # month's Pratipada by the same rule; the flag, neem, forecast and Navaratri stay here.
+        p0, p1 = _pratipada_before(start, q)
+        prev = _base(p0, p1, 1, q)["lunarMonth"]
+        if prev["amanta"] == "chaitra" and prev["adhika"]:
+            r0, r1 = _sunrises(p0, q.lat, q.lon, 2)
+            rise = r1 if r1 < p1 else r0  # at sunrise, or the day it falls on
+            out["newYear"]["variants"] = [_entry(_date(rise, q), "adhika_new_year")]
     return out
+
+
+def _pratipada_before(start: float, q) -> tuple[float, float]:
+    """The Pratipada a lunar month before the one beginning at start."""
+    edges = Mu._scan(lambda t: Mu.tithi_at(t, q.ayanamsa), start - 31, start - 27, 0.25)
+    i = next(i for i, (_, n) in enumerate(edges) if n == 1)
+    return edges[i][0], edges[i + 1][0]
 
 
 def _tithi_spans(start: float, q) -> dict[int, tuple[float, float]]:
@@ -2235,6 +2250,73 @@ def _lohri(q: EkadashiQuery) -> tuple[list[dict], dict]:
     return [row], {"computedAt": AMRITSAR}
 
 
+# --- Thaipusam (festivals.md s38, the lead's rulings of 19 and 20 Oct 2026) ------------------
+
+
+def _civil_hours(a: float, b: float, q) -> dict[str, float]:
+    """The hours of [a, b) on each civil date, midnight to midnight in the city's own time."""
+    zone, hours, t = tzinfo(q.tz), {}, a
+    while t < b:
+        d = aware(t, q.tz).date()
+        midnight = dt.datetime.combine(d + dt.timedelta(days=1), dt.time(0), tzinfo=zone)
+        m = max(
+            2440587.5 + midnight.timestamp() / 86400, t + 1 / 1440
+        )  # a clock change at midnight
+        hours[d.isoformat()] = hours.get(d.isoformat(), 0.0) + (min(b, m) - t) * 24
+        t = m
+    return hours
+
+
+def _thaipusam(q: EkadashiQuery) -> tuple[list[dict], dict]:
+    """s38 (the lead's rulings of 19 and 20 Oct 2026): the civil day of Tai that Pusam covers
+    most, in the city's own time, Tai begun there by the Tamil Rule. When two Pusams reach into
+    Tai, from its first sunrise to Masi's, the one nearest the full moon in Tai counts. Where
+    Pusam holds the sunrise of another Tai day (always the next), that day is the variant; a
+    Pusam at no sunrise in Tai has none.
+    Popular practice: Jagadisa Ayyar (1921) gives Pusam in Tai, and no text read says which
+    civil day counts when it spans two."""
+    ay = q.ayanamsa
+    first = _tamil_month_start(_makara(q), q)
+    nxt = _tamil_month_start(_ingress(AQUARIUS, first + 25, first + 35, q), q)
+    days = _sunrises(first - 1, q.lat, q.lon, int(nxt - first) + 4)
+    rises = [sr for sr in days if first - 0.1 <= sr < nxt - 0.1]
+    sunrise = {_date(sr, q): sr for sr in rises}
+    tithi = lambda t: Mu.tithi_at(t, ay)  # noqa: E731
+    fulls = [b for _, b in _spans(tithi, 15, first - 16, nxt + 16, 0.1) if b < nxt + 15]
+    full = min(
+        [f for f in fulls if first <= f < nxt] or fulls, key=lambda f: abs(f - (first + nxt) / 2)
+    )
+    nak = lambda t: Mu.nakshatra_at(t, ay)  # noqa: E731
+    found = []
+    for a, b in _spans(nak, PUSHYA, first - 2, nxt + 2, 0.1):
+        hours = _civil_hours(a, b, q)
+        tai = {d: h for d, h in hours.items() if d in sunrise}
+        if tai and a < nxt and b > first:  # reaches into Tai itself
+            found.append((a, b, hours, tai))
+    a, b, hours, tai = min(found, key=lambda p: abs((p[0] + p[1]) / 2 - full))
+    day = max(tai, key=tai.get)
+    held = [d for d in tai if a <= sunrise[d] < b]
+    variant = held[0] if held and day not in held else None
+    if day in held:
+        rule = "majority_with_sunrise"
+    else:
+        rule = "majority_sunrise_variant" if held else "majority_no_sunrise"
+    row = {
+        "date": day,
+        "vara": _vara(sunrise[day], q),
+        "rule": rule,
+        "variantDate": variant,
+        "variantBasis": "sunrise_rule" if variant else None,
+        "cautions": [],
+        "pusam": _span((a, b), q),
+        "coverage": [{"date": d, "hours": round(h, 2)} for d, h in hours.items()],
+        "fullMoon": iso(full, q.tz),
+    }
+    if len(found) > 1:
+        row["twoPusam"] = True
+    return [row], {"tai": {"start": _date(rises[0], q), "end": _date(rises[-1], q)}}
+
+
 # --- Vaikuntha Ekadashi (festivals.md s37, the lead's rulings of 19 Oct 2026) ---------------
 
 
@@ -2498,6 +2580,19 @@ def _rang_panchami(start: float, end: float, _next: float, q: EkadashiQuery) -> 
     first day whose sunrise holds it; holding none, the day it begins."""
     base = _base(start, end, 20, q)
     if not _in_month(base, "phalguna"):
+        return None
+    day, rule = _sunrise_day(start, end, q)
+    margin = [_entry(d, "tithi_ghatika_margin") for d in _margin(start, end, q, _sunrise_day)]
+    return _with_variants(
+        {**base, "date": _date(day, q), "vara": _vara(day, q), "rule": rule}, margin
+    )
+
+
+def _vivah_panchami(start: float, end: float, _next: float, q: EkadashiQuery) -> dict | None:
+    """s40 (the lead, 26 Oct 2026): Rama's wedding, the Margashirsha shukla Panchami (Nevill's
+    "Aghan Sudi 5th"), on the first day whose sunrise holds it; holding none, the day it begins."""
+    base = _base(start, end, 5, q)
+    if not _in_month(base, "margashirsha"):
         return None
     day, rule = _sunrise_day(start, end, q)
     margin = [_entry(d, "tithi_ghatika_margin") for d in _margin(start, end, q, _sunrise_day)]
@@ -2906,6 +3001,17 @@ def _magha_snana(q: EkadashiQuery) -> tuple[list[dict], dict]:
     return [row], {"computedAt": PRAYAGRAJ}
 
 
+def _ravidas(q: EkadashiQuery) -> tuple[list[dict], dict]:
+    """s39.2 (the lead's ruling 3, 21 Oct 2026, as corrected 25 Oct 2026): Ravidas Jayanti on
+    the Maghi Purnima, magha-snana's maghi_purnima day, reckoned at Prayagraj for every city as
+    that row is: NS p. 333's later day, whose sunrise the Purnima holds, or the day it falls on
+    when it holds no sunrise. Popular practice: no text read gives the festival."""
+    rows, extra = _one_place("magha-snana", q.year, q.ayanamsa)
+    m = next(d for row in rows for d in row["bathDays"] if d["id"] == "maghi_purnima")
+    day = {"date": m["date"], "vara": m["vara"], "rule": m["rule"], "tithi": dict(m["tithi"])}
+    return [day], dict(extra)
+
+
 def _year(q: EkadashiQuery, num: int | set[int], build) -> list[dict]:
     rows = _collect(
         q,
@@ -3005,9 +3111,15 @@ FESTIVALS = {
     "vaikuntha-ekadashi": (None, None, None, None),
     "sheetala-ashtami": (23, _sheetala, None, None),
     "magha-snana": (None, None, "pp. 318–326, 330, 333", "pp. 4, 6, 86–88"),
+    # s38 (the lead's rulings of 19 and 20 Oct 2026): popular practice, per city.
+    "thaipusam": (None, None, None, None),
     # Decisions 44-45 (s35-36): popular practice, per city.
     "kali-puja": (30, _kali_puja, None, None),
     "ahoi-ashtami": (23, _ahoi, None, None),
+    # s39.2 (ruling 3): popular practice on magha-snana's maghi_purnima day, at Prayagraj.
+    "ravidas-jayanti": (None, None, None, None),
+    # s40 (the lead, 26 Oct 2026): Rama's wedding, popular practice, per city.
+    "vivah-panchami": (5, _vivah_panchami, None, None),
 }
 POPULAR = {
     "chhath",
@@ -3020,6 +3132,7 @@ POPULAR = {
     "lohri",
     "vishu",
     "baisakhi",
+    "thaipusam",
     "vinayaka-chaturthi",
     "rang-panchami",
     "cheti-chand",
@@ -3027,6 +3140,8 @@ POPULAR = {
     "kali-puja",
     "ahoi-ashtami",
     "vaikuntha-ekadashi",
+    "ravidas-jayanti",
+    "vivah-panchami",
 }
 # Computed at one regional place for every city (decisions 31-33): once per year and ayanamsa.
 ONE_PLACE = {
@@ -3038,12 +3153,14 @@ ONE_PLACE = {
     "baisakhi",
     "cheti-chand",
     "magha-snana",
+    "ravidas-jayanti",
 }
 YEARLY = {
     "onam": _onam,
     "vishwakarma-puja": _vishwakarma,
     "karthigai-deepam": _karthigai,
     "pongal": _pongal,
+    "thaipusam": _thaipusam,
     "lohri": _lohri,
     "vishu": _vishu,
     "tamil-new-year": _tamil_new_year,
@@ -3051,6 +3168,7 @@ YEARLY = {
     "cheti-chand": _cheti_chand,
     "magha-snana": _magha_snana,
     "vaikuntha-ekadashi": _vaikuntha,
+    "ravidas-jayanti": _ravidas,
 }
 KALA_SANKALITA = {
     "text": "Kala Sankalita",
@@ -3081,8 +3199,19 @@ KRTYARATNAKARA = {
         "Asiatic Society of Bengal (Baptist Mission Press), Calcutta, 1925"
     ),
 }
+NEVILL = {
+    "text": (
+        "Fyzabad: a Gazetteer, being Volume XLIII of the District Gazetteers of the United "
+        "Provinces of Agra and Oudh"
+    ),
+    "author": "H. R. Nevill",
+    "edition": (
+        "Printed by F. Luker, Superintendent, Government Press, United Provinces, Allahabad, 1905"
+    ),
+}
 # Texts that touch the day without giving it (s27): shown as context, never as source.
 CONTEXT = {
+    "ravidas-jayanti": [{**SOURCE, "verse": "the Maghi Purnima: the later day", "page": "333"}],
     "vaikuntha-ekadashi": [
         {
             "text": "An Indian Ephemeris, A.D. 700 to A.D. 1799",
@@ -3145,6 +3274,16 @@ CONTEXT = {
             "page": "366–367",
         },
         {**SEWELL_DIKSHIT, "verse": "Art. 28, rule (b), the Malabar month's own rule"},
+    ],
+    "thaipusam": [
+        {
+            "text": "South Indian Festivities",
+            "author": "P. V. Jagadisa Ayyar",
+            "edition": "P. V. Jagadisa Ayyar, Higginbothams, Madras, 1921",
+            "verse": "Tai Pusam, the day over which Pushya presides in the Tamil month of Tai",
+            "page": "31",
+        },
+        SEWELL_DIKSHIT,
     ],
     "tamil-new-year": DS_MESHA,
     "vinayaka-chaturthi": [
@@ -3252,6 +3391,21 @@ CONTEXT = {
             **DS,
             "verse": "a bath in Radha-kunda on this Ashtami, for those who live near Mathura",
             "page": "76",
+        },
+    ],
+    "vivah-panchami": [
+        {
+            **NEVILL,
+            "verse": (
+                "the Ram-ka-Biah, or Rama's wedding, in Aghan, kept in almost every town or "
+                "large village"
+            ),
+            "page": "46",
+        },
+        {
+            **NEVILL,
+            "verse": "Appendix, Fairs: the Ram Biah at Ajodhya on Aghan Sudi 5th",
+            "page": "xxxvi",
         },
     ],
 }

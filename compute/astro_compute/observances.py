@@ -355,22 +355,35 @@ def _also_known_as(nid: str, paksha: str, fast_sunrise: float, q: EkadashiQuery)
     return out
 
 
-def _parana(sr: float, dv_start: float, dv_end: float, q: EkadashiQuery) -> dict:
-    """DS p. 19, NS pp. 70-71, on the day after the fast (sr its sunrise): within
-    Dvadashi, after Hari-vasara (its first quarter), in the first three muhurtas
-    after sunrise (the majority); Hari-vasara outlasting them, the afternoon (the
-    4th fifth of the day), never midday (some); no Dvadashi left at sunrise,
-    on Trayodashi."""
-    dm = (_sunset(sr, q) - sr) / 15
+def _window(sr: float, dm: float, dv_start: float, dv_end: float) -> tuple[float, float, str]:
+    """DS p. 19, NS pp. 70-71, on the day after the fast (sr its sunrise, dm its daytime
+    muhurta): within Dvadashi, after Hari-vasara (its first quarter), in the first three
+    muhurtas after sunrise (the majority); Hari-vasara outlasting them, the afternoon (the
+    4th fifth of the day), never midday (some); no Dvadashi left at sunrise, on
+    Trayodashi."""
     hari_vasara = dv_start + (dv_end - dv_start) / 4
     if dv_end <= sr:
-        a, b, rule = sr, sr + 3 * dm, "trayodashi"
-    else:
-        a, b, rule = max(sr, hari_vasara), min(sr + 3 * dm, dv_end), "morning"
-        if a >= b:
-            a, b, rule = max(sr + 9 * dm, hari_vasara), min(sr + 12 * dm, dv_end), "afternoon"
-        if a >= b:
-            a, b, rule = hari_vasara, dv_end, "within_dvadashi"
+        return sr, sr + 3 * dm, "trayodashi"
+    a, b, rule = max(sr, hari_vasara), min(sr + 3 * dm, dv_end), "morning"
+    if a >= b:
+        a, b, rule = max(sr + 9 * dm, hari_vasara), min(sr + 12 * dm, dv_end), "afternoon"
+    if a >= b:
+        a, b, rule = hari_vasara, dv_end, "within_dvadashi"
+    return a, b, rule
+
+
+def _parana(sr: float, dv_start: float, dv_end: float, q: EkadashiQuery) -> dict:
+    """The pāraṇa on the day whose sunrise is sr, its window as _window gives it. A close
+    call (the lead, 25 Oct 2026): when moving the Dvadashi's start or end by five minutes,
+    four ways, changes the window's rule, the window carries parana_near_boundary and the
+    first such window, in that order, as altWindow."""
+    dm = (_sunset(sr, q) - sr) / 15
+    a, b, rule = _window(sr, dm, dv_start, dv_end)
+    n = NEAR_BOUNDARY
+    moved = ((dv_start - n, dv_end), (dv_start + n, dv_end))
+    moved += ((dv_start, dv_end - n), (dv_start, dv_end + n))
+    alt = next((w for w in (_window(sr, dm, s, e) for s, e in moved) if w[2] != rule), None)
+    hari_vasara = dv_start + (dv_end - dv_start) / 4
     return {
         "date": aware(sr, q.tz).date().isoformat(),
         "start": iso(a, q.tz),
@@ -378,6 +391,10 @@ def _parana(sr: float, dv_start: float, dv_end: float, q: EkadashiQuery) -> dict
         "rule": rule,
         "hariVasaraEnd": iso(hari_vasara, q.tz) if hari_vasara > sr else None,
         "breakBefore": iso(dv_end, q.tz) if dv_end > sr else None,
+        "cautions": ["parana_near_boundary"] if alt else [],
+        "altWindow": {"start": iso(alt[0], q.tz), "end": iso(alt[1], q.tz), "rule": alt[2]}
+        if alt
+        else None,
     }
 
 
