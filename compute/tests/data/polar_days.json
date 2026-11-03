@@ -1,0 +1,2449 @@
+{
+ "cases": [
+  {
+   "id": "murmansk-2026-11-29",
+   "kind": "noon anchor; fixed: refused",
+   "place": {
+    "lat": 68.96778,
+    "lon": 33.09922,
+    "tz": "Europe/Moscow"
+   },
+   "query": {
+    "date": "2026-11-29",
+    "lat": "68.96778",
+    "lon": "33.09922",
+    "tz": "Europe/Moscow"
+   },
+   "correct": {
+    "status": 422,
+    "error": "unsupported_location",
+    "missing": "nextSunrise",
+    "found": {
+     "sunrise": 1795943288,
+     "sunset": 1795946575,
+     "prevSunset": 1795860979
+    },
+    "meanMidnight": 1795902456,
+    "jd": {
+     "sunrise": 2461373.880651526,
+     "sunset": 2461373.9186933264,
+     "prevSunrise": 2461372.8708453774,
+     "prevSunset": 2461372.9280025763
+    }
+   }
+  },
+  {
+   "id": "tromso-2027-01-17",
+   "kind": "sunset search; previous sunset",
+   "place": {
+    "lat": 69.6489,
+    "lon": 18.95508,
+    "tz": "Europe/Oslo"
+   },
+   "query": {
+    "date": "2027-01-17",
+    "lat": "69.6489",
+    "lon": "18.95508",
+    "tz": "Europe/Oslo"
+   },
+   "correct": {
+    "status": 200,
+    "vara": "sunday",
+    "sunrise": 1800181148,
+    "sunset": 1800185399,
+    "nextSunrise": 1800266761,
+    "prevSunset": 1800097609,
+    "brahma": {
+     "start": 1800170009,
+     "end": 1800175578
+    },
+    "abhijit": {
+     "start": 1800183132,
+     "end": 1800183415
+    },
+    "pradosha": {
+     "start": 1800185399,
+     "end": 1800201672
+    },
+    "meanMidnight": 1800139451,
+    "jd": {
+     "sunrise": 2461422.9299488817,
+     "sunset": 2461422.979157768,
+     "nextSunrise": 2461423.9208404855,
+     "prevSunrise": 2461421.9455519784,
+     "prevSunset": 2461421.9630699013
+    }
+   }
+  },
+  {
+   "id": "utqiagvik-2027-01-26",
+   "kind": "noon anchor",
+   "place": {
+    "lat": 71.29058,
+    "lon": -156.78872,
+    "tz": "America/Anchorage"
+   },
+   "query": {
+    "date": "2027-01-26",
+    "lat": "71.29058",
+    "lon": "-156.78872",
+    "tz": "America/Anchorage"
+   },
+   "correct": {
+    "status": 200,
+    "vara": "tuesday",
+    "sunrise": 1800999210,
+    "sunset": 1801007220,
+    "nextSunrise": 1801084969,
+    "prevSunset": 1800920043,
+    "brahma": {
+     "start": 1800988655,
+     "end": 1800993932
+    },
+    "abhijit": {
+     "start": 1801002948,
+     "end": 1801003482
+    },
+    "pradosha": {
+     "start": 1801007220,
+     "end": 1801022770
+    },
+    "meanMidnight": 1800959229,
+    "jd": {
+     "sunrise": 2461432.39826536,
+     "sunset": 2461432.490967987,
+     "nextSunrise": 2461433.390849749,
+     "prevSunrise": 2461431.4069348914,
+     "prevSunset": 2461431.481980904
+    }
+   }
+  },
+  {
+   "id": "inuvik-2027-01-20",
+   "kind": "noon anchor",
+   "place": {
+    "lat": 68.36166,
+    "lon": -133.72817,
+    "tz": "America/Inuvik"
+   },
+   "query": {
+    "date": "2027-01-20",
+    "lat": "68.36166",
+    "lon": "-133.72817",
+    "tz": "America/Inuvik"
+   },
+   "correct": {
+    "status": 200,
+    "vara": "wednesday",
+    "sunrise": 1800472612,
+    "sunset": 1800485753,
+    "nextSunrise": 1800558707,
+    "prevSunset": 1800399006,
+    "brahma": {
+     "start": 1800462798,
+     "end": 1800467705
+    },
+    "abhijit": {
+     "start": 1800478744,
+     "end": 1800479620
+    },
+    "pradosha": {
+     "start": 1800485753,
+     "end": 1800500344
+    },
+    "meanMidnight": 1800435295,
+    "jd": {
+     "sunrise": 2461426.3033777345,
+     "sunset": 2461426.4554724963,
+     "nextSunrise": 2461427.299851685,
+     "prevSunrise": 2461425.3069708087,
+     "prevSunset": 2461425.4514547726
+    }
+   }
+  },
+  {
+   "id": "kangerlussuaq-2026-12-21",
+   "kind": "noon anchor; sunset search; previous sunset",
+   "place": {
+    "lat": 67.00876,
+    "lon": -50.68937,
+    "tz": "America/Nuuk"
+   },
+   "query": {
+    "date": "2026-12-21",
+    "lat": "67.00876",
+    "lon": "-50.68937",
+    "tz": "America/Nuuk"
+   },
+   "correct": {
+    "status": 200,
+    "vara": "monday",
+    "sunrise": 1797864714,
+    "sunset": 1797868192,
+    "nextSunrise": 1797951134,
+    "prevSunset": 1797781792,
+    "brahma": {
+     "start": 1797853658,
+     "end": 1797859186
+    },
+    "abhijit": {
+     "start": 1797866337,
+     "end": 1797866569
+    },
+    "pradosha": {
+     "start": 1797868192,
+     "end": 1797884781
+    },
+    "meanMidnight": 1797823365,
+    "jd": {
+     "sunrise": 2461396.119377547,
+     "sunset": 2461396.1596335247,
+     "nextSunrise": 2461397.119600692,
+     "prevSunrise": 2461395.1186770475,
+     "prevSunset": 2461395.159627012
+    }
+   }
+  },
+  {
+   "id": "kotzebue-2026-12-21",
+   "kind": "noon anchor",
+   "place": {
+    "lat": 66.89846,
+    "lon": -162.59809,
+    "tz": "America/Nome"
+   },
+   "query": {
+    "date": "2026-12-21",
+    "lat": "66.89846",
+    "lon": "-162.59809",
+    "tz": "America/Nome"
+   },
+   "correct": {
+    "status": 200,
+    "vara": "monday",
+    "sunrise": 1797891076,
+    "sunset": 1797895566,
+    "nextSunrise": 1797977488,
+    "prevSunset": 1797809148,
+    "brahma": {
+     "start": 1797880153,
+     "end": 1797885614
+    },
+    "abhijit": {
+     "start": 1797893171,
+     "end": 1797893471
+    },
+    "pradosha": {
+     "start": 1797895566,
+     "end": 1797911950
+    },
+    "meanMidnight": 1797850224,
+    "jd": {
+     "sunrise": 2461396.4244935494,
+     "sunset": 2461396.4764526095,
+     "nextSunrise": 2461397.424631672,
+     "prevSunrise": 2461395.4239856815,
+     "prevSunset": 2461395.4762532017
+    }
+   }
+  },
+  {
+   "id": "nome-2026-12-21",
+   "kind": "noon anchor",
+   "place": {
+    "lat": 64.50111,
+    "lon": -165.40639,
+    "tz": "America/Nome"
+   },
+   "query": {
+    "date": "2026-12-21",
+    "lat": "64.50111",
+    "lon": "-165.40639",
+    "tz": "America/Nome"
+   },
+   "correct": {
+    "status": 200,
+    "vara": "monday",
+    "sunrise": 1797887244,
+    "sunset": 1797900746,
+    "nextSunrise": 1797973669,
+    "prevSunset": 1797814320,
+    "brahma": {
+     "start": 1797877521,
+     "end": 1797882383
+    },
+    "abhijit": {
+     "start": 1797893545,
+     "end": 1797894445
+    },
+    "pradosha": {
+     "start": 1797900746,
+     "end": 1797915331
+    },
+    "meanMidnight": 1797850898,
+    "jd": {
+     "sunrise": 2461396.380142737,
+     "sunset": 2461396.5364163546,
+     "nextSunrise": 2461397.380428403,
+     "prevSunrise": 2461395.379743038,
+     "prevSunset": 2461395.536110042
+    }
+   }
+  },
+  {
+   "id": "gambell-2026-12-21",
+   "kind": "noon anchor",
+   "place": {
+    "lat": 63.77921,
+    "lon": -171.73463,
+    "tz": "America/Nome"
+   },
+   "query": {
+    "date": "2026-12-21",
+    "lat": "63.77921",
+    "lon": "-171.73463",
+    "tz": "America/Nome"
+   },
+   "correct": {
+    "status": 200,
+    "vara": "monday",
+    "sunrise": 1797887986,
+    "sunset": 1797903043,
+    "nextSunrise": 1797974412,
+    "prevSunset": 1797816616,
+    "brahma": {
+     "start": 1797878470,
+     "end": 1797883228
+    },
+    "abhijit": {
+     "start": 1797895013,
+     "end": 1797896016
+    },
+    "pradosha": {
+     "start": 1797903043,
+     "end": 1797917316
+    },
+    "meanMidnight": 1797852416,
+    "jd": {
+     "sunrise": 2461396.388731469,
+     "sunset": 2461396.5629943497,
+     "nextSunrise": 2461397.389023428,
+     "prevSunrise": 2461395.38833945,
+     "prevSunset": 2461395.5626807613
+    }
+   }
+  },
+  {
+   "id": "dawson-city-2026-12-21",
+   "kind": "noon anchor",
+   "place": {
+    "lat": 64.06013,
+    "lon": -139.43328,
+    "tz": "America/Dawson"
+   },
+   "query": {
+    "date": "2026-12-21",
+    "lat": "64.06013",
+    "lon": "-139.43328",
+    "tz": "America/Dawson"
+   },
+   "correct": {
+    "status": 200,
+    "vara": "monday",
+    "sunrise": 1797880520,
+    "sunset": 1797894999,
+    "nextSunrise": 1797966946,
+    "prevSunset": 1797808573,
+    "brahma": {
+     "start": 1797870927,
+     "end": 1797875724
+    },
+    "abhijit": {
+     "start": 1797887277,
+     "end": 1797888242
+    },
+    "pradosha": {
+     "start": 1797894999,
+     "end": 1797909388
+    },
+    "meanMidnight": 1797844664,
+    "jd": {
+     "sunrise": 2461396.302316137,
+     "sunset": 2461396.4698951608,
+     "nextSunrise": 2461397.302614636,
+     "prevSunrise": 2461395.301912724,
+     "prevSunset": 2461395.4695928814
+    }
+   }
+  },
+  {
+   "id": "isafjoerdur-2026-12-21",
+   "kind": "noon anchor",
+   "place": {
+    "lat": 66.07475,
+    "lon": -23.13498,
+    "tz": "Atlantic/Reykjavik"
+   },
+   "query": {
+    "date": "2026-12-21",
+    "lat": "66.07475",
+    "lon": "-23.13498",
+    "tz": "Atlantic/Reykjavik"
+   },
+   "correct": {
+    "status": 200,
+    "vara": "monday",
+    "sunrise": 1797855404,
+    "sunset": 1797864272,
+    "nextSunrise": 1797941831,
+    "prevSunset": 1797777854,
+    "brahma": {
+     "start": 1797845064,
+     "end": 1797850234
+    },
+    "abhijit": {
+     "start": 1797859542,
+     "end": 1797860134
+    },
+    "pradosha": {
+     "start": 1797864272,
+     "end": 1797879784
+    },
+    "meanMidnight": 1797816752,
+    "jd": {
+     "sunrise": 2461396.011617925,
+     "sunset": 2461396.114259269,
+     "nextSunrise": 2461397.011935659,
+     "prevSunrise": 2461395.0111177396,
+     "prevSunset": 2461395.1140529746
+    }
+   }
+  },
+  {
+   "id": "kandalaksha-2026-12-21",
+   "kind": "noon anchor; sunset search; previous sunset",
+   "place": {
+    "lat": 67.15123,
+    "lon": 32.41284,
+    "tz": "Europe/Moscow"
+   },
+   "query": {
+    "date": "2026-12-21",
+    "lat": "67.15123",
+    "lon": "32.41284",
+    "tz": "Europe/Moscow"
+   },
+   "correct": {
+    "status": 200,
+    "vara": "monday",
+    "sunrise": 1797845863,
+    "sunset": 1797847141,
+    "nextSunrise": 1797932288,
+    "prevSunset": 1797760811,
+    "brahma": {
+     "start": 1797834522,
+     "end": 1797840193
+    },
+    "abhijit": {
+     "start": 1797846459,
+     "end": 1797846544
+    },
+    "pradosha": {
+     "start": 1797847141,
+     "end": 1797864170
+    },
+    "meanMidnight": 1797803421,
+    "jd": {
+     "sunrise": 2461395.9011877086,
+     "sunset": 2461395.915981181,
+     "nextSunrise": 2461396.901486815,
+     "prevSunrise": 2461394.8996661287,
+     "prevSunset": 2461394.916795719
+    }
+   }
+  },
+  {
+   "id": "norilsk-2027-01-18",
+   "kind": "noon anchor",
+   "place": {
+    "lat": 69.3535,
+    "lon": 88.2027,
+    "tz": "Asia/Krasnoyarsk"
+   },
+   "query": {
+    "date": "2027-01-18",
+    "lat": "69.3535",
+    "lon": "88.2027",
+    "tz": "Asia/Krasnoyarsk"
+   },
+   "correct": {
+    "status": 200,
+    "vara": "monday",
+    "sunrise": 1800249374,
+    "sunset": 1800256767,
+    "nextSunrise": 1800335269,
+    "prevSunset": 1800169756,
+    "brahma": {
+     "start": 1800238758,
+     "end": 1800244066
+    },
+    "abhijit": {
+     "start": 1800252824,
+     "end": 1800253317
+    },
+    "pradosha": {
+     "start": 1800256767,
+     "end": 1800272467
+    },
+    "meanMidnight": 1800209231,
+    "jd": {
+     "sunrise": 2461423.7196015674,
+     "sunset": 2461423.805169598,
+     "nextSunrise": 2461424.713763175,
+     "prevSunrise": 2461422.726196159,
+     "prevSunset": 2461422.798104025
+    }
+   }
+  },
+  {
+   "id": "verkhoyansk-2026-12-08",
+   "kind": "noon anchor",
+   "place": {
+    "lat": 67.55387,
+    "lon": 133.38976,
+    "tz": "Asia/Vladivostok"
+   },
+   "query": {
+    "date": "2026-12-08",
+    "lat": "67.55387",
+    "lon": "133.38976",
+    "tz": "Asia/Vladivostok"
+   },
+   "correct": {
+    "status": 200,
+    "vara": "tuesday",
+    "sunrise": 1796696105,
+    "sunset": 1796701250,
+    "nextSunrise": 1796782937,
+    "prevSunset": 1796615197,
+    "brahma": {
+     "start": 1796685317,
+     "end": 1796690711
+    },
+    "abhijit": {
+     "start": 1796698506,
+     "end": 1796698849
+    },
+    "pradosha": {
+     "start": 1796701250,
+     "end": 1796717588
+    },
+    "meanMidnight": 1796655986,
+    "jd": {
+     "sunrise": 2461382.5938062267,
+     "sunset": 2461382.653358574,
+     "nextSunrise": 2461383.5988120846,
+     "prevSunrise": 2461381.5891734436,
+     "prevSunset": 2461381.657369577
+    }
+   }
+  },
+  {
+   "id": "upernavik-2027-02-01",
+   "kind": "noon anchor",
+   "place": {
+    "lat": 72.78358,
+    "lon": -56.14933,
+    "tz": "America/Nuuk"
+   },
+   "query": {
+    "date": "2027-02-01",
+    "lat": "72.78358",
+    "lon": "-56.14933",
+    "tz": "America/Nuuk"
+   },
+   "correct": {
+    "status": 200,
+    "vara": "monday",
+    "sunrise": 1801493219,
+    "sunset": 1801501835,
+    "nextSunrise": 1801578898,
+    "prevSunset": 1801414564,
+    "brahma": {
+     "start": 1801482732,
+     "end": 1801487975
+    },
+    "abhijit": {
+     "start": 1801497240,
+     "end": 1801497814
+    },
+    "pradosha": {
+     "start": 1801501835,
+     "end": 1801517247
+    },
+    "meanMidnight": 1801453476,
+    "jd": {
+     "sunrise": 2461438.1159615787,
+     "sunset": 2461438.2156791165,
+     "nextSunrise": 2461439.107618043,
+     "prevSunrise": 2461437.1258201795,
+     "prevSunset": 2461437.2056075144
+    }
+   }
+  },
+  {
+   "id": "qaanaaq-2026-10-26",
+   "kind": "noon anchor",
+   "place": {
+    "lat": 77.46666,
+    "lon": -69.23155,
+    "tz": "America/Thule"
+   },
+   "query": {
+    "date": "2026-10-26",
+    "lat": "77.46666",
+    "lon": "-69.23155",
+    "tz": "America/Thule"
+   },
+   "correct": {
+    "status": 200,
+    "vara": "monday",
+    "sunrise": 1793027468,
+    "sunset": 1793035713,
+    "nextSunrise": 1793115464,
+    "prevSunset": 1792950469,
+    "brahma": {
+     "start": 1793017202,
+     "end": 1793022335
+    },
+    "abhijit": {
+     "start": 1793031316,
+     "end": 1793031865
+    },
+    "pradosha": {
+     "start": 1793035713,
+     "end": 1793051663
+    },
+    "meanMidnight": 1792989416,
+    "jd": {
+     "sunrise": 2461340.1327358447,
+     "sunset": 2461340.2281540595,
+     "nextSunrise": 2461341.1512088934,
+     "prevSunrise": 2461339.119480892,
+     "prevSunset": 2461339.241534595
+    }
+   }
+  },
+  {
+   "id": "murmansk-2027-01-15",
+   "kind": "noon anchor; previous sunset",
+   "place": {
+    "lat": 68.96778,
+    "lon": 33.09922,
+    "tz": "Europe/Moscow"
+   },
+   "query": {
+    "date": "2027-01-15",
+    "lat": "68.96778",
+    "lon": "33.09922",
+    "tz": "Europe/Moscow"
+   },
+   "correct": {
+    "status": 200,
+    "vara": "friday",
+    "sunrise": 1800003841,
+    "sunset": 1800010228,
+    "nextSunrise": 1800089727,
+    "prevSunset": 1799923186,
+    "brahma": {
+     "start": 1799993087,
+     "end": 1799998464
+    },
+    "abhijit": {
+     "start": 1800006822,
+     "end": 1800007248
+    },
+    "pradosha": {
+     "start": 1800010228,
+     "end": 1800026128
+    },
+    "meanMidnight": 1799963256,
+    "jd": {
+     "sunrise": 2461420.8777918355,
+     "sunset": 2461420.9517181213,
+     "nextSunrise": 2461421.8718371997,
+     "prevSunrise": 2461419.8847090662,
+     "prevSunset": 2461419.9442832638
+    }
+   }
+  },
+  {
+   "id": "utqiagvik-2026-11-17",
+   "kind": "noon anchor; fixed: refused",
+   "place": {
+    "lat": 71.29058,
+    "lon": -156.78872,
+    "tz": "America/Anchorage"
+   },
+   "query": {
+    "date": "2026-11-17",
+    "lat": "71.29058",
+    "lon": "-156.78872",
+    "tz": "America/Anchorage"
+   },
+   "correct": {
+    "status": 422,
+    "error": "unsupported_location",
+    "missing": "nextSunrise",
+    "found": {
+     "sunrise": 1794951601,
+     "sunset": 1794955402,
+     "prevSunset": 1794870076
+    },
+    "meanMidnight": 1794911229,
+    "jd": {
+     "sunrise": 2461362.4027916524,
+     "sunset": 2461362.4467876935,
+     "prevSunrise": 2461361.390077751,
+     "prevSunset": 2461361.4592100093
+    }
+   }
+  },
+  {
+   "id": "inuvik-2026-12-03",
+   "kind": "noon anchor; fixed: refused",
+   "place": {
+    "lat": 68.36166,
+    "lon": -133.72817,
+    "tz": "America/Inuvik"
+   },
+   "query": {
+    "date": "2026-12-03",
+    "lat": "68.36166",
+    "lon": "-133.72817",
+    "tz": "America/Inuvik"
+   },
+   "correct": {
+    "status": 422,
+    "error": "unsupported_location",
+    "missing": "nextSunrise",
+    "found": {
+     "sunrise": 1796329585,
+     "sunset": 1796331765,
+     "prevSunset": 1796246227
+    },
+    "meanMidnight": 1796288095,
+    "jd": {
+     "sunrise": 2461378.3516787905,
+     "sunset": 2461378.3769045756,
+     "prevSunrise": 2461377.3411324318,
+     "prevSunset": 2461377.3868844565
+    }
+   }
+  },
+  {
+   "id": "pevek-2026-11-26",
+   "kind": "noon anchor; fixed: refused",
+   "place": {
+    "lat": 69.70279,
+    "lon": 170.30708,
+    "tz": "Asia/Anadyr"
+   },
+   "query": {
+    "date": "2026-11-26",
+    "lat": "69.70279",
+    "lon": "170.30708",
+    "tz": "Asia/Anadyr"
+   },
+   "correct": {
+    "status": 422,
+    "error": "unsupported_location",
+    "missing": "nextSunrise",
+    "found": {
+     "sunrise": 1795652333,
+     "sunset": 1795653130,
+     "prevSunset": 1795568339
+    },
+    "meanMidnight": 1795610326,
+    "jd": {
+     "sunrise": 2461370.5131126856,
+     "sunset": 2461370.5223416095,
+     "prevSunrise": 2461369.4940493796,
+     "prevSunset": 2461369.5409658295
+    }
+   }
+  },
+  {
+   "id": "qaanaaq-2026-10-27",
+   "kind": "noon anchor; fixed: refused",
+   "place": {
+    "lat": 77.46666,
+    "lon": -69.23155,
+    "tz": "America/Thule"
+   },
+   "query": {
+    "date": "2026-10-27",
+    "lat": "77.46666",
+    "lon": "-69.23155",
+    "tz": "America/Thule"
+   },
+   "correct": {
+    "status": 422,
+    "error": "unsupported_location",
+    "missing": "nextSunrise",
+    "found": {
+     "sunrise": 1793115464,
+     "sunset": 1793120507,
+     "prevSunset": 1793035713
+    },
+    "meanMidnight": 1793075816,
+    "jd": {
+     "sunrise": 2461341.1512089316,
+     "sunset": 2461341.209572286,
+     "prevSunrise": 2461340.1327357907,
+     "prevSunset": 2461340.2281540055
+    }
+   }
+  },
+  {
+   "id": "murmansk-2027-01-14",
+   "kind": "noon anchor; fixed: formed",
+   "place": {
+    "lat": 68.96778,
+    "lon": 33.09922,
+    "tz": "Europe/Moscow"
+   },
+   "query": {
+    "date": "2027-01-14",
+    "lat": "68.96778",
+    "lon": "33.09922",
+    "tz": "Europe/Moscow"
+   },
+   "correct": {
+    "status": 200,
+    "vara": "thursday",
+    "sunrise": 1799918039,
+    "sunset": 1799923186,
+    "nextSunrise": 1800003841,
+    "prevSunset": 1799835974,
+    "brahma": {
+     "start": 1799907097,
+     "end": 1799912568
+    },
+    "abhijit": {
+     "start": 1799920441,
+     "end": 1799920784
+    },
+    "pradosha": {
+     "start": 1799923186,
+     "end": 1799939317
+    },
+    "meanMidnight": 1799876856,
+    "jd": {
+     "sunrise": 2461419.884708994,
+     "sunset": 2461419.9442832237,
+     "nextSunrise": 2461420.8777919495,
+     "prevSunrise": 2461418.8935724813,
+     "prevSunset": 2461418.934886393
+    }
+   }
+  },
+  {
+   "id": "utqiagvik-2027-01-25",
+   "kind": "noon anchor; fixed: formed",
+   "place": {
+    "lat": 71.29058,
+    "lon": -156.78872,
+    "tz": "America/Anchorage"
+   },
+   "query": {
+    "date": "2027-01-25",
+    "lat": "71.29058",
+    "lon": "-156.78872",
+    "tz": "America/Anchorage"
+   },
+   "correct": {
+    "status": 200,
+    "vara": "monday",
+    "sunrise": 1800913559,
+    "sunset": 1800920043,
+    "nextSunrise": 1800999210,
+    "prevSunset": 1800832649,
+    "brahma": {
+     "start": 1800902771,
+     "end": 1800908165
+    },
+    "abhijit": {
+     "start": 1800916585,
+     "end": 1800917017
+    },
+    "pradosha": {
+     "start": 1800920043,
+     "end": 1800935877
+    },
+    "meanMidnight": 1800872829,
+    "jd": {
+     "sunrise": 2461431.406934895,
+     "sunset": 2461431.4819809077,
+     "nextSunrise": 2461432.398265391,
+     "prevSunrise": 2461430.418103357,
+     "prevSunset": 2461430.4704765785
+    }
+   }
+  },
+  {
+   "id": "inuvik-2027-01-09",
+   "kind": "noon anchor; fixed: formed",
+   "place": {
+    "lat": 68.36166,
+    "lon": -133.72817,
+    "tz": "America/Inuvik"
+   },
+   "query": {
+    "date": "2027-01-09",
+    "lat": "68.36166",
+    "lon": "-133.72817",
+    "tz": "America/Inuvik"
+   },
+   "correct": {
+    "status": 200,
+    "vara": "saturday",
+    "sunrise": 1799526528,
+    "sunset": 1799530554,
+    "nextSunrise": 1799612334,
+    "prevSunset": 1799443260,
+    "brahma": {
+     "start": 1799515426,
+     "end": 1799520977
+    },
+    "abhijit": {
+     "start": 1799528407,
+     "end": 1799528675
+    },
+    "pradosha": {
+     "start": 1799530554,
+     "end": 1799546910
+    },
+    "meanMidnight": 1799484895,
+    "jd": {
+     "sunrise": 2461415.3533380297,
+     "sunset": 2461415.3999274685,
+     "nextSunrise": 2461416.346453787,
+     "prevSunrise": 2461414.363082764,
+     "prevSunset": 2461414.38958556
+    }
+   }
+  },
+  {
+   "id": "vorkuta-2027-07-15",
+   "kind": "evening sunrise: the date's weekday",
+   "place": {
+    "lat": 67.50867,
+    "lon": 64.0667,
+    "tz": "Europe/Moscow"
+   },
+   "query": {
+    "date": "2027-07-15",
+    "lat": "67.50867",
+    "lon": "64.0667",
+    "tz": "Europe/Moscow"
+   },
+   "correct": {
+    "status": 200,
+    "vara": "thursday",
+    "sunrise": 1815596824,
+    "sunset": 1815678195,
+    "nextSunrise": 1815683810,
+    "prevSunset": 1815592368,
+    "brahma": {
+     "start": 1815596230,
+     "end": 1815596527
+    },
+    "abhijit": {
+     "start": 1815634797,
+     "end": 1815640222
+    },
+    "pradosha": {
+     "start": 1815678195,
+     "end": 1815679318
+    },
+    "meanMidnight": 1815594224,
+    "jd": {
+     "sunrise": 2461601.3521251995,
+     "sunset": 2461602.293926012,
+     "nextSunrise": 2461602.3589167856,
+     "prevSunrise": 2461600.343255092,
+     "prevSunset": 2461601.3005607286
+    }
+   }
+  },
+  {
+   "id": "vorkuta-2027-05-24",
+   "kind": "evening sunrise: the date's weekday",
+   "place": {
+    "lat": 67.50867,
+    "lon": 64.0667,
+    "tz": "Europe/Moscow"
+   },
+   "query": {
+    "date": "2027-05-24",
+    "lat": "67.50867",
+    "lon": "64.0667",
+    "tz": "Europe/Moscow"
+   },
+   "correct": {
+    "status": 200,
+    "vara": "monday",
+    "sunrise": 1811105997,
+    "sunset": 1811183205,
+    "nextSunrise": 1811192026,
+    "prevSunset": 1811096422,
+    "brahma": {
+     "start": 1811104721,
+     "end": 1811105359
+    },
+    "abhijit": {
+     "start": 1811142028,
+     "end": 1811147175
+    },
+    "pradosha": {
+     "start": 1811183205,
+     "end": 1811184970
+    },
+    "meanMidnight": 1811101424,
+    "jd": {
+     "sunrise": 2461549.374967061,
+     "sunset": 2461550.2685809573,
+     "nextSunrise": 2461550.3706723494,
+     "prevSunrise": 2461548.3790743854,
+     "prevSunset": 2461549.264146539
+    }
+   }
+  },
+  {
+   "id": "uelen-2027-06-11",
+   "kind": "evening sunrise: the date's weekday",
+   "place": {
+    "lat": 66.15966,
+    "lon": -169.80979,
+    "tz": "Asia/Anadyr"
+   },
+   "query": {
+    "date": "2027-06-11",
+    "lat": "66.15966",
+    "lon": "-169.80979",
+    "tz": "Asia/Anadyr"
+   },
+   "correct": {
+    "status": 200,
+    "vara": "friday",
+    "sunrise": 1812628280,
+    "sunset": 1812711120,
+    "nextSunrise": 1812714331,
+    "prevSunset": 1812624345,
+    "brahma": {
+     "start": 1812627755,
+     "end": 1812628018
+    },
+    "abhijit": {
+     "start": 1812666938,
+     "end": 1812672461
+    },
+    "pradosha": {
+     "start": 1812711120,
+     "end": 1812711762
+    },
+    "meanMidnight": 1812626354,
+    "jd": {
+     "sunrise": 2461566.99398274,
+     "sunset": 2461567.9527720343,
+     "nextSunrise": 2461567.9899426475,
+     "prevSunrise": 2461565.9976712423,
+     "prevSunset": 2461566.9484354267
+    }
+   }
+  },
+  {
+   "id": "inta-2027-06-08",
+   "kind": "evening sunrise: the date's weekday",
+   "place": {
+    "lat": 66.03169,
+    "lon": 60.16594,
+    "tz": "Europe/Moscow"
+   },
+   "query": {
+    "date": "2027-06-08",
+    "lat": "66.03169",
+    "lon": "60.16594",
+    "tz": "Europe/Moscow"
+   },
+   "correct": {
+    "status": 200,
+    "vara": "tuesday",
+    "sunrise": 1812401463,
+    "sunset": 1812481784,
+    "nextSunrise": 1812487612,
+    "prevSunset": 1812395108,
+    "brahma": {
+     "start": 1812400615,
+     "end": 1812401039
+    },
+    "abhijit": {
+     "start": 1812438946,
+     "end": 1812444301
+    },
+    "pradosha": {
+     "start": 1812481784,
+     "end": 1812482949
+    },
+    "meanMidnight": 1812398360,
+    "jd": {
+     "sunrise": 2461564.3687814856,
+     "sunset": 2461565.298424231,
+     "nextSunrise": 2461565.365876657,
+     "prevSunrise": 2461563.37165555,
+     "prevSunset": 2461564.295236651
+    }
+   }
+  },
+  {
+   "id": "vorkuta-2027-07-14",
+   "kind": "refused, unchanged",
+   "place": {
+    "lat": 67.50867,
+    "lon": 64.0667,
+    "tz": "Europe/Moscow"
+   },
+   "query": {
+    "date": "2027-07-14",
+    "lat": "67.50867",
+    "lon": "64.0667",
+    "tz": "Europe/Moscow"
+   },
+   "correct": {
+    "status": 422,
+    "error": "unsupported_location",
+    "missing": "prevSunrise",
+    "found": {
+     "sunrise": 1815509657,
+     "sunset": 1815592368,
+     "nextSunrise": 1815596824
+    },
+    "meanMidnight": 1815507824,
+    "jd": {
+     "sunrise": 2461600.343255082,
+     "sunset": 2461601.300560725,
+     "nextSunrise": 2461601.3521251753
+    }
+   }
+  },
+  {
+   "id": "vorkuta-2027-05-30",
+   "kind": "evening sunrise: the date's weekday",
+   "place": {
+    "lat": 67.50867,
+    "lon": 64.0667,
+    "tz": "Europe/Moscow"
+   },
+   "query": {
+    "date": "2027-05-30",
+    "lat": "67.50867",
+    "lon": "64.0667",
+    "tz": "Europe/Moscow"
+   },
+   "correct": {
+    "status": 200,
+    "vara": "sunday",
+    "sunrise": 1811621609,
+    "sunset": 1811705040,
+    "nextSunrise": 1811707085,
+    "prevSunset": 1811617698,
+    "brahma": {
+     "start": 1811621087,
+     "end": 1811621348
+    },
+    "abhijit": {
+     "start": 1811660543,
+     "end": 1811666105
+    },
+    "pradosha": {
+     "start": 1811705040,
+     "end": 1811705449
+    },
+    "meanMidnight": 1811619824,
+    "jd": {
+     "sunrise": 2461555.342693451,
+     "sunset": 2461556.3083278015,
+     "nextSunrise": 2461556.332007724,
+     "prevSunrise": 2461554.3499614107,
+     "prevSunset": 2461555.297433967
+    }
+   }
+  },
+  {
+   "id": "vorkuta-2027-07-19",
+   "kind": "evening sunrise: the date's weekday",
+   "place": {
+    "lat": 67.50867,
+    "lon": 64.0667,
+    "tz": "Europe/Moscow"
+   },
+   "query": {
+    "date": "2027-07-19",
+    "lat": "67.50867",
+    "lon": "64.0667",
+    "tz": "Europe/Moscow"
+   },
+   "correct": {
+    "status": 200,
+    "vara": "monday",
+    "sunrise": 1815944382,
+    "sunset": 1816022075,
+    "nextSunrise": 1816031174,
+    "prevSunset": 1815936058,
+    "brahma": {
+     "start": 1815943272,
+     "end": 1815943827
+    },
+    "abhijit": {
+     "start": 1815980639,
+     "end": 1815985819
+    },
+    "pradosha": {
+     "start": 1816022075,
+     "end": 1816023895
+    },
+    "meanMidnight": 1815939824,
+    "jd": {
+     "sunrise": 2461605.3747942075,
+     "sunset": 2461606.274020954,
+     "nextSunrise": 2461606.379326864,
+     "prevSunrise": 2461604.369966033,
+     "prevSunset": 2461605.2784459637
+    }
+   }
+  },
+  {
+   "id": "amderma-2027-07-28",
+   "kind": "evening sunrise: the date's weekday",
+   "place": {
+    "lat": 69.7576,
+    "lon": 61.6655,
+    "tz": "Europe/Moscow"
+   },
+   "query": {
+    "date": "2027-07-28",
+    "lat": "69.7576",
+    "lon": "61.6655",
+    "tz": "Europe/Moscow"
+   },
+   "correct": {
+    "status": 200,
+    "vara": "wednesday",
+    "sunrise": 1816721652,
+    "sunset": 1816800928,
+    "nextSunrise": 1816808710,
+    "prevSunset": 1816715188,
+    "brahma": {
+     "start": 1816720790,
+     "end": 1816721221
+    },
+    "abhijit": {
+     "start": 1816758647,
+     "end": 1816763933
+    },
+    "pradosha": {
+     "start": 1816800928,
+     "end": 1816802485
+    },
+    "meanMidnight": 1816718000,
+    "jd": {
+     "sunrise": 2461614.3709667856,
+     "sunset": 2461615.288523622,
+     "nextSunrise": 2461615.378588227,
+     "prevSunrise": 2461613.3615886923,
+     "prevSunset": 2461614.296155628
+    }
+   }
+  },
+  {
+   "id": "inta-2027-07-06",
+   "kind": "evening sunrise: the date's weekday",
+   "place": {
+    "lat": 66.03169,
+    "lon": 60.16594,
+    "tz": "Europe/Moscow"
+   },
+   "query": {
+    "date": "2027-07-06",
+    "lat": "66.03169",
+    "lon": "60.16594",
+    "tz": "Europe/Moscow"
+   },
+   "correct": {
+    "status": 200,
+    "vara": "tuesday",
+    "sunrise": 1814821148,
+    "sunset": 1814900704,
+    "nextSunrise": 1814907817,
+    "prevSunset": 1814814551,
+    "brahma": {
+     "start": 1814820268,
+     "end": 1814820708
+    },
+    "abhijit": {
+     "start": 1814858274,
+     "end": 1814863577
+    },
+    "pradosha": {
+     "start": 1814900704,
+     "end": 1814902126
+    },
+    "meanMidnight": 1814817560,
+    "jd": {
+     "sunrise": 2461592.374393384,
+     "sunset": 2461593.2951809666,
+     "nextSunrise": 2461593.377507706,
+     "prevSunrise": 2461591.3712430764,
+     "prevSunset": 2461592.2980438895
+    }
+   }
+  },
+  {
+   "id": "vorkuta-2027-05-23",
+   "kind": "two sunrises on the clock; unchanged",
+   "place": {
+    "lat": 67.50867,
+    "lon": 64.0667,
+    "tz": "Europe/Moscow"
+   },
+   "query": {
+    "date": "2027-05-23",
+    "lat": "67.50867",
+    "lon": "64.0667",
+    "tz": "Europe/Moscow"
+   },
+   "correct": {
+    "status": 200,
+    "vara": "sunday",
+    "sunrise": 1811019952,
+    "sunset": 1811096422,
+    "nextSunrise": 1811105997,
+    "prevSunset": 1811009656,
+    "brahma": {
+     "start": 1811018579,
+     "end": 1811019266
+    },
+    "abhijit": {
+     "start": 1811055638,
+     "end": 1811060736
+    },
+    "pradosha": {
+     "start": 1811096422,
+     "end": 1811098337
+    },
+    "meanMidnight": 1811015024,
+    "jd": {
+     "sunrise": 2461548.3790743775,
+     "sunset": 2461549.264146531,
+     "nextSunrise": 2461549.374967063,
+     "prevSunrise": 2461547.3830314977,
+     "prevSunset": 2461548.2599117476
+    }
+   }
+  },
+  {
+   "id": "bodo-2026-12-12",
+   "kind": "sunset search",
+   "place": {
+    "lat": 67.28267,
+    "lon": 14.37513,
+    "tz": "Europe/Oslo"
+   },
+   "query": {
+    "date": "2026-12-12",
+    "lat": "67.28267",
+    "lon": "14.37513",
+    "tz": "Europe/Oslo"
+   },
+   "correct": {
+    "status": 200,
+    "vara": "saturday",
+    "sunrise": 1797070869,
+    "sunset": 1797075056,
+    "nextSunrise": 1797157634,
+    "prevSunset": 1796988946,
+    "brahma": {
+     "start": 1797059946,
+     "end": 1797065408
+    },
+    "abhijit": {
+     "start": 1797072823,
+     "end": 1797073102
+    },
+    "pradosha": {
+     "start": 1797075056,
+     "end": 1797091572
+    },
+    "meanMidnight": 1797030150,
+    "jd": {
+     "sunrise": 2461386.931356362,
+     "sunset": 2461386.9798151474,
+     "nextSunrise": 2461387.935573763,
+     "prevSunrise": 2461385.9273394933,
+     "prevSunset": 2461385.9831671836
+    }
+   }
+  },
+  {
+   "id": "pevek-2026-11-25",
+   "kind": "sunset search",
+   "place": {
+    "lat": 69.70279,
+    "lon": 170.30708,
+    "tz": "Asia/Anadyr"
+   },
+   "query": {
+    "date": "2026-11-25",
+    "lat": "69.70279",
+    "lon": "170.30708",
+    "tz": "Asia/Anadyr"
+   },
+   "correct": {
+    "status": 200,
+    "vara": "wednesday",
+    "sunrise": 1795564286,
+    "sunset": 1795568339,
+    "nextSunrise": 1795652333,
+    "prevSunset": 1795482756,
+    "brahma": {
+     "start": 1795553415,
+     "end": 1795558851
+    },
+    "abhijit": {
+     "start": 1795566178,
+     "end": 1795566448
+    },
+    "pradosha": {
+     "start": 1795568339,
+     "end": 1795585138
+    },
+    "meanMidnight": 1795523926,
+    "jd": {
+     "sunrise": 2461369.494049348,
+     "sunset": 2461369.5409658174,
+     "nextSunrise": 2461370.51311266,
+     "prevSunrise": 2461368.4841719917,
+     "prevSunset": 2461368.550421821
+    }
+   }
+  },
+  {
+   "id": "gallivare-2026-12-21",
+   "kind": "sunset search; previous sunset",
+   "place": {
+    "lat": 67.13387,
+    "lon": 20.65278,
+    "tz": "Europe/Stockholm"
+   },
+   "query": {
+    "date": "2026-12-21",
+    "lat": "67.13387",
+    "lon": "20.65278",
+    "tz": "Europe/Stockholm"
+   },
+   "correct": {
+    "status": 200,
+    "vara": "monday",
+    "sunrise": 1797848472,
+    "sunset": 1797850178,
+    "nextSunrise": 1797934896,
+    "prevSunset": 1797763823,
+    "brahma": {
+     "start": 1797837185,
+     "end": 1797842829
+    },
+    "abhijit": {
+     "start": 1797849268,
+     "end": 1797849382
+    },
+    "pradosha": {
+     "start": 1797850178,
+     "end": 1797867122
+    },
+    "meanMidnight": 1797806243,
+    "jd": {
+     "sunrise": 2461395.931388855,
+     "sunset": 2461395.951136738,
+     "nextSunrise": 2461396.9316696846,
+     "prevSunrise": 2461394.9301625965,
+     "prevSunset": 2461394.951655997
+    }
+   }
+  },
+  {
+   "id": "bodo-2026-12-13",
+   "kind": "sunset search; previous sunset",
+   "place": {
+    "lat": 67.28267,
+    "lon": 14.37513,
+    "tz": "Europe/Oslo"
+   },
+   "query": {
+    "date": "2026-12-13",
+    "lat": "67.28267",
+    "lon": "14.37513",
+    "tz": "Europe/Oslo"
+   },
+   "correct": {
+    "status": 200,
+    "vara": "sunday",
+    "sunrise": 1797157634,
+    "sunset": 1797161150,
+    "nextSunrise": 1797244427,
+    "prevSunset": 1797075056,
+    "brahma": {
+     "start": 1797146623,
+     "end": 1797152128
+    },
+    "abhijit": {
+     "start": 1797159274,
+     "end": 1797159509
+    },
+    "pradosha": {
+     "start": 1797161150,
+     "end": 1797177805
+    },
+    "meanMidnight": 1797116550,
+    "jd": {
+     "sunrise": 2461387.935573796,
+     "sunset": 2461387.9762703697,
+     "nextSunrise": 2461388.940130001,
+     "prevSunrise": 2461386.931356338,
+     "prevSunset": 2461386.979815137
+    }
+   }
+  },
+  {
+   "id": "tromso-2027-01-18",
+   "kind": "previous sunset",
+   "place": {
+    "lat": 69.6489,
+    "lon": 18.95508,
+    "tz": "Europe/Oslo"
+   },
+   "query": {
+    "date": "2027-01-18",
+    "lat": "69.6489",
+    "lon": "18.95508",
+    "tz": "Europe/Oslo"
+   },
+   "correct": {
+    "status": 200,
+    "vara": "monday",
+    "sunrise": 1800266761,
+    "sunset": 1800272627,
+    "nextSunrise": 1800352532,
+    "prevSunset": 1800185399,
+    "brahma": {
+     "start": 1800255912,
+     "end": 1800261337
+    },
+    "abhijit": {
+     "start": 1800269498,
+     "end": 1800269889
+    },
+    "pradosha": {
+     "start": 1800272627,
+     "end": 1800288608
+    },
+    "meanMidnight": 1800225851,
+    "jd": {
+     "sunrise": 2461423.920840497,
+     "sunset": 2461423.9887341484,
+     "nextSunrise": 2461424.9135691123,
+     "prevSunrise": 2461422.929948944,
+     "prevSunset": 2461422.979157795
+    }
+   }
+  },
+  {
+   "id": "longyearbyen-2027-02-17",
+   "kind": "previous sunset",
+   "place": {
+    "lat": 78.22334,
+    "lon": 15.64689,
+    "tz": "Arctic/Longyearbyen"
+   },
+   "query": {
+    "date": "2027-02-17",
+    "lat": "78.22334",
+    "lon": "15.64689",
+    "tz": "Arctic/Longyearbyen"
+   },
+   "correct": {
+    "status": 200,
+    "vara": "wednesday",
+    "sunrise": 1802859054,
+    "sunset": 1802866449,
+    "nextSunrise": 1802944102,
+    "prevSunset": 1802777794,
+    "brahma": {
+     "start": 1802848220,
+     "end": 1802853637
+    },
+    "abhijit": {
+     "start": 1802862505,
+     "end": 1802862998
+    },
+    "pradosha": {
+     "start": 1802866449,
+     "end": 1802881979
+    },
+    "meanMidnight": 1802818645,
+    "jd": {
+     "sunrise": 2461453.9242401575,
+     "sunset": 2461454.0098232883,
+     "nextSunrise": 2461454.90858941,
+     "prevSunrise": 2461452.9503983175,
+     "prevSunset": 2461452.9837310854
+    }
+   }
+  },
+  {
+   "id": "pond-inlet-2027-01-30",
+   "kind": "previous sunset",
+   "place": {
+    "lat": 72.6992,
+    "lon": -77.9595,
+    "tz": "America/Iqaluit"
+   },
+   "query": {
+    "date": "2027-01-30",
+    "lat": "72.6992",
+    "lon": "-77.9595",
+    "tz": "America/Iqaluit"
+   },
+   "correct": {
+    "status": 200,
+    "vara": "saturday",
+    "sunrise": 1801327170,
+    "sunset": 1801332715,
+    "nextSunrise": 1801412583,
+    "prevSunset": 1801244673,
+    "brahma": {
+     "start": 1801316171,
+     "end": 1801321671
+    },
+    "abhijit": {
+     "start": 1801329758,
+     "end": 1801330127
+    },
+    "pradosha": {
+     "start": 1801332715,
+     "end": 1801348688
+    },
+    "meanMidnight": 1801285910,
+    "jd": {
+     "sunrise": 2461436.1941026873,
+     "sunset": 2461436.258272546,
+     "nextSunrise": 2461437.182676582,
+     "prevSunrise": 2461435.212858403,
+     "prevSunset": 2461435.2392677823
+    }
+   }
+  },
+  {
+   "id": "gallivare-2026-12-29",
+   "kind": "previous sunset",
+   "place": {
+    "lat": 67.13387,
+    "lon": 20.65278,
+    "tz": "Europe/Stockholm"
+   },
+   "query": {
+    "date": "2026-12-29",
+    "lat": "67.13387",
+    "lon": "20.65278",
+    "tz": "Europe/Stockholm"
+   },
+   "correct": {
+    "status": 200,
+    "vara": "tuesday",
+    "sunrise": 1798538561,
+    "sunset": 1798542976,
+    "nextSunrise": 1798624740,
+    "prevSunset": 1798456300,
+    "brahma": {
+     "start": 1798527593,
+     "end": 1798533077
+    },
+    "abhijit": {
+     "start": 1798540621,
+     "end": 1798540915
+    },
+    "pradosha": {
+     "start": 1798542976,
+     "end": 1798559329
+    },
+    "meanMidnight": 1798497443,
+    "jd": {
+     "sunrise": 2461403.9185256986,
+     "sunset": 2461403.969629653,
+     "nextSunrise": 2461404.9159707283,
+     "prevSunrise": 2461402.9210236426,
+     "prevSunset": 2461402.966436806
+    }
+   }
+  },
+  {
+   "id": "delhi-2026-10-14",
+   "kind": "unchanged",
+   "place": {
+    "lat": 28.65195,
+    "lon": 77.23149,
+    "tz": "Asia/Kolkata"
+   },
+   "query": {
+    "date": "2026-10-14",
+    "lat": "28.65195",
+    "lon": "77.23149",
+    "tz": "Asia/Kolkata"
+   },
+   "correct": {
+    "status": 200,
+    "vara": "wednesday",
+    "sunrise": 1791939131,
+    "sunset": 1791980502,
+    "nextSunrise": 1792025567,
+    "prevSunset": 1791894165,
+    "brahma": {
+     "start": 1791933135,
+     "end": 1791936133
+    },
+    "abhijit": {
+     "start": 1791958437,
+     "end": 1791961195
+    },
+    "pradosha": {
+     "start": 1791980502,
+     "end": 1791989515
+    },
+    "meanMidnight": 1791917464,
+    "jd": {
+     "sunrise": 2461327.5362347397,
+     "sunset": 2461328.015065818,
+     "nextSunrise": 2461328.536650287,
+     "prevSunrise": 2461326.5358234816,
+     "prevSunset": 2461327.015803807
+    }
+   }
+  },
+  {
+   "id": "london-2026-10-25",
+   "kind": "unchanged",
+   "place": {
+    "lat": 51.50853,
+    "lon": -0.12574,
+    "tz": "Europe/London"
+   },
+   "query": {
+    "date": "2026-10-25",
+    "lat": "51.50853",
+    "lon": "-0.12574",
+    "tz": "Europe/London"
+   },
+   "correct": {
+    "status": 200,
+    "vara": "sunday",
+    "sunrise": 1792910588,
+    "sunset": 1792946715,
+    "nextSunrise": 1792997093,
+    "prevSunset": 1792860434,
+    "brahma": {
+     "start": 1792903901,
+     "end": 1792907245
+    },
+    "abhijit": {
+     "start": 1792927447,
+     "end": 1792929856
+    },
+    "pradosha": {
+     "start": 1792946715,
+     "end": 1792956790
+    },
+    "meanMidnight": 1792886430,
+    "jd": {
+     "sunrise": 2461338.779957949,
+     "sunset": 2461339.1980859814,
+     "nextSunrise": 2461339.781174531,
+     "prevSunrise": 2461337.7787440023,
+     "prevSunset": 2461338.1994632767
+    }
+   }
+  },
+  {
+   "id": "sydney-2026-10-15",
+   "kind": "unchanged",
+   "place": {
+    "lat": -33.86785,
+    "lon": 151.20732,
+    "tz": "Australia/Sydney"
+   },
+   "query": {
+    "date": "2026-10-15",
+    "lat": "-33.86785",
+    "lon": "151.20732",
+    "tz": "Australia/Sydney"
+   },
+   "correct": {
+    "status": 200,
+    "vara": "thursday",
+    "sunrise": 1792005328,
+    "sunset": 1792051631,
+    "nextSunrise": 1792091653,
+    "prevSunset": 1791965183,
+    "brahma": {
+     "start": 1791999975,
+     "end": 1792002651
+    },
+    "abhijit": {
+     "start": 1792026936,
+     "end": 1792030023
+    },
+    "pradosha": {
+     "start": 1792051631,
+     "end": 1792059636
+    },
+    "meanMidnight": 1791986110,
+    "jd": {
+     "sunrise": 2461328.302403664,
+     "sunset": 2461328.8383250735,
+     "nextSunrise": 2461329.301538162,
+     "prevSunrise": 2461327.303277398,
+     "prevSunset": 2461327.8377698814
+    }
+   }
+  },
+  {
+   "id": "puerto-williams-2027-06-21",
+   "kind": "unchanged",
+   "place": {
+    "lat": -54.93355,
+    "lon": -67.60963,
+    "tz": "America/Santiago"
+   },
+   "query": {
+    "date": "2027-06-21",
+    "lat": "-54.93355",
+    "lon": "-67.60963",
+    "tz": "America/Santiago"
+   },
+   "correct": {
+    "status": 200,
+    "vara": "monday",
+    "sunrise": 1813582737,
+    "sunset": 1813608333,
+    "nextSunrise": 1813669148,
+    "prevSunset": 1813521921,
+    "brahma": {
+     "start": 1813574628,
+     "end": 1813578683
+    },
+    "abhijit": {
+     "start": 1813594682,
+     "end": 1813596388
+    },
+    "pradosha": {
+     "start": 1813608333,
+     "end": 1813620496
+    },
+    "meanMidnight": 1813552226,
+    "jd": {
+     "sunrise": 2461578.040936572,
+     "sunset": 2461578.3371843495,
+     "nextSunrise": 2461579.04106889,
+     "prevSunrise": 2461577.0407638443,
+     "prevSunset": 2461577.337044435
+    }
+   }
+  },
+  {
+   "id": "reykjavik-2026-12-21",
+   "kind": "unchanged",
+   "place": {
+    "lat": 64.13548,
+    "lon": -21.89541,
+    "tz": "Atlantic/Reykjavik"
+   },
+   "query": {
+    "date": "2026-12-21",
+    "lat": "64.13548",
+    "lon": "-21.89541",
+    "tz": "Atlantic/Reykjavik"
+   },
+   "correct": {
+    "status": 200,
+    "vara": "monday",
+    "sunrise": 1797852381,
+    "sunset": 1797866700,
+    "nextSunrise": 1797938810,
+    "prevSunset": 1797780277,
+    "brahma": {
+     "start": 1797842767,
+     "end": 1797847574
+    },
+    "abhijit": {
+     "start": 1797859063,
+     "end": 1797860018
+    },
+    "pradosha": {
+     "start": 1797866700,
+     "end": 1797881122
+    },
+    "meanMidnight": 1797816455,
+    "jd": {
+     "sunrise": 2461395.976630559,
+     "sunset": 2461396.1423623017,
+     "nextSunrise": 2461396.9769631187,
+     "prevSunrise": 2461394.9761918,
+     "prevSunset": 2461395.1420956478
+    }
+   }
+  },
+  {
+   "id": "fairbanks-2026-12-21",
+   "kind": "unchanged",
+   "place": {
+    "lat": 64.83778,
+    "lon": -147.71639,
+    "tz": "America/Anchorage"
+   },
+   "query": {
+    "date": "2026-12-21",
+    "lat": "64.83778",
+    "lon": "-147.71639",
+    "tz": "America/Anchorage"
+   },
+   "correct": {
+    "status": 200,
+    "vara": "monday",
+    "sunrise": 1797883405,
+    "sunset": 1797896092,
+    "nextSunrise": 1797969830,
+    "prevSunset": 1797809666,
+    "brahma": {
+     "start": 1797873573,
+     "end": 1797878489
+    },
+    "abhijit": {
+     "start": 1797889325,
+     "end": 1797890171
+    },
+    "pradosha": {
+     "start": 1797896092,
+     "end": 1797910839
+    },
+    "meanMidnight": 1797846652,
+    "jd": {
+     "sunrise": 2461396.3357050177,
+     "sunset": 2461396.4825437414,
+     "nextSunrise": 2461397.3359917765,
+     "prevSunrise": 2461395.3352957233,
+     "prevSunset": 2461395.482246874
+    }
+   }
+  },
+  {
+   "id": "nome-2026-12-13",
+   "kind": "unchanged",
+   "place": {
+    "lat": 64.50111,
+    "lon": -165.40639,
+    "tz": "America/Nome"
+   },
+   "query": {
+    "date": "2026-12-13",
+    "lat": "64.50111",
+    "lon": "-165.40639",
+    "tz": "America/Nome"
+   },
+   "correct": {
+    "status": 200,
+    "vara": "sunday",
+    "sunrise": 1797195502,
+    "sunset": 1797209607,
+    "nextSunrise": 1797282002,
+    "prevSunset": 1797123257,
+    "brahma": {
+     "start": 1797185869,
+     "end": 1797190686
+    },
+    "abhijit": {
+     "start": 1797202084,
+     "end": 1797203025
+    },
+    "pradosha": {
+     "start": 1797209607,
+     "end": 1797224086
+    },
+    "meanMidnight": 1797159698,
+    "jd": {
+     "sunrise": 2461388.3738642465,
+     "sunset": 2461388.5371219106,
+     "nextSunrise": 2461389.3750174576,
+     "prevSunrise": 2461387.3726160033,
+     "prevSunset": 2461387.537695197
+    }
+   }
+  },
+  {
+   "id": "gallivare-2026-12-14",
+   "kind": "unchanged",
+   "place": {
+    "lat": 67.13387,
+    "lon": 20.65278,
+    "tz": "Europe/Stockholm"
+   },
+   "query": {
+    "date": "2026-12-14",
+    "lat": "67.13387",
+    "lon": "20.65278",
+    "tz": "Europe/Stockholm"
+   },
+   "correct": {
+    "status": 200,
+    "vara": "monday",
+    "sunrise": 1797242144,
+    "sunset": 1797246484,
+    "nextSunrise": 1797328818,
+    "prevSunset": 1797160304,
+    "brahma": {
+     "start": 1797231232,
+     "end": 1797236688
+    },
+    "abhijit": {
+     "start": 1797244169,
+     "end": 1797244459
+    },
+    "pradosha": {
+     "start": 1797246484,
+     "end": 1797262951
+    },
+    "meanMidnight": 1797201443,
+    "jd": {
+     "sunrise": 2461388.9137009126,
+     "sunset": 2461388.9639360346,
+     "nextSunrise": 2461389.9168751054,
+     "prevSunrise": 2461387.9104735274,
+     "prevSunset": 2461387.9664839073
+    }
+   }
+  },
+  {
+   "id": "tromso-2026-11-24",
+   "kind": "unchanged",
+   "place": {
+    "lat": 69.6489,
+    "lon": 18.95508,
+    "tz": "Europe/Oslo"
+   },
+   "query": {
+    "date": "2026-11-24",
+    "lat": "69.6489",
+    "lon": "18.95508",
+    "tz": "Europe/Oslo"
+   },
+   "correct": {
+    "status": 200,
+    "vara": "tuesday",
+    "sunrise": 1795513480,
+    "sunset": 1795518973,
+    "nextSunrise": 1795600768,
+    "prevSunset": 1795433228,
+    "brahma": {
+     "start": 1795502780,
+     "end": 1795508130
+    },
+    "abhijit": {
+     "start": 1795516043,
+     "end": 1795516410
+    },
+    "pradosha": {
+     "start": 1795518973,
+     "end": 1795535332
+    },
+    "meanMidnight": 1795473851,
+    "jd": {
+     "sunrise": 2461368.9060227494,
+     "sunset": 2461368.9695915347,
+     "nextSunrise": 2461369.9162992537,
+     "prevSunrise": 2461367.898023019,
+     "prevSunset": 2461367.9771803794
+    }
+   }
+  },
+  {
+   "id": "vorkuta-2027-07-20",
+   "kind": "unchanged",
+   "place": {
+    "lat": 67.50867,
+    "lon": 64.0667,
+    "tz": "Europe/Moscow"
+   },
+   "query": {
+    "date": "2027-07-20",
+    "lat": "67.50867",
+    "lon": "64.0667",
+    "tz": "Europe/Moscow"
+   },
+   "correct": {
+    "status": 200,
+    "vara": "tuesday",
+    "sunrise": 1816031174,
+    "sunset": 1816108112,
+    "nextSunrise": 1816117946,
+    "prevSunset": 1816022075,
+    "brahma": {
+     "start": 1816029961,
+     "end": 1816030567
+    },
+    "abhijit": {
+     "start": 1816067078,
+     "end": 1816072207
+    },
+    "pradosha": {
+     "start": 1816108112,
+     "end": 1816110079
+    },
+    "meanMidnight": 1816026224,
+    "jd": {
+     "sunrise": 2461606.3793267603,
+     "sunset": 2461607.269811333,
+     "nextSunrise": 2461607.383630853,
+     "prevSunrise": 2461605.37479431,
+     "prevSunset": 2461606.2740208977
+    }
+   }
+  },
+  {
+   "id": "tromso-2026-12-21",
+   "kind": "refused, unchanged",
+   "place": {
+    "lat": 69.6489,
+    "lon": 18.95508,
+    "tz": "Europe/Oslo"
+   },
+   "query": {
+    "date": "2026-12-21",
+    "lat": "69.6489",
+    "lon": "18.95508",
+    "tz": "Europe/Oslo"
+   },
+   "correct": {
+    "status": 422,
+    "error": "unsupported_location",
+    "missing": "sunrise",
+    "meanMidnight": 1797806651,
+    "jd": {}
+   }
+  },
+  {
+   "id": "tromso-2026-11-25",
+   "kind": "refused, unchanged",
+   "place": {
+    "lat": 69.6489,
+    "lon": 18.95508,
+    "tz": "Europe/Oslo"
+   },
+   "query": {
+    "date": "2026-11-25",
+    "lat": "69.6489",
+    "lon": "18.95508",
+    "tz": "Europe/Oslo"
+   },
+   "correct": {
+    "status": 422,
+    "error": "unsupported_location",
+    "missing": "nextSunrise",
+    "found": {
+     "sunrise": 1795600768,
+     "sunset": 1795604522,
+     "prevSunset": 1795518973
+    },
+    "meanMidnight": 1795560251,
+    "jd": {
+     "sunrise": 2461369.916299329,
+     "sunset": 2461369.9597437894,
+     "prevSunrise": 2461368.9060227014,
+     "prevSunset": 2461368.969591505
+    }
+   }
+  },
+  {
+   "id": "novyy-urengoy-2027-06-15",
+   "kind": "refused, unchanged",
+   "place": {
+    "lat": 66.08333,
+    "lon": 76.63333,
+    "tz": "Asia/Yekaterinburg"
+   },
+   "query": {
+    "date": "2027-06-15",
+    "lat": "66.08333",
+    "lon": "76.63333",
+    "tz": "Asia/Yekaterinburg"
+   },
+   "correct": {
+    "status": 422,
+    "error": "unsupported_location",
+    "missing": "sunset",
+    "found": {
+     "sunrise": 1812999938,
+     "prevSunset": 1812998507
+    },
+    "meanMidnight": 1812999208,
+    "jd": {
+     "sunrise": 2461571.2955789743,
+     "prevSunrise": 2461570.3008462843,
+     "prevSunset": 2461571.2790174517
+    }
+   }
+  },
+  {
+   "id": "novyy-urengoy-2027-06-28",
+   "kind": "refused, unchanged",
+   "place": {
+    "lat": 66.08333,
+    "lon": 76.63333,
+    "tz": "Asia/Yekaterinburg"
+   },
+   "query": {
+    "date": "2027-06-28",
+    "lat": "66.08333",
+    "lon": "76.63333",
+    "tz": "Asia/Yekaterinburg"
+   },
+   "correct": {
+    "status": 422,
+    "error": "unsupported_location",
+    "missing": "prevSunrise",
+    "found": {
+     "sunrise": 1814122754,
+     "sunset": 1814208096,
+     "nextSunrise": 1814209928
+    },
+    "meanMidnight": 1814122408,
+    "jd": {
+     "sunrise": 2461584.291130201,
+     "sunset": 2461585.278887024,
+     "nextSunrise": 2461585.300089409
+    }
+   }
+  },
+  {
+   "id": "longyearbyen-2026-12-21",
+   "kind": "refused, unchanged",
+   "place": {
+    "lat": 78.22334,
+    "lon": 15.64689,
+    "tz": "Arctic/Longyearbyen"
+   },
+   "query": {
+    "date": "2026-12-21",
+    "lat": "78.22334",
+    "lon": "15.64689",
+    "tz": "Arctic/Longyearbyen"
+   },
+   "correct": {
+    "status": 422,
+    "error": "unsupported_location",
+    "missing": "sunrise",
+    "meanMidnight": 1797807445,
+    "jd": {}
+   }
+  }
+ ],
+ "months": [
+  {
+   "id": "delhi-2026-10",
+   "place": {
+    "lat": 28.65195,
+    "lon": 77.23149,
+    "tz": "Asia/Kolkata"
+   },
+   "query": {
+    "year": "2026",
+    "month": "10",
+    "lat": "28.65195",
+    "lon": "77.23149",
+    "tz": "Asia/Kolkata"
+   },
+   "correct": {
+    "daysRefusedWhenFixed": [],
+    "rows": {
+     "2026-10-14": {
+      "vara": "wednesday",
+      "sunrise": 1791939131,
+      "sunset": 1791980502
+     }
+    }
+   }
+  },
+  {
+   "id": "kotzebue-2026-12",
+   "place": {
+    "lat": 66.89846,
+    "lon": -162.59809,
+    "tz": "America/Nome"
+   },
+   "query": {
+    "year": "2026",
+    "month": "12",
+    "lat": "66.89846",
+    "lon": "-162.59809",
+    "tz": "America/Nome"
+   },
+   "correct": {
+    "daysRefusedWhenFixed": [],
+    "rows": {
+     "2026-12-01": {
+      "vara": "tuesday",
+      "sunrise": 1796159001,
+      "sunset": 1796170515
+     },
+     "2026-12-21": {
+      "vara": "monday",
+      "sunrise": 1797891076,
+      "sunset": 1797895566
+     }
+    }
+   }
+  },
+  {
+   "id": "nome-2026-12",
+   "place": {
+    "lat": 64.50111,
+    "lon": -165.40639,
+    "tz": "America/Nome"
+   },
+   "query": {
+    "year": "2026",
+    "month": "12",
+    "lat": "64.50111",
+    "lon": "-165.40639",
+    "tz": "America/Nome"
+   },
+   "correct": {
+    "daysRefusedWhenFixed": [],
+    "rows": {
+     "2026-12-13": {
+      "vara": "sunday",
+      "sunrise": 1797195502,
+      "sunset": 1797209607
+     },
+     "2026-12-21": {
+      "vara": "monday",
+      "sunrise": 1797887244,
+      "sunset": 1797900746
+     }
+    }
+   }
+  },
+  {
+   "id": "gallivare-2026-12",
+   "place": {
+    "lat": 67.13387,
+    "lon": 20.65278,
+    "tz": "Europe/Stockholm"
+   },
+   "query": {
+    "year": "2026",
+    "month": "12",
+    "lat": "67.13387",
+    "lon": "20.65278",
+    "tz": "Europe/Stockholm"
+   },
+   "correct": {
+    "daysRefusedWhenFixed": [],
+    "rows": {
+     "2026-12-14": {
+      "vara": "monday",
+      "sunrise": 1797242144,
+      "sunset": 1797246484
+     },
+     "2026-12-21": {
+      "vara": "monday",
+      "sunrise": 1797848472,
+      "sunset": 1797850178
+     }
+    }
+   }
+  },
+  {
+   "id": "kandalaksha-2026-12",
+   "place": {
+    "lat": 67.15123,
+    "lon": 32.41284,
+    "tz": "Europe/Moscow"
+   },
+   "query": {
+    "year": "2026",
+    "month": "12",
+    "lat": "67.15123",
+    "lon": "32.41284",
+    "tz": "Europe/Moscow"
+   },
+   "correct": {
+    "daysRefusedWhenFixed": [],
+    "rows": {
+     "2026-12-11": {
+      "vara": "friday",
+      "sunrise": 1796979322,
+      "sunset": 1796985085
+     },
+     "2026-12-21": {
+      "vara": "monday",
+      "sunrise": 1797845863,
+      "sunset": 1797847141
+     }
+    }
+   }
+  },
+  {
+   "id": "inta-2027-07",
+   "place": {
+    "lat": 66.03169,
+    "lon": 60.16594,
+    "tz": "Europe/Moscow"
+   },
+   "query": {
+    "year": "2027",
+    "month": "7",
+    "lat": "66.03169",
+    "lon": "60.16594",
+    "tz": "Europe/Moscow"
+   },
+   "correct": {
+    "daysRefusedWhenFixed": [],
+    "rows": {
+     "2027-07-05": {
+      "vara": "monday",
+      "sunrise": 1814734475,
+      "sunset": 1814814551
+     },
+     "2027-07-06": {
+      "vara": "tuesday",
+      "sunrise": 1814821148,
+      "sunset": 1814900704
+     },
+     "2027-07-07": {
+      "vara": "wednesday",
+      "sunrise": 1814907817,
+      "sunset": 1814986858
+     }
+    }
+   }
+  }
+ ]
+}

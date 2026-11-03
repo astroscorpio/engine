@@ -43,6 +43,7 @@ from .observances import (
     _near_rerun,
     _one,
     _overlap,
+    _own_sunrise,
     _rise_set,
     _sankashti,
     _sunrises,
@@ -1864,7 +1865,7 @@ def _durga_puja(start: float, end: float, _next: float, q: EkadashiQuery) -> dic
     def sunrise_on(key: str) -> float:
         """The requested city's sunrise on the act's Kolkata date."""
         d = dt.date.fromisoformat(_date(ks[own[key][0]], kq))
-        return _sunrises(local_jd(d, 12.0, q.tz, "year"), q.lat, q.lon, 1)[0]
+        return _own_sunrise(d, q.tz, q.lat, q.lon, "year")[0]
 
     def forenoon(key: str, *tithis: int) -> tuple[float, float] | None:
         w = _durga_forenoon(sunrise_on(key), q)
@@ -2956,9 +2957,7 @@ def _magha_snana(q: EkadashiQuery) -> tuple[list[dict], dict]:
     span29 = _tithi_span(edges, magha, 29)
     sv = _shivaratri(*span29, span29[1], p, True) if span29 else None
     if sv:
-        rise = _sunrises(local_jd(dt.date.fromisoformat(sv["date"]), 12.0, p.tz), p.lat, p.lon, 1)[
-            0
-        ]
+        rise = _own_sunrise(dt.date.fromisoformat(sv["date"]), p.tz, p.lat, p.lon, "year")[0]
         shivaratri = {
             "date": sv["date"],
             "vara": sv["vara"],

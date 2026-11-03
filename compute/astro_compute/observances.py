@@ -37,7 +37,7 @@ import datetime as dt
 
 from jyotisha import muhurta as Mu
 from jyotisha import panchanga as P
-from jyotisha.ephemeris import _rise_set, luminaries, moon_rise_set, sunrise
+from jyotisha.ephemeris import _rise_set, luminaries, moon_rise_set, sunrise, to_datetime
 
 from .errors import unsupported_location
 from .fmt import provenance
@@ -130,6 +130,26 @@ def _sunrises(first: float, lat: float, lon: float, n: int) -> list[float]:
     while len(out) < n:
         out.append(_rise_set(out[-1] + 0.1, lat, lon, True))
     return out
+
+
+def _own_sunrise(day: dt.date, zone, lat: float, lon: float, field: str) -> tuple[float, float]:
+    """The date's own sunrise, the first after the place's local mean midnight, and local mean
+    time's offset in hours: longitude / 15, counted on the zone's side of the date line. Where the
+    sunrise comes by the clock's noon it is the sunrise at or before that noon, the search the views
+    always made; otherwise the first after it, if it falls on the date by mean time. RuntimeError
+    when the date has none."""
+    noon = local_jd(day, 12.0, zone, field)
+    hours = aware(noon, zone).utcoffset().total_seconds() / 3600
+    mean = (lon + 360 * round((15 * hours - lon) / 360)) / 15
+    try:
+        sr = sunrise(noon, lat, lon)
+    except RuntimeError:
+        sr = None
+    if sr is None or to_datetime(sr, mean).date() < day:
+        sr = _rise_set(noon, lat, lon, True)
+    if to_datetime(sr, mean).date() > day:
+        raise RuntimeError(f"the Sun does not rise on {day}")
+    return sr, mean
 
 
 def _ekadashi_choice(start: float, end: float, dv_end: float, q: EkadashiQuery) -> tuple:

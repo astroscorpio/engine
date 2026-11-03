@@ -77,6 +77,7 @@ def test_month_rows_agree_with_the_day_view(panchang):
     assert status == 200, out
     assert [r["date"] for r in out["days"]][:2] == ["2026-10-01", "2026-10-02"]
     assert len(out["days"]) == 31
+    assert out["refused"] == []
     row = out["days"][13]
     assert row["date"] == "2026-10-14"
     assert row["sunrise"] == panchang["sunrise"] and row["vara"] == panchang["vara"]["id"]

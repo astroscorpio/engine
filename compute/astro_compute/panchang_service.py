@@ -12,6 +12,7 @@ from jyotisha.ephemeris import (
     SIGNS,
     luminaries,
     moon_rise_set,
+    next_sunrise,
     positions,
     sunrise,
     sunset,
@@ -46,7 +47,8 @@ from .ids import (
     tithi_id,
 )
 from .models import MonthQuery, PanchangQuery
-from .timeutil import aware, iso, local_jd, offset_text
+from .observances import _own_sunrise
+from .timeutil import aware, day_start, iso, local_jd, offset_text
 
 WEEKDAY = {"Sun": 0, "Moon": 1, "Mars": 2, "Mercury": 3, "Jupiter": 4, "Venus": 5, "Saturn": 6}
 UTTARAYANA_SIGNS = {9, 10, 11, 0, 1, 2}  # Sun from Makara to the end of Mithuna (sidereal)
@@ -109,10 +111,14 @@ def build(q: PanchangQuery) -> dict:
     zone, ay = q.tz, q.ayanamsa
     noon = local_jd(q.date, 12.0, zone, "date")
     try:
-        d = Mu.day(noon, q.lat, q.lon, ay, zone)
+        sr, mean = _own_sunrise(q.date, zone, q.lat, q.lon, "date")
+        d = Mu.day(noon if sr <= noon else sr + 1e-3, q.lat, q.lon, ay, mean)
+        if not d.prev_sunset < d.sunrise < d.sunset < d.next_sunrise:
+            raise RuntimeError("the day's sunrises and sunsets are out of order")
     except RuntimeError as exc:
         raise unsupported_location(
-            "the Sun does not rise or set on this date here; a Vedic day cannot be formed"
+            "the Sun does not rise and set every day around this date here, "
+            "so a Vedic day cannot be formed"
         ) from exc
     sr, ss, nr = d.sunrise, d.sunset, d.next_sunrise
 
@@ -145,9 +151,8 @@ def build(q: PanchangQuery) -> dict:
         return {"id": KARANA_ID[name], **win(a, b)}
 
     # Civil-date bounds for moonrise/moonset.
-    day_start = local_jd(q.date, 0.0, zone, "date")
-    day_end = day_start + 1.0
-    rise, set_ = moon_rise_set(day_start, day_end, q.lat, q.lon)
+    civil = day_start(q.date, zone)
+    rise, set_ = moon_rise_set(civil, civil + 1.0, q.lat, q.lon)
 
     at_rise = positions(sr, ay)
     month = Mu.lunar_month(sr, ay)
@@ -348,7 +353,7 @@ def month(q: MonthQuery) -> dict:
     zone, ay = q.tz, q.ayanamsa
     first = dt.date(q.year, q.month, 1)
     days = (dt.date(q.year + (q.month == 12), q.month % 12 + 1, 1) - first).days
-    rows, lunar = [], None
+    rows, refused, lunar = [], [], None
 
     def at(jd: float) -> str:
         return iso(jd, zone)
@@ -357,25 +362,27 @@ def month(q: MonthQuery) -> dict:
         day = first + dt.timedelta(days=i)
         noon = local_jd(day, 12.0, zone, "month")
         try:
-            sr = sunrise(noon, q.lat, q.lon)
-            ss = sunset(noon, q.lat, q.lon)
-        except RuntimeError as exc:
-            raise unsupported_location(
-                f"the Sun does not rise or set on {day} here; a Vedic day cannot be formed"
-            ) from exc
+            own, mean = _own_sunrise(day, zone, q.lat, q.lon, "month")
+            moment = noon if own <= noon else own + 1e-3
+            sr, ss = sunrise(moment, q.lat, q.lon), sunset(moment, q.lat, q.lon)
+            if not sunset(sr - 1e-3, q.lat, q.lon) < sr < ss < next_sunrise(moment, q.lat, q.lon):
+                raise RuntimeError("the day's sunrises and sunsets are out of order")
+        except RuntimeError:
+            refused.append(day.isoformat())
+            continue
         if lunar is None or sr >= lunar.end:
             lunar = Mu.lunar_month(sr, ay)
         sun, moon = luminaries(sr, ay)
         tithi = Mu.tithi_at(sr, ay)
         nak, yoga = moon.nakshatra, Mu.yoga_at(sr, ay)
-        start = local_jd(day, 0.0, zone, "month")
+        start = day_start(day, zone)
         sun_now = sun.sign
         sun_end = luminaries(start + 1.0, ay)[0].sign
         sankranti = None
         if luminaries(start, ay)[0].sign != sun_end:
             edge = _edge(lambda t: luminaries(t, ay)[0].sign, start, start + 1.0)
             sankranti = {"sign": SIGN_IDS[sun_end], "at": at(edge)}
-        vara = P.VARA_LORDS[P.vara_index(sr, q.lon, zone)]
+        vara = P.VARA_LORDS[P.vara_index(sr, q.lon, mean)]
         masa = Mu.MASA.index(lunar.name)
         rows.append(
             {
@@ -414,5 +421,6 @@ def month(q: MonthQuery) -> dict:
         "month": q.month,
         "place": {"lat": q.lat, "lon": q.lon, "tz": zone},
         "days": rows,
+        "refused": refused,
         "engine": provenance(ay),
     }

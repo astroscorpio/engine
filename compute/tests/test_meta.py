@@ -231,7 +231,7 @@ def test_hindi_sources_keep_the_cite(meta):
     path = pathlib.Path(__file__).parents[2] / "api/src/meta/hi.labels.json"
     seen = 0
     for section, labels in json.loads(path.read_text(encoding="utf-8")).items():
-        if section.startswith("_"):
+        if section.startswith("_") or isinstance(labels, str):  # a top-level note has no source
             continue
         for key, label in labels.items():
             if isinstance(label, dict) and isinstance(label.get("source"), str):

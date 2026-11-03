@@ -77,6 +77,18 @@ def local_jd(day: dt.date, hour: float, zone: Zone, field: str = "time") -> floa
         raise
 
 
+def day_start(day: dt.date, zone: Zone) -> float:
+    """JD(UT) of the date's first instant: local midnight, or where clocks change at 00:00 and
+    it is doubled or missing, the first moment the date has (zoneinfo's fold 0)."""
+    try:
+        return E.jd(day.year, day.month, day.day, 0.0, zone)
+    except ValueError as exc:
+        if "ambiguous" not in str(exc) and "nonexistent" not in str(exc):
+            raise
+    u = dt.datetime(day.year, day.month, day.day, tzinfo=tzinfo(zone)).astimezone(dt.UTC)
+    return E.jd(u.year, u.month, u.day, u.hour + u.minute / 60 + u.second / 3600, 0.0)
+
+
 def _utc(jd: float) -> dt.datetime:
     t = E.to_datetime(jd, 0.0)
     # Round to the nearest second in UTC, where arithmetic is not wall-clock.

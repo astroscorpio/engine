@@ -595,7 +595,11 @@ def obliquity(jd_ut: float) -> float:
 
 def sunset(jd_ut: float, lat: float, lon_east: float) -> float:
     """First sunset after the governing sunrise."""
-    return _rise_set(sunrise(jd_ut, lat, lon_east) + 0.05, lat, lon_east, False)
+    sr = sunrise(jd_ut, lat, lon_east)
+    first = _rise_set(sr, lat, lon_east, False)
+    # The search used to start 72 minutes after sunrise, which skips a shorter day's sunset.
+    # A longer day keeps that start, so its sunset stays the same to the millisecond.
+    return first if first < sr + 0.05 else _rise_set(sr + 0.05, lat, lon_east, False)
 
 
 def mean_longitude(jd_ut: float, body: str) -> float:
