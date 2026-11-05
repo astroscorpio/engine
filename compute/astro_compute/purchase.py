@@ -17,6 +17,7 @@ import datetime as dt
 from jyotisha import muhurta as Mu
 from jyotisha.ephemeris import NAKSHATRAS, luminaries
 
+from .errors import unsupported_location
 from .fmt import provenance
 from .ids import NAKSHATRA_IDS, tithi_id
 from .models import EkadashiQuery
@@ -68,11 +69,16 @@ def _year(q: EkadashiQuery, stars: set[int], varas: set[str] | None, profile) ->
     ay, zone = q.ayanamsa, q.tz
     first = local_jd(dt.date(q.year, 1, 1), 0.0, zone, "year")
     last = local_jd(dt.date(q.year, 12, 31), 23.99, zone, "year")
-    days, sr = [], _rise_set(first - 1, q.lat, q.lon, True)
-    while sr < last:
-        nr = _rise_set(sr + 0.1, q.lat, q.lon, True)
-        days.append((sr, nr))
-        sr = nr
+    try:
+        days, sr = [], _rise_set(first - 1, q.lat, q.lon, True)
+        while sr < last:
+            nr = _rise_set(sr + 0.1, q.lat, q.lon, True)
+            days.append((sr, nr))
+            sr = nr
+    except RuntimeError as exc:  # the polar night or the midnight sun in the year
+        raise unsupported_location(
+            "the Sun does not rise on a day needed here; the dates cannot be formed"
+        ) from exc
     lo, hi = days[0][0], days[-1][1]
     cuts = {lo, hi} | {t for t, _ in _edges(q) if lo < t < hi}
     cuts |= {t for t, _ in Mu._scan(lambda t: luminaries(t, ay)[1].nakshatra, lo, hi, 1 / 12)}

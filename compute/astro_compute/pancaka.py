@@ -13,6 +13,7 @@ import datetime as dt
 from jyotisha import muhurta as Mu
 from jyotisha.ephemeris import luminaries
 
+from .errors import unsupported_location
 from .fmt import provenance
 from .models import EkadashiQuery
 from .observances import SOURCE as NS
@@ -56,7 +57,13 @@ def pancaka(q: EkadashiQuery) -> dict:
             start = t
         elif s == MESHA and start is not None:
             if start < t1 and t > t0:
-                (sr,) = _sunrises(start, q.lat, q.lon, 1)  # the vara runs from sunrise
+                try:
+                    (sr,) = _sunrises(start, q.lat, q.lon, 1)  # the vara runs from sunrise
+                except RuntimeError as exc:  # begun in the polar night or the midnight sun
+                    raise unsupported_location(
+                        "the Sun does not rise on a day needed here; "
+                        "the observance days cannot be formed"
+                    ) from exc
                 vara = _vara(sr, q)
                 nid = POPULAR_NAMES.get(vara)
                 rows.append(

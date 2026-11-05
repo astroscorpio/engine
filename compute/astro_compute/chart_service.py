@@ -34,7 +34,7 @@ from .ids import (
     tithi_id,
 )
 from .models import ChartIn, ChartRequest
-from .timeutil import Birth, iso, iso_utc, local_jd, parse_instant, resolve_birth
+from .timeutil import Birth, day_end, day_start, iso, iso_utc, parse_instant, resolve_birth
 
 VARGA_CODES = {f"D{d}": d for d in SHODASHAVARGA}
 _GRAHA_WORD = re.compile(r"\b(" + "|".join(GRAHAS) + r")\b")
@@ -78,8 +78,8 @@ def moon_uncertainty(inp: ChartIn, birth: Birth) -> tuple[bool, bool]:
     """With the time unknown the Moon could sit anywhere it moved that day."""
     zone = birth.zone
     try:
-        start = local_jd(inp.date, 0.0, zone)
-        end = local_jd(inp.date, 23.9997, zone)
+        start = day_start(inp.date, zone)
+        end = day_end(inp.date, zone)
     except Exception:
         start, end = birth.jd - 0.5, birth.jd + 0.5
     a = positions(start, inp.ayanamsa, inp.node)["Moon"]

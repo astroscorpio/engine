@@ -14,6 +14,7 @@ from __future__ import annotations
 import swisseph as swe
 from jyotisha.ephemeris import luminaries, moon_rise_set
 
+from .errors import unsupported_location
 from .fmt import provenance
 from .ids import NAKSHATRA_IDS, SIGN_IDS
 from .models import EkadashiQuery
@@ -212,6 +213,15 @@ def _lunar(flag: int, g: tuple, q) -> dict:
 
 
 def eclipses(q: EkadashiQuery) -> dict:
+    try:
+        return _year_eclipses(q)
+    except RuntimeError as exc:  # an eclipse in the polar night or the midnight sun
+        raise unsupported_location(
+            "the Sun does not rise on a day needed here; the observance days cannot be formed"
+        ) from exc
+
+
+def _year_eclipses(q: EkadashiQuery) -> dict:
     rows = []
     for body, flag, g in _global(q):
         kind = _type(flag, body == "solar")

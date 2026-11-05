@@ -29,6 +29,7 @@ from functools import lru_cache
 from jyotisha import muhurta as Mu
 from jyotisha.ephemeris import ascendant, luminaries, moon_rise_set, positions
 
+from .errors import ApiError, unsupported_location
 from .fmt import provenance
 from .ids import MASA_IDS, tithi_id
 from .models import EkadashiQuery
@@ -37,6 +38,7 @@ from .observances import (
     SOURCE,
     WEEKDAYS,
     _collect,
+    _first_after,
     _full_or_new,
     _lunar,
     _near_call,
@@ -51,8 +53,9 @@ from .observances import (
     _vara,
     ekadashi,
 )
+from .sankranti import _ingresses
 from .sankranti import _one as _sankranti_one
-from .timeutil import aware, iso, local_jd, tzinfo
+from .timeutil import aware, day_start, iso, local_jd, tzinfo
 
 DANDA = 24 / 1440  # one ghatika (danda), in days
 ROHINI, CHITRA, SHRAVANA = 3, 13, 21  # nakshatra indexes, Ashvini = 0
@@ -68,7 +71,7 @@ DS = {
 
 def _night(sunrise_jd: float, q) -> tuple[float, float]:
     ss = _sunset(sunrise_jd, q)
-    return ss, _rise_set(ss + 0.01, q.lat, q.lon, True)
+    return ss, _first_after(ss, q.lat, q.lon, True, 0.01)
 
 
 def _windows(sunrise_jd: float, q) -> dict[str, tuple[float, float]]:
@@ -1508,16 +1511,65 @@ def _rath(start: float, end: float, _next: float, q: EkadashiQuery) -> dict | No
     }
 
 
+def _no_sunrise() -> ApiError:
+    """The kinds' own 422, as observances._collect gives it."""
+    return unsupported_location(
+        "the Sun does not rise on a day needed here; the observance days cannot be formed"
+    )
+
+
+def _rises_from(t0: float, t1: float, q) -> list[float]:
+    """The sunrises from the first after t0, past days with none (the midnight sun), to the
+    first after t1 + 1; 422 if another day with none comes before that."""
+    t = t0
+    while True:
+        try:
+            out = [_rise_set(t, q.lat, q.lon, True)]
+            break
+        except RuntimeError as exc:
+            if (t := t + 1) > t1:
+                raise _no_sunrise() from exc
+    try:
+        while out[-1] < t1 + 1:
+            out.append(_rise_set(out[-1] + 0.1, q.lat, q.lon, True))
+    except RuntimeError as exc:
+        raise _no_sunrise() from exc
+    return out
+
+
 def _sawan(q: EkadashiQuery) -> tuple[list[dict], dict]:
     """DS p. 44: the Monday vow of Shravana, a fast for those able, otherwise one meal at
     night. A Monday counts when its sunrise falls in Shravana, purnimanta (North India,
     from the dark fortnight after the Ashadha Purnima) or amanta (from the day after the
-    Ashadha Amavasya). Both lists, with each month's first and last day."""
+    Ashadha Amavasya). Both lists, with each month's first and last day. Far north the walk
+    steps over the days with no sunrise (the midnight sun); if either Shravana could hold one
+    of them, the lists cannot be formed (422)."""
     ay = q.ayanamsa
-    sr = _rise_set(local_jd(dt.date(q.year, 6, 1), 0.0, q.tz, "year"), q.lat, q.lon, True)
-    stop = local_jd(dt.date(q.year, 10, 31), 0.0, q.tz, "year")
+    stop = day_start(dt.date(q.year, 10, 31), q.tz)
+    gaps: list[tuple[float | None, float | None]] = []  # the sunrises either side of such days
+
+    def rise(t: float, last: float | None) -> float:
+        """The first sunrise after t; else after the days with none from t, or stop."""
+        try:
+            return _rise_set(t, q.lat, q.lon, True)
+        except RuntimeError:
+            pass
+        while (t := t + 1) < stop:
+            try:
+                sr = _rise_set(t, q.lat, q.lon, True)
+            except RuntimeError:
+                continue
+            if sr < stop:
+                gaps.append((last, sr))
+                return sr
+            break
+        gaps.append((last, None))
+        return stop
+
+    sr = rise(day_start(dt.date(q.year, 6, 1), q.tz), None)
     months: list = []
     dates: dict[str, list[str]] = {"purnimanta": [], "amanta": []}
+    named: dict[float, dict[str, str]] = {}
     rows = []
     while sr < stop:
         month = next((m for m in months if m.start <= sr < m.end), None)
@@ -1530,6 +1582,7 @@ def _sawan(q: EkadashiQuery) -> tuple[list[dict], dict]:
             "amanta": MASA_IDS[masa],
             "purnimanta": MASA_IDS[(masa + 1) % 12] if num > 15 else MASA_IDS[masa],
         }
+        named[sr] = names
         systems = [k for k in ("purnimanta", "amanta") if names[k] == "shravana"]
         date = _date(sr, q)
         for k in systems:
@@ -1546,7 +1599,18 @@ def _sawan(q: EkadashiQuery) -> tuple[list[dict], dict]:
                     "systems": systems,
                 }
             )
-        sr = _rise_set(sr + 0.1, q.lat, q.lon, True)
+        sr = rise(sr + 0.1, sr)
+    shravana = MASA_IDS.index("shravana")
+
+    def side(x: float | None, k: str, none: int) -> int:
+        """-1, 0 or 1: the sunrise x before, in or after Shravana in system k (none: no x)."""
+        if x is None:
+            return none
+        i = MASA_IDS.index(named[x][k])
+        return (i > shravana) - (i < shravana)
+
+    if any(side(a, k, -1) <= 0 <= side(b, k, 1) for a, b in gaps for k in dates):
+        raise _no_sunrise()
     return rows, {k: {"start": v[0], "end": v[-1]} if v else None for k, v in dates.items()}
 
 
@@ -1912,7 +1976,7 @@ def _durga_puja(start: float, end: float, _next: float, q: EkadashiQuery) -> dic
 # every answer carries basis: "popular_practice".
 
 ONAM_NADIKAS = 6 * DANDA  # 2 h 24 min of Shravana after sunrise
-LEO = 4
+LEO, VIRGO = 4, 5
 
 
 def _chhath_day(start: float, end: float, s: list[float], sets: list[float]):
@@ -2010,6 +2074,8 @@ def _star_day(a: float, b: float, rises: list[float]) -> tuple[float, str]:
     held = [sr for sr in rises if a <= sr < b]
     if ok := [sr for sr in held if b - sr >= ONAM_NADIKAS]:
         return ok[-1], "sunrise_six_nadikas"
+    if held[:1] == rises[:1] or a < rises[0]:  # its day comes before the first sunrise counted
+        raise RuntimeError("the day is before the sunrises counted")
     if held:
         return rises[rises.index(held[0]) - 1], "short_day_before"
     return max(x for x in rises if x <= a), "no_sunrise_day_it_falls_in"
@@ -2021,22 +2087,35 @@ def _onam(q: EkadashiQuery) -> tuple[list[dict], dict]:
     left; with less, the day before; with no sunrise in it, the day it falls in (our
     reading). Two Tiruvonams in one Chingam are both shown, neither picked. Atham, the
     festival's opening, is the Hasta before each Tiruvonam by the same test, in Chingam or
-    late Karkataka (our reading; popular practice: research's ruling of 16 Oct 2026)."""
+    late Karkataka (our reading; popular practice: research's ruling of 16 Oct 2026). Where the
+    midnight sun outlasts 15 July, the days count from the first sunrise after it, and Onam
+    cannot be formed (422) if Chingam begins or an Atham falls before that sunrise."""
     ay = q.ayanamsa
     t0 = local_jd(dt.date(q.year, 7, 15), 0.0, q.tz, "year")
     t1 = local_jd(dt.date(q.year, 10, 1), 0.0, q.tz, "year")
-    rises = _sunrises(t0, q.lat, q.lon, int(t1 - t0) + 2)
+    try:
+        rises, polar = _sunrises(t0, q.lat, q.lon, int(t1 - t0) + 2), False
+    except RuntimeError:
+        rises, polar = _rises_from(t0, t1, q), True
     chingam = [sr for sr in rises if luminaries(sr, ay)[0].sign == LEO]
+    if polar and (not chingam or chingam[0] == rises[0]):  # Chingam begins in the midnight sun
+        raise _no_sunrise()
     if not chingam:
         return [], {"chingam": None}
     first, last = chingam[0], chingam[-1]
     nak = lambda t: Mu.nakshatra_at(t, ay)  # noqa: E731
     rows = []
     for a, b in _spans(nak, SHRAVANA, first - 1.2, last + 1.2, 0.1):
-        sr, rule = _star_day(a, b, rises)
+        try:
+            sr, rule = _star_day(a, b, rises)
+        except RuntimeError:  # before the first sunrise counted, so before Chingam
+            continue
         if first <= sr <= last:
             ha, hb = _spans(nak, HASTA, a - 12, a, 0.1)[-1]  # the Hasta before (7.8-10.2 days)
-            hr, h_rule = _star_day(ha, hb, rises)
+            try:
+                hr, h_rule = _star_day(ha, hb, rises)
+            except RuntimeError as exc:  # the Atham falls in the midnight sun
+                raise _no_sunrise() from exc
             h_rule = "atham_" + h_rule
             rows.append(
                 {
@@ -2061,12 +2140,15 @@ def _onam(q: EkadashiQuery) -> tuple[list[dict], dict]:
 
 def _vishwakarma(q: EkadashiQuery) -> tuple[list[dict], dict]:
     """s27.5: the day of the Kanya sankranti's punyakala, as /observances/sankranti
-    computes it (sankranti.md)."""
-    from .sankranti import sankranti  # sankranti imports observances, as this does
-
+    computes it (sankranti.md). Only that ingress is reckoned, so a polar night or midnight
+    sun on another does not stop it."""
     rows = []
-    for r in sankranti(q)["sankrantis"]:
-        if r["sign"] == "virgo":
+    for t, sign in _ingresses(q):
+        if sign == VIRGO:
+            try:
+                r = _sankranti_one(t, sign, q)
+            except RuntimeError as exc:
+                raise _no_sunrise() from exc
             rows.append(
                 {
                     "date": r["date"],
@@ -2277,9 +2359,12 @@ def _thaipusam(q: EkadashiQuery) -> tuple[list[dict], dict]:
     Popular practice: Jagadisa Ayyar (1921) gives Pusam in Tai, and no text read says which
     civil day counts when it spans two."""
     ay = q.ayanamsa
-    first = _tamil_month_start(_makara(q), q)
-    nxt = _tamil_month_start(_ingress(AQUARIUS, first + 25, first + 35, q), q)
-    days = _sunrises(first - 1, q.lat, q.lon, int(nxt - first) + 4)
+    try:
+        first = _tamil_month_start(_makara(q), q)
+        nxt = _tamil_month_start(_ingress(AQUARIUS, first + 25, first + 35, q), q)
+        days = _sunrises(first - 1, q.lat, q.lon, int(nxt - first) + 4)
+    except RuntimeError as exc:  # Tai's days in the polar night
+        raise _no_sunrise() from exc
     rises = [sr for sr in days if first - 0.1 <= sr < nxt - 0.1]
     sunrise = {_date(sr, q): sr for sr in rises}
     tithi = lambda t: Mu.tithi_at(t, ay)  # noqa: E731

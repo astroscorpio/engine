@@ -89,6 +89,20 @@ def day_start(day: dt.date, zone: Zone) -> float:
     return E.jd(u.year, u.month, u.day, u.hour + u.minute / 60 + u.second / 3600, 0.0)
 
 
+def day_end(day: dt.date, zone: Zone) -> float:
+    """JD(UT) of 23:59:58.92 (23.9997 h), where the views end a date, or where clocks go back at
+    midnight and it is doubled, the later of its two moments (zoneinfo's fold 1)."""
+    try:
+        return E.jd(day.year, day.month, day.day, 23.9997, zone)
+    except ValueError as exc:
+        if "ambiguous" not in str(exc) and "nonexistent" not in str(exc):
+            raise
+    t = dt.datetime(day.year, day.month, day.day, 23, 59, 58, 920000, tzinfo=tzinfo(zone), fold=1)
+    u = t.astimezone(dt.UTC)
+    hours = u.hour + u.minute / 60 + (u.second + u.microsecond / 1e6) / 3600
+    return E.jd(u.year, u.month, u.day, hours, 0.0)
+
+
 def _utc(jd: float) -> dt.datetime:
     t = E.to_datetime(jd, 0.0)
     # Round to the nearest second in UTC, where arithmetic is not wall-clock.

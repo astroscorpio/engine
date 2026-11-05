@@ -11,6 +11,7 @@ import datetime as dt
 from jyotisha import muhurta as Mu
 from jyotisha.ephemeris import luminaries
 
+from .errors import unsupported_location
 from .fmt import provenance
 from .ids import SIGN_IDS
 from .models import EkadashiQuery
@@ -157,16 +158,26 @@ def _sayana(t: float, sign: int) -> float:
     return next(e for e, s in reversed(edges) if s == sign)
 
 
-def sankranti(q: EkadashiQuery) -> dict:
+def _ingresses(q: EkadashiQuery) -> list[tuple[float, int]]:
+    """The year's sidereal solar ingresses, by the place's clock: (moment, sign)."""
     ay = q.ayanamsa
     t0 = local_jd(dt.date(q.year, 1, 1), 0.0, q.tz, "year")
     t1 = local_jd(dt.date(q.year, 12, 31), 23.99, q.tz, "year")
     edges = Mu._scan(lambda t: luminaries(t, ay)[0].sign, t0 - 1, t1 + 1, 1.0)
-    rows = [_one(t, sign, q) for t, sign in edges if t0 <= t <= t1]
+    return [(t, sign) for t, sign in edges if t0 <= t <= t1]
+
+
+def sankranti(q: EkadashiQuery) -> dict:
+    try:
+        rows = [_one(t, sign, q) for t, sign in _ingresses(q)]
+    except RuntimeError as exc:  # an ingress in the polar night or the midnight sun
+        raise unsupported_location(
+            "the Sun does not rise on a day needed here; the observance days cannot be formed"
+        ) from exc
     return {
         "year": q.year,
         "sankrantis": rows,
         "source": SOURCE,
         "alsoSource": ALSO,
-        "engine": provenance(ay),
+        "engine": provenance(q.ayanamsa),
     }

@@ -132,6 +132,17 @@ def _sunrises(first: float, lat: float, lon: float, n: int) -> list[float]:
     return out
 
 
+def _first_after(t: float, lat: float, lon: float, rising: bool, gap: float) -> float:
+    """The first sunrise (rising) or sunset after t. The searches started `gap` days after t,
+    which skips a day or night shorter than that; such a one is taken now, and otherwise the old
+    search's answer stands, to the millisecond (as ephemeris.sunset since 0pnf)."""
+    try:
+        first = _rise_set(t, lat, lon, rising)
+    except RuntimeError:
+        first = None
+    return first if first is not None and first < t + gap else _rise_set(t + gap, lat, lon, rising)
+
+
 def _own_sunrise(day: dt.date, zone, lat: float, lon: float, field: str) -> tuple[float, float]:
     """The date's own sunrise, the first after the place's local mean midnight, and local mean
     time's offset in hours: longitude / 15, counted on the zone's side of the date line. Where the
@@ -481,7 +492,7 @@ def _lunar(jd: float, num: int, q: EkadashiQuery) -> dict:
 
 
 def _sunset(sunrise_jd: float, q: EkadashiQuery) -> float:
-    return _rise_set(sunrise_jd + 0.05, q.lat, q.lon, False)
+    return _first_after(sunrise_jd, q.lat, q.lon, False, 0.05)
 
 
 def _overlap(a0: float, a1: float, b0: float, b1: float) -> float:
@@ -551,7 +562,7 @@ def _night_parts(sunrise_jd: float, q: EkadashiQuery) -> tuple[tuple, tuple]:
     """The night's pradosha (its first three of fifteen muhurtas) and nishitha (its middle
     muhurta), as festivals._windows reckons them."""
     ss = _sunset(sunrise_jd, q)
-    night = _rise_set(ss + 0.01, q.lat, q.lon, True) - ss
+    night = _first_after(ss, q.lat, q.lon, True, 0.01) - ss
     mid = ss + night / 2
     return (ss, ss + 3 * night / 15), (mid - night / 30, mid + night / 30)
 
@@ -676,7 +687,7 @@ def _shraddha(row: dict, start: float, end: float, s: list[float], held: int, q)
 def _pradosha_window(sunrise_jd: float, q: EkadashiQuery) -> tuple[float, float]:
     """Three muhurtas after sunset, a muhurta being a fifteenth of the night."""
     ss = _sunset(sunrise_jd, q)
-    nr = _rise_set(ss + 0.01, q.lat, q.lon, True)
+    nr = _first_after(ss, q.lat, q.lon, True, 0.01)
     return ss, ss + 3 * (nr - ss) / 15
 
 

@@ -27,7 +27,7 @@ from .fmt import provenance
 from .ids import MASA_IDS, NAKSHATRA_IDS, SIGN_IDS, tithi_id
 from .matching import moon_of
 from .models import VIVAH_SPAN_DAYS, ChartIn, EkadashiQuery, VivahPersonalRequest
-from .timeutil import iso, local_jd
+from .timeutil import day_end, day_start, iso
 from .transit_service import _gochara_from
 from .vivah import vivah
 from .vivah_lagna import NAV, _sees
@@ -93,8 +93,8 @@ def _partner(raw, side: str, eldest: bool) -> Partner:
 def _tithi_changed(raw: ChartIn, ayanamsa: str) -> bool:
     """With the birth time unknown: did the tithi change during the birth day?"""
     zone = raw.place.tz
-    a = local_jd(raw.date, 0.0, zone)
-    b = local_jd(raw.date, 23.9997, zone)
+    a = day_start(raw.date, zone)
+    b = day_end(raw.date, zone)
     return Mu.tithi_at(a, ayanamsa) != Mu.tithi_at(b, ayanamsa)
 
 
