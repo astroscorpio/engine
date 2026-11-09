@@ -141,6 +141,8 @@ def test_mc_cites_give_the_plain_page():
     commentary reads "X, p. N, with the commentary, p. M" (the lead's rulings on cite forms).
     The verse and commentary pages are research's, from its map and its reading of each
     commentary."""
+    import re
+
     status, out = call("GET", "/v1/meta", {"lang": "en"})
     assert status == 200
     lagna, griha = out["vivahLagnaRules"], out["grihaPraveshRules"]
@@ -182,7 +184,17 @@ def test_mc_cites_give_the_plain_page():
         elif isinstance(x, str):
             yield x
 
-    assert not [s for s in strings(out) if "and commentary" in s or "and its commentary" in s]
+    def sources(x):
+        if isinstance(x, dict):
+            for k, v in x.items():
+                yield from [v] if k == "source" and isinstance(v, str) else sources(v)
+        elif isinstance(x, list):
+            for v in x:
+                yield from sources(v)
+
+    # Cite forms only: each source, and each bracket in any string (prose may name a commentary).
+    cites = [*sources(out), *(c for s in strings(out) for c in re.findall(r"\(([^()]*)\)", s))]
+    assert not [c for c in cites if "and commentary" in c or "and its commentary" in c]
     assert not [s for s in strings(out) if "1.30's" in s or "6.45's" in s]
     middling = out["vivahRules"]["middling_weekday_dvadashi_trayodashi"]["name"]
     assert "(Vasiṣṭha, MC 6.53 commentary, p. 275)" in middling
@@ -241,3 +253,41 @@ def test_hindi_sources_keep_the_cite(meta):
                 assert re.search("[\u0900-\u097f]", label["source"]), (section, key)
                 seen += 1
     assert seen >= 11
+
+
+def test_gochara_readings_by_graha_and_house(meta):
+    """The lead, 19 Oct 2026: the readings are served by graha and house, the same text as the
+    gochara response, with each graha's verses as printed (gochara.md §5a); Ketu reads Rahu's."""
+    import re
+
+    from astro_compute.gochara_results import RESULTS
+
+    grahas = ["sun", "moon", "mars", "mercury", "jupiter", "venus", "saturn", "rahu"]
+    assert list(meta["gocharaResults"]) == grahas == list(meta["gocharaVerses"])
+    for g, (verse, page, lines) in RESULTS.items():
+        if g == "Ketu":
+            continue
+        houses = meta["gocharaResults"][g.lower()]
+        assert [houses[str(h)]["name"] for h in range(1, 13)] == list(lines)
+        v = meta["gocharaVerses"][g.lower()]
+        assert (v["verse"], v["page"]) == (verse, page) and page
+        assert all(re.search("[\u0900-\u097f]", ln) and "(?)" not in ln for ln in v["lines"])
+
+
+def test_gochara_hindi_glosses_every_house(meta):
+    """The lead, 19 Oct 2026: every house has our Hindi gloss, every note has its Hindi, and the
+    verses carry no label, so lang=hi serves them as printed."""
+    import json
+    import pathlib
+    import re
+
+    path = pathlib.Path(__file__).parents[2] / "api/src/meta/hi.labels.json"
+    labels = json.loads(path.read_text(encoding="utf-8"))
+    glosses = labels["gocharaResults"]
+    assert set(glosses) == set(meta["gocharaResults"])
+    assert all(set(houses) == {str(h) for h in range(1, 13)} for houses in glosses.values())
+    assert all(
+        re.search("[\u0900-\u097f]", s) for houses in glosses.values() for s in houses.values()
+    )
+    assert set(labels["gocharaNotes"]) == set(meta["gocharaNotes"])
+    assert "gocharaVerses" not in labels

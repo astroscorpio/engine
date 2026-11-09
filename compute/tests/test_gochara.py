@@ -58,3 +58,8 @@ def test_gochara_range_limit():
         "GET", "/v1/gochara", {"moonSign": "leo", "start": "2026-10-15", "end": "2026-10-22"}
     )
     assert status == 400, out
+
+
+def test_every_result_cites_its_page():
+    """The lead's rule for rendered cites: every verse carries its page (research, 19 Oct 2026)."""
+    assert all(page for _, page, _ in T.RESULTS.values())

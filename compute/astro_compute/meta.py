@@ -20,6 +20,8 @@ from . import avakahada as AV
 from . import matching as M
 from .errors import invalid
 from .fmt import SOURCE_URL, _ephemeris_backend
+from .gochara_results import RESULTS as GOCHARA_RESULTS
+from .gochara_results import VERSES as GOCHARA_VERSES
 from .ids import (
     GRAHA_ID,
     KARANA_ID,
@@ -103,14 +105,14 @@ WINDOW_NOTES = {
 WINDOW_REASONS = {"wednesday": "Not used on Wednesdays"}
 # gochara.md: what the gochara endpoint leaves to notes (the lead's rulings, 15 Oct 2026).
 GOCHARA_NOTES = {
-    "count": "Houses are counted from the Moon sign, which is the 1st (Phaladīpikā 26.1).",
-    "exemptions": "The Sun and Saturn never block each other, nor do the Moon and Mercury (PD 26.3–6; MC 4.4a). The nodes neither have nor cause vedha (blocking by the seven grahas only is our reading).",
-    "nodes": "Rahu and Ketu follow PD 26.2, like the Sun. Muhūrta-cintāmaṇi 4.1 treats them like Saturn instead: good in 3, 6 and 11, with Saturn's vedha (12, 9, 5).",
-    "reverseVedha": "MC 4.4–5 also make a planet in a bad house good when another occupies its paired good house (vama-vedha), counted three ways by Nārada, Kaśyapa and the commentator. Not computed.",
-    "brightMoon": "In the bright fortnight MC 4.4 also counts the Moon good in the 2nd, 5th and 9th unless blocked from the 6th, 8th and 4th (Nārada). Not computed; PD's lines for those houses are bad.",
-    "timing": "Transits are classed by the sign occupied. PD 26.25: Mars and the Sun act in a sign's first third, Jupiter and Venus in the middle, the Moon and Saturn in the last, Mercury and Rahu throughout. MC 4.17's commentary has planets give the coming sign's results early (the Sun 5 days, Saturn 6 months). Neither is computed.",
-    "neutralised": "Nārada (MC p. 144): a planet debilitated, in an enemy's sign or combust gives neither good nor bad transit results. Not computed.",
-    "regional": "Kaśyapa (MC p. 144) holds that vedha applies only between the Himalaya and the Vindhya.",
+    "count": "Houses are counted from the Moon sign, which is the 1st (Phaladīpikā 26.1, p. 286).",
+    "exemptions": "The Sun and Saturn never block each other, nor do the Moon and Mercury (PD 26.3–6, pp. 286–288; MC 4.4, p. 140, with the commentary, pp. 140–141). The nodes neither have nor cause vedha; blocking by the seven grahas only is our reading.",
+    "nodes": "Rahu and Ketu are treated like the Sun (PD 26.2, p. 286). Muhūrta-cintāmaṇi treats them like Saturn instead: they are good in 3, 6 and 11, and their vedha is Saturn's, from 12, 9 and 5 (MC 4.1, p. 140).",
+    "reverseVedha": "Muhūrta-cintāmaṇi also makes a planet in a bad house good when another occupies its paired good house (vāma-vedha), and its commentary records three ways of counting it, by Nārada, Kaśyapa and the commentator (MC 4.4–5, p. 143, with the commentary, pp. 143–144). This is not computed here.",
+    "brightMoon": "In the bright fortnight, Muhūrta-cintāmaṇi also counts the Moon good in the 2nd, 5th and 9th, unless a planet in the 6th, 8th or 4th blocks it; this is Nārada's rule (MC 4.4, p. 143, with the commentary, p. 143). It is not computed, and Phaladīpikā's lines for those houses are bad.",
+    "timing": "Transits are classed by the sign occupied. Phaladīpikā has Mars and the Sun act in a sign's first third, Jupiter and Venus in its middle, the Moon and Saturn in its last, and Mercury and Rahu throughout (PD 26.25, p. 296). The commentary on Muhūrta-cintāmaṇi has planets give the coming sign's results early, the Sun 5 days and Saturn 6 months before they enter it (MC 4.17, p. 157). Neither is computed.",
+    "neutralised": "Nārada, quoted in the commentary on Muhūrta-cintāmaṇi, holds that a planet debilitated, in an enemy's sign or combust gives neither good nor bad transit results (MC 4.5, p. 143, with the commentary, p. 144). This is not computed.",
+    "regional": "Kaśyapa, quoted in the commentary on Muhūrta-cintāmaṇi, holds that vedha applies only between the Himalaya and the Vindhya (MC 4.5, p. 143, with the commentary, p. 144).",
     "wording": "The lines are classical statements from the 1937 translation, quoted with their verses; some speak of death or danger to life. They are not forecasts.",
 }  # fmt: skip
 # vivah.md (the lead's decisions of 15 Oct 2026): rule ids for /muhurat/vivah.
@@ -1896,6 +1898,18 @@ def _english() -> dict:
         "paranaAlt": PARANA_ALT,
         "pitruPakshaNotes": PITRU_PAKSHA_NOTES,
         "gocharaNotes": GOCHARA_NOTES,
+        # By graha and house, so the /hi/ pages read their Hindi from meta (the lead, 19 Oct 2026); Ketu reads
+        # Rahu's lines (MC 4.1-3 commentary, p. 142), as the gochara response does.
+        "gocharaResults": {
+            GRAHA_ID[g]: {str(h): {"name": line} for h, line in enumerate(lines, 1)}
+            for g, (_verse, _page, lines) in GOCHARA_RESULTS.items()
+            if g != "Ketu"
+        },
+        "gocharaVerses": {
+            GRAHA_ID[g]: {"verse": verse, "page": page, "lines": list(GOCHARA_VERSES[g])}
+            for g, (verse, page, _lines) in GOCHARA_RESULTS.items()
+            if g != "Ketu"
+        },
         "vivahRules": {k: {"name": n, "source": src} for k, (n, src) in VIVAH_RULES.items()},
         "vivahNotes": VIVAH_NOTES,
         "vivahLagnaRules": {
