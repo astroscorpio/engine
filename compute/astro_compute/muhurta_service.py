@@ -12,7 +12,7 @@ from .errors import invalid
 from .fmt import provenance
 from .ids import GRAHA_ID, KARANA_ID, MASA_ID, NAKSHATRA_ID, VARA_ID, slug, tithi_id
 from .models import ChartIn, MuhurtaCheck, MuhurtaRequest
-from .timeutil import day_start, iso, parse_instant
+from .timeutil import check_day, day_start, iso, parse_instant
 
 MAX_DAYS = 31
 FINE_DAYS = 7  # minute-by-minute up to a week, 5-minute steps beyond
@@ -228,8 +228,8 @@ def find(req: MuhurtaRequest) -> dict:
         raise invalid("until must not be before from", "until")
     if days > MAX_DAYS:
         raise invalid(f"the search span is limited to {MAX_DAYS} days", "until")
-    start = day_start(req.from_, req.tz)
-    end = day_start(req.until + dt.timedelta(days=1), req.tz)
+    start = day_start(check_day(req.from_, req.tz, "from"), req.tz)
+    end = day_start(check_day(req.until, req.tz, "until") + dt.timedelta(days=1), req.tz)
     natal_moon, natal_lagna, natal_month = _natal(req.chart)
     choices = Mu.find(
         profile,

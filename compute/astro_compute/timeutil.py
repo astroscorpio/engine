@@ -142,11 +142,35 @@ def offset_text(t: dt.datetime) -> str:
 
 
 def parse_instant(text: str, zone: Zone, field: str = "at") -> float:
-    """ISO instant (offset or Z) -> JD; naive values are read in `zone`."""
+    """ISO instant (offset or Z) -> JD; naive values are read in `zone`, where a time the clocks
+    skipped or doubled is refused as local_jd refuses it."""
     try:
         return E.parse(text, zone)
     except ValueError as exc:
+        if "ambiguous" in str(exc):
+            raise ApiError(
+                "ambiguous_time",
+                "this local time occurs twice (clocks went back); "
+                f"give {field} with its UTC offset",
+                422,
+                field,
+            ) from exc
+        if "nonexistent" in str(exc):
+            raise invalid("this local time never occurred (clocks went forward)", field) from exc
         raise invalid(f"{field} must be an ISO 8601 timestamp", field) from exc
+
+
+def date_exists(day: dt.date, zone: Zone) -> bool:
+    """False for a date the zone's clocks skipped whole: Apia's 30 Dec 2011, Kiritimati's
+    31 Dec 1994."""
+    noon = dt.datetime(day.year, day.month, day.day, 12, tzinfo=tzinfo(zone))
+    return noon.astimezone(dt.UTC).astimezone(tzinfo(zone)).date() == day
+
+
+def check_day(day: dt.date, zone: Zone, field: str) -> dt.date:
+    if not date_exists(day, zone):
+        raise invalid(f"{day} never occurred in {zone}: its clocks skipped that date", field)
+    return day
 
 
 @dataclass(frozen=True)

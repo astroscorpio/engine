@@ -48,7 +48,7 @@ from .ids import (
 )
 from .models import MonthQuery, PanchangQuery
 from .observances import _own_sunrise
-from .timeutil import aware, day_start, iso, local_jd, offset_text
+from .timeutil import aware, date_exists, day_start, iso, local_jd, offset_text
 
 WEEKDAY = {"Sun": 0, "Moon": 1, "Mars": 2, "Mercury": 3, "Jupiter": 4, "Venus": 5, "Saturn": 6}
 UTTARAYANA_SIGNS = {9, 10, 11, 0, 1, 2}  # Sun from Makara to the end of Mithuna (sidereal)
@@ -360,6 +360,8 @@ def month(q: MonthQuery) -> dict:
 
     for i in range(days):
         day = first + dt.timedelta(days=i)
+        if not date_exists(day, zone):
+            continue  # skipped by the clocks: no row, and not refused
         noon = local_jd(day, 12.0, zone, "month")
         try:
             own, mean = _own_sunrise(day, zone, q.lat, q.lon, "month")
@@ -375,12 +377,12 @@ def month(q: MonthQuery) -> dict:
         sun, moon = luminaries(sr, ay)
         tithi = Mu.tithi_at(sr, ay)
         nak, yoga = moon.nakshatra, Mu.yoga_at(sr, ay)
-        start = day_start(day, zone)
+        start, end = day_start(day, zone), day_start(day + dt.timedelta(days=1), zone)
         sun_now = sun.sign
-        sun_end = luminaries(start + 1.0, ay)[0].sign
+        sun_end = luminaries(end, ay)[0].sign
         sankranti = None
         if luminaries(start, ay)[0].sign != sun_end:
-            edge = _edge(lambda t: luminaries(t, ay)[0].sign, start, start + 1.0)
+            edge = _edge(lambda t: luminaries(t, ay)[0].sign, start, end)
             sankranti = {"sign": SIGN_IDS[sun_end], "at": at(edge)}
         vara = P.VARA_LORDS[P.vara_index(sr, q.lon, mean)]
         masa = Mu.MASA.index(lunar.name)

@@ -22,7 +22,7 @@ from .fmt import point, provenance, r6
 from .gochara_results import PHALADIPIKA_26, RESULTS
 from .ids import ENGINE_GRAHA, GRAHA_ID, NAKSHATRA_IDS, SIGN_IDS
 from .models import EventsQuery, GocharaQuery, TransitRequest
-from .timeutil import day_start, iso, iso_utc, parse_instant
+from .timeutil import check_day, day_start, iso, iso_utc, parse_instant
 
 # Copies of jyotisha.hypotheses.GOCHARA_GOOD / VEDHA / NO_VEDHA_BETWEEN.
 # Importing hypotheses at runtime drags in the whole backtest stack, so the
@@ -317,8 +317,8 @@ def moon_sign(q: GocharaQuery) -> dict:
     """GET /v1/gochara: the general transit from a Moon sign over local days, cut
     wherever a graha changes sign (gochara.md; PD 26)."""
     moon = SIGN_IDS.index(q.moonSign)
-    t0 = day_start(q.start, q.tz)
-    t1 = day_start(q.end + dt.timedelta(days=1), q.tz)
+    t0 = day_start(check_day(q.start, q.tz, "from"), q.tz)
+    t1 = day_start(check_day(q.end, q.tz, "until") + dt.timedelta(days=1), q.tz)
 
     def signs(t: float) -> tuple[int, ...]:
         p = positions(t, q.ayanamsa, q.node)
