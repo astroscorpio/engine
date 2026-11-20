@@ -22,13 +22,13 @@ from __future__ import annotations
 from jyotisha import muhurta as Mu
 from jyotisha.ephemeris import ascendant, luminaries, positions
 
-from .festivals import festival
+from .festivals import KOCHI, _at, _date, festival
 from .fmt import provenance
 from .griha_pravesh import UTTARAYANA, _public, _windows
 from .ids import MASA_IDS, NAKSHATRA_IDS, SIGN_IDS, tithi_id
 from .models import EkadashiQuery
-from .observances import _vara
-from .timeutil import aware, iso
+from .observances import _sunrises, _vara
+from .timeutil import aware, iso, parse_instant
 from .vivah import (
     DS,
     _day_yogas,
@@ -378,6 +378,27 @@ def _devashayani(y: _Year) -> list[float]:
     ]
 
 
+# Kerala's Vidyarambham (the lead's ruling of 15 Nov 2026, research's
+# kerala-vidyarambham-sources.md): the day, in IST, of the first sunrise at Kochi after the
+# Dashami begins, one date for every city, as Vishu. Kerala's holiday lists kept that day in
+# 2022 to 2026, where our afternoon-rule day matched two of the five; that day stays beside it
+# as nsDate.
+VIDYARAMBHAM_NOTE = (
+    "Kerala practice (Vidyarambham), not a muhurta: the day of the first sunrise at Kochi "
+    "after the Dashami begins, one date for every city (our reading of the kept days and of "
+    "the Travancore, Malabar and South Indian Festivities texts); MC 5.37 and Dharmasindhu "
+    "p. 138 ask for the Sun's northern course"
+)
+
+
+def _vidyarambham(q: EkadashiQuery, vijaya: dict) -> dict:
+    """The block from our Vijayadashami at the place. The Dashami begins at one instant
+    everywhere, so the date is the same for every city."""
+    k = _at(KOCHI, q)
+    _, rise = _sunrises(parse_instant(vijaya["tithi"]["start"], k.tz), k.lat, k.lon, 2)
+    return {"date": _date(rise, k), "nsDate": vijaya["date"], "note": VIDYARAMBHAM_NOTE}
+
+
 def akshararambh(q: EkadashiQuery, explain: dict | None = None) -> dict:
     """explain, if given, is filled with date -> the rule that rejected it."""
     y = _Year(q)
@@ -482,13 +503,7 @@ def akshararambh(q: EkadashiQuery, explain: dict | None = None) -> dict:
         "year": q.year,
         "days": out_days,
         "excluded": excluded,
-        "vijayadashami": {
-            "date": vijaya[0]["date"],
-            "note": "Kerala practice (Vidyarambham), not a muhurta: MC 5.37 and Dharmasindhu "
-            "p. 138 ask for the Sun's northern course",
-        }
-        if vijaya
-        else None,
+        "vijayadashami": _vidyarambham(q, vijaya[0]) if vijaya else None,
         "blocks": _in_year(blocks, q),
         "source": AKSHARA_SOURCE,
         "alsoSource": {**DS, "page": "4, 138"},

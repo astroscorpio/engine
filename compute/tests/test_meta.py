@@ -290,4 +290,9 @@ def test_gochara_hindi_glosses_every_house(meta):
         re.search("[\u0900-\u097f]", s) for houses in glosses.values() for s in houses.values()
     )
     assert set(labels["gocharaNotes"]) == set(meta["gocharaNotes"])
+    # Part B sw-194 (10 Nov 2026): in both languages the words before the cite begin the
+    # wording note.
+    for notes in (meta["gocharaNotes"], labels["gocharaNotes"]):
+        lead = notes["wordingLead"]
+        assert notes["wording"].startswith(lead) and lead != notes["wording"]
     assert "gocharaVerses" not in labels

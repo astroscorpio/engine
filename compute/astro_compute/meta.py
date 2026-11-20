@@ -114,6 +114,8 @@ GOCHARA_NOTES = {
     "neutralised": "Nārada, quoted in the commentary on Muhūrta-cintāmaṇi, holds that a planet debilitated, in an enemy's sign or combust gives neither good nor bad transit results (MC 4.5, p. 143, with the commentary, p. 144). This is not computed.",
     "regional": "Kaśyapa, quoted in the commentary on Muhūrta-cintāmaṇi, holds that vedha applies only between the Himalaya and the Vindhya (MC 4.5, p. 143, with the commentary, p. 144).",
     "wording": "The lines are classical statements from the 1937 translation, quoted with their verses; some speak of death or danger to life. They are not forecasts.",
+    # The words of the wording note before its cite, so a page can print the cite inside the note (part B sw-194).
+    "wordingLead": "The lines are classical statements from the 1937 translation",
 }  # fmt: skip
 # vivah.md (the lead's decisions of 15 Oct 2026): rule ids for /muhurat/vivah.
 VIVAH_RULES = {

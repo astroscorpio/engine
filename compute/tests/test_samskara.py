@@ -1,8 +1,12 @@
 from conftest import DELHI, call
 
 from astro_compute import samskara as S
+from astro_compute.festivals import KOCHI, festival
 from astro_compute.ids import NAKSHATRA_IDS
 from astro_compute.meta import AKSHARARAMBH_RULES, ANNAPRASHAN_RULES
+from astro_compute.models import EkadashiQuery
+from astro_compute.observances import _sunrises
+from astro_compute.timeutil import parse_instant
 
 DAY_YOGAS = {"utpata", "marana", "kana", "dagdha", "visha"}
 
@@ -48,7 +52,53 @@ def test_akshararambh_keeps_what_both_texts_allow():
         assert [x["rule"] for x in e["details"]] == e["rules"]
         assert not {"ds_only", "mc_only"} <= set(e["rules"])  # never allowed by neither text
     assert {b["rule"] for b in out["blocks"]} <= set(AKSHARARAMBH_RULES)
-    assert out["vijayadashami"]["date"][:4] == "2027" and "Kerala" in out["vijayadashami"]["note"]
+    vidya = {"date": "2027-10-10", "nsDate": "2027-10-09", "note": S.VIDYARAMBHAM_NOTE}
+    assert out["vijayadashami"] == vidya
+
+
+# kerala-vidyarambham-sources.md section 3: Kochi's Vidyarambham day (Kerala's holiday lists for
+# 2022 to 2026), and our afternoon-rule day there (nsDate).
+KERALA_DAYS = {
+    2022: ("2022-10-05", "2022-10-04"),
+    2023: ("2023-10-24", "2023-10-24"),
+    2024: ("2024-10-13", "2024-10-12"),
+    2025: ("2025-10-02", "2025-10-02"),
+    2026: ("2026-10-21", "2026-10-20"),
+    2027: ("2027-10-10", "2027-10-09"),
+    2028: ("2028-09-28", "2028-09-27"),
+    2029: ("2029-10-16", "2029-10-16"),
+}
+
+
+def _vidyarambham(y, lat=KOCHI["lat"], lon=KOCHI["lon"], tz=KOCHI["tz"]):
+    q = EkadashiQuery(year=y, lat=lat, lon=lon, tz=tz)
+    vijaya = festival("vijayadashami", q)["occurrences"][0]
+    return S._vidyarambham(q, vijaya), vijaya
+
+
+def test_vidyarambham_is_the_first_sunrise_at_kochi_after_the_dashami_begins():
+    for y, days in KERALA_DAYS.items():
+        block, _ = _vidyarambham(y)
+        assert (block["date"], block["nsDate"]) == days, y
+
+
+def test_vidyarambham_has_one_date_for_every_city():
+    # 2027 and 2028: our afternoon rule gives London the earlier day and Sydney the later.
+    for y, sydney_ns in ((2027, "2027-10-10"), (2028, "2028-09-28")):
+        london, _ = _vidyarambham(y, 51.5074, -0.1278, "Europe/London")
+        sydney, _ = _vidyarambham(y, -33.8688, 151.2093, "Australia/Sydney")
+        assert london["date"] == sydney["date"] == KERALA_DAYS[y][0]
+        assert (london["nsDate"], sydney["nsDate"]) == (KERALA_DAYS[y][1], sydney_ns)
+
+
+def test_vidyarambham_when_the_dashami_holds_no_sunrise():
+    # 2058 at Kochi: the Dashami runs from 07:26 IST on 26 Oct to 05:02 on 27 Oct, between two
+    # sunrises, so Kerala's day is the day after the Mahanavami.
+    block, vijaya = _vidyarambham(2058)
+    start, end = (parse_instant(vijaya["tithi"][k], KOCHI["tz"]) for k in ("start", "end"))
+    (rise,) = _sunrises(end, KOCHI["lat"], KOCHI["lon"], 1)
+    assert rise < start  # the last sunrise before the Dashami ends came before it began
+    assert (block["date"], block["nsDate"]) == ("2058-10-27", "2058-10-26")
 
 
 def test_an_empty_annaprashan_year_names_its_nearest_days():
