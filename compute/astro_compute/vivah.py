@@ -55,7 +55,43 @@ GRADE = {
     "Ashadha": "middling", "Kartika": "middling", "Margashirsha": "middling",
 }  # fmt: skip
 BARRED_SUN = {4, 8, 11}  # Leo, Sagittarius, Pisces
-BARRED_JUPITER = {4, 9}  # Leo, Capricorn
+LEO, CAPRICORN, ARIES = 4, 9, 0
+# Jupiter in Leo (the lead's ruling of 15 Nov 2026 on research's simhastha-guru-check.md, in
+# place of vivah.md's decision 2): the five padas from Magha, Leo's first 16 2/3 degrees, are
+# barred everywhere (MC 1.50); the rest of Leo only between the Ganga and the Godavari, and not
+# there with the Sun in Aries (MC 1.49-51); the whole stay in Kalinga, Gauda and Gurjara (MC
+# 1.51). Lands are the web's 16 cities', at GeoNames' points; a place within 25 km is that
+# city's. A place near none keeps MC 1.48's whole stay (jupiter_sign), as Capricorn does, until
+# its land is mapped. The words are research's vivah-leo-rule.md v2 (vl-010 to vl-013).
+LEO_PADAS = 50 / 3
+CITY_LANDS = (
+    ("delhi", 28.65195, 77.23149, "between_rivers"),
+    ("jaipur", 26.91962, 75.78781, "between_rivers"),
+    ("kolkata", 22.56263, 88.36304, "gauda"),
+    ("ahmedabad", 23.02579, 72.58727, "gurjara"),
+    ("lucknow", 26.83928, 80.92313, "outside"),
+    ("mumbai", 19.07283, 72.88261, "outside"),
+    ("pune", 18.51957, 73.85535, "outside"),
+    ("hyderabad", 17.38405, 78.45636, "outside"),
+    ("bengaluru", 12.97194, 77.59369, "outside"),
+    ("chennai", 13.08784, 80.27847, "outside"),
+    ("london", 51.50853, -0.12574, "outside"),
+    ("new-york-city", 40.71427, -74.00597, "outside"),
+    ("toronto", 43.70643, -79.39864, "outside"),
+    ("sydney", -33.86785, 151.20732, "outside"),
+    ("dubai", 25.07725, 55.30927, "outside"),
+    ("singapore", 1.28967, 103.85007, "outside"),
+)
+LAND_NAMES = {"gauda": "Gauḍa", "gurjara": "Gurjara", "kalinga": "Kaliṅga"}
+LEO_REASONS = {
+    "jupiter_magha": "Jupiter is in the first 16°40′ of Leo, Maghā and the Leo navāṃśa; "
+    "Muhūrta-cintāmaṇi 1.50 bars marriage there in every city",
+    "jupiter_leo_rivers": "Jupiter is in Leo, and this city lies between the Gaṅgā and the "
+    "Godāvarī (our reading), where Muhūrta-cintāmaṇi 1.49–51 bars marriage while the Sun is "
+    "not in Aries",
+    "jupiter_leo_land": "Jupiter is in Leo, and this city lies in {land} (our reading), where "
+    "Muhūrta-cintāmaṇi 1.51 bars marriage for the whole stay",
+}
 # MC 6.53: Mrgashira, Hasta, Mula, Anuradha, Magha, Rohini, Revati, U.Phalguni,
 # U.Ashadha, U.Bhadrapada, Svati (0-based indexes).
 NAKSHATRAS_OK = {4, 12, 18, 16, 9, 3, 26, 11, 20, 25, 14}
@@ -393,8 +429,9 @@ def vivah(q: EkadashiQuery, explain: dict | None = None) -> dict:
     out_days, excluded = [], []
     # Each day is judged on its own from the year's spans, so the days run across worker
     # processes (parallel.run) and come back in their order: the same records as one by one.
+    land, leo = _land(q), _leo_parts(y)
     calls = [
-        partial(_vivah_day, i, sr, ss, nr, y, eclipse_bars, q, explain is not None)
+        partial(_vivah_day, i, sr, ss, nr, y, eclipse_bars, q, explain is not None, land, leo)
         for i, (sr, ss, nr) in enumerate(y.days)
         if aware(sr, zone).date().year == q.year
     ]
@@ -409,7 +446,7 @@ def vivah(q: EkadashiQuery, explain: dict | None = None) -> dict:
         "year": q.year,
         "days": out_days,
         "excluded": excluded,
-        "blocks": _blocks(y.days, y.states, eclipse_bars, y.sun_sign, y.jupiter, q)
+        "blocks": _blocks(y.days, y.states, eclipse_bars, y.sun_sign, y.jupiter, q, land, leo)
         + _season_blocks(y, q),
         "source": SOURCE,
         "alsoSource": DS,
@@ -418,7 +455,16 @@ def vivah(q: EkadashiQuery, explain: dict | None = None) -> dict:
 
 
 def _vivah_day(
-    i: int, sr: float, ss: float, nr: float, y: _Year, eclipse_bars: list, q, want: bool
+    i: int,
+    sr: float,
+    ss: float,
+    nr: float,
+    y: _Year,
+    eclipse_bars: list,
+    q,
+    want: bool,
+    land: str | None,
+    leo: list,
 ):
     """One day of vivah(): (its date, the listed day or None, the excluded entry or None, its
     explain line when wanted). The days are independent, so vivah() runs them across workers."""
@@ -463,6 +509,8 @@ def _vivah_day(
     reasons: list[str] = []
     pieces = []
     cuts = y.cuts(sr, nr)
+    if land:  # where Jupiter passes Leo's five padas
+        cuts = sorted(set(cuts) | {x for a, b, _ in leo for x in (a, b) if sr < x < nr})
     for a, b in zip(cuts, cuts[1:], strict=False):
         mid = (a + b) / 2
         num, (name, adhika, kshaya, _) = y.tithi(mid)
@@ -488,12 +536,9 @@ def _vivah_day(
             reasons.append("sun_sign")
             continue
         p = positions(mid, ay)
-        if p["Jupiter"].sign in BARRED_JUPITER:
-            relax["jupiter_sign"] = (
-                f"Jupiter is in {Mu.SIGNS[p['Jupiter'].sign]}; Muhūrta-cintāmaṇi 1.48 "
-                "bars marriage for its whole stay",
-                {"sign": SIGN_IDS[p["Jupiter"].sign]},
-            )
+        bar = _jupiter_bar(p["Jupiter"], sun.sign, land)
+        if bar:
+            relax[bar[0]] = bar[1:]
         nak = moon.nakshatra
         if nak not in NAKSHATRAS_OK:
             reasons.append("nakshatra")
@@ -723,7 +768,58 @@ def _godhuli(ss: float, vara: str, q) -> dict | None:
     return {"start": iso(a, q.tz), "end": iso(b, q.tz)}
 
 
-def _blocks(days, set_state, eclipse_bars, sun_sign, jupiter, q) -> list[dict]:
+def _land(q) -> str | None:
+    """The land of the web's city within 25 km of the place (CITY_LANDS), or None."""
+    for _, lat, lon, land in CITY_LANDS:
+        p1, p2 = math.radians(q.lat), math.radians(lat)
+        h = (
+            math.sin((p2 - p1) / 2) ** 2
+            + math.cos(p1) * math.cos(p2) * math.sin(math.radians(lon - q.lon) / 2) ** 2
+        )
+        if 2 * 6371 * math.asin(math.sqrt(h)) <= 25:
+            return land
+    return None
+
+
+def _leo_parts(y: _Year) -> list[tuple[float, float, bool]]:
+    """Jupiter's stays in Leo, cut where it leaves the five padas: (start, end, in them)."""
+    return [
+        part
+        for a, b, sign in y.jupiter
+        if sign == LEO
+        for part in _spans(lambda t: positions(t, y.ay)["Jupiter"].degree < LEO_PADAS, a, b, 2.0)
+    ]
+
+
+def _jupiter_bar(jupiter, sun_sign: int, land: str | None) -> tuple[str, str, dict] | None:
+    """The rule, reason and details by which Jupiter's sign bars marriage at a moment, or None."""
+    sign = jupiter.sign
+    if sign == CAPRICORN or (sign == LEO and land is None):
+        return (
+            "jupiter_sign",
+            f"Jupiter is in {Mu.SIGNS[sign]}; Muhūrta-cintāmaṇi 1.48 "
+            "bars marriage for its whole stay",
+            {"sign": SIGN_IDS[sign]},
+        )
+    if sign != LEO:
+        return None
+    if jupiter.degree < LEO_PADAS:
+        # Floored, so a moment inside the five padas never shows 16.7.
+        degree = math.floor(jupiter.degree * 10) / 10
+        return "jupiter_magha", LEO_REASONS["jupiter_magha"], {"sign": "leo", "degree": degree}
+    if land in LAND_NAMES:
+        text = LEO_REASONS["jupiter_leo_land"].format(land=LAND_NAMES[land])
+        return "jupiter_leo_land", text, {"sign": "leo", "land": land}
+    if land == "between_rivers" and sun_sign != ARIES:
+        return (
+            "jupiter_leo_rivers",
+            LEO_REASONS["jupiter_leo_rivers"],
+            {"sign": "leo", "land": land},
+        )
+    return None
+
+
+def _blocks(days, set_state, eclipse_bars, sun_sign, jupiter, q, land, leo) -> list[dict]:
     """The year's day-level bars, merged into runs, for display."""
     zone = q.tz
     out = []
@@ -765,7 +861,7 @@ def _blocks(days, set_state, eclipse_bars, sun_sign, jupiter, q) -> list[dict]:
                 }
             )
     for a, b, sign in jupiter:
-        if sign in BARRED_JUPITER:
+        if sign == CAPRICORN or (sign == LEO and land is None):
             rows.append(
                 {
                     "rule": "jupiter_sign",
@@ -774,6 +870,20 @@ def _blocks(days, set_state, eclipse_bars, sun_sign, jupiter, q) -> list[dict]:
                     "detail": SIGN_IDS[sign],
                 }
             )
+    aries = [(a, b) for a, b, sign in sun_sign if sign == ARIES]
+    for a, b, padas in leo if land else []:
+        if padas:
+            rule, spans = "jupiter_magha", [(a, b)]
+        elif land in LAND_NAMES:
+            rule, spans = "jupiter_leo_land", [(a, b)]
+        elif land == "between_rivers":
+            rule, spans = "jupiter_leo_rivers", _subtract([(a, b)], aries)
+        else:
+            continue
+        rows += [
+            {"rule": rule, "start": iso(x0, zone), "end": iso(x1, zone), "detail": "leo"}
+            for x0, x1 in spans
+        ]
     y0, y1 = f"{q.year}-01-01", f"{q.year + 1}-01-01"
     rows = [r for r in rows if r["end"] >= y0 and r["start"] < y1]
     return sorted(rows, key=lambda r: r["start"])

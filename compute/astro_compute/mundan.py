@@ -3,7 +3,7 @@ a place (docs/sources/mundan.md, as the lead approved it on 15 Oct 2026).
 
 A day is listed when, at some moment of it, the Sun is in its northern course and
 the amanta month is not Caitra (MC 5.29), adhika or kshaya (1.47); Jupiter and Venus
-are clear (5.26-27) and Jupiter is not in Leo or Capricorn (1.48; DS p. 5); the Moon
+are clear (5.26-27) and Jupiter is not in Leo or Capricorn (1.48); the Moon
 is in one of the twelve stars of MC 5.29 (Vasishtha; DS p. 137); the tithi is 2, 3,
 5, 7, 10, 11 or 13; and the day is a Wednesday, Thursday or Friday, or a Monday in
 the bright fortnight (Parashara). Its windows add a benefic's lagna and navamsa

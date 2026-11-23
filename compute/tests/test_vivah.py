@@ -17,6 +17,7 @@ from jyotisha.rare import (
 )
 
 from astro_compute.meta import VIVAH_RULES
+from astro_compute.vivah import CITY_LANDS
 
 DELHI = {"lat": "28.6139", "lon": "77.2090", "tz": "Asia/Kolkata"}
 ALLOWED = {
@@ -104,7 +105,7 @@ def test_venus_infancy_follows_the_side_it_rises_on():
 def test_no_listed_day_inside_a_block():
     out = year("2027")
     for b in out["blocks"]:
-        if b["rule"] in ("jupiter_set", "venus_set", "jupiter_sign", "eclipse"):
+        if b["rule"] in ("jupiter_set", "venus_set", "eclipse") or b["rule"].startswith("jupiter_"):
             inside = [d["date"] for d in out["days"] if b["start"][:10] < d["date"] < b["end"][:10]]
             assert not inside, (b, inside)
 
@@ -114,6 +115,7 @@ def test_excluded_days_carry_their_relaxed_rules():
     relaxable = {
         "vedha_slow", "jupiter_sign", "tuesday", "rikta", "solar_month", "infancy_old",
         "venus_set", "eclipse", "utpata", "marana", "kana", "dagdha", "visha", "no_lagna",
+        "jupiter_magha", "jupiter_leo_rivers", "jupiter_leo_land",
     }  # fmt: skip
     listed = {d["date"] for d in out["days"]}
     assert out["excluded"]
@@ -122,9 +124,10 @@ def test_excluded_days_carry_their_relaxed_rules():
         assert set(d["rules"]) <= relaxable and len(d["reasons"]) == len(d["rules"])
         assert all(not k.startswith("_") for w in d["windows"] for k in w)
     assert set(VIVAH_RULES) >= relaxable
-    # Jupiter enters Leo on 31 Oct 2026: November's candidates are excluded, with the reason.
+    # Jupiter enters Leo on 31 Oct 2026, in Magha: November's candidates are excluded, with the
+    # reason.
     late = [d for d in out["excluded"] if d["date"] >= "2026-11-21"]
-    assert late and all("jupiter_sign" in d["rules"] for d in late)
+    assert late and all("jupiter_magha" in d["rules"] for d in late)
 
 
 def test_blocks_carry_the_season_and_excluded_days_their_facts():
@@ -137,7 +140,9 @@ def test_blocks_carry_the_season_and_excluded_days_their_facts():
     assert "shravana" in off and off <= {"pausha", "chaitra", "shravana", "bhadrapada", "ashwin"}
     assert {b["detail"] for b in out["blocks"] if b["rule"] == "adhika_month"} == {"jyeshtha"}
     assert all(
-        b["detail"] in SIGN_IDS for b in out["blocks"] if b["rule"] in ("jupiter_sign", "sun_sign")
+        b["detail"] in SIGN_IDS
+        for b in out["blocks"]
+        if b["rule"] in ("jupiter_sign", "sun_sign") or b["rule"].startswith("jupiter_leo")
     )
     # Month runs follow the month's own new moons: consecutive ones meet.
     runs = sorted(
@@ -198,7 +203,10 @@ def test_listed_lagnas_pass_the_bars():
                 house = {g: (x.sign - lagna) % 12 + 1 for g, x in p.items()}
                 assert not any(h == 7 for h in house.values())  # jamitra from the lagna
                 assert not any(house[g] == 1 for g in malefic)
-                assert house["Mars"] not in (8, 10) and house["Saturn"] != 12
+                assert house["Mars"] != 10 and house["Saturn"] != 12
+                # vivah.md V8 (the lead's phase 2 decisions, 16 Oct 2026): MC 6.86 applies, and
+                # excuses Mars in the 8th when combust, in an enemy's sign or debilitated.
+                assert house["Mars"] != 8 or {"rule": "h8", "by": "mc_6_86"} in lg["lifted"]
                 assert house["Venus"] not in (3, 8)
                 nav = int(asc // (30 / 9)) % 12
                 assert nav in (2, 5, 6, 8) or set(lg["faults"]) & {
@@ -235,3 +243,67 @@ def test_a_day_with_no_lagna_and_no_godhuli_is_excluded():
         (detail,) = e["details"]
         assert detail["rule"] == "no_lagna" and detail["barred"] and e["windows"]
         assert all("lagnas" not in w for w in e["windows"])
+
+
+# Jupiter in Leo by land (the lead's ruling of 15 Nov 2026; research's simhastha-guru-check.md
+# section 3, whose runs use the same GeoNames points).
+CITY = {slug: {"lat": str(lat), "lon": str(lon)} for slug, lat, lon, _ in CITY_LANDS}
+TZ = {"london": "Europe/London", "delhi": "Asia/Kolkata", "kolkata": "Asia/Kolkata"}
+LEO_2027 = ("2027-06-26", "2027-11-26")  # Jupiter's stays in Leo, by their first and last days
+LEO_2028 = ("2028-02-28", "2028-07-24")
+
+
+def city_year(slug, y):
+    status, out = call("GET", "/v1/muhurat/vivah", {"year": y, **CITY[slug], "tz": TZ[slug]})
+    assert status == 200, out
+    return out
+
+
+def inside(out, stay):
+    return [d["date"][5:] for d in out["days"] if stay[0] < d["date"] < stay[1]]
+
+
+def details(out):
+    return [d for e in out["excluded"] for d in e["details"]]
+
+
+def leo_blocks(out):
+    rows = [b for b in out["blocks"] if b["rule"].startswith("jupiter_") and b["detail"] == "leo"]
+    return [(b["rule"], b["start"][:10], b["end"][:10]) for b in rows]
+
+
+def test_jupiter_in_leo_2026_stays_in_magha_everywhere():
+    out = city_year("london", "2026")
+    assert not [d for d in out["days"] if d["date"] >= "2026-10-31"]
+    assert leo_blocks(out) == [("jupiter_magha", "2026-10-31", "2027-01-24")]
+
+
+def test_jupiter_in_leo_past_the_five_padas_frees_marriage_outside_the_rivers():
+    out = city_year("london", "2027")
+    assert inside(out, LEO_2027) == ["11-10", "11-15", "11-25"]
+    assert leo_blocks(out)[-1] == ("jupiter_magha", "2027-06-26", "2027-09-15")
+    magha = [d for d in details(out) if d["rule"] == "jupiter_magha"]
+    assert magha and all(d["sign"] == "leo" and d["degree"] < 50 / 3 for d in magha)
+    out = city_year("london", "2028")
+    assert inside(out, LEO_2028) == [
+        "03-10", "03-12", "04-27", "05-03", "05-05", "05-13", "05-14", "05-19", "05-20",
+        "06-15", "06-26", "06-28", "06-29", "06-30", "07-01",
+    ]  # fmt: skip
+    assert leo_blocks(out) == []
+
+
+def test_jupiter_in_leo_between_the_rivers_frees_only_the_sun_in_aries():
+    out = city_year("delhi", "2028")
+    assert inside(out, LEO_2028) == ["04-27", "05-03", "05-05", "05-14"]
+    assert leo_blocks(out) == [
+        ("jupiter_leo_rivers", "2028-02-28", "2028-04-13"),
+        ("jupiter_leo_rivers", "2028-05-14", "2028-07-24"),
+    ]
+    assert {"rule": "jupiter_leo_rivers", "sign": "leo", "land": "between_rivers"} in details(out)
+
+
+def test_jupiter_in_leo_in_gauda_bars_the_whole_stay():
+    out = city_year("kolkata", "2028")
+    assert inside(out, LEO_2028) == []
+    assert leo_blocks(out) == [("jupiter_leo_land", "2028-02-28", "2028-07-24")]
+    assert {"rule": "jupiter_leo_land", "sign": "leo", "land": "gauda"} in details(out)
