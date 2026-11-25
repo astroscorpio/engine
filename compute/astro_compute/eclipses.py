@@ -221,12 +221,22 @@ def eclipses(q: EkadashiQuery) -> dict:
         ) from exc
 
 
+# NASA's tables (Espenak and Meeus's canon) take the Moon's radius as 0.2725076 Earth radii for the
+# penumbra and 0.272281 for the umbra; Swiss Ephemeris takes one, 3476.3 km across on an Earth of
+# 6378.14 km (swecl.c). UMBRA scales its Moon to the umbral radius.
+UMBRA = 0.272281 / (3476.3 / 2 / 6378.14)
+
+
 def _magnitude(body: str, kind: str, g: tuple) -> float:
-    """The eclipse's magnitude at greatest eclipse, as eclipse tables print it, seen here or not:
-    solar, NASA's (the Sun's diameter covered when partial, the Moon's diameter over the Sun's when
-    annular or total); lunar, the umbral magnitude, or the penumbral for a penumbral eclipse."""
+    """The eclipse's magnitude at greatest eclipse, as NASA's tables print it, seen here or not.
+    Solar: the Moon's diameter over the Sun's, with the umbral radius, when annular, total or
+    hybrid; when partial, the Sun's diameter covered, (L1 - D) / (L1 + L2) with L2 from the
+    umbral radius. Lunar: the umbral magnitude, or the penumbral for a penumbral eclipse."""
     if body == "solar":
-        return round(swe.sol_eclipse_where(g[0], FL)[2][8], 3)
+        attr = swe.sol_eclipse_where(g[0], FL)[2]
+        if kind == "partial":
+            return round(attr[0] / (1 + attr[1] * (1 - UMBRA) / 2), 3)
+        return round(attr[1] * UMBRA, 3)
     _, attr = swe.lun_eclipse_how(g[0], (0.0, 0.0, 0), FL)
     return round(attr[1] if kind == "penumbral" else attr[0], 3)
 

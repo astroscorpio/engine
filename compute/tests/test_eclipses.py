@@ -94,12 +94,22 @@ def test_seen_part_shows_a_change_of_sign_or_star():
 
 
 def test_each_eclipse_carries_its_magnitude_at_greatest():
-    status, out = call("GET", "/v1/eclipses", {**DELHI, "year": "2027"})
-    assert status == 200, out
-    got = {e["id"]: (e["type"], e["magnitude"]) for e in out["eclipses"]}
-    assert got["2027-08-02-solar"] == ("total", 1.08)
-    assert got["2027-02-06-solar"] == ("annular", 0.929)
-    for e in out["eclipses"]:
-        if e["body"] == "lunar":
-            umbral, penumbral = e["local"]["magnitude"], e["local"]["penumbralMagnitude"]
-            assert e["magnitude"] == (penumbral if e["type"] == "penumbral" else umbral)
+    # NASA's decade table, eclipse.gsfc.nasa.gov/SEdecade/SEdecade2021.html, to three decimals
+    nasa = {
+        "2026-02-17-solar": 0.963,
+        "2026-08-12-solar": 1.039,
+        "2027-02-06-solar": 0.928,
+        "2027-08-02-solar": 1.079,
+        "2028-01-26-solar": 0.921,
+        "2028-07-22-solar": 1.056,
+    }
+    got = {}
+    for year in ("2026", "2027", "2028"):
+        status, out = call("GET", "/v1/eclipses", {**DELHI, "year": year})
+        assert status == 200, out
+        got |= {e["id"]: e["magnitude"] for e in out["eclipses"] if e["id"] in nasa}
+        for e in out["eclipses"]:
+            if e["body"] == "lunar":
+                umbral, penumbral = e["local"]["magnitude"], e["local"]["penumbralMagnitude"]
+                assert e["magnitude"] == (penumbral if e["type"] == "penumbral" else umbral)
+    assert got == nasa
