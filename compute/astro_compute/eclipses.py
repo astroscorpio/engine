@@ -221,6 +221,16 @@ def eclipses(q: EkadashiQuery) -> dict:
         ) from exc
 
 
+def _magnitude(body: str, kind: str, g: tuple) -> float:
+    """The eclipse's magnitude at greatest eclipse, as eclipse tables print it, seen here or not:
+    solar, NASA's (the Sun's diameter covered when partial, the Moon's diameter over the Sun's when
+    annular or total); lunar, the umbral magnitude, or the penumbral for a penumbral eclipse."""
+    if body == "solar":
+        return round(swe.sol_eclipse_where(g[0], FL)[2][8], 3)
+    _, attr = swe.lun_eclipse_how(g[0], (0.0, 0.0, 0), FL)
+    return round(attr[1] if kind == "penumbral" else attr[0], 3)
+
+
 def _year_eclipses(q: EkadashiQuery) -> dict:
     rows = []
     for body, flag, g in _global(q):
@@ -231,6 +241,7 @@ def _year_eclipses(q: EkadashiQuery) -> dict:
             "body": body,
             "type": kind,
             "greatest": iso(g[0], q.tz),
+            "magnitude": _magnitude(body, kind, g),
         }
         if body == "lunar":
             row["contacts"] = {k: _when(g[i], q) for k, i in

@@ -91,3 +91,15 @@ def test_seen_part_shows_a_change_of_sign_or_star():
     s = y27["2027-08-02-solar"]["local"]["atSeen"]
     assert s["start"] == s["end"] == {"sign": "cancer", "nakshatra": "pushya"}
     assert all(e["local"]["atSeen"] is None for e in y27.values() if not e["reckoned"])
+
+
+def test_each_eclipse_carries_its_magnitude_at_greatest():
+    status, out = call("GET", "/v1/eclipses", {**DELHI, "year": "2027"})
+    assert status == 200, out
+    got = {e["id"]: (e["type"], e["magnitude"]) for e in out["eclipses"]}
+    assert got["2027-08-02-solar"] == ("total", 1.08)
+    assert got["2027-02-06-solar"] == ("annular", 0.929)
+    for e in out["eclipses"]:
+        if e["body"] == "lunar":
+            umbral, penumbral = e["local"]["magnitude"], e["local"]["penumbralMagnitude"]
+            assert e["magnitude"] == (penumbral if e["type"] == "penumbral" else umbral)

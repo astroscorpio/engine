@@ -530,6 +530,9 @@ def _full_or_new(start: float, end: float, _next_end: float, q: EkadashiQuery) -
         },
     }
     if num == 15:
+        # That evening's moonrise, the visible rise as _sankashti gives it (our convention)
+        rise, _ = moon_rise_set(s[vrata], s[vrata + 1], q.lat, q.lon, upper_limb=True)
+        row["vrata"]["moonrise"] = iso(rise, zone) if rise is not None else None
         # A popular name only: the texts give the Buddha avatara other days (festivals.md
         # s26.2; decision 26, 15 Oct 2026).
         row["names"] = ["buddha"] if lunar["amanta"] == "vaishakha" and not lunar["adhika"] else []
@@ -752,6 +755,7 @@ def _sankashti(start: float, end: float, _next_end: float, q: EkadashiQuery) -> 
             {
                 "date": day[i],
                 "vara": _vara(s[i], q),
+                "sunrise": iso(s[i], zone),
                 "moonrise": iso(rise, zone) if rise is not None else None,
                 "current": current[-1],
             }

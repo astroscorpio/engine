@@ -101,6 +101,17 @@ def test_sankashti_on_the_chaturthi_current_at_moonrise():
             assert chosen["current"] and sum(d["current"] for d in r["days"]) == 1
 
 
+def test_sankashti_days_carry_the_dates_sunrise_as_the_panchang_gives_it():
+    london = {"lat": "51.50853", "lon": "-0.12574", "tz": "Europe/London"}
+    status, out = call("GET", "/v1/observances/sankashti", {**london, "year": "2027"})
+    assert status == 200, out
+    for r in out["occurrences"]:
+        for d in r["days"]:
+            st, day = call("GET", "/v1/panchang", {**london, "date": d["date"]})
+            assert st == 200, day
+            assert d["sunrise"] == day["sunrise"] and d["sunrise"].startswith(d["date"])
+
+
 def test_named_amavasyas():
     status, out = call("GET", "/v1/observances/amavasya", DELHI)
     by_date = {r["vrata"]["date"]: r for r in out["occurrences"]}
@@ -165,3 +176,17 @@ def test_buddha_purnima_is_a_popular_name_on_the_vaishakha_purnima():
     assert named == [("vaishakha", ["buddha"])]
     assert all("names" in r for r in out["occurrences"])
     assert PURNIMA_NAMES["buddha"][2] == "Dharmasindhu p. 32; Nirṇaya-sindhu pp. 116–117"
+
+
+def test_purnima_vrata_carries_that_evenings_moonrise():
+    status, out = call("GET", "/v1/observances/purnima", DELHI)
+    assert status == 200, out
+    for r in out["occurrences"]:
+        v = r["vrata"]
+        sunrise = next(d["sunrise"] for d in r["days"] if d["date"] == v["date"])
+        assert v["moonrise"] is not None and sunrise < v["moonrise"]
+        if "kojagara" in r and r["kojagara"]["date"] == v["date"]:
+            assert v["moonrise"] == r["kojagara"]["moonrise"]
+    status, out = call("GET", "/v1/observances/amavasya", DELHI)
+    assert status == 200, out
+    assert all("moonrise" not in r["vrata"] for r in out["occurrences"])
